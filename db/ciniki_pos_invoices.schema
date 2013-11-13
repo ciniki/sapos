@@ -1,0 +1,55 @@
+#
+# Description
+# -----------
+# The ciniki_pos_invoices stores the invoice data for a business.  Each entry is an invoice
+# with the line items being stored in ciniki_pos_invoice_items table.
+#
+# The billing and shipping addresses are stored in this table incase they are changed, we know where
+# each invoice was billed and shipped.
+#
+# Fields
+# ------
+# id:				The invoice ID.
+# uuid:				The Universal Unique ID for the invoice.
+# business_id:		The business the invoice is for.
+#
+# status:			The current status for the invoice.
+#
+#					0 - unknown
+#					10 - Pending
+#					50 - Paid
+#					60 - Cancelled/Voided
+#
+# date_added:		The UTC date and time the invoice was added.
+# last_updated:		The UTC date and time the invoice was last updated.
+#
+create table ciniki_pos_invoices (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	customer_id int not null,
+	status tinyint unsigned not null,
+	invoice_date date not null,
+	due_date date not null,
+	billing_name varchar(250) not null,
+	billing_address1 varchar(250) not null,
+	billing_address2 varchar(250) not null,
+	billing_city varchar(100) not null,
+	billing_province varchar(100) not null,
+	billing_postal varchar(10) not null,
+	billing_country varchar(50) not null,
+	shipping_name varchar(250) not null,
+	shipping_address1 varchar(250) not null,
+	shipping_address2 varchar(250) not null,
+	shipping_city varchar(100) not null,
+	shipping_province varchar(100) not null,
+	shipping_postal varchar(10) not null,
+	shipping_country varchar(50) not null,
+
+	notes varchar(6000) not null,
+
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key (id),
+	index sync (uuid, business_id, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';
