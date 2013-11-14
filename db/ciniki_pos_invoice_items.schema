@@ -17,6 +17,10 @@
 #
 # object_id:		The ID of the object for the item in the invoice.
 #
+# taxable:			The types of taxes to be applied to this item.  The tax types are defined
+#					in the ciniki_pos_settings table.
+#
+#
 # date_added:		The UTC date and time the invoice was added.
 # last_updated:		The UTC date and time the invoice was last updated.
 #
@@ -32,10 +36,10 @@ create table ciniki_pos_invoice_items (
 	object_id varchar(100) not null,
 
 	description varchar(250) not null,
-	quantity
-	price
-	taxes
-	total
+	quantity int not null,
+	unit_price 
+	item_price
+	taxable int unsigned not null,
 
 	notes varchar(6000) not null,
 	
