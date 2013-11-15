@@ -1,7 +1,7 @@
 api-pos
 =======
 
-Point of Sale/Invoicing
+Simple Accounting/bookkeeping + Point of Sale/Invoicing
 
 License
 -------

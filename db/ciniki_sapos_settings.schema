@@ -1,0 +1,39 @@
+#
+# Description
+# -----------
+# This tables stores the settings for the sapos module.
+#
+# Valid settings are:
+# invoice-shipping-address:		(yes|no) Does the business use shipping addresses on invoices.
+#
+# invoice-header-image:			The ID of the image to use has a header on the invoice.
+# invoice-header-logo:			The ID of the image to use as a logo on the invoice.  
+#								The business name will go beside the logo.
+#
+# invoice-footer-message: 		The text to show in the footer of the invoice.
+#
+# fiscal-yearend-month:			The year end for the business.  Used for accounting purposes.  Default is 12.
+# fiscal-yearend-day:			The year end for the business.  Used for accounting purposes.  Default is 31.
+#
+# taxes-active:					(yes|no) Does the business collect any taxes
+# taxes-1-name:					The name of the first tax for the business.
+# taxes-1-active:				Is the tax active currently, or a past tax collected.
+# taxes-1-percentage:			The percentage to charge for the tax, must be a number (13, 1.2, etc);
+#
+# Fields
+# ------
+# business_id:	The id of the business the detail is for.
+# detail_key:	The unique key for the detail.
+# detail_value:	The value stored for this key.
+# date_added:	The date and time the entry was created in the database.
+# last_updated:	The date and time the entry was last updated.
+#
+create table ciniki_sapos_settings (
+	business_id int not null,
+	detail_key varchar(100) not null,
+	detail_value varchar(20000) not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key (business_id, detail_key),
+	index (last_updated)
+) ENGINE=InnoDB, COMMENT='v1.01';

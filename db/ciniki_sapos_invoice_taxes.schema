@@ -1,0 +1,41 @@
+#
+# Description
+# -----------
+# This table stores the taxes applied to an invoice.  This allows for multiple taxes of any kind
+# to be added to an invoice, and kept long term even when the taxes are no long applied to current
+# orders.  There is no limit to the number of taxes that can be applied to an invoice.
+#
+# Fields
+# ------
+# id:				The invoice ID.
+# uuid:				The Universal Unique ID for the invoice.
+# business_id:		The business the invoice is for.
+#
+# invoice_id:		The ID of the invoice the tax is for.
+#
+# line_number:		The line number of the taxes portion.
+#
+# description:		The description of the tax (HST, PST, etc).
+#
+# percentage:		The percentage to be applied to taxable items total.
+#
+# amount:			The amount in dollars of the taxes to be added.
+#
+# date_added:		The UTC date and time the invoice item was added.
+# last_updated:		The UTC date and time the invoice item was last updated.
+#
+create table ciniki_sapos_invoice_taxes (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	invoice_id int not null,
+	line_number int not null,
+	description varchar(100) not null,
+	percentage decimal(10,2) not null,
+	amount decimal(10,2) not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key (id),
+	index (invoice_id),
+	index sync (uuid, business_id, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

@@ -19,7 +19,7 @@ function ciniki_pos_checkAccess($ciniki, $business_id, $method) {
 	// Check if the business is active and the module is enabled
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'checkModuleAccess');
-	$rc = ciniki_businesses_checkModuleAccess($ciniki, $business_id, 'ciniki', 'pos');
+	$rc = ciniki_businesses_checkModuleAccess($ciniki, $business_id, 'ciniki', 'sapos');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}

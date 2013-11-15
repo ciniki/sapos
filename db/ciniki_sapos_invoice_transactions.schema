@@ -1,0 +1,70 @@
+#
+# Description
+# -----------
+# This table stores the transactions associated with an invoice.   This allows for an invoice
+# to be paid in installments or a deposit to be paid.  This table will also track any refunds 
+# given back based on the invoice.
+#
+# The totals of customer_amount should add up to the total on the invoice.
+#
+# The business_amount may not add up to the invoice amount due to fees taken off by
+# paypal or other processing fees.
+#
+# Fields
+# ------
+# id:					The invoice ID.
+# uuid:					The Universal Unique ID for the invoice.
+# business_id:			The business the invoice is for.
+#
+# transaction_type:		The type of transaction
+#
+#						0 - unknown
+#						10 - Deposit
+#						20 - Payment
+#						60 - Refund
+#
+# transaction_date:		The date the transaction occured.
+#
+# source:				The source of the payment
+#
+#						0 - unknown
+#						10 - paypal
+#						20 - Visa
+#						30 - Mastercard
+#						90 - Interac
+#						100 - Cash
+#						105 - Check
+#						109 - Email Transfer
+#						120 - Other
+#
+# customer_amount:		The amount of the transaction from the customer perspective.  This is how much
+#						the customer was debited or credited.
+#
+# transaction_fees:		Any fees associated with the transaction that will be removed from the amount.
+#
+# business_amount:		The amount deposited or withdrawn from the business account.
+#						Paypal removes the fee before depositing the money, this will take that into account.
+#
+# notes:				Any notes or comments about the transaction.
+#
+# date_added:			The UTC date and time the invoice was added.
+# last_updated:			The UTC date and time the invoice was last updated.
+#
+create table ciniki_sapos_invoice_transactions (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	invoice_id int not null,
+	transaction_type tinyint not null,
+	transaction_date datetime not null,
+	source smallint not null,
+	customer_amount decimal(10,2) not null,
+	transaction_fees decimal(10,2) not null,
+	business_amount decimal(10,2) not null,
+	notes varchar(6000) not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key (id),
+	index (invoice_id),
+	index sync (uuid, business_id, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';
