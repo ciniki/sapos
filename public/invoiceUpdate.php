@@ -21,8 +21,8 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
         'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Number'),
 		'status'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Status'),
-		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Invoice Date'),
-		'due_date'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Due Date'),
+		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'date', 'name'=>'Invoice Date'),
+		'due_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'date', 'name'=>'Due Date'),
 		'billing_copy'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Update Billing from Customer'),
 		'billing_name'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Billing Name'),
 		'billing_address1'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Billing Address Line 1'),
@@ -54,6 +54,17 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
+
+	//
+	// Force the invoice_date and due_date to be a date time with 12:00:00 (noon)
+	// This is used for calculating taxes based on invoice_date
+	//
+	if( isset($args['invoice_date']) ) {
+		$args['invoice_date'] += ' 12:00:00';
+	}
+	if( isset($args['due_date']) ) {
+		$args['due_date'] += ' 12:00:00';
+	}
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 

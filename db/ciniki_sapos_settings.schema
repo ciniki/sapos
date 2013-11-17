@@ -16,9 +16,14 @@
 # fiscal-yearend-day:			The year end for the business.  Used for accounting purposes.  Default is 31.
 #
 # taxes-active:					(yes|no) Does the business collect any taxes
-# taxes-1-name:					The name of the first tax for the business.
-# taxes-1-active:				Is the tax active currently, or a past tax collected.
-# taxes-1-percentage:			The percentage to charge for the tax, must be a number (13, 1.2, etc);
+# taxes-type-1-name:			The name of the first tax for the business.
+# ...
+# taxes-type-32-name:			The name for the last tax type.
+#
+# Tax Settings for different modules:
+# taxes-ciniki.artcatalog.item-taxtypes:		The default bit code for tax types to be applied to artcatalog items.
+# taxes-ciniki.events.event-taxtypes:			The default bit code for tax types to be applied to events.
+# taxes-ciniki.courses.course-taxtypes:			The default bit code for tax types to be applied to courses.
 #
 # Fields
 # ------

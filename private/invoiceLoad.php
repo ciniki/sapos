@@ -15,10 +15,15 @@
 // <rsp stat='ok' />
 //
 function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'timezoneOffset');
-	$utc_offset = ciniki_users_timezoneOffset($ciniki);
+	//
+	// Get the time information for business and user
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
+	$utc_offset = ciniki_businesses_timezoneOffset($ciniki);
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
+	$date_format = ciniki_users_datetimeFormat($ciniki);
 
 	//
 	// The the invoice details
@@ -28,8 +33,10 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "customer_id, "
 		. "status, "
 		. "status AS status_text, "
-		. "DATE_FORMAT(invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
-		. "DATE_FORMAT(due_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS due_date, "
+		. "DATE_FORMAT(CONVERT_TZ(invoice_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
+			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
+		. "DATE_FORMAT(CONVERT_TZ(due_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
+			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS due_date, "
 		. "billing_name, "
 		. "billing_address1, "
 		. "billing_address2, "
@@ -46,9 +53,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "shipping_country, "
 		. "total_amount, "
 		. "invoice_notes, "
-		. "internal_notes, "
-		. "DATE_FORMAT(CONVERT_TZ(date_added, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $datetime_format) . "') AS date_added "
+		. "internal_notes "
 		. "FROM ciniki_sapos_invoices "
 		. "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 		. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -63,8 +68,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
 				'shipping_province', 'shipping_postal', 'shipping_country',
 				'total_amount', 'invoice_notes', 'internal_notes', 'date_added'),
-			'maps'=>array('status_text'=>array('10'=>'Creating', '20'=>'Entered', 
-				'40'=>'Partial Payment', '50'=>'Paid', '60'=>'Void')),
+			'maps'=>array('status_text'=>array('10'=>'Shopping Cart', '20'=>'Creating', 
+				'30'=>'Entered', '40'=>'Partial Payment', '50'=>'Paid', '60'=>'Void')),
 			)
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -111,9 +116,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "unit_amount, "
 		. "amount, "
 		. "taxes, "
-		. "notes, "
-		. "DATE_FORMAT(CONVERT_TZ(date_added, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $datetime_format) . "') AS date_added "
+		. "notes "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 		. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -172,9 +175,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "customer_amount, "
 		. "transaction_fees, "
 		. "business_amount, "
-		. "notes, "
-		. "DATE_FORMAT(CONVERT_TZ(date_added, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $datetime_format) . "') AS date_added "
+		. "notes "
 		. "FROM ciniki_sapos_invoice_transactions "
 		. "WHERE ciniki_sapos_invoice_transactions.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 		. "AND ciniki_sapos_invoice_transactions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "

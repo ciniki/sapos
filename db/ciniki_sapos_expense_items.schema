@@ -27,7 +27,7 @@ create table ciniki_sapos_expense_items (
 	business_id int not null,
 	expense_id int not null,
 	category varchar(100) not null,
-	amount decimal(10,2) not null,
+	amount decimal(19,4) not null,
 	notes varchar(1000) not null,
 	date_added datetime not null,
 	last_updated datetime not null,

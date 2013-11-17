@@ -22,8 +22,8 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
         'customer_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Customer'), 
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Number'),
 		'status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'10', 'name'=>'Status'),
-		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'name'=>'Invoice Date'),
-		'due_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'name'=>'Due Date'),
+		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'type'=>'date', 'name'=>'Invoice Date'),
+		'due_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'type'=>'date', 'name'=>'Due Date'),
 		'billing_name'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Billing Name'),
 		'billing_address1'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Billing Address Line 1'),
 		'billing_address2'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Billing Address Line 2'),
@@ -56,6 +56,13 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
     }
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+
+	//
+	// Force the invoice_date and due_date to be a date time with 12:00:00 (noon)
+	// This is used for calculating taxes based on invoice_date
+	//
+	$args['invoice_date'] += ' 12:00:00';
+	$args['due_date'] += ' 12:00:00';
 
 	//
 	// If a customer is specified, then lookup the customer details and fill out the invoice
@@ -193,6 +200,16 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 			return $rc;
 		}
+	}
+
+	//
+	// Update the taxes
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateTaxes');
+	$rc = ciniki_sapos_invoiceUpdateTaxes($ciniki, $args['business_id'], $invoice_id);
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+		return $rc;
 	}
 
 	//

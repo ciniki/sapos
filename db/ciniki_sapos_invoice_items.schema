@@ -1,6 +1,11 @@
 #
 # Description
 # -----------
+# This table stores the line items for an invoice.  Taxes are stored in a separate table.  Each
+# line item can refer back to an object in another module.  The object links are used when updating
+# the status of an order, and hooks into other modules can be used to update their status.
+#
+# Items can be on an invoice with no object/object_id to another module, they will be considered adhoc items.
 #
 # Fields
 # ------
@@ -30,10 +35,10 @@
 # unit_price:		The price of a single item.
 # amount:			The price of the quantity of items (quantity*unit_price).
 #
-# taxes:			The types of taxes to be applied to this item.  The tax types are defined
+# taxtypes:			The types of taxes to be applied to this item.  The tax types are defined
 #					in the ciniki_sapos_settings table.
 #
-#					0 - no taxes should be applied
+#					0 - no taxes should be applied, this item is tax exempt or customer does not collect taxes.
 #					0x01 - Tax type 1 should be applied
 #					0x02 - Tax type 2 should be applied
 #					0x04 - Tax type 3 should be applied
@@ -41,7 +46,11 @@
 #					...
 #					0x80000000 - Tax type 32 should be applied
 #
-# notes:			Any notes for this invoice item.  Typically will be blank.
+# invoice_notes:	Any notes for this invoice item, that will be shown on the invoice/receipt.  This will 
+#					typically be blank but can be used as a second description line if required.
+#
+# internal_notes:	Any notes about the item sold for internal business purposes only, and will not be shown
+#					on the invoice/receipt.
 #
 # date_added:		The UTC date and time the invoice item was added.
 # last_updated:		The UTC date and time the invoice item was last updated.
@@ -57,9 +66,9 @@ create table ciniki_sapos_invoice_items (
 	object_id varchar(100) not null,
 	description varchar(250) not null,
 	quantity int not null,
-	unit_amount decimal(10,2) not null,
-	amount decimal(10,2) not null,
-	taxes int unsigned not null,
+	unit_amount decimal(19,4) not null,
+	amount decimal(19,4) not null,
+	taxtypes int unsigned not null,
 	notes varchar(6000) not null,
 	date_added datetime not null,
 	last_updated datetime not null,

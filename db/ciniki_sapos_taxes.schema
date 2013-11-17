@@ -1,0 +1,58 @@
+#
+# Description
+# -----------
+# This table stores the tax information for a business.  Taxes can vary depending on where
+# the business is located and where products are being shipped to.  
+#
+# Taxes can have a start and end date, which is used when new taxes are introduced and others removed.
+#
+# Fields
+# ------
+# id:					The tax ID.
+# uuid:					The Universal Unique ID for the invoice.
+# business_id:			The business the invoice is for.
+#
+# name:					The name for the tax (HST, PST, etc)
+#
+# item_percentage:		The percent to charge for the tax, for each item on an invoice of the taxtype.
+#
+# item_amount:			The fixed amount to add for each item on an invoice of the taxtype. **future**
+#
+# invoice_amount:		The fixed amount to add to the invoice once.  There must be one item on the invoice
+#						with this taxtype to trigger the addition. **future**
+#
+# taxtypes:				The bitfield to match up with defined tax types
+#						in the ciniki_sapos_settings, which is also used
+#						by any products being entered.  
+#
+# flags:				Options for the tax. **future**
+#
+# start_date:			The UTC date and time the tax is valid from.  This is used when new taxes
+#						are introduced and become effective on a particular date and time.
+#						The start_date MUST be specified.
+#
+# end_date:				The UTC date and time the tax is valid to.  Similar to start_date, this defines
+#						when a tax will no long be valid and calculated on orders.
+#						The end_date can be empty (0000-00-00 00:00:00) if no end is specified.
+#
+# date_added:			The UTC date and time the invoice was added.
+# last_updated:			The UTC date and time the invoice was last updated.
+#
+create table ciniki_sapos_taxes (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	name varchar(100) not null,
+	item_percentage decimal(19,4) not null,
+	item_amount decimal(19,4) not null,
+	invoice_amount decimal(19,4) not null,
+	taxtypes int not null,
+	flags tinyint not null,
+	start_date datetime not null,
+	end_date datetime not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key (id),
+	index (taxtypes, start_date, end_date),
+	index sync (uuid, business_id, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

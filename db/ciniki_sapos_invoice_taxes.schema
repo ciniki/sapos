@@ -13,11 +13,12 @@
 #
 # invoice_id:		The ID of the invoice the tax is for.
 #
+# tax_id:			The ID of the tax from the ciniki_sapos_taxes table applied here. 
+#
 # line_number:		The line number of the taxes portion.
 #
-# description:		The description of the tax (HST, PST, etc).
-#
-# percentage:		The percentage to be applied to taxable items total.
+# description:		The description of the tax (HST, PST, etc).  The description should contain
+#					the percentage of the tax, if applicable.
 #
 # amount:			The amount in dollars of the taxes to be added.
 #
@@ -29,13 +30,13 @@ create table ciniki_sapos_invoice_taxes (
 	uuid char(36) not null,
 	business_id int not null,
 	invoice_id int not null,
+	tax_id int not null,
 	line_number int not null,
 	description varchar(100) not null,
-	percentage decimal(10,2) not null,
-	amount decimal(10,2) not null,
+	amount decimal(19,4) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),
-	index (invoice_id),
+	index unique (invoice_id, tax_id),
 	index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

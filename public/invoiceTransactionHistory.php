@@ -21,7 +21,7 @@
 // ...
 // </history>
 //
-function ciniki_sapos_invoiceHistory($ciniki) {
+function ciniki_sapos_invoiceTransactionHistory($ciniki) {
 	//
 	// Find all the required and optional arguments
 	//
@@ -40,7 +40,7 @@ function ciniki_sapos_invoiceHistory($ciniki) {
 	// Check access to business_id as owner, or sys admin
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-	$rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceHistory');
+	$rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceTransactionHistory');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}

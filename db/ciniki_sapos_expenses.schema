@@ -32,7 +32,7 @@ create table ciniki_sapos_expenses (
 	description varchar(250) not null,
 	invoice_date date not null,
 	paid_date date not null,
-	total_amount decimal(10,2) not null,
+	total_amount decimal(19,4) not null,
 	notes varchar(6000) not null,
 	date_added datetime not null,
 	last_updated datetime not null,

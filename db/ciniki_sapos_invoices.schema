@@ -22,14 +22,22 @@
 # status:				The current status for the invoice.
 #
 #						0 - unknown
-#						10 - Creating
-#						20 - Entered
+#						10 - Shopping Cart, the invoice is still a shopping cart for online ecommerce
+#						20 - Creating, the invoice is being created
+#						30 - Entered, the invoice is finished created, now officially active in the system
 #						40 - Partial Payment/Deposit
 #						50 - Paid
-#						60 - Cancelled/Voided
+#						55 - Refunded
+#						60 - Voided
 # 
-# invoice_date:			The date for the invoice.
-# due_date:				The date the invoice is due, if applicable.
+# invoice_date:			The UTC date and time for the invoice.  When returning to the business,
+#						it should be converted to local timezone.  Most businesses won't care about
+#						the time, just the date.  The time is important for tax purposes, when 
+#						taxes end at midnight.  The default time should be set to 12:00:00 (noon) for
+#						the business timezone.
+#
+# due_date:				The UTC date and time the invoice is due, if applicable.  The default time 
+#						should be set to 12:00:00 (noon).
 #
 # billing_name:			The customer name who is being billed for the item.
 # billing_address1:		The billing address, first line for the customer.
@@ -47,6 +55,7 @@
 # shipping_postal:		The shipping postal/zip code.
 # shipping_country:		The shipping country.
 #
+# shipping_amount:		The amount charged to the customer for shipping.
 # total_amount:			The total amount of all items and taxes billed to the customer.
 #
 # invoice_notes:		Notes that will appear on the invoice.
@@ -62,8 +71,8 @@ create table ciniki_sapos_invoices (
 	invoice_number varchar(20) not null,
 	customer_id int not null,
 	status tinyint unsigned not null,
-	invoice_date date not null,
-	due_date date not null,
+	invoice_date datetime not null,
+	due_date datetime not null,
 	billing_name varchar(250) not null,
 	billing_address1 varchar(250) not null,
 	billing_address2 varchar(250) not null,
@@ -78,7 +87,8 @@ create table ciniki_sapos_invoices (
 	shipping_province varchar(100) not null,
 	shipping_postal varchar(10) not null,
 	shipping_country varchar(50) not null,
-	total_amount decimal(10,2) not null,
+	shipping_amount decimal(19,4) not null,
+	total_amount decimal(19,4) not null,
 	invoice_notes varchar(6000) not null,
 	internal_notes varchar(6000) not null,
 	date_added datetime not null,
