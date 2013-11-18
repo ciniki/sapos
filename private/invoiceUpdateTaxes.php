@@ -118,17 +118,31 @@ function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
 	foreach($business_taxes as $tid => $tax) {
 		$tax_amount = $tax['calculated_items_amount'] + $tax['calculated_invoice_amount'];
 		if( isset($invoice_taxes[$tid]) ) {
+			$args = array();
 			// Update tax if the amount is different
 			if( $tax_amount != $invoice_taxes[$tid]['amount'] ) {
-				$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_tax', $invoice_taxes[$tid]['id'], 
-					array('amount'=>$tax_amount), 0x04);
+				$args['amount'] = $tax_amount;
+			}
+			// Check if the name is different, perhaps it was updated
+			if( $tax['name'] != $invoice_taxes[$id]['description'] ) {
+				$args['description'] = $tax['name'];
+			}
+			if( count($args) > 0 ) {
+				$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_tax', 
+					$invoice_taxes[$tid]['id'], $args, 0x04);
 				if( $rc['stat'] != 'ok' ) {
 					return $rc;
 				}
 			}
 		} else {
 			$rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_tax', 
-				array('amount'=>$tax_amount), 0x04);
+				array(
+					'invoice_id'=>$invoice_id,
+					'tax_id'=>$tid,
+					'line_number'=>0,
+					'description'=>$tax['name'],
+					'amount'=>$tax_amount,
+					), 0x04);
 			if( $rc['stat'] != 'ok' ) {
 				return $rc;
 			}

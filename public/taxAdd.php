@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will add a new tax for a business.
+// This method will update an existing tax.  
 //
 // Arguments
 // ---------
@@ -11,13 +11,14 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_taxAdd(&$ciniki) {
+function ciniki_sapos_taxUpdate(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+		'tax_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tax'),
 		'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'),
 		'item_percentage'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Item Percentage'),
 		'item_amount'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Item Amount'),
@@ -25,7 +26,7 @@ function ciniki_sapos_taxAdd(&$ciniki) {
 		'taxtypes'=>array('required'=>'yes', 'blank'=>'yes', 'default'=>'0', 'name'=>'Tax Types'),
 		'flags'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Flags'),
 		'start_date'=>array('required'=>'yes', 'blank'=>'yes', 'type'=>'datetime', 'name'=>'Start Date'),
-		'end_date'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'End Date'),
+		'end_date'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'type'=>'datetime', 'name'=>'End Date'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
