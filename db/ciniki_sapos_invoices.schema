@@ -56,6 +56,7 @@
 # shipping_country:		The shipping country.
 #
 # shipping_amount:		The amount charged to the customer for shipping.
+# sub_total_amount:		The amount before taxes.
 # total_amount:			The total amount of all items and taxes billed to the customer.
 #
 # invoice_notes:		Notes that will appear on the invoice.

@@ -13,7 +13,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
+function ciniki_sapos_updateInvoiceTaxesAndTotal($ciniki, $business_id, $invoice_id) {
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
@@ -25,7 +25,7 @@ function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
 	//
 	// Get the invoice details, so we know what taxes are applicable for the invoice date
 	//
-	$strsql = "SELECT status, invoice_date, total_amount "
+	$strsql = "SELECT status, invoice_date, shipping_amount, sub_total_amount, total_amount "
 		. "FROM ciniki_sapos_invoices "
 		. "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 		. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -35,7 +35,7 @@ function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
 		return $rc;
 	}
 	if( !isset($rc['invoice']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to find invoice'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1080', 'msg'=>'Unable to find invoice'));
 	}
 	$invoice = $rc['invoice'];
 
@@ -47,7 +47,7 @@ function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
 		return $rc;
 	}
 	if( !isset($rc['taxes']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to load taxes'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1076', 'msg'=>'Unable to load taxes'));
 	}
 	$business_taxes = $rc['taxes'];		// Taxes in array by id
 	// 
@@ -92,6 +92,7 @@ function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
 	//
 	// Calculate what the taxes should be
 	//
+	$invoice_sub_total_amount = 0;
 	foreach($items as $iid => $item) {
 		foreach($business_taxes as $tid => $tax) {
 			//
@@ -110,11 +111,16 @@ function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
 				}
 			}
 		}
+		//
+		// Add each item to the total amount
+		//
+		$invoice_sub_total_amount += ($item['quantity'] * $item['unit_amount']);
 	}
 
 	//
 	// Check if invoice taxes need to be updated or added 
 	//
+	$invoice_taxes = 0;
 	foreach($business_taxes as $tid => $tax) {
 		$tax_amount = $tax['calculated_items_amount'] + $tax['calculated_invoice_amount'];
 		if( isset($invoice_taxes[$tid]) ) {
@@ -147,6 +153,10 @@ function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
 				return $rc;
 			}
 		}
+		//
+		// Keep track of the total taxes for the invoice
+		//
+		$invoice_taxes += $tax_amount;
 	}
 
 	//
@@ -159,6 +169,27 @@ function ciniki_sapos_updateInvoiceTaxes($ciniki, $business_id, $invoice_id) {
 			if( $rc['stat'] != 'ok' ) {
 				return $rc;
 			}
+		}
+	}
+
+	//
+	// Update the subtotal and totals
+	//
+	$invoice_sub_total_amount += $invoice['shipping_amount'];
+	$invoice_total_amount = $invoice_sub_total_amount + $invoice_taxes;
+
+	$args = array();
+	if( $invoice_sub_total_amount != $invoice['sub_total_amount'] ) {
+		$args['sub_total_amount'] = $invoice_sub_total_amount;
+	}
+	if( $invoice_total_amount != $invoice['total_amount'] ) {
+		$args['total_amount'] = $invoice_total_amount;
+	}
+	if( count($args) > 0 ) {
+		$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 
+			$invoice_id, $args, 0x04);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
 		}
 	}
 

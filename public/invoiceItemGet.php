@@ -11,14 +11,14 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_taxGet(&$ciniki) {
+function ciniki_sapos_invoiceItemGet(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
-        'tax_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tax'), 
+        'item_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice Item'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -30,7 +30,7 @@ function ciniki_sapos_taxGet(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.taxGet'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceItemGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -41,32 +41,33 @@ function ciniki_sapos_taxGet(&$ciniki) {
 	$date_format = ciniki_users_dateFormat($ciniki);
 
 	//
-	// Get the tax details
+	// Get the item details
 	//
-	$strsql = "SELECT name, "
-		. "item_percentage, "
-		. "item_amount, "
-		. "invoice_amount, "
+	$strsql = "SELECT line_number, "
+		. "status, "
+		. "object, "
+		. "object_id, "
+		. "description, "
+		. "quantity, "
+		. "unit_amount, "
+		. "amount, "
 		. "taxtypes, "
-		. "flags, "
-		. "DATE_FORMAT(CONVERT_TZ(start_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS start_date, "
-		. "DATE_FORMAT(CONVERT_TZ(end_date, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), "
-			. "'" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS end_date "
-		. "FROM ciniki_sapos_taxes "
+		. "notes, "
+		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['tax_id']) . "' "
+		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
 		. "";
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
-	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'tax');
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	if( !isset($rc['tax']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1378', 'msg'=>'Unable to find tax'));
+	if( !isset($rc['item']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1381', 'msg'=>'Unable to find invoice item.'));
 	}
+	$item = $rc['item'];
 
-	return array('stat'=>'ok', 'tax'=>$rc['tax']);
+	return array('stat'=>'ok', 'item'=>$item);
 }
 ?>
 

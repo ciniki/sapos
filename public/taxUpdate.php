@@ -68,7 +68,7 @@ function ciniki_sapos_taxUpdate(&$ciniki) {
 	//
 	if( (isset($args['item_percentage']) || isset($args['item_amount']) || isset($args['invoice_amount']))
 		&& $num_invoices > 0 ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to update tax, there are invoices using this tax.  Please create a new tax'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1379', 'msg'=>'Unable to update tax, there are invoices using this tax.  Please create a new tax'));
 	}
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');

@@ -129,7 +129,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 				}
 			}
 		} else {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to find customer'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1096', 'msg'=>'Unable to find customer'));
 		}
 	}
 

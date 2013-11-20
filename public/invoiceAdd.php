@@ -125,7 +125,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 				}
 			}
 		} else {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to find customer'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1109', 'msg'=>'Unable to find customer'));
 		}
 	}
 
@@ -142,7 +142,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		if( isset($rc['items']) ) {
 			$invoice_items = $rc['items'];
 		} else {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to find specified items.'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1101', 'msg'=>'Unable to find specified items.'));
 		}
 	}
 
@@ -205,8 +205,8 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	//
 	// Update the taxes
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateTaxes');
-	$rc = ciniki_sapos_invoiceUpdateTaxes($ciniki, $args['business_id'], $invoice_id);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateTaxesAndTotal');
+	$rc = ciniki_sapos_invoiceUpdateTaxesAndTotal($ciniki, $args['business_id'], $invoice_id);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;

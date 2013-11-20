@@ -34,7 +34,7 @@
 #						90 - Interac
 #						100 - Cash
 #						105 - Check
-#						109 - Email Transfer
+#						110 - Email Transfer
 #						120 - Other
 #
 # customer_amount:		The amount of the transaction from the customer perspective.  This is how much

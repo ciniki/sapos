@@ -76,7 +76,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		return $rc;
 	}
 	if( !isset($rc['invoices']) || !isset($rc['invoices'][$invoice_id]) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Invoice does not exist'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1083', 'msg'=>'Invoice does not exist'));
 	}
 	$invoice = $rc['invoices'][$invoice_id];
 

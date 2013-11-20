@@ -44,7 +44,7 @@ function ciniki_sapos_taxUpdate(&$ciniki) {
     }
 
 	if( $args['item_percentage'] == '' && $args['item_amount'] == '' && $args['invoice_amount'] == '' ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'You must specify a item percentage, item amount or invoice amount.'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1094', 'msg'=>'You must specify a item percentage, item amount or invoice amount.'));
 	}
 
 	$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.tax', $args, 0x07);
