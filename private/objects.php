@@ -57,7 +57,7 @@ function ciniki_sapos_objects($ciniki) {
 			'quantity'=>array(),
 			'unit_amount'=>array(),
 			'amount'=>array(),
-			'taxtypes'=>array(),
+			'taxtype_id'=>array('ref'=>'ciniki.taxes.type'),
 			'notes'=>array(),
 			),
 		'history_table'=>'ciniki_sapos_history',
@@ -68,7 +68,7 @@ function ciniki_sapos_objects($ciniki) {
 		'table'=>'ciniki_sapos_invoice_taxes',
 		'fields'=>array(
 			'invoice_id'=>array('ref'=>'ciniki.sapos.invoice'),
-			'tax_id'=>array('ref'=>'ciniki.sapos.tax'),
+			'taxrate_id'=>array('ref'=>'ciniki.taxes.rate'),
 			'line_number'=>array(),
 			'description'=>array(),
 			'amount'=>array(),
@@ -113,22 +113,6 @@ function ciniki_sapos_objects($ciniki) {
 			'category'=>array(),
 			'amount'=>array(),
 			'notes'=>array(),
-			),
-		'history_table'=>'ciniki_sapos_history',
-		);
-	$objects['tax'] = array(
-		'name'=>'Tax',
-		'sync'=>'yes',
-		'table'=>'ciniki_sapos_taxes',
-		'fields'=>array(
-			'name'=>array(),
-			'item_percentage'=>array(),
-			'item_amount'=>array(),
-			'invoice_amount'=>array(),
-			'taxtypes'=>array(),
-			'flags'=>array(),
-			'start_date'=>array(),
-			'end_date'=>array(),
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);

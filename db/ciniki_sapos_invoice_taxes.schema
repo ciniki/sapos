@@ -13,7 +13,7 @@
 #
 # invoice_id:		The ID of the invoice the tax is for.
 #
-# tax_id:			The ID of the tax from the ciniki_sapos_taxes table applied here. 
+# taxrate_id:		The ID of the tax rate from the ciniki.taxes module applied here. 
 #
 # line_number:		The line number of the taxes portion.
 #
@@ -30,13 +30,13 @@ create table ciniki_sapos_invoice_taxes (
 	uuid char(36) not null,
 	business_id int not null,
 	invoice_id int not null,
-	tax_id int not null,
+	taxrate_id int not null,
 	line_number int not null,
 	description varchar(100) not null,
 	amount decimal(19,4) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),
-	index unique (invoice_id, tax_id),
+	unique index (invoice_id, taxrate_id),
 	index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

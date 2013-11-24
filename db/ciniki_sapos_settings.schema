@@ -15,16 +15,6 @@
 # fiscal-yearend-month:			The year end for the business.  Used for accounting purposes.  Default is 12.
 # fiscal-yearend-day:			The year end for the business.  Used for accounting purposes.  Default is 31.
 #
-# taxes-active:					(yes|no) Does the business collect any taxes
-# taxes-type-1-name:			The name of the first tax for the business.
-# ...
-# taxes-type-32-name:			The name for the last tax type.
-#
-# Tax Settings for different modules:
-# taxes-ciniki.artcatalog.item-taxtypes:		The default bit code for tax types to be applied to artcatalog items.
-# taxes-ciniki.events.event-taxtypes:			The default bit code for tax types to be applied to events.
-# taxes-ciniki.courses.course-taxtypes:			The default bit code for tax types to be applied to courses.
-#
 # Fields
 # ------
 # business_id:	The id of the business the detail is for.

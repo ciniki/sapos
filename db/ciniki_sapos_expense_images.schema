@@ -30,7 +30,7 @@
 # date_added:		The UTC date and time the image was added to the expense.
 # last_updated:		The UTC date and time the image was last updated.
 #
-create table ciniki_expense_images (
+create table ciniki_sapos_expense_images (
 	id int not null auto_increment,
 	uuid char(36) not null,
 	business_id int not null,

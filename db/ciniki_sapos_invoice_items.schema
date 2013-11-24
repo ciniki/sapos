@@ -35,16 +35,10 @@
 # unit_price:		The price of a single item.
 # amount:			The price of the quantity of items (quantity*unit_price).
 #
-# taxtypes:			The types of taxes to be applied to this item.  The tax types are defined
-#					in the ciniki_sapos_settings table.
-#
-#					0 - no taxes should be applied, this item is tax exempt or customer does not collect taxes.
-#					0x01 - Tax type 1 should be applied
-#					0x02 - Tax type 2 should be applied
-#					0x04 - Tax type 3 should be applied
-#					0x08 - Tax type 4 should be applied
-#					...
-#					0x80000000 - Tax type 32 should be applied
+# taxtype_id:		The tax type to be applied to this item.  The tax types are defined
+#					in the ciniki.taxes module.
+#					If no taxes are to be applied, then taxtype_id should be set to a value of zero,
+#					or to the ID of the tax type that has no tax rates applied.
 #
 # invoice_notes:	Any notes for this invoice item, that will be shown on the invoice/receipt.  This will 
 #					typically be blank but can be used as a second description line if required.
@@ -68,11 +62,11 @@ create table ciniki_sapos_invoice_items (
 	quantity int not null,
 	unit_amount decimal(19,4) not null,
 	amount decimal(19,4) not null,
-	taxtypes int unsigned not null,
+	taxtype_id int not null,
 	notes varchar(6000) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),
-	index (invoice_id, object, object_id),
+	index (invoice_id, object, object_id, taxtype_id),
 	index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
