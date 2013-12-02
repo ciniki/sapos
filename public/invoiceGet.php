@@ -42,7 +42,7 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
 	// Return the invoice record
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-	$rc = ciniki_core_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
+	$rc = ciniki_sapos_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
@@ -50,4 +50,3 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
 	return array('stat'=>'ok', 'invoice'=>$rc['invoice']);
 }
 ?>
-

@@ -21,9 +21,9 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
         'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Number'),
 		'status'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Status'),
-		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'date', 'name'=>'Invoice Date'),
-		'due_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'date', 'name'=>'Due Date'),
-		'billing_copy'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Update Billing from Customer'),
+		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Invoice Date'),
+		'due_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Due Date'),
+		'billing_update'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Update Billing from Customer'),
 		'billing_name'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Billing Name'),
 		'billing_address1'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Billing Address Line 1'),
 		'billing_address2'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Billing Address Line 2'),
@@ -31,7 +31,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		'billing_province'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Billing Province'),
 		'billing_postal'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Billing Postal'),
 		'billing_country'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Billing Country'),
-		'shipping_copy'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Update Shipping from Customer'),
+		'shipping_update'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Update Shipping from Customer'),
 		'shipping_name'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Name'),
 		'shipping_address1'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Address Line 1'),
 		'shipping_address2'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Address Line 2'),
@@ -55,17 +55,6 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
         return $rc;
     }
 
-	//
-	// Force the invoice_date and due_date to be a date time with 12:00:00 (noon)
-	// This is used for calculating taxes based on invoice_date
-	//
-	if( isset($args['invoice_date']) ) {
-		$args['invoice_date'] += ' 12:00:00';
-	}
-	if( isset($args['due_date']) ) {
-		$args['due_date'] += ' 12:00:00';
-	}
-
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
 	//
@@ -76,7 +65,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		$strsql = "SELECT ciniki_customers.id, "
 			. "CONCAT_WS(' ', ciniki_customers.prefix, ciniki_customers.first, "
 				. "ciniki_customers.middle, ciniki_customers.last, ciniki_customers.suffix) AS name, "
-			. "ciniki_customers.company "
+			. "ciniki_customers.company, "
 			. "ciniki_customer_addresses.id AS address_id, "
 			. "ciniki_customer_addresses.flags, "
 			. "ciniki_customer_addresses.address1, "
@@ -87,10 +76,10 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 			. "ciniki_customer_addresses.country "
 			. "FROM ciniki_customers "
 			. "LEFT JOIN ciniki_customer_addresses ON (ciniki_customers.id = ciniki_customer_addresses.customer_id "
-				. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. "AND ciniki_customer_addresses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 				. ") "
-			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
-			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "WHERE ciniki_customers.id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
+			. "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "";
 		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(
 			array('container'=>'customers', 'fname'=>'id', 
@@ -103,15 +92,19 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		}
 		if( isset($rc['customers']) && isset($rc['customers'][$args['customer_id']]) ) {
 			$customer = $rc['customers'][$args['customer_id']];
-			$customer_name = $customer['name'];
-			if( $args['billing_name'] == '' || $args['billing_update'] == 'yes' ) {
-				$args['billing_name'] = $customer['name'];
+			$customer_name = ltrim(rtrim(preg_replace('/  /', ' ', $customer['name']), ' '), ' ');
+			$rc['customers'][$args['customer_id']]['name'] = $customer_name;
+
+			if( (isset($args['billing_name']) && $args['billing_name'] == '') || $args['billing_update'] == 'yes' ) {
+				$args['billing_name'] = $customer_name;
 			}
-			if( $args['shipping_name'] == '' || $args['shipping_update'] == 'yes' ) {
-				$args['shipping_name'] = $customer['name'];
+			if( (isset($args['shipping_name']) && $args['shipping_name'] == '') || $args['shipping_update'] == 'yes' ) {
+				$args['shipping_name'] = $customer_name;
 			}
 			foreach($customer['addresses'] as $aid => $address) {
-				if( ($address['flags']&0x01) == 0x01 && ($args['shipping_address1'] == '' || $args['shipping_update'] == 'yes') ) {
+				if( ($address['flags']&0x01) == 0x01 
+					&& ((isset($args['shipping_address1']) && $args['shipping_address1'] == '') 
+						|| $args['shipping_update'] == 'yes') ) {
 					$args['shipping_address1'] = $address['address1'];
 					$args['shipping_address2'] = $address['address2'];
 					$args['shipping_city'] = $address['city'];
@@ -119,7 +112,9 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 					$args['shipping_postal'] = $address['postal'];
 					$args['shipping_country'] = $address['country'];
 				}
-				if( ($address['flags']&0x02) == 0x01 && ($args['billing_address1'] == '' || $args['billing_update'] == 'yes') ) {
+				if( ($address['flags']&0x02) == 0x02 
+					&& ((isset($args['billing_address1']) && $args['billing_address1'] == '' )
+						|| $args['billing_update'] == 'yes') ) {
 					$args['billing_address1'] = $address['address1'];
 					$args['billing_address2'] = $address['address2'];
 					$args['billing_city'] = $address['city'];
@@ -137,7 +132,8 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	// Update the invoice
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice', $args['invoice_id'], $args, 0x07);
+	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice', 
+		$args['invoice_id'], $args, 0x07);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
@@ -147,7 +143,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	// Return the invoice record
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-	$rc = ciniki_core_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
+	$rc = ciniki_sapos_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}

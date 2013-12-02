@@ -45,6 +45,9 @@
 # business_amount:		The amount deposited or withdrawn from the business account.
 #						Paypal removes the fee before depositing the money, this will take that into account.
 #
+# user_id:				The ID of the user who processed the transaction.  If the transaction was
+#						processed on the website, it should be set to zero.
+#
 # notes:				Any notes or comments about the transaction.
 #
 # date_added:			The UTC date and time the invoice was added.
@@ -61,6 +64,7 @@ create table ciniki_sapos_invoice_transactions (
 	customer_amount decimal(19,4) not null,
 	transaction_fees decimal(19,4) not null,
 	business_amount decimal(19,4) not null,
+	user_id int not null,
 	notes varchar(6000) not null,
 	date_added datetime not null,
 	last_updated datetime not null,

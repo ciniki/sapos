@@ -14,7 +14,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_pos_checkAccess($ciniki, $business_id, $method) {
+function ciniki_sapos_checkAccess($ciniki, $business_id, $method) {
 	//
 	// Check if the business is active and the module is enabled
 	//

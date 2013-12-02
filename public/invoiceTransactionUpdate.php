@@ -11,22 +11,22 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_invoiceTransactionAdd(&$ciniki) {
+function ciniki_sapos_invoiceTransactionUpdate(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
-		'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'),
-		'transaction_type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'),
-		'transaction_date'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Date'),
-		'source'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'source',
+		'transaction_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Transaction'),
+		'transaction_type'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Type'),
+		'transaction_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Date'),
+		'source'=>array('required'=>'no', 'blank'=>'no', 'name'=>'source',
 			'validlist'=>array('10','20','30','90','100','105','110','120')),
-		'customer_amount'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Customer Amount'),
-		'transaction_fees'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Fees'),
-		'business_amount'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Business Amount'),
-		'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'),
+		'customer_amount'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer Amount'),
+		'transaction_fees'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Fees'),
+		'business_amount'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Business Amount'),
+		'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -44,21 +44,36 @@ function ciniki_sapos_invoiceTransactionAdd(&$ciniki) {
     }
 
 	//
-	// Set the user id who created the invoice
+	// Get the transaction details
 	//
-	$args['user_id'] = $ciniki['session']['user']['id'];
+	$strsql = "SELECT invoice_id, customer_amount, transaction_fees, business_amount "
+		. "FROM ciniki_sapos_invoice_transactions "
+		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['transaction_id']) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'transaction');
+	if( $rc['stat'] != 'ok' ) { 
+		return $rc;
+	}   
+	if( !isset($rc['transaction']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1396', 'msg'=>'Unable to locate the invoice'));
+	}
+	$transaction = $rc['transaction'];
 
 	//
-	// Check if fees are blank, set to 0
+	// Check if we need to recalc the business_amount if customer or fees where changed
 	//
-	if( $args['transaction_fees'] == '' ) {
-		$args['transaction_fees'] = 0;
-	}
-	//
-	// Check if business amount not specified, then set the same as customer_amount
-	//
-	if( !isset($args['business_amount']) || $args['business_amount'] == '' ) {
-		$args['business_amount'] = $args['customer_amount'] - $args['transaction_fees'];
+	if( (isset($args['customer_amount']) || isset($args['transaction_fees'])) 
+		&& (!isset($args['business_amount']) || $args['business_amount'] == '') ) {
+		if( isset($args['customer_amount']) && isset($args['transaction_fees']) ) {
+			$args['business_amount'] = $args['customer_amount'] - $args['transaction_fees'];
+		} 
+		elseif( isset($args['customer_amount']) ) {
+			$args['business_amount'] = $args['customer_amount'] - $transaction['transaction_fees'];
+		}
+		elseif( isset($args['transaction_fees']) ) {
+			$args['business_amount'] = $transaction['customer_amount'] - $args['transaction_fees'];
+		}
 	}
 
 	//
@@ -75,25 +90,27 @@ function ciniki_sapos_invoiceTransactionAdd(&$ciniki) {
 	}   
 
 	//
-	// Add the transaction
+	// Update the transaction
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-	$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.invoice_transaction', $args, 0x04);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_transaction', 
+		$args['transaction_id'], $args, 0x04);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
 	}
-	$transaction_id = $rc['id'];
-
+	
 	//
 	// Update the invoice status
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatus');
-	$rc = ciniki_sapos_invoiceUpdateStatus($ciniki, $args['business_id'], $args['invoice_id']);
+	$rc = ciniki_sapos_invoiceUpdateStatus($ciniki, $args['business_id'], $transaction['invoice_id']);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
 	}
+
+
 
 	//
 	// FIXME: Check if callback hooks to item modules
@@ -116,6 +133,6 @@ function ciniki_sapos_invoiceTransactionAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
 	ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
 
-	return array('stat'=>'ok', 'id'=>$transaction_id);
+	return array('stat'=>'ok');
 }
 ?>

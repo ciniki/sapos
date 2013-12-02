@@ -33,7 +33,15 @@
 # quantity:			The number of units of the item.
 #
 # unit_price:		The price of a single item.
-# amount:			The price of the quantity of items (quantity*unit_price).
+#
+# unit_discount_amount:	The amount to deduct as a discount.
+#
+# unit_discount_percentage:	The percentage to apply as a discount.
+#
+# discount_amount:	The amount of discount applied to this item.  This is the combination 
+#					of unit_discount_percentage and unit_discount_amount.
+#
+# amount:			The price of the quantity of items.  This is calculated in sapos/private/itemCalcAmount.php.
 #
 # taxtype_id:		The tax type to be applied to this item.  The tax types are defined
 #					in the ciniki.taxes module.
@@ -59,9 +67,13 @@ create table ciniki_sapos_invoice_items (
 	object varchar(100) not null,
 	object_id varchar(100) not null,
 	description varchar(250) not null,
-	quantity int not null,
+	quantity decimal(19,4) not null,
 	unit_amount decimal(19,4) not null,
-	amount decimal(19,4) not null,
+	unit_discount_amount decimal(19,4) not null,
+	unit_discount_percentage decimal(19,4) not null,
+	subtotal_amount decimal(19,4) not null,
+	discount_amount decimal(19,4) not null,
+	total_amount decimal(19,4) not null,
 	taxtype_id int not null,
 	notes varchar(6000) not null,
 	date_added datetime not null,

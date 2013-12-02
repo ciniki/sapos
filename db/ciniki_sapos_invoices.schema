@@ -15,7 +15,8 @@
 #
 # invoice_number:		The number for the invoice, as entered by the user.  This allows
 #						a smoother transistion from existing invoicing systems.  This number
-#						does not change between SYNC locations.
+#						does not change between SYNC locations.  This number can be alpha-numeric,
+#						but is assumed to be an integer currently.
 #
 # customer_id:			The ID of the customer the invoice is for.
 #
@@ -30,6 +31,13 @@
 #						55 - Refunded
 #						60 - Voided
 # 
+# flags:				The flags for the invoice to control shipping/pickup, etc.
+#
+#						0x01 - Ship this order
+#						0x02 - Ship partial order as fulfullied **future**
+#						0x04 -
+#						0x08 - 
+#
 # invoice_date:			The UTC date and time for the invoice.  When returning to the business,
 #						it should be converted to local timezone.  Most businesses won't care about
 #						the time, just the date.  The time is important for tax purposes, when 
@@ -55,9 +63,18 @@
 # shipping_postal:		The shipping postal/zip code.
 # shipping_country:		The shipping country.
 #
-# shipping_amount:		The amount charged to the customer for shipping.
-# sub_total_amount:		The amount before taxes.
-# total_amount:			The total amount of all items and taxes billed to the customer.
+# subtotal_amount:				The amount before taxes, NOT including shipping amount.
+# subtotal_discount_percentage:	The percent discount to apply to the subtotal amount.
+# subtotal_discount_amount:		The amount to discount the subtotal amount.
+# discount_amount:				The amount of discount on the invoice.  This is the discounts applied
+#								to the invoice, and should not include any discounts on items.
+# shipping_amount:				The amount charged to the customer for shipping.
+# total_amount:					The total amount of all items and taxes billed to the customer.
+# total_savings:				The sum of all discount_amount on the items in the invoice, and 
+#								the discount_amount for the invoice.
+#
+# user_id:				The ID of the user who created the invoice.  If the invoice was created
+#						online, it should be set to zero (0).
 #
 # invoice_notes:		Notes that will appear on the invoice.
 # internal_notes:		Notes that are for internal use only, and will not be shared with the customer.
@@ -72,6 +89,7 @@ create table ciniki_sapos_invoices (
 	invoice_number varchar(20) not null,
 	customer_id int not null,
 	status tinyint unsigned not null,
+	flags int unsigned not null,
 	invoice_date datetime not null,
 	due_date datetime not null,
 	billing_name varchar(250) not null,
@@ -88,13 +106,20 @@ create table ciniki_sapos_invoices (
 	shipping_province varchar(100) not null,
 	shipping_postal varchar(10) not null,
 	shipping_country varchar(50) not null,
+	subtotal_amount decimal(19,4) not null,
+	subtotal_discount_amount decimal(19,4) not null,
+	subtotal_discount_percentage decimal(19,4) not null,
+	discount_amount decimal(19,4) not null,
 	shipping_amount decimal(19,4) not null,
 	total_amount decimal(19,4) not null,
+	total_savings decimal(19,4) not null,
+	user_id int not null,
 	invoice_notes varchar(6000) not null,
 	internal_notes varchar(6000) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),
 	index (customer_id, status, invoice_date),
+	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

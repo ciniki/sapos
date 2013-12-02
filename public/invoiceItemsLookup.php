@@ -65,4 +65,3 @@ function ciniki_sapos_invoiceItemsLookup(&$ciniki) {
 	return array('stat'=>'ok', 'items'=>$items);
 }
 ?>
-

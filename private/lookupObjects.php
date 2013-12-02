@@ -13,8 +13,8 @@
 //
 function ciniki_sapos_lookupObjects(&$ciniki, $business_id, $objects) {
 	$items = array();
-	foreach($objects as $object => $object_id) {
-		list($pkg, $mod, $obj) = explode('.', $object);
+	foreach($objects as $o => $object) {
+		list($pkg, $mod, $obj) = explode('.', $object['object']);
 		$lookup_function = "{$pkg}_{$mod}_sapos_{$obj}Details";
 		// Check if function is already loaded
 		if( !is_callable($lookup_function) ) {
@@ -29,17 +29,17 @@ function ciniki_sapos_lookupObjects(&$ciniki, $business_id, $objects) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1027', 'msg'=>'Unable to load invoice item details'));
 		}
 
-		$rc = $lookup_function($ciniki, $business_id, $object_id);
+		$rc = $lookup_function($ciniki, $business_id, $object['id']);
 		if( $rc['stat'] != 'ok' ) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1010', 'msg'=>'Unable to load invoice item details', 'err'=>$rc['err']));
 		}
 		if( !isset($rc['details']) ) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1009', 'msg'=>'Unable to load invoice item details'));
 		}
-		$items[] = array('item'=>$rc['details']);
+		// $items[] = array('item'=>$rc['details']);
+		$items[] = $rc['details'];
 	}
 	
 	return array('stat'=>'ok', 'items'=>$items);
 }
 ?>
-

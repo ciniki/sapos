@@ -21,9 +21,9 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'customer_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Customer'), 
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Number'),
-		'status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'10', 'name'=>'Status'),
-		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'type'=>'date', 'name'=>'Invoice Date'),
-		'due_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'type'=>'date', 'name'=>'Due Date'),
+		'status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'20', 'name'=>'Status'),
+		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'type'=>'datetimetoutc', 'name'=>'Invoice Date'),
+		'due_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'', 'type'=>'datetimetoutc', 'name'=>'Due Date'),
 		'billing_name'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Billing Name'),
 		'billing_address1'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Billing Address Line 1'),
 		'billing_address2'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Billing Address Line 2'),
@@ -38,6 +38,8 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		'shipping_province'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Province'),
 		'shipping_postal'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Postal'),
 		'shipping_country'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Country'),
+		'invoice_notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Notes'),
+		'internal_notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Internal Notes'),
 		'objects'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'objectlist', 'name'=>'Items'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -61,8 +63,17 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// Force the invoice_date and due_date to be a date time with 12:00:00 (noon)
 	// This is used for calculating taxes based on invoice_date
 	//
-	$args['invoice_date'] += ' 12:00:00';
-	$args['due_date'] += ' 12:00:00';
+//	if( $args['invoice_date'] != '' ) {
+//		$args['invoice_date'] .= ' 12:00:00';
+//	}
+//	if( $args['due_date'] != '' ) {
+//		$args['due_date'] .= ' 12:00:00';
+//	}
+
+	//
+	// Set the user id who created the invoice
+	//
+	$args['user_id'] = $ciniki['session']['user']['id'];
 
 	//
 	// If a customer is specified, then lookup the customer details and fill out the invoice
@@ -115,7 +126,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 					$args['shipping_postal'] = $address['postal'];
 					$args['shipping_country'] = $address['country'];
 				}
-				if( ($address['flags']&0x02) == 0x01 && $args['billing_address1'] == '' ) {
+				if( ($address['flags']&0x02) == 0x02 && $args['billing_address1'] == '' ) {
 					$args['billing_address1'] = $address['address1'];
 					$args['billing_address2'] = $address['address2'];
 					$args['billing_city'] = $address['city'];
@@ -133,7 +144,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// Get the object details and turn them into item details for the invoice
 	//
 	$invoice_items = array();
-	if( isset($args['objects']) && is_array($args['objects']) ) {
+	if( isset($args['objects']) && is_array($args['objects']) && count($args['objects']) > 0 ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'lookupObjects');
 		$rc = ciniki_sapos_lookupObjects($ciniki, $args['business_id'], $args['objects']);
 		if( $rc['stat'] != 'ok' ) {
@@ -150,7 +161,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// Get the next available invoice number for the business
 	//
 	if( !isset($args['invoice_number']) || $args['invoice_number'] == '' ) {
-		$strsql = "SELECT MAX(invoice_number) AS curmax "
+		$strsql = "SELECT MAX(CAST(invoice_number AS UNSIGNED)) AS curmax "
 			. "FROM ciniki_sapos_invoices "
 			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "";
@@ -159,7 +170,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 			return $rc;
 		}
 		if( isset($rc['max_num']) ) {
-			$args['invoice_number'] = $rc['max_num']['curmax'] + 1;
+			$args['invoice_number'] = intval($rc['max_num']['curmax']) + 1;
 		} else {
 			$args['invoice_number'] = '1';
 		}
@@ -177,6 +188,13 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	}   
 
 	//
+	// Set the defaults for the invoice
+	//
+	$args['subtotal_amount'] = 0;
+	$args['shipping_amount'] = 0;
+	$args['total_amount'] = 0;
+
+	//
 	// Create the invoice
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
@@ -190,11 +208,24 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	//
 	// Add the items to the invoice
 	//
-	foreach($invoice_items as $item_id => $item) {
+	$line_number = 1;
+	foreach($invoice_items as $i => $item) {
 		$item['invoice_id'] = $invoice_id;
+		$item['line_number'] = $line_number++;
 		if( !isset($item['amount']) ) {
-			$item['amount'] = $item['quantity'] * $item['unit_amount'];
+			//
+			// Calculate the final amount for each item in the invoice
+			//
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+			$rc = ciniki_sapos_itemCalcAmount($ciniki, $item);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+			$item['subtotal_amount'] = $rc['subtotal'];
+			$item['discount_amount'] = $rc['discount'];
+			$item['total_amount'] = $rc['total'];
 		}
+
 		$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $item, 0x04);
 		if( $rc['stat'] != 'ok' ) {
 			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -203,10 +234,10 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	}
 
 	//
-	// Update the taxes
+	// Update the shipping costs, taxes, and total
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateTaxesAndTotal');
-	$rc = ciniki_sapos_invoiceUpdateTaxesAndTotal($ciniki, $args['business_id'], $invoice_id);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
+	$rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $args['business_id'], $invoice_id);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
@@ -232,7 +263,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// Return the invoice record
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-	$rc = ciniki_core_invoiceLoad($ciniki, $args['business_id'], $invoice_id);
+	$rc = ciniki_sapos_invoiceLoad($ciniki, $args['business_id'], $invoice_id);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}

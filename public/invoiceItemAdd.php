@@ -19,15 +19,16 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'),
-		'line_number'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Line Number'),
+		'line_number'=>array('required'=>'no', 'blank'=>'no', 'default'=>'1', 'name'=>'Line Number'),
 		'status'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Status'),
 		'object'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Object'),
 		'object_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Object ID'),
 		'description'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Description'),
-		'quantity'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'1', 'name'=>'Quantity'),
-		'unit_amount'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Unit Amount'),
-		'amount'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Amount'),
-		'taxtypes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Tax Types'),
+		'quantity'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'1', 'type'=>'int', 'name'=>'Quantity'),
+		'unit_amount'=>array('required'=>'yes', 'blank'=>'yes', 'type'=>'float', 'name'=>'Unit Amount'),
+		'unit_discount_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'float', 'name'=>'Discount Amount'),
+		'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'float', 'name'=>'Discount Percentage'),
+		'taxtype_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Tax Type'),
 		'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -45,22 +46,49 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
         return $rc;
     }
 
-	//
-	// Get the invoice id to update the taxes
-	//
-	$strsql = "SELECT invoice_id "
-		. "FROM ciniki_sapos_invoice_items "
-		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
-		. "";
-	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
-	if( $rc['stat'] != 'ok' ) { 
-		return $rc;
-	}   
-	if( !isset($rc['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1380', 'msg'=>'Unable to locate the item'));
+	if( !isset($args['unit_discount_amount']) || $args['unit_discount_amount'] == '' ) {
+		$args['unit_discount_amount'] = 0;
 	}
-	$invoice_id = $rc['item']['invoice_id'];
+	if( !isset($args['unit_discount_percentage']) || $args['unit_discount_percentage'] == '' ) {
+		$args['unit_discount_percentage'] = 0;
+	}
+
+	//
+	// Calculate the final amount for each item in the invoice
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+	$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
+		'quantity'=>$args['quantity'],
+		'unit_amount'=>$args['unit_amount'],
+		'unit_discount_amount'=>$args['unit_discount_amount'],
+		'unit_discount_percentage'=>$args['unit_discount_percentage'],
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$args['subtotal_amount'] = $rc['subtotal'];
+	$args['discount_amount'] = $rc['discount'];
+	$args['total_amount'] = $rc['total'];
+
+	//
+	// Get the max line_number for this invoice
+	//
+	if( !isset($args['line_number']) || $args['line_number'] == '' || $args['line_number'] == 0 ) {
+		$strsql = "SELECT MAX(line_number) AS maxnum "
+			. "FROM ciniki_sapos_invoice_items "
+			. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['num']) && isset($rc['num']['maxnum']) ) {
+			$args['line_number'] = intval($rc['num']['maxnum']) + 1;
+		} else {
+			$args['line_number'] = 1;
+		}
+	}
 
 	//
 	// Start transaction
@@ -68,7 +96,8 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateTaxesAndTotal');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
 	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.sapos');
 	if( $rc['stat'] != 'ok' ) { 
 		return $rc;
@@ -87,7 +116,17 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	//
 	// Update the taxes
 	//
-	$rc = ciniki_sapos_invoiceUpdateTaxesAndTotal($ciniki, $args['business_id'], $invoice_id);
+	$rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $args['business_id'], $args['invoice_id']);
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+		return $rc;
+	}
+
+	//
+	// Update the invoice status
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatus');
+	$rc = ciniki_sapos_invoiceUpdateStatus($ciniki, $args['business_id'], $args['invoice_id']);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
