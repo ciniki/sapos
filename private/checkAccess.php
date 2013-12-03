@@ -37,6 +37,40 @@ function ciniki_sapos_checkAccess($ciniki, $business_id, $method) {
 	}
 
 	//
+	// Only the owners can change the settings
+	//
+	if( $method == 'ciniki.sapos.settingsGet' 
+		|| $method == 'ciniki.sapos.settingsUpdate' ) {
+		//
+		// Users who are an owner or employee of a business can see the business alerts
+		//
+		$strsql = "SELECT business_id, user_id FROM ciniki_business_users "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+			. "AND package = 'ciniki' "
+			. "AND status = 10 "
+			. "AND (permission_group = 'owners') "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'user');
+		if( $rc['stat'] != 'ok' ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1401', 'msg'=>'Access denied.'));
+		}
+		//
+		// If the user has permission, return ok
+		//
+		if( isset($rc['rows']) && isset($rc['rows'][0]) 
+			&& $rc['rows'][0]['user_id'] > 0 && $rc['rows'][0]['user_id'] == $ciniki['session']['user']['id'] ) {
+			return array('stat'=>'ok', 'modules'=>$modules);
+		} 
+		
+		//
+		// Default to deny access
+		//
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1402', 'msg'=>'Access denied.'));
+	} 
+
+	//
 	// Users who are an owner or employee of a business can see the business alerts
 	//
 	$strsql = "SELECT business_id, user_id FROM ciniki_business_users "

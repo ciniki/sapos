@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_invoiceTransactionGet(&$ciniki) {
+function ciniki_sapos_transactionGet(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -30,7 +30,7 @@ function ciniki_sapos_invoiceTransactionGet(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceTransactionGet'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.transactionGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -59,7 +59,7 @@ function ciniki_sapos_invoiceTransactionGet(&$ciniki) {
 		. "ROUND(transaction_fees, 2) AS transaction_fees, "
 		. "ROUND(business_amount, 2) AS business_amount, "
 		. "notes "
-		. "FROM ciniki_sapos_invoice_transactions "
+		. "FROM ciniki_sapos_transactions "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['transaction_id']) . "' "
 		. "ORDER BY transaction_date ASC "

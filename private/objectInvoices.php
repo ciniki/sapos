@@ -40,13 +40,13 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 	// Get the invoices where an object has been invoiced for
 	//
 	$strsql = "SELECT ciniki_sapos_invoices.id, "
-		. "CONCAT_WS(' ', ciniki_customers.first, ciniki_customers.last) AS customer_name, "
+		. "CONCAT_WS(' ', ciniki_customers.prefix, ciniki_customers.first, ciniki_customers.middle, ciniki_customers.last, ciniki_customers.suffix) AS customer_name, "
 		. "ciniki_customers.first, ciniki_customers.last, ciniki_customers.company, "
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
 		. "ciniki_sapos_invoices.status AS status_text, "
-		. "ROUND(ciniki_sapos_invoice_items.amount, 2) AS amount, "
+		. "ROUND(ciniki_sapos_invoice_items.unit_amount, 2) AS unit_amount, "
 		. "ROUND(ciniki_sapos_invoices.total_amount, 2) AS total_amount "
 		. "FROM ciniki_sapos_invoice_items "
 		. "LEFT JOIN ciniki_sapos_invoices ON (ciniki_sapos_invoice_items.invoice_id = ciniki_sapos_invoices.id "
@@ -69,7 +69,7 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'customer_name', 'first', 'last', 'company', 
 				'invoice_number', 'invoice_date', 'status', 'status_text', 
-				'item_amount'=>'amount', 'total_amount'),
+				'item_amount'=>'unit_amount', 'total_amount'),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			'maps'=>array('status_text'=>$status_maps)),
 		));
@@ -77,6 +77,9 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 		return $rc;
 	}
 	if( isset($rc['invoices']) ) {
+		foreach($rc['invoices'] as $iid => $invoice) {
+			$rc['invoices'][$iid]['invoice']['customer_name'] = ltrim(rtrim(preg_replace('/  /', ' ', $invoice['invoice']['customer_name']), ' '), ' ');
+		}
 		return array('stat'=>'ok', 'invoices'=>$rc['invoices']);
 	}
 

@@ -62,6 +62,7 @@
 # shipping_province:	The shipping province/state.
 # shipping_postal:		The shipping postal/zip code.
 # shipping_country:		The shipping country.
+# shipping_notes:		The shipping notes.
 #
 # subtotal_amount:				The amount before taxes, NOT including shipping amount.
 # subtotal_discount_percentage:	The percent discount to apply to the subtotal amount.
@@ -106,6 +107,7 @@ create table ciniki_sapos_invoices (
 	shipping_province varchar(100) not null,
 	shipping_postal varchar(10) not null,
 	shipping_country varchar(50) not null,
+	shipping_notes varchar(5000) not null,
 	subtotal_amount decimal(19,4) not null,
 	subtotal_discount_amount decimal(19,4) not null,
 	subtotal_discount_percentage decimal(19,4) not null,

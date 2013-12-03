@@ -85,10 +85,10 @@ function ciniki_sapos_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);
-	$objects['invoice_transaction'] = array(
-		'name'=>'Invoice Transaction',
+	$objects['transaction'] = array(
+		'name'=>'Transaction',
 		'sync'=>'yes',
-		'table'=>'ciniki_sapos_invoice_transactions',
+		'table'=>'ciniki_sapos_transactions',
 		'fields'=>array(
 			'invoice_id'=>array('ref'=>'ciniki.sapos.invoice'),
 			'transaction_type'=>array(),
@@ -99,6 +99,10 @@ function ciniki_sapos_objects($ciniki) {
 			'business_amount'=>array(),
 			'user_id'=>array(),
 			'notes'=>array(),
+			'gateway'=>array(),
+			'gateway_token'=>array(),
+			'gateway_status'=>array(),
+			'gateway_response'=>array(),
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);

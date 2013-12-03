@@ -191,8 +191,12 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// Set the defaults for the invoice
 	//
 	$args['subtotal_amount'] = 0;
+	$args['subtotal_discount_amount'] = 0;
+	$args['subtotal_discount_percentage'] = 0;
+	$args['discount_amount'] = 0;
 	$args['shipping_amount'] = 0;
 	$args['total_amount'] = 0;
+	$args['total_savings'] = 0;
 
 	//
 	// Create the invoice

@@ -45,8 +45,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	//
 	// Load the transaction source maps
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceTransactionSourceMaps');
-	$rc = ciniki_sapos_invoiceTransactionSourceMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'transactionSourceMaps');
+	$rc = ciniki_sapos_transactionSourceMaps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
@@ -79,6 +79,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "shipping_province, "
 		. "shipping_postal, "
 		. "shipping_country, "
+		. "shipping_notes, "
 		. "ROUND(shipping_amount, 2) AS shipping_amount, "
 		. "ROUND(subtotal_amount, 2) AS subtotal_amount, "
 		. "subtotal_discount_percentage, "
@@ -99,7 +100,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'billing_name', 'billing_address1', 'billing_address2', 'billing_city', 
 				'billing_province', 'billing_postal', 'billing_country',
 				'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
-				'shipping_province', 'shipping_postal', 'shipping_country',
+				'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_notes',
 				'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
 				'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
 				'invoice_notes', 'internal_notes'),
@@ -221,8 +222,15 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	}
 	if( !isset($rc['taxes']) ) {
 		$invoice['taxes'] = array();
+		$invoice['taxes_amount'] = 0;
 	} else {
 		$invoice['taxes'] = $rc['taxes'];
+		$invoice['taxes_amount'] = 0;
+		foreach($rc['taxes'] as $tid => $tax) {
+			if( $tax['tax']['amount'] > 0 ) {
+				$invoice['taxes_amount'] = bcadd($invoice['taxes_amount'], $tax['tax']['amount'], 2);
+			}
+		}
 	}
 
 	//
@@ -238,9 +246,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "ROUND(transaction_fees, 2) AS transaction_fees, "
 		. "ROUND(business_amount, 2) AS business_amount, "
 		. "notes "
-		. "FROM ciniki_sapos_invoice_transactions "
-		. "WHERE ciniki_sapos_invoice_transactions.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-		. "AND ciniki_sapos_invoice_transactions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+		. "FROM ciniki_sapos_transactions "
+		. "WHERE ciniki_sapos_transactions.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+		. "AND ciniki_sapos_transactions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "ORDER BY transaction_date "
 		. "";
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(

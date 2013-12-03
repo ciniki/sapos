@@ -12,7 +12,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_invoiceTransactionDelete(&$ciniki) {
+function ciniki_sapos_transactionDelete(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -31,7 +31,7 @@ function ciniki_sapos_invoiceTransactionDelete(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceTransactionDelete'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.transactionDelete'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -39,8 +39,8 @@ function ciniki_sapos_invoiceTransactionDelete(&$ciniki) {
 	//
 	// Get the details of the transaction
 	//
-	$strsql = "SELECT uuid, invoice_id "
-		. "FROM ciniki_sapos_invoice_transactions "
+	$strsql = "SELECT uuid, invoice_id, gateway "
+		. "FROM ciniki_sapos_transactions "
 		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['transaction_id']) . "' "
 		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
@@ -52,6 +52,10 @@ function ciniki_sapos_invoiceTransactionDelete(&$ciniki) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1113', 'msg'=>'Unable to find transaction'));
 	}
 	$transaction = $rc['transaction'];
+
+	if( $transaction['gateway'] != '' ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1411', 'msg'=>'Unable to remove transaction that was processed through a payment service.'));
+	}
 
 	//
 	// Start the transaction
@@ -69,7 +73,7 @@ function ciniki_sapos_invoiceTransactionDelete(&$ciniki) {
 	// Remove the transaction
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
-	$rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.invoice_transaction', 
+	$rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.transaction', 
 		$args['transaction_id'], $transaction['uuid'], 0x04);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');

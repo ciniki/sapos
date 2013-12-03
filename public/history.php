@@ -51,10 +51,10 @@ function ciniki_sapos_history($ciniki) {
 		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
 			$args['business_id'], 'ciniki_sapos_invoice_items', $args['object_id'], $args['field']);
 	}
-	elseif( $args['object'] == 'ciniki.sapos.invoice_transaction' ) {
+	elseif( $args['object'] == 'ciniki.sapos.transaction' ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
 		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
-			$args['business_id'], 'ciniki_sapos_invoice_transactions', $args['object_id'], $args['field']);
+			$args['business_id'], 'ciniki_sapos_transactions', $args['object_id'], $args['field']);
 	}
 }
 ?>

@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_invoiceTransactionUpdate(&$ciniki) {
+function ciniki_sapos_transactionUpdate(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -38,7 +38,7 @@ function ciniki_sapos_invoiceTransactionUpdate(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceTransactionAdd'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.transactionAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -47,7 +47,7 @@ function ciniki_sapos_invoiceTransactionUpdate(&$ciniki) {
 	// Get the transaction details
 	//
 	$strsql = "SELECT invoice_id, customer_amount, transaction_fees, business_amount "
-		. "FROM ciniki_sapos_invoice_transactions "
+		. "FROM ciniki_sapos_transactions "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['transaction_id']) . "' "
 		. "";
@@ -93,7 +93,7 @@ function ciniki_sapos_invoiceTransactionUpdate(&$ciniki) {
 	// Update the transaction
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_transaction', 
+	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.transaction', 
 		$args['transaction_id'], $args, 0x04);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');

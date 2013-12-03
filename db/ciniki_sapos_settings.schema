@@ -15,6 +15,19 @@
 # fiscal-yearend-month:			The year end for the business.  Used for accounting purposes.  Default is 12.
 # fiscal-yearend-day:			The year end for the business.  Used for accounting purposes.  Default is 31.
 #
+# Paypal
+# paypal-api-processing:		(yes|no) Does the business have access to paypal API Credit Card processing.
+#								This typicall is available if they have the virtual terminal ability.
+#
+# paypal-test-account:			The dummy email address used for the test account.
+# paypal-test-endpoint:
+# paypal-test-clientid:
+# paypal-test-secret:
+#
+# paypal-live-endpoint:
+# paypal-live-clientid:
+# paypal-live-secret:
+#
 # Fields
 # ------
 # business_id:	The id of the business the detail is for.

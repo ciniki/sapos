@@ -101,26 +101,28 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 			if( (isset($args['shipping_name']) && $args['shipping_name'] == '') || $args['shipping_update'] == 'yes' ) {
 				$args['shipping_name'] = $customer_name;
 			}
-			foreach($customer['addresses'] as $aid => $address) {
-				if( ($address['flags']&0x01) == 0x01 
-					&& ((isset($args['shipping_address1']) && $args['shipping_address1'] == '') 
-						|| $args['shipping_update'] == 'yes') ) {
-					$args['shipping_address1'] = $address['address1'];
-					$args['shipping_address2'] = $address['address2'];
-					$args['shipping_city'] = $address['city'];
-					$args['shipping_province'] = $address['province'];
-					$args['shipping_postal'] = $address['postal'];
-					$args['shipping_country'] = $address['country'];
-				}
-				if( ($address['flags']&0x02) == 0x02 
-					&& ((isset($args['billing_address1']) && $args['billing_address1'] == '' )
-						|| $args['billing_update'] == 'yes') ) {
-					$args['billing_address1'] = $address['address1'];
-					$args['billing_address2'] = $address['address2'];
-					$args['billing_city'] = $address['city'];
-					$args['billing_province'] = $address['province'];
-					$args['billing_postal'] = $address['postal'];
-					$args['billing_country'] = $address['country'];
+			if( isset($customer['addresses']) ) {
+				foreach($customer['addresses'] as $aid => $address) {
+					if( ($address['flags']&0x01) == 0x01 
+						&& ((isset($args['shipping_address1']) && $args['shipping_address1'] == '') 
+							|| $args['shipping_update'] == 'yes') ) {
+						$args['shipping_address1'] = $address['address1'];
+						$args['shipping_address2'] = $address['address2'];
+						$args['shipping_city'] = $address['city'];
+						$args['shipping_province'] = $address['province'];
+						$args['shipping_postal'] = $address['postal'];
+						$args['shipping_country'] = $address['country'];
+					}
+					if( ($address['flags']&0x02) == 0x02 
+						&& ((isset($args['billing_address1']) && $args['billing_address1'] == '' )
+							|| $args['billing_update'] == 'yes') ) {
+						$args['billing_address1'] = $address['address1'];
+						$args['billing_address2'] = $address['address2'];
+						$args['billing_city'] = $address['city'];
+						$args['billing_province'] = $address['province'];
+						$args['billing_postal'] = $address['postal'];
+						$args['billing_country'] = $address['country'];
+					}
 				}
 			}
 		} else {

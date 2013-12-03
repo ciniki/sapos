@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_invoiceTransactionSourceMaps($ciniki) {
+function ciniki_sapos_transactionSourceMaps($ciniki) {
 	$maps = array(
 		'10'=>'Paypal',
 		'20'=>'Visa',

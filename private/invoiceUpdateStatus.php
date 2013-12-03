@@ -44,7 +44,7 @@ function ciniki_sapos_invoiceUpdateStatus($ciniki, $business_id, $invoice_id) {
 		. "ROUND(customer_amount, 2) AS customer_amount, "
 		. "ROUND(transaction_fees, 2) AS transaction_fees, "
 		. "ROUND(business_amount, 2) AS business_amount "
-		. "FROM ciniki_sapos_invoice_transactions "
+		. "FROM ciniki_sapos_transactions "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "AND invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 		. "";
@@ -88,6 +88,14 @@ function ciniki_sapos_invoiceUpdateStatus($ciniki, $business_id, $invoice_id) {
 		}
 		if( $amount_paid == 0 ) {
 			$new_status = 55;
+		}
+	}
+	elseif( $invoice['status'] == 55 ) {
+		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount']) {
+			$new_status = 40;
+		}
+		if( $amount_paid >= $invoice['total_amount'] ) {
+			$new_status = 50;
 		}
 	}
 	// If status is currently 60 (Void) then don't change.

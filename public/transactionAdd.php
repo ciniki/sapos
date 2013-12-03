@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_invoiceTransactionAdd(&$ciniki) {
+function ciniki_sapos_transactionAdd(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -38,7 +38,7 @@ function ciniki_sapos_invoiceTransactionAdd(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceTransactionAdd'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.transactionAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -61,6 +61,11 @@ function ciniki_sapos_invoiceTransactionAdd(&$ciniki) {
 		$args['business_amount'] = $args['customer_amount'] - $args['transaction_fees'];
 	}
 
+	$args['gateway'] = '';
+	$args['gateway_token'] = '';
+	$args['gateway_status'] = '';
+	$args['gateway_response'] = '';
+
 	//
 	// Start transaction
 	//
@@ -78,7 +83,7 @@ function ciniki_sapos_invoiceTransactionAdd(&$ciniki) {
 	// Add the transaction
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-	$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.invoice_transaction', $args, 0x04);
+	$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.transaction', $args, 0x04);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
