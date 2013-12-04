@@ -31,8 +31,11 @@
 #
 #						0 - unknown
 #						10 - paypal
-#						20 - Visa
-#						30 - Mastercard
+#						20 - Square
+#						50 - Visa
+#						55 - Mastercard
+#						60 - Discover
+#						65 - Amex
 #						90 - Interac
 #						100 - Cash
 #						105 - Check

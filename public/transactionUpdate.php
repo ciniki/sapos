@@ -22,7 +22,7 @@ function ciniki_sapos_transactionUpdate(&$ciniki) {
 		'transaction_type'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Type'),
 		'transaction_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Date'),
 		'source'=>array('required'=>'no', 'blank'=>'no', 'name'=>'source',
-			'validlist'=>array('10','20','30','90','100','105','110','120')),
+			'validlist'=>array('10','20','50','55','60','65','90','100','105','110','120')),
 		'customer_amount'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer Amount'),
 		'transaction_fees'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Fees'),
 		'business_amount'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Business Amount'),
