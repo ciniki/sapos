@@ -27,6 +27,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	}
 	$intl_timezone = $rc['settings']['intl-default-timezone'];
 
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'timeFormat');
+	$time_format = ciniki_users_timeFormat($ciniki, 'php');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki, 'php');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
@@ -64,7 +66,11 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "status AS status_text, "
 		. "flags, "
 		. "invoice_date, "
+		. "invoice_date AS invoice_time, "
+		. "invoice_date AS invoice_datetime, "
 		. "due_date, "
+		. "due_date AS due_time, "
+		. "due_date AS due_datetime, "
 		. "billing_name, "
 		. "billing_address1, "
 		. "billing_address2, "
@@ -96,7 +102,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'customer_id', 'status', 'status_text',
-				'flags', 'invoice_date', 'due_date',
+				'flags', 'invoice_date', 'invoice_time', 'invoice_datetime', 'due_date',
 				'billing_name', 'billing_address1', 'billing_address2', 'billing_city', 
 				'billing_province', 'billing_postal', 'billing_country',
 				'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
@@ -104,8 +110,13 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
 				'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
 				'invoice_notes', 'internal_notes'),
-			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
-				'due_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
+			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+				'invoice_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
+				'invoice_datetime'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
+				'due_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+				'due_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
+				'due_datetime'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
+				),
 			'maps'=>array('status_text'=>$status_maps)),
 		));
 	if( $rc['stat'] != 'ok' ) {

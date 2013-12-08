@@ -1,21 +1,30 @@
 #
 # Description
-# -----------
+# ===========
 # This tables stores the settings for the sapos module.
 #
-# Valid settings are:
-# invoice-shipping-address:		(yes|no) Does the business use shipping addresses on invoices.
+# Invoice Settings
+# ----------------
+# invoice-header-image:			The ID of the image to use has a logo or header on the invoice.
 #
-# invoice-header-image:			The ID of the image to use has a header on the invoice.
-# invoice-header-logo:			The ID of the image to use as a logo on the invoice.  
-#								The business name will go beside the logo.
+# invoice-header-contact-position:	(left|center|right|off) the position of the address information.
+# invoice-header-business-name:		(yes|no) Include the business name.
+# invoice-header-business-address:	(yes|no) Include the business name.
+# invoice-header-business-phone:	(yes|no) Include the business phone number.
+# invoice-header-business-fax:		(yes|no) Include the business fax number.
+# invoice-header-business-email:	(yes|no) Include the business contact email.
+# invoice-header-business-website:	(yes|no) Include the business website.
 #
+# invoice-bottom-message:		The text to show before the footer.
 # invoice-footer-message: 		The text to show in the footer of the invoice.
 #
+# Fiscal Year Settings
+# --------------------
 # fiscal-yearend-month:			The year end for the business.  Used for accounting purposes.  Default is 12.
 # fiscal-yearend-day:			The year end for the business.  Used for accounting purposes.  Default is 31.
 #
-# Paypal
+# Paypal Settings
+# ---------------
 # paypal-api-processing:		(yes|no) Does the business have access to paypal API Credit Card processing.
 #								This typicall is available if they have the virtual terminal ability.
 #
@@ -29,7 +38,7 @@
 # paypal-live-secret:
 #
 # Fields
-# ------
+# ======
 # business_id:	The id of the business the detail is for.
 # detail_key:	The unique key for the detail.
 # detail_value:	The value stored for this key.

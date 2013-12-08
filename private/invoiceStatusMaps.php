@@ -14,7 +14,7 @@ function ciniki_sapos_invoiceStatusMaps($ciniki) {
 	
 	$status_maps = array(
 		'10'=>'Shopping Cart',
-		'20'=>'Creating',
+		'20'=>'',	// Created - no status
 		'30'=>'Entered',
 		'40'=>'Deposit',
 		'50'=>'Paid',
