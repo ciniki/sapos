@@ -197,6 +197,8 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	$args['shipping_amount'] = 0;
 	$args['total_amount'] = 0;
 	$args['total_savings'] = 0;
+	$args['paid_amount'] = 0;
+	$args['balance_amount'] = 0;
 
 	//
 	// Create the invoice
