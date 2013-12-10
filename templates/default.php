@@ -410,6 +410,13 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 	$pdf->Ln();
 
 	//
+	// Add an extra space for invoices with few items
+	//
+	if( count($baddr) == 0 && count($saddr) == 0 && count($invoice['items']) < 5 ) {
+		$pdf->Ln(10);
+	}
+
+	//
 	// Add the invoice items
 	//
 	$w = array(100, 50, 30);
