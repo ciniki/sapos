@@ -5,7 +5,10 @@
 #
 # Invoice Settings
 # ----------------
-# invoice-header-image:			The ID of the image to use has a logo or header on the invoice.
+# invoice-default-template:			The template to use for invoices.  If none is specified, the 
+#									default template is used.
+#
+# invoice-header-image:				The ID of the image to use has a logo or header on the invoice.
 #
 # invoice-header-contact-position:	(left|center|right|off) the position of the address information.
 # invoice-header-business-name:		(yes|no) Include the business name.

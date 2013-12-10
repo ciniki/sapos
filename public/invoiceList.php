@@ -42,6 +42,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		return $rc;
 	}
 	$intl_timezone = $rc['settings']['intl-default-timezone'];
+	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+	$intl_currency = $rc['settings']['intl-default-currency'];
+
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki, 'php');
 
@@ -96,6 +99,8 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	}
 	foreach($rc['invoices'] as $iid => $invoice) {
 		$rc['invoices'][$iid]['invoice']['customer_name'] = ltrim(rtrim(preg_replace('/  /', ' ', $invoice['invoice']['customer_name']), ' '), ' ');
+		$rc['invoices'][$iid]['invoice']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+			$invoice['invoice']['total_amount'], $intl_currency);
 	}
 
 	return array('stat'=>'ok', 'invoices'=>$rc['invoices']);

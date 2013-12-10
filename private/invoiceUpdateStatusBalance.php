@@ -13,7 +13,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_invoiceUpdateStatus($ciniki, $business_id, $invoice_id) {
+function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice_id) {
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
@@ -23,7 +23,9 @@ function ciniki_sapos_invoiceUpdateStatus($ciniki, $business_id, $invoice_id) {
 	// Get the invoice details
 	//
 	$strsql = "SELECT status, "
-		. "ROUND(total_amount, 2) AS total_amount "
+		. "ROUND(total_amount, 2) AS total_amount, "
+		. "ROUND(paid_amount, 2) AS paid_amount, "
+		. "ROUND(balance_amount, 2) AS balance_amount "
 		. "FROM ciniki_sapos_invoices "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "AND id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
@@ -101,11 +103,23 @@ function ciniki_sapos_invoiceUpdateStatus($ciniki, $business_id, $invoice_id) {
 	// If status is currently 60 (Void) then don't change.
 
 	//
-	// If the status should be changed, update
+	// Check if any values have changed
 	//
+	$args = array();
 	if( $new_status > 0 ) {
+		$args['status'] = $new_status;
+	}
+	if( $amount_paid != $invoice['paid_amount'] ) {	
+		$args['paid_amount'] = $amount_paid;
+	}
+	$balance_amount = bcsub($invoice['total_amount'], $amount_paid, 2);
+	if( $balance_amount != $invoice['balance_amount'] ) {
+		$args['balance_amount'] = $balance_amount;
+	}
+
+	if( count($args) > 0 ) {
 		$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 
-			$invoice_id, array('status'=>$new_status), 0x04);
+			$invoice_id, $args, 0x04);
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}

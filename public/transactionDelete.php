@@ -53,7 +53,7 @@ function ciniki_sapos_transactionDelete(&$ciniki) {
 	}
 	$transaction = $rc['transaction'];
 
-	if( $transaction['gateway'] != '' ) {
+	if( $transaction['gateway'] > 0 ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1411', 'msg'=>'Unable to remove transaction that was processed through a payment service.'));
 	}
 
@@ -81,10 +81,10 @@ function ciniki_sapos_transactionDelete(&$ciniki) {
 	}
 
 	//
-	// Update the invoice status
+	// Update the invoice status, balance
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatus');
-	$rc = ciniki_sapos_invoiceUpdateStatus($ciniki, $args['business_id'], $transaction['invoice_id']);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+	$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $transaction['invoice_id']);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;

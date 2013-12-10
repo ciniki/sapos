@@ -103,8 +103,8 @@ function ciniki_sapos_transactionUpdate(&$ciniki) {
 	//
 	// Update the invoice status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatus');
-	$rc = ciniki_sapos_invoiceUpdateStatus($ciniki, $args['business_id'], $transaction['invoice_id']);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+	$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $transaction['invoice_id']);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;

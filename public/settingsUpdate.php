@@ -75,6 +75,16 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'paypal-live-endpoint',
 		'paypal-live-clientid',
 		'paypal-live-secret',
+		'invoice-header-image',
+		'invoice-header-contact-position',
+		'invoice-header-business-name',
+		'invoice-header-business-address',
+		'invoice-header-business-phone',
+		'invoice-header-business-fax',
+		'invoice-header-business-email',
+		'invoice-header-business-website',
+		'invoice-bottom-message',
+		'invoice-footer-message',
 		);
 	//
 	// Check each valid setting and see if a new value was passed in the arguments for it.

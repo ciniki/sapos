@@ -26,6 +26,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		return $rc;
 	}
 	$intl_timezone = $rc['settings']['intl-default-timezone'];
+	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+	$intl_currency = $rc['settings']['intl-default-currency'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'timeFormat');
 	$time_format = ciniki_users_timeFormat($ciniki, 'php');
@@ -93,6 +95,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "ROUND(discount_amount, 2) AS discount_amount, "
 		. "ROUND(total_amount, 2) AS total_amount, "
 		. "ROUND(total_savings, 2) AS total_savings, "
+		. "ROUND(paid_amount, 2) AS paid_amount, "
+		. "ROUND(balance_amount, 2) AS balance_amount, "
 		. "invoice_notes, "
 		. "internal_notes "
 		. "FROM ciniki_sapos_invoices "
@@ -109,6 +113,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_notes',
 				'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
 				'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
+				'paid_amount', 'balance_amount',
 				'invoice_notes', 'internal_notes'),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
 				'invoice_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
@@ -209,6 +214,16 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		foreach($invoice['items'] as $iid => $item) {
 			$invoice['items'][$iid]['item']['unit_discount_percentage'] = (float)$item['item']['unit_discount_percentage'];
 			$invoice['items'][$iid]['item']['quantity'] = (float)$item['item']['quantity'];
+			$invoice['items'][$iid]['item']['unit_discount_amount_display'] = numfmt_format_currency(
+				$intl_currency_fmt, $item['item']['unit_discount_amount'], $intl_currency);
+			$invoice['items'][$iid]['item']['unit_amount_display'] = numfmt_format_currency(
+				$intl_currency_fmt, $item['item']['unit_amount'], $intl_currency);
+			$invoice['items'][$iid]['item']['subtotal_amount_display'] = numfmt_format_currency(
+				$intl_currency_fmt, $item['item']['subtotal_amount'], $intl_currency);
+			$invoice['items'][$iid]['item']['discount_amount_display'] = numfmt_format_currency(
+				$intl_currency_fmt, $item['item']['discount_amount'], $intl_currency);
+			$invoice['items'][$iid]['item']['total_amount_display'] = numfmt_format_currency(
+				$intl_currency_fmt, $item['item']['total_amount'], $intl_currency);
 		}
 	}
 
@@ -240,7 +255,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		foreach($rc['taxes'] as $tid => $tax) {
 			if( $tax['tax']['amount'] > 0 ) {
 				$invoice['taxes_amount'] = bcadd($invoice['taxes_amount'], $tax['tax']['amount'], 2);
-			}
+			} 
+			$invoice['taxes'][$tid]['tax']['amount_display'] = numfmt_format_currency(
+				$intl_currency_fmt, $tax['tax']['amount'], $intl_currency);
 		}
 	}
 
@@ -278,23 +295,50 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	}
 	if( !isset($rc['transactions']) ) {
 		$invoice['transactions'] = array();
-		$invoice['balance_amount'] = $invoice['total_amount'];
+//		$invoice['balance_amount'] = $invoice['total_amount'];
 	} else {
 		$invoice['transactions'] = $rc['transactions'];
 		//
 		// Sum up the transactions for a current balance
 		//
-		$balance = $invoice['total_amount'];
+//		$balance = $invoice['total_amount'];
 		foreach($rc['transactions'] as $tid => $transaction) {	
-			if( $transaction['transaction']['transaction_type'] == 10 
-				|| $transaction['transaction']['transaction_type'] == 20 ) {
-				$balance = bcsub($balance, $transaction['transaction']['customer_amount'], 4);
-			} elseif( $transaction['transaction']['transaction_type'] == 60 ) {
-				$balance = bcadd($balance, $transaction['transaction']['customer_amount'], 4);
-			}
+//			if( $transaction['transaction']['transaction_type'] == 10 
+//				|| $transaction['transaction']['transaction_type'] == 20 ) {
+//				$balance = bcsub($balance, $transaction['transaction']['customer_amount'], 4);
+//			} elseif( $transaction['transaction']['transaction_type'] == 60 ) {
+//				$balance = bcadd($balance, $transaction['transaction']['customer_amount'], 4);
+//			}
+			$invoice['transactions'][$tid]['transaction']['customer_amount'] = numfmt_format_currency(
+				$intl_currency_fmt, $transaction['transaction']['customer_amount'], $intl_currency);
+			$invoice['transactions'][$tid]['transaction']['business_amount'] = numfmt_format_currency(
+				$intl_currency_fmt, $transaction['transaction']['business_amount'], $intl_currency);
 		}
-		$invoice['balance_amount'] = sprintf("%.2f", $balance);
+//		$invoice['balance_amount'] = numfmt_format_currency(
+//			$intl_currency_fmt, doubleval($balance), $intl_currency);
 	}
+
+	//
+	// Format the currency numbers
+	//
+	$invoice['subtotal_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['subtotal_amount'], $intl_currency);
+	$invoice['subtotal_discount_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['subtotal_discount_amount'], $intl_currency);
+	$invoice['discount_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['discount_amount'], $intl_currency);
+	$invoice['shipping_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['shipping_amount'], $intl_currency);
+	$invoice['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['total_amount'], $intl_currency);
+	$invoice['total_savings_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['total_savings'], $intl_currency);
+	$invoice['taxes_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['taxes_amount'], $intl_currency);
+	$invoice['paid_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['paid_amount'], $intl_currency);
+	$invoice['balance_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$invoice['balance_amount'], $intl_currency);
 
 	return array('stat'=>'ok', 'invoice'=>$invoice);
 }

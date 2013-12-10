@@ -115,6 +115,8 @@ create table ciniki_sapos_invoices (
 	shipping_amount decimal(19,4) not null,
 	total_amount decimal(19,4) not null,
 	total_savings decimal(19,4) not null,
+	paid_amount decimal(19,4) not null,
+	balance_amount decimal(19,4) not null,
 	user_id int not null,
 	invoice_notes varchar(6000) not null,
 	internal_notes varchar(6000) not null,
@@ -124,4 +126,4 @@ create table ciniki_sapos_invoices (
 	index (customer_id, status, invoice_date),
 	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';

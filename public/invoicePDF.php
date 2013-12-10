@@ -63,9 +63,23 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
 	} else {
 		$sapos_settings = array();
 	}
+	
+	//
+	// FIXME: check for invoice-default-template
+	//
+	if( !isset($sapos_settings['invoice-default-template']) 
+		|| $sapos_settings['invoice-default-template'] == '' ) {
+		$invoice_template = 'default';
+	} else {
+		$invoice_template = $sapos_settings['invoice-default-template'];
+	}
 
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoicePDFDefault');
-	return ciniki_sapos_invoicePDFDefault($ciniki, $args['business_id'], $args['invoice_id'],
+	$rc = ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'templates', $invoice_template);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+
+	return ciniki_sapos_templates_default($ciniki, $args['business_id'], $args['invoice_id'],
 		$business_details, $sapos_settings);
 }
 ?>
