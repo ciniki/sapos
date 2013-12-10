@@ -469,7 +469,6 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 		}
 		$pdf->MultiCell($w[0], $lh, $item['item']['description'], 1, 'L', $fill, 
 			0, '', '', true, 0, false, true, 0, 'T', false);
-		error_log('nlines: ' . $nlines);
 		$quantity = (($item['item']['quantity']>0&&$item['item']['quantity']!=1)?($item['item']['quantity'].' @ '):'');
 		if( $discount == '' ) {
 //			$pdf->Cell($w[1], $lh, $quantity . $item['item']['unit_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
