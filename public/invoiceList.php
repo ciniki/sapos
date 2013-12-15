@@ -127,12 +127,20 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	if( !isset($rc['invoices']) ) {
 		return array('stat'=>'ok', 'invoices'=>array());
 	}
+	$totals = array(
+		'total_amount'=>0,
+		);
 	foreach($rc['invoices'] as $iid => $invoice) {
 		$rc['invoices'][$iid]['invoice']['customer_name'] = ltrim(rtrim(preg_replace('/  /', ' ', $invoice['invoice']['customer_name']), ' '), ' ');
 		$rc['invoices'][$iid]['invoice']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
 			$invoice['invoice']['total_amount'], $intl_currency);
+		$totals['total_amount'] = bcadd($totals['total_amount'], $invoice['invoice']['total_amount']);
 	}
 
-	return array('stat'=>'ok', 'invoices'=>$rc['invoices']);
+	$totals['total_amount'] = numfmt_format_currency($intl_currency_fmt,
+		$totals['total_amount'], $intl_currency);
+	$totals['num_invoices'] = count($rc['invoices']);
+
+	return array('stat'=>'ok', 'totals'=>$totals, 'invoices'=>$rc['invoices']);
 }
 ?>
