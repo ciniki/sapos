@@ -18,6 +18,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
+        'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
+        'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         )); 
@@ -74,6 +77,33 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 			. ") "
 		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
+	if( isset($args['year']) && $args['year'] != '' ) {
+		//
+		// Set the start and end date for the business timezone, then convert to UTC
+		//
+		$tz = new DateTimeZone($intl_timezone);
+		if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
+			$start_date = new DateTime($args['year'] . '-' . $args['month'] . '-01 00.00.00', $tz);
+			$end_date = clone $start_date;
+			// Find the end of the month
+			$end_date->add(new DateInterval('P1M'));
+		} else {
+			$start_date = new DateTime($args['year'] . '-01-01 00.00.00', $tz);
+			$end_date = clone $start_date;
+			// Find the end of the year
+			$end_date->add(new DateInterval('P1Y'));
+		}
+		$start_date->setTimezone(new DateTimeZone('UTC'));
+		$end_date->setTimeZone(new DateTimeZone('UTC'));
+		//
+		// Add to SQL string
+		//
+		$strsql .= "AND ciniki_sapos_invoices.invoice_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
+		$strsql .= "AND ciniki_sapos_invoices.invoice_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
+	}
+	if( isset($args['status']) && $args['status'] > 0 ) {
+		$strsql .= "AND ciniki_sapos_invoices.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
+	}
 	if( isset($args['sort']) ) {
 		if( $args['sort'] == 'latest' ) {
 			$strsql .= "ORDER BY ciniki_sapos_invoices.last_updated DESC ";

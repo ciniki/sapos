@@ -19,6 +19,7 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'), 
+        'sort'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Search String'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -86,6 +87,8 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 	if( isset($args['sort']) ) {
 		if( $args['sort'] == 'latest' ) {
 			$strsql .= "ORDER BY ciniki_sapos_invoices.last_updated DESC ";
+		} elseif( $args['sort'] == 'reverse' ) {
+			$strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date DESC ";
 		}
 	}
 	if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
