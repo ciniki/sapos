@@ -45,6 +45,9 @@ function ciniki_sapos_transactionGet(&$ciniki) {
 		return $rc;
 	}
 	$intl_timezone = $rc['settings']['intl-default-timezone'];
+	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+	$intl_currency = $rc['settings']['intl-default-currency'];
+
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
 	$datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
 
@@ -55,9 +58,9 @@ function ciniki_sapos_transactionGet(&$ciniki) {
 		. "transaction_type, "
 		. "transaction_date, "
 		. "source, "
-		. "ROUND(customer_amount, 2) AS customer_amount, "
-		. "ROUND(transaction_fees, 2) AS transaction_fees, "
-		. "ROUND(business_amount, 2) AS business_amount, "
+		. "customer_amount, "
+		. "transaction_fees, "
+		. "business_amount, "
 		. "notes "
 		. "FROM ciniki_sapos_transactions "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -79,6 +82,12 @@ function ciniki_sapos_transactionGet(&$ciniki) {
 		return array('stat'=>'ok', 'invoices'=>array());
 	}
 	$transaction = $rc['transactions'][0]['transaction'];
+	$transaction['customer_amount'] = numfmt_format_currency($intl_currency_fmt,
+		$transaction['customer_amount'], $intl_currency);
+	$transaction['transaction_fees'] = numfmt_format_currency($intl_currency_fmt,
+		$transaction['transaction_fees'], $intl_currency);
+	$transaction['business_amount'] = numfmt_format_currency($intl_currency_fmt,
+		$transaction['business_amount'], $intl_currency);
 
 	return array('stat'=>'ok', 'transaction'=>$transaction);
 }

@@ -22,6 +22,8 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 		return $rc;
 	}
 	$intl_timezone = $rc['settings']['intl-default-timezone'];
+	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+	$intl_currency = $rc['settings']['intl-default-currency'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki, 'php');
@@ -46,8 +48,9 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
 		. "ciniki_sapos_invoices.status AS status_text, "
-		. "ROUND(ciniki_sapos_invoice_items.unit_amount, 2) AS unit_amount, "
-		. "ROUND(ciniki_sapos_invoices.total_amount, 2) AS total_amount "
+		. "ciniki_sapos_invoice_items.unit_amount, "
+		. "ciniki_sapos_invoice_items.total_amount AS item_total_amount, "
+		. "ciniki_sapos_invoices.total_amount "
 		. "FROM ciniki_sapos_invoice_items "
 		. "LEFT JOIN ciniki_sapos_invoices ON (ciniki_sapos_invoice_items.invoice_id = ciniki_sapos_invoices.id "
 			. "AND ciniki_sapos_invoices.status < 60 "
@@ -69,7 +72,7 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'customer_name', 'first', 'last', 'company', 
 				'invoice_number', 'invoice_date', 'status', 'status_text', 
-				'item_amount'=>'unit_amount', 'total_amount'),
+				'item_amount'=>'item_total_amount', 'total_amount'),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			'maps'=>array('status_text'=>$status_maps)),
 		));
@@ -79,6 +82,10 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 	if( isset($rc['invoices']) ) {
 		foreach($rc['invoices'] as $iid => $invoice) {
 			$rc['invoices'][$iid]['invoice']['customer_name'] = ltrim(rtrim(preg_replace('/  /', ' ', $invoice['invoice']['customer_name']), ' '), ' ');
+			$rc['invoices'][$iid]['invoice']['item_amount'] = numfmt_format_currency($intl_currency_fmt,
+				$invoice['invoice']['item_amount'], $intl_currency);
+			$rc['invoices'][$iid]['invoice']['total_amount'] = numfmt_format_currency($intl_currency_fmt,
+				$invoice['invoice']['total_amount'], $intl_currency);
 		}
 		return array('stat'=>'ok', 'invoices'=>$rc['invoices']);
 	}

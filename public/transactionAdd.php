@@ -23,9 +23,12 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
 		'transaction_date'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Date'),
 		'source'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'source',
 			'validlist'=>array('10','20','50','55','60','65','90','100','105','110','120')),
-		'customer_amount'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Customer Amount'),
-		'transaction_fees'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Fees'),
-		'business_amount'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Business Amount'),
+		'customer_amount'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'currency', 
+			'name'=>'Customer Amount'),
+		'transaction_fees'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'type'=>'currency', 
+			'name'=>'Fees'),
+		'business_amount'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'type'=>'currency', 
+			'name'=>'Business Amount'),
 		'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -57,8 +60,8 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
 	//
 	// Check if business amount not specified, then set the same as customer_amount
 	//
-	if( !isset($args['business_amount']) || $args['business_amount'] == '' ) {
-		$args['business_amount'] = $args['customer_amount'] - $args['transaction_fees'];
+	if( !isset($args['business_amount']) || $args['business_amount'] == '' || $args['business_amount'] == '0' ) {
+		$args['business_amount'] = bcsub($args['customer_amount'], $args['transaction_fees']);
 	}
 
 	$args['gateway'] = '';

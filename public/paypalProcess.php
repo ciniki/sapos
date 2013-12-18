@@ -156,13 +156,13 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
 
 	$result = curl_exec($ch);
 	if( empty($result) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1405', 'msg'=>'Unable to authenticate with paypal, please check your settings and try again.'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1419', 'msg'=>'Unable to authenticate with paypal, please check your settings and try again.'));
 	} 
 	$json = json_decode($result, true);
 	$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	if( $http_status != '200' ) {
 		error_log("Paypal Auth Error[$http_status]: " . print_r($json, true));
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1407', 'msg'=>'Paypal Error: ' . $json['name'] . ' - ' . $json['message']));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1420', 'msg'=>'Paypal Error: ' . $json['name'] . ' - ' . $json['message']));
 	}
 	$paypal_access_token = $json['access_token'];
 	$paypal_token_type = $json['token_type'];
@@ -189,7 +189,7 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
 	);
 	$result = curl_exec($ch);
 	if( empty($result) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1406', 'msg'=>'Unable to process payment with paypal, please check your settings and try again.'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1421', 'msg'=>'Unable to process payment with paypal, please check your settings and try again.'));
 	} 
 	$paypal_response = json_decode($result, true);
 	$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -207,7 +207,7 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
 				$last_err = $err;
 			}
 		}
-		$err = array('pkg'=>'ciniki', 'code'=>'1407', 'msg'=>'Paypal Error: ' . $paypal_response['name'] . ' - ' . $paypal_response['message']);
+		$err = array('pkg'=>'ciniki', 'code'=>'1422', 'msg'=>'Paypal Error: ' . $paypal_response['name'] . ' - ' . $paypal_response['message']);
 		if( $last_err != null ) {
 			$err['err'] = $last_err;
 		} 
@@ -218,7 +218,7 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
 		&& $paypal_response['state'] != 'pending' 
 		&& $paypal_response['state'] != 'created' 
 		) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1407', 'msg'=>'The transaction was not approved.'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1422', 'msg'=>'The transaction was not approved.'));
 	}
 	curl_close($ch);
 

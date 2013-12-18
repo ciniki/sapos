@@ -47,11 +47,23 @@ function ciniki_sapos_history($ciniki) {
 			$args['business_id'], 'ciniki_sapos_invoices', $args['object_id'], $args['field']);
 	}
 	elseif( $args['object'] == 'ciniki.sapos.invoice_item' ) {
+		if( $args['field'] == 'unit_amount' || $args['field'] == 'unit_discount_amount' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+				$args['business_id'], 'ciniki_sapos_invoice_items', $args['object_id'], $args['field'], 'currency');
+		} 
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
 		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
 			$args['business_id'], 'ciniki_sapos_invoice_items', $args['object_id'], $args['field']);
 	}
 	elseif( $args['object'] == 'ciniki.sapos.transaction' ) {
+		if( $args['field'] == 'customer_amount' 
+			|| $args['field'] == 'transaction_fees' 
+			|| $args['field'] == 'business_amount' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+				$args['business_id'], 'ciniki_sapos_transactions', $args['object_id'], $args['field'], 'currency');
+		} 
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
 		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
 			$args['business_id'], 'ciniki_sapos_transactions', $args['object_id'], $args['field']);
