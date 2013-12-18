@@ -37,6 +37,18 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
     }
 	$modules = $rc['modules'];
 
+	//
+	// Load the business intl settings
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+	$rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$intl_timezone = $rc['settings']['intl-default-timezone'];
+	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+	$intl_currency = $rc['settings']['intl-default-currency'];
+
 //	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
 //	$utc_offset = ciniki_businesses_timezoneOffset($ciniki);
 //	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
@@ -51,12 +63,12 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
 		. "object_id, "
 		. "description, "
 		. "quantity, "
-		. "ROUND(unit_amount, 2) AS unit_amount, "
-		. "ROUND(unit_discount_amount, 2) AS unit_discount_amount, "
+		. "unit_amount, "
+		. "unit_discount_amount, "
 		. "unit_discount_percentage, "
-		. "ROUND(subtotal_amount, 2) AS subtotal_amount, "
-		. "ROUND(discount_amount, 2) AS discount_amount, "
-		. "ROUND(total_amount, 2) AS total_amount, "
+		. "subtotal_amount, "
+		. "discount_amount, "
+		. "total_amount, "
 		. "taxtype_id, "
 		. "notes "
 		. "FROM ciniki_sapos_invoice_items "
@@ -75,7 +87,14 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
 
 	$item['quantity'] = (float)$item['quantity'];
 	$item['unit_discount_percentage'] = (float)$item['unit_discount_percentage'];
-	$item['unit_discount_amount'] = (float)$item['unit_discount_amount'];
+	$item['unit_amount'] = numfmt_format_currency($intl_currency_fmt, 
+		$item['unit_amount'], $intl_currency);
+	$item['unit_discount_amount'] = numfmt_format_currency($intl_currency_fmt, 
+		$item['unit_discount_amount'], $intl_currency);
+	$item['subtotal_amount'] = numfmt_format_currency($intl_currency_fmt, 
+		$item['subtotal_amount'], $intl_currency);
+	$item['total_amount'] = numfmt_format_currency($intl_currency_fmt, 
+		$item['total_amount'], $intl_currency);
 
 	//
 	// Get the tax types available for the business

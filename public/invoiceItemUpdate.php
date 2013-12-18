@@ -25,9 +25,9 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
 		'object_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object ID'),
 		'description'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Description'),
 		'quantity'=>array('required'=>'no', 'blank'=>'no', 'type'=>'int', 'name'=>'Quantity'),
-		'unit_amount'=>array('required'=>'no', 'blank'=>'no', 'type'=>'float', 'name'=>'Unit Amount'),
-		'unit_discount_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'float', 'name'=>'Discount Amount'),
-		'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'float', 'name'=>'Discount Percentage'),
+		'unit_amount'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Unit Amount'),
+		'unit_discount_amount'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Amount'),
+		'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Percentage'),
 		'taxtype_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Tax Type'),
 		'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
         )); 
@@ -46,9 +46,36 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         return $rc;
     }
 
-	if( isset($args['unit_discount_amount']) && $args['unit_discount_amount'] == '' ) {
-		$args['unit_discount_amount'] = 0;
+	//
+	// Load business intl settings
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+	$rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
 	}
+	$intl_timezone = $rc['settings']['intl-default-timezone'];
+	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+	$intl_currency = $rc['settings']['intl-default-currency'];
+
+	//
+	// Check the format of the price
+	//
+	if( isset($args['unit_amount']) ) {
+		$unit_amount = numfmt_parse_currency($intl_currency_fmt, $args['unit_amount'], $intl_currency);
+		if( $unit_amount === FALSE ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1415', 'msg'=>'Invalid price format'));
+		}
+		$args['unit_amount'] = $unit_amount;
+	}
+	if( isset($args['unit_discount_amount']) ) {
+		$unit_discount_amount = numfmt_parse_currency($intl_currency_fmt, $args['unit_discount_amount'], $intl_currency);
+		if( $unit_discount_amount === FALSE ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1415', 'msg'=>'Invalid price format'));
+		}
+		$args['unit_discount_amount'] = $unit_discount_amount;
+	}
+
 	if( isset($args['unit_discount_percentage']) && $args['unit_discount_percentage'] == '' ) {
 		$args['unit_discount_percentage'] = 0;
 	}
