@@ -5,6 +5,8 @@
 # entered and distributed across many categories.  If the user wants to keep track of taxes
 # they can use taxes as a category.
 #
+# There can only be one entry per category per expense.
+#
 # Fields
 # ------
 # id:				The invoice ID.
@@ -12,8 +14,8 @@
 # business_id:		The business the invoice is for.
 #
 # expense_id:		The ID of the expense in sapos_expenses.
+# category_id:		The ID of the category in ciniki_sapos_expense_categories.
 #
-# category:			The category for the expense.
 # amount:			The amount of the expense for this category.
 # notes:			Any notes or details about this expense.  
 #					Can be used to store items relavent to this category.
@@ -26,12 +28,12 @@ create table ciniki_sapos_expense_items (
 	uuid char(36) not null,
 	business_id int not null,
 	expense_id int not null,
-	category varchar(100) not null,
+	category_id int not null,
 	amount decimal(19,4) not null,
 	notes varchar(1000) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),
-	index (expense_id, category),
+	unique index (expense_id, category_id),
 	index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

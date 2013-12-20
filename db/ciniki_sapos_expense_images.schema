@@ -11,21 +11,7 @@
 #
 # expense_id:		The ID of the expense from the ciniki_sapos_expenses table.
 # 
-# name:				The name for the image.
-# permalink:		The permalink for the image, to be used in the url.
-#
-# webflags:			The flags for displaying on the website.  This allows
-#					for a participant to upload images without them being
-#					displayed on the website.  This could be used for 
-#					artists to submit porfolios and determine which ones show up.
-#
-#					0x01 - Private (do not show on website, can be used to share marketing material with organizers)
-#
 # image_id:			The ID of the image in the ciniki.images module.
-#
-# description:		The description for the image.
-#
-# url:				**future** The link back to the participants website for the item in the image.
 #
 # date_added:		The UTC date and time the image was added to the expense.
 # last_updated:		The UTC date and time the image was last updated.
@@ -35,12 +21,7 @@ create table ciniki_sapos_expense_images (
 	uuid char(36) not null,
 	business_id int not null,
 	expense_id int not null,
-	name varchar(200) not null,
-	permalink varchar(200) not null,
-	webflags tinyint unsigned not null,
 	image_id int not null,
-	description varchar(6000) not null,
-	url varchar(255) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),

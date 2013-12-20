@@ -122,15 +122,42 @@ function ciniki_sapos_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);
+	$objects['expense_category'] = array(
+		'name'=>'Expense Category',
+		'sync'=>'yes',
+		'table'=>'ciniki_sapos_expense_categories',
+		'fields'=>array(
+			'name'=>array(),
+			'sequence'=>array(),
+			'flags'=>array(),
+			'taxrate_id'=>array('ref'=>'ciniki.taxes.rate'),
+			'start_date'=>array(),
+			'end_date'=>array(),
+			),
+		'history_table'=>'ciniki_sapos_history',
+		);
 	$objects['expense_item'] = array(
 		'name'=>'Expense Item',
 		'sync'=>'yes',
 		'table'=>'ciniki_sapos_expense_items',
 		'fields'=>array(
 			'expense_id'=>array('ref'=>'ciniki.sapos.expense'),
-			'category'=>array(),
+			'category_id'=>array('ref'=>'ciniki.sapos.expense_category'),
 			'amount'=>array(),
 			'notes'=>array(),
+			),
+		'history_table'=>'ciniki_sapos_history',
+		);
+	$objects['expense_image'] = array(
+		'name'=>'Expense Image',
+		'sync'=>'yes',
+		'table'=>'ciniki_sapos_expense_images',
+		'fields'=>array(
+			'expense_id'=>array('ref'=>'ciniki.sapos.expense'),
+			'webflags'=>array(),
+			'image_id'=>array('ref'=>'ciniki.images.image'),
+			'description'=>array(),
+			'url'=>array(),
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);

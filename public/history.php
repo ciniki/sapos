@@ -73,11 +73,33 @@ function ciniki_sapos_history($ciniki) {
 			|| $args['field'] == 'business_amount' ) {
 			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
 			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
-				$args['business_id'], 'ciniki_sapos_transactions', $args['object_id'], $args['field'], 'currency');
+				$args['business_id'], 'ciniki_sapos_transactions', $args['object_id'], $args['field'], 
+				'currency');
 		} 
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
 		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
 			$args['business_id'], 'ciniki_sapos_transactions', $args['object_id'], $args['field']);
+	}
+	elseif( $args['object'] == 'ciniki.sapos.expense' ) {
+		if( $args['field'] == 'invoice_date' || $args['field'] == 'paid_date' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+				$args['business_id'], 'ciniki_sapos_expenses', $args['object_id'], $args['field'], 'utcdate');
+		} 
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
+		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+			$args['business_id'], 'ciniki_sapos_expenses', $args['object_id'], $args['field']);
+	}
+	elseif( $args['object'] == 'ciniki.sapos.expense_item' ) {
+		if( $args['field'] == 'amount' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+				$args['business_id'], 'ciniki_sapos_expense_items', $args['object_id'], $args['field'], 
+				'currency');
+		} 
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
+		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+			$args['business_id'], 'ciniki_sapos_expense_items', $args['object_id'], $args['field']);
 	}
 }
 ?>
