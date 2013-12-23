@@ -134,8 +134,28 @@ function ciniki_sapos_latest(&$ciniki) {
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
+	$num_cats = -1;
 	if( !isset($rc['expenses']) ) {
 		$expenses = array();
+		//
+		// Get the number of categories so we can let the user know in the UI to
+		// setup the categories
+		//
+		$strsql = "SELECT 'categories', COUNT(*) "
+			. "FROM ciniki_sapos_expense_categories "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'cats');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['cats']) ) {
+			$num_cats = $rc['cats']['categories'];
+		} else {
+			$num_cats = 0;
+		}
+		return array('stat'=>'ok', 'invoices'=>$invoices, 'expenses'=>array(), 'numcats'=>$num_cats);
 	} else {
 		foreach($rc['expenses'] as $iid => $expense) {
 			$rc['expenses'][$iid]['expense']['total_amount_display'] = numfmt_format_currency(

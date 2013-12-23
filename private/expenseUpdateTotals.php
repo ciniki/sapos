@@ -38,6 +38,7 @@ function ciniki_sapos_expenseUpdateTotals($ciniki, $business_id, $expense_id) {
 	if( !isset($rc['expense']) ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1080', 'msg'=>'Unable to find expense'));
 	}
+	$expense = $rc['expense'];
 
 	//
 	// Get the items from the expense

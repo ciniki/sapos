@@ -54,7 +54,7 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
 	$strsql = "SELECT id, sequence "
 		. "FROM ciniki_sapos_expense_categories "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
+		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
 		. "";
 	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'category');
     if( $rc['stat'] != 'ok' ) { 
@@ -93,7 +93,7 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
 	if( isset($args['sequence']) && $args['sequence'] != $category['sequence'] ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'expenseUpdateCategorySequences');
 		$rc = ciniki_sapos_expenseUpdateCategorySequences($ciniki, $args['business_id'], 
-			$args['category_id'], $args['sequence'], -1);
+			$args['category_id'], $args['sequence'], $category['sequence']);
 		if( $rc['stat'] != 'ok' ) {
 			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 			return $rc;

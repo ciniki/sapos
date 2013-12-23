@@ -65,7 +65,7 @@ function ciniki_sapos_expenseCategoryGet(&$ciniki) {
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
 		. "";
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'categories', 'fname'=>'id', 'name'=>'category',
 			'fields'=>array('id', 'name', 'sequence', 'flags', 'taxrate_id', 'start_date', 'end_date'),

@@ -13,6 +13,9 @@
 // <rsp stat="ok" />
 //
 function ciniki_sapos_expenseUpdateCategorySequences($ciniki, $business_id, $category_id, $new_seq, $old_seq) {
+
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
+
 	//
 	// Get the sequences
 	//

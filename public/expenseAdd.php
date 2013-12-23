@@ -22,7 +22,7 @@ function ciniki_sapos_expenseAdd(&$ciniki) {
         'description'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Description'), 
 		'invoice_date'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'datetimetoutc', 
 			'name'=>'Invoice Date'),
-		'paid_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'', 'type'=>'datetimetoutc', 
+		'paid_date'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'type'=>'datetimetoutc', 
 			'name'=>'Paid Date'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'), 
         )); 
@@ -30,6 +30,7 @@ function ciniki_sapos_expenseAdd(&$ciniki) {
         return $rc;
     }   
     $args = $rc['args'];
+	$args['total_amount'] = 0;
 
     //  
     // Make sure this module is activated, and
@@ -42,6 +43,37 @@ function ciniki_sapos_expenseAdd(&$ciniki) {
     }
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+	$rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$intl_timezone = $rc['settings']['intl-default-timezone'];
+	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+	$intl_currency = $rc['settings']['intl-default-currency'];
+
+	//
+	// Get the list of expense categories
+	//
+	$strsql = "SELECT id, name "
+		. "FROM ciniki_sapos_expense_categories "
+		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "ORDER BY sequence "
+		. "";
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+	$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
+		array('container'=>'categories', 'fname'=>'id',
+			'fields'=>array('id', 'name')),
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( !isset($rc['categories']) ) {
+		$categories = array();
+	} else {
+		$categories = $rc['categories'];
+	}
 
 	//
 	// Start the transaction
@@ -66,34 +98,50 @@ function ciniki_sapos_expenseAdd(&$ciniki) {
 	$expense_id = $rc['id'];
 
 	//
+	// Build the list of arguments for each category
+	//
+	$arg_defs = array();
+	foreach($categories as $cid => $category) {
+		$arg_defs["category_$cid"] = array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>$category['name']);
+	}
+    $rc = ciniki_core_prepareArgs($ciniki, 'no', $arg_defs);
+    if( $rc['stat'] != 'ok' ) { 
+        return $rc;
+    }   
+    $cargs = $rc['args'];
+
+	//
 	// Check for items in the expense
 	//
-	for($i=0;$i<25;$i++) {
-		if( isset($ciniki['request']['args']["item_category_$i"]) 
-			&& $ciniki['request']['args']["item_category_$i"] != '' ) {
-				
-			$item_args = array('category'=>$ciniki['request']['args']["item_category_$i"]);
-//			if( isset($ciniki['request']['args']["item_id_$i"])
-//				&& $ciniki['request']['args']["item_id_$i"] != '' ) {
-//				$item_args['id'] = $ciniki['request']['args']["item_id_$i"];
-//			}
-
-			if( isset($ciniki['request']['args']["item_amount_$i"])
-				&& $ciniki['request']['args']["item_amount_$i"] != '' ) {
-				$amt = numfmt_parse_currency($intl_currency_fmt, 
-					$ciniki['request']['args']["item_amount_$i"], $intl_currency);
-				if( $amt === FALSE ) {
-					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1430', 'msg'=>'Invalid amount format'));
-				}
-				$item_args['amount'] = $amt;
-			} else {
-				$item_args['amount'] = 0;
-			}
+	foreach($categories as $cid => $category) {
+		if( isset($cargs["category_$cid"]) && $cargs["category_$cid"] != '' ) {
+			$item_args = array(
+				'expense_id'=>$expense_id,
+				'category_id'=>$cid,
+				'amount'=>$cargs["category_$cid"],
+				'notes'=>'',
+				);
 
 			//
 			// Add the item
 			//
+			$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.expense_item', 
+				$item_args, 0x04);
+			if( $rc['stat'] != 'ok' ) {
+				ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+				return $rc;
+			}
 		}
+	}
+
+	//
+	// Update the expense status
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'expenseUpdateTotals');
+	$rc = ciniki_sapos_expenseUpdateTotals($ciniki, $args['business_id'], $expense_id);
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+		return $rc;
 	}
 
 	//
@@ -112,6 +160,6 @@ function ciniki_sapos_expenseAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
 	ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
 
-	return array('stat'=>'ok', 'expense'=>$rc['expense']);
+	return array('stat'=>'ok', 'id'=>$expense_id);
 }
 ?>

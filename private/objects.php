@@ -154,10 +154,7 @@ function ciniki_sapos_objects($ciniki) {
 		'table'=>'ciniki_sapos_expense_images',
 		'fields'=>array(
 			'expense_id'=>array('ref'=>'ciniki.sapos.expense'),
-			'webflags'=>array(),
 			'image_id'=>array('ref'=>'ciniki.images.image'),
-			'description'=>array(),
-			'url'=>array(),
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);

@@ -14,7 +14,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id) {
+function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id, $images) {
 	//
 	// Get the time information for business and user
 	//
@@ -81,17 +81,21 @@ function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id) {
 	// Get the item details
 	//
 	$strsql = "SELECT ciniki_sapos_expense_items.id, "	
-		. "ciniki_sapos_expense_items.category, "
+		. "ciniki_sapos_expense_items.category_id, "
+		. "ciniki_sapos_expense_categories.name, "
 		. "ciniki_sapos_expense_items.amount, "
 		. "ciniki_sapos_expense_items.notes "
 		. "FROM ciniki_sapos_expense_items "
+		. "LEFT JOIN ciniki_sapos_expense_categories ON (ciniki_sapos_expense_items.category_id = ciniki_sapos_expense_categories.id "
+			. "AND ciniki_sapos_expense_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. ") "
 		. "WHERE ciniki_sapos_expense_items.expense_id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
 		. "AND ciniki_sapos_expense_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-		. "ORDER BY ciniki_sapos_expense_items.date_added "
+		. "ORDER BY ciniki_sapos_expense_categories.sequence "
 		. "";
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'category', 'amount')),
+			'fields'=>array('id', 'category_id', 'name', 'amount', 'notes')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -107,8 +111,39 @@ function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id) {
 	}
 
 	//
-	// FIXME: Get the images
+	// Get the images
 	//
+	if( $images == 'yes' ) {
+		$strsql = "SELECT id, image_id "
+			. "FROM ciniki_sapos_expense_images "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND expense_id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+			array('container'=>'images', 'fname'=>'id', 'name'=>'image',
+				'fields'=>array('id', 'image_id')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['images']) ) {
+			$images = $rc['images'];
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheThumbnail');
+			foreach($images as $iid => $img ) {
+				if( $img['image']['image_id'] > 0 ) {
+					$rc = ciniki_images_loadCacheThumbnail($ciniki, $img['image']['image_id'], 75);
+					if( $rc['stat'] != 'ok' ) {
+						return $rc;
+					}
+					$images[$iid]['image']['image_data'] = 'data:image/jpg;base64,' . base64_encode($rc['image']);
+				}
+			}
+			$expense['images'] = $images;
+		} else {
+			$expense['images'] = array();
+		}
+
+	}
 
 	//
 	// Format the currency numbers

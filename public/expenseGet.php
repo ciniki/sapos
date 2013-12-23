@@ -20,6 +20,7 @@ function ciniki_sapos_expenseGet(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'expense_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
+		'images'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Images'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -42,7 +43,7 @@ function ciniki_sapos_expenseGet(&$ciniki) {
 	// Return the expense record
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'expenseLoad');
-	$rc = ciniki_sapos_expenseLoad($ciniki, $args['business_id'], $args['expense_id']);
+	$rc = ciniki_sapos_expenseLoad($ciniki, $args['business_id'], $args['expense_id'], $args['images']);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}

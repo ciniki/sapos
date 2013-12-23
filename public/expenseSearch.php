@@ -11,17 +11,15 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_expenseList(&$ciniki) {
+function ciniki_sapos_expenseSearch(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
-        'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
-        'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
-        'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
-        'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
+        'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'), 
+        'sort'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Search String'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -34,7 +32,7 @@ function ciniki_sapos_expenseList(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.expenseList'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.expenseSearch'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -55,40 +53,20 @@ function ciniki_sapos_expenseList(&$ciniki) {
 	// Build the query to get the list of expenses
 	//
 	$strsql = "SELECT ciniki_sapos_expenses.id, "
-		. "name, "
+		. "ciniki_sapos_expenses.name, "
 		. "invoice_date, "
-		. "paid_date, "
 		. "total_amount "
 		. "FROM ciniki_sapos_expenses "
 		. "WHERE ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
-	if( isset($args['year']) && $args['year'] != '' ) {
-		//
-		// Set the start and end date for the business timezone, then convert to UTC
-		//
-		$tz = new DateTimeZone($intl_timezone);
-		if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
-			$start_date = new DateTime($args['year'] . '-' . $args['month'] . '-01 00.00.00', $tz);
-			$end_date = clone $start_date;
-			// Find the end of the month
-			$end_date->add(new DateInterval('P1M'));
-		} else {
-			$start_date = new DateTime($args['year'] . '-01-01 00.00.00', $tz);
-			$end_date = clone $start_date;
-			// Find the end of the year
-			$end_date->add(new DateInterval('P1Y'));
-		}
-		$start_date->setTimezone(new DateTimeZone('UTC'));
-		$end_date->setTimeZone(new DateTimeZone('UTC'));
-		//
-		// Add to SQL string
-		//
-		$strsql .= "AND ciniki_sapos_expenses.invoice_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
-		$strsql .= "AND ciniki_sapos_expenses.invoice_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
-	}
+	$strsql .= "AND (ciniki_sapos_expenses.name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+		. "OR ciniki_sapos_expenses.name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+		. ") ";
 	if( isset($args['sort']) ) {
 		if( $args['sort'] == 'latest' ) {
 			$strsql .= "ORDER BY ciniki_sapos_expenses.last_updated DESC ";
+		} elseif( $args['sort'] == 'reverse' ) {
+			$strsql .= "ORDER BY ciniki_sapos_expenses.invoice_date DESC ";
 		}
 	}
 	if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
@@ -97,7 +75,7 @@ function ciniki_sapos_expenseList(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
-			'fields'=>array('id', 'name', 'invoice_date', 'paid_date', 'total_amount'),
+			'fields'=>array('id', 'invoice_date', 'name', 'total_amount'),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			),
 		));
@@ -107,17 +85,11 @@ function ciniki_sapos_expenseList(&$ciniki) {
 	if( !isset($rc['expenses']) ) {
 		return array('stat'=>'ok', 'expenses'=>array());
 	}
-	$totals = array(
-		'total_amount'=>0,
-		);
 	foreach($rc['expenses'] as $iid => $expense) {
-		$totals['total_amount'] = bcadd($totals['total_amount'], $expense['expense']['total_amount']);
+		$rc['expenses'][$iid]['expense']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+			$expense['expense']['total_amount'], $intl_currency);
 	}
 
-	$totals['total_amount'] = numfmt_format_currency($intl_currency_fmt,
-		$totals['total_amount'], $intl_currency);
-	$totals['num_expenses'] = count($rc['expenses']);
-
-	return array('stat'=>'ok', 'totals'=>$totals, 'expenses'=>$rc['expenses']);
+	return array('stat'=>'ok', 'expenses'=>$rc['expenses']);
 }
 ?>

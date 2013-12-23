@@ -45,7 +45,7 @@ function ciniki_sapos_expenseImageGet($ciniki) {
 	// Get the main information
 	//
 	$strsql = "SELECT ciniki_sapos_expense_images.id, "
-		. "ciniki_sapos_expense_images.image_id, "
+		. "ciniki_sapos_expense_images.image_id "
 		. "FROM ciniki_sapos_expense_images "
 		. "WHERE ciniki_sapos_expense_images.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND ciniki_sapos_expense_images.id = '" . ciniki_core_dbQuote($ciniki, $args['expense_image_id']) . "' "
