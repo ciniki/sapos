@@ -182,7 +182,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 	// Calculate totals for all expenses and categories
 	//
 	foreach($expenses as $eid => $expense) {
-		$totals['total_amount'] = bcadd($totals['total_amount'], $expense['expense']['total_amount']);
+		$totals['total_amount'] = bcadd($totals['total_amount'], $expense['expense']['total_amount'], 2);
 
 		$expenses[$eid]['expense']['total_amount_display'] = numfmt_format_currency(
 			$intl_currency_fmt, $expense['expense']['total_amount'], $intl_currency);
@@ -194,8 +194,8 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 			$category_id = $item['item']['category_id'];
 			if( isset($cidx[$category_id]) ) {
 				$cid = $cidx[$category_id];
-				$categories[$cid]['category']['total_amount'] = bcadd($categories[$cid]['category']['total_amount'], 
-					$item['item']['amount']);
+				$categories[$cid]['category']['total_amount'] = bcadd(
+					$categories[$cid]['category']['total_amount'], $item['item']['amount'], 2);
 				$expenses[$eid]['expense']['items'][$iid]['item']['amount_display'] = numfmt_format_currency(
 					$intl_currency_fmt, $item['item']['amount'], $intl_currency);
 			}
