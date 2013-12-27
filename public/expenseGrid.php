@@ -47,10 +47,11 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 	$intl_currency = $rc['settings']['intl-default-currency'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-	$date_format = ciniki_users_dateFormat($ciniki, 'php');
+	$date_format = ciniki_users_dateFormat($ciniki);
 
 	//
-	// Build the start and end dates
+	// Build the start and end dates to get the categories.  These need to have the time
+	// added and are different than the start and end for expenses.
 	//
 	if( isset($args['year']) && $args['year'] != '' ) {
 		//
@@ -117,8 +118,8 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 	//
 	$strsql = "SELECT ciniki_sapos_expenses.id, "
 		. "ciniki_sapos_expenses.name, "
-		. "ciniki_sapos_expenses.invoice_date, "
-		. "ciniki_sapos_expenses.paid_date, "
+		. "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
+		. "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.paid_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS paid_date, "
 		. "ciniki_sapos_expenses.total_amount, "
 		. "ciniki_sapos_expense_items.id AS item_id, "
 		. "ciniki_sapos_expense_items.category_id, "
@@ -131,27 +132,28 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 		. "";
 	if( isset($args['year']) && $args['year'] != '' ) {
 		//
-		// Set the start and end date for the business timezone, then convert to UTC
+		// Set the start and end date for the business timezone, don't convert to UTC.  These dates are stored
+		// without time and are local timezone.
 		//
 		$tz = new DateTimeZone($intl_timezone);
 		if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
-			$start_date = new DateTime($args['year'] . '-' . $args['month'] . '-01 00.00.00', $tz);
+			$start_date = new DateTime($args['year'] . '-' . $args['month'] . '-01 00:00:00', $tz);
 			$end_date = clone $start_date;
 			// Find the end of the month
 			$end_date->add(new DateInterval('P1M'));
 		} else {
-			$start_date = new DateTime($args['year'] . '-01-01 00.00.00', $tz);
+			$start_date = new DateTime($args['year'] . '-01-01 00:00:00', $tz);
 			$end_date = clone $start_date;
 			// Find the end of the year
 			$end_date->add(new DateInterval('P1Y'));
 		}
-		$start_date->setTimezone(new DateTimeZone('UTC'));
-		$end_date->setTimeZone(new DateTimeZone('UTC'));
+//		$start_date->setTimezone(new DateTimeZone('UTC'));
+//		$end_date->setTimeZone(new DateTimeZone('UTC'));
 		//
 		// Add to SQL string
 		//
-		$strsql .= "AND ciniki_sapos_expenses.invoice_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
-		$strsql .= "AND ciniki_sapos_expenses.invoice_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
+		$strsql .= "AND ciniki_sapos_expenses.invoice_date >= '" . $start_date->format('Y-m-d') . "' ";
+		$strsql .= "AND ciniki_sapos_expenses.invoice_date < '" . $end_date->format('Y-m-d') . "' ";
 	}
 
 	//
@@ -161,9 +163,9 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
-			'fields'=>array('id', 'name', 'invoice_date', 'paid_date', 'total_amount'),
-			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
-			),
+			'fields'=>array('id', 'name', 'invoice_date', 'paid_date', 'total_amount')),
+//			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
+//			),
 		array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
 			'fields'=>array('id'=>'item_id', 'category_id', 'amount'=>'item_amount')),
 		));

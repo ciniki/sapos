@@ -46,7 +46,8 @@ function ciniki_sapos_latest(&$ciniki) {
 	$intl_currency = $rc['settings']['intl-default-currency'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-	$date_format = ciniki_users_dateFormat($ciniki, 'php');
+	$php_date_format = ciniki_users_dateFormat($ciniki, 'php');
+	$date_format = ciniki_users_dateFormat($ciniki, 'mysql');
 
 	//
 	// Load the status maps for the text description of each status
@@ -63,7 +64,7 @@ function ciniki_sapos_latest(&$ciniki) {
 	//
 	$strsql = "SELECT ciniki_sapos_invoices.id, "
 		. "ciniki_sapos_invoices.invoice_number, "
-		. "invoice_date, "
+		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
 		. "ciniki_sapos_invoices.status AS status_text, "
 		. "CONCAT_WS(' ', ciniki_customers.prefix, ciniki_customers.first, ciniki_customers.middle, ciniki_customers.last, ciniki_customers.suffix) AS customer_name, "
@@ -88,7 +89,7 @@ function ciniki_sapos_latest(&$ciniki) {
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_name', 'total_amount'),
 			'maps'=>array('status_text'=>$status_maps),
-			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
+			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$php_date_format)), 
 			),
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -110,7 +111,7 @@ function ciniki_sapos_latest(&$ciniki) {
 	//
 	$strsql = "SELECT ciniki_sapos_expenses.id, "
 		. "name, "
-		. "invoice_date, "
+		. "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
 		. "total_amount "
 		. "FROM ciniki_sapos_expenses "
 		. "WHERE ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -128,7 +129,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
 			'fields'=>array('id', 'name', 'invoice_date', 'total_amount'),
 			'maps'=>array('status_text'=>$status_maps),
-			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
+//			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			),
 		));
 	if( $rc['stat'] != 'ok' ) {

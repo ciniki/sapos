@@ -47,20 +47,20 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
 	$intl_currency = $rc['settings']['intl-default-currency'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-	$date_format = ciniki_users_dateFormat($ciniki, 'php');
+	$date_format = ciniki_users_dateFormat($ciniki);
 
 	//
 	// Build the query to get the list of expenses
 	//
 	$strsql = "SELECT ciniki_sapos_expenses.id, "
 		. "ciniki_sapos_expenses.name, "
-		. "invoice_date, "
+		. "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
 		. "total_amount "
 		. "FROM ciniki_sapos_expenses "
 		. "WHERE ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
 	$strsql .= "AND (ciniki_sapos_expenses.name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
-		. "OR ciniki_sapos_expenses.name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+		. "OR ciniki_sapos_expenses.name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 		. ") ";
 	if( isset($args['sort']) ) {
 		if( $args['sort'] == 'latest' ) {
@@ -75,9 +75,7 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
-			'fields'=>array('id', 'invoice_date', 'name', 'total_amount'),
-			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
-			),
+			'fields'=>array('id', 'invoice_date', 'name', 'total_amount')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;

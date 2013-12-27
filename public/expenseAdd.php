@@ -20,9 +20,9 @@ function ciniki_sapos_expenseAdd(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'), 
         'description'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Description'), 
-		'invoice_date'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'datetimetoutc', 
+		'invoice_date'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'date', 
 			'name'=>'Invoice Date'),
-		'paid_date'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'type'=>'datetimetoutc', 
+		'paid_date'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'type'=>'date', 
 			'name'=>'Paid Date'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'), 
         )); 
