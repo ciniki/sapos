@@ -4,14 +4,14 @@ function ciniki_sapos_main() {
 		//
 		// The menu panel
 		//
-		this.menu = new M.panel('Accounting/POS',
+		this.menu = new M.panel('Accounting',
 			'ciniki_sapos_main', 'menu',
 			'mc', 'medium', 'sectioned', 'ciniki.sapos.main.menu');
 		this.menu.data = {};
 		this.menu.sections = {
 			'invoice_search':{'label':'Invoices', 'type':'livesearchgrid', 'livesearchcols':5, 
 				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-				'hint':'Invoice #, customer name', 
+				'hint':'Search invoice # or customer name', 
 				'noData':'No Invoices Found',
 				},
 			'invoices':{'label':'Recent Invoices', 'type':'simplegrid', 'num_cols':5,
@@ -22,11 +22,11 @@ function ciniki_sapos_main() {
 				},
 			'expense_search':{'label':'Expenses', 'type':'livesearchgrid', 'livesearchcols':3, 
 				'headerValues':['Date','Expense','Amount'],
-				'hint':'Invoice #, customer name', 
+				'hint':'Search expenses', 
 				'noData':'No Expenses Found',
 				},
 			'expenses':{'label':'Recent Expenses', 'type':'simplegrid', 'num_cols':3,
-				'headerValues':['Date', 'Expense','Amount'],
+				'headerValues':['Expense', 'Date','Amount'],
 				'noData':'No Expenses',
 				'addTxt':'More',
 				'addFn':'M.startApp(\'ciniki.sapos.expenses\',null,\'M.ciniki_sapos_main.showMenu();\');',

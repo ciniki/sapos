@@ -15,7 +15,7 @@ function ciniki_sapos_expense() {
 				'name':{'label':'Name'},
 				'description':{'label':'Description'},
 				'invoice_date':{'label':'Date'},
-				'paid_date':{'label':'Paid'},
+//				'paid_date':{'label':'Paid Date'},
 				}},
 			'items':{'label':'', 'type':'simplegrid', 'num_cols':2,
 				'cellClasses':['label', ''],
@@ -112,7 +112,7 @@ function ciniki_sapos_expense() {
 				'name':{'label':'Name', 'type':'text'},
 				'description':{'label':'Description', 'type':'text'},
 				'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
-				'paid_date':{'label':'Paid', 'type':'text', 'size':'medium'},
+//				'paid_date':{'label':'Paid Date', 'type':'text', 'size':'medium'},
 				}},
 			'items':{'label':'Items', 'fields':{
 				}},
@@ -182,7 +182,7 @@ function ciniki_sapos_expense() {
 					var p = M.ciniki_sapos_expense.expense;
 					p.data = rsp.expense;
 					p.sections.details.list.description.visible=((rsp.expense.description!='')?'yes':'no');
-					p.sections.details.list.paid_date.visible=((rsp.expense.paid_date!='')?'yes':'no');
+//					p.sections.details.list.paid_date.visible=((rsp.expense.paid_date!='')?'yes':'no');
 					p.refresh();
 					p.show(cb);
 				});
