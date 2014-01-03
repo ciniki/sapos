@@ -126,7 +126,7 @@ function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id, $images) {
 			ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheThumbnail');
 			foreach($images as $iid => $img ) {
 				if( $img['image']['image_id'] > 0 ) {
-					$rc = ciniki_images_loadCacheThumbnail($ciniki, $img['image']['image_id'], 75);
+					$rc = ciniki_images_loadCacheThumbnail($ciniki, $args['business_id'], $img['image']['image_id'], 75);
 					if( $rc['stat'] != 'ok' ) {
 						return $rc;
 					}
