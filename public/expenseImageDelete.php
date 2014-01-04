@@ -46,7 +46,7 @@ function ciniki_sapos_expenseImageDelete(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1318', 'msg'=>'Expense image does not exist'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1435', 'msg'=>'Expense image does not exist'));
 	}
 	$item = $rc['item'];
 

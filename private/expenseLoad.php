@@ -68,7 +68,7 @@ function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id, $images) {
 		return $rc;
 	}
 	if( !isset($rc['expenses']) || !isset($rc['expenses'][0]['expense']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1083', 'msg'=>'Expense does not exist'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1416', 'msg'=>'Expense does not exist'));
 	}
 	$expense = $rc['expenses'][0]['expense'];
 

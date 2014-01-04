@@ -81,7 +81,7 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1381', 'msg'=>'Unable to find invoice item.'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1437', 'msg'=>'Unable to find invoice item.'));
 	}
 	$item = $rc['item'];
 

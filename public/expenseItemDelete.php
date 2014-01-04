@@ -48,7 +48,7 @@ function ciniki_sapos_expenseItemDelete(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1398', 'msg'=>'Unable to find expense item'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1438', 'msg'=>'Unable to find expense item'));
 	}
 	$item = $rc['item'];
 
