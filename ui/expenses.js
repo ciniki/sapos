@@ -32,6 +32,9 @@ function ciniki_sapos_expenses() {
 				'sortTypes':['date', 'text', 'number', 'number', 'number'],
 				'noData':'No Expenses Found',
 				},
+			'_buttons':{'label':'', 'buttons':{
+				'excel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_expenses.downloadExcel();'},
+				}},
 		};
 		this.expenses.sectionData = function(s) {
 			return this.data[s];
@@ -153,5 +156,12 @@ function ciniki_sapos_expenses() {
 				p.refresh();
 				p.show(cb);
 			});
+	};
+
+	this.downloadExcel = function() {
+		var args = {'business_id':M.curBusinessID, 'output':'excel'};
+		if( this.expenses.year != null ) { args.year = this.expenses.year; }
+		if( this.expenses.month != null ) { args.month = this.expenses.month; }
+		window.open(M.api.getUploadURL('ciniki.sapos.expenseGrid', args));
 	};
 }

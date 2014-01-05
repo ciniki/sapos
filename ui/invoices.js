@@ -45,12 +45,14 @@ function ciniki_sapos_invoices() {
 //				}},
 		};
 		this.invoices.footerValue = function(s, i, d) {
-			switch(i) {
-				case 0: return this.data.totals.num_invoices;
-				case 1: return '';
-				case 2: return '';
-				case 3: return this.data.totals.total_amount;
-				case 4: return '';
+			if( this.data.totals != null ) {
+				switch(i) {
+					case 0: return this.data.totals.num_invoices;
+					case 1: return '';
+					case 2: return '';
+					case 3: return this.data.totals.total_amount;
+					case 4: return '';
+				}
 			}
 		};
 		this.invoices.footerClass = function(s, i, d) {

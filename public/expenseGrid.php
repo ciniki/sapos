@@ -21,6 +21,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
         'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
         'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
+        'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -215,6 +216,93 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 	$totals['total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
 		$totals['total_amount'], $intl_currency);
 	$totals['num_expenses'] = count($expenses);
+
+	//
+	// Output as Excel if requested
+	//
+	if( isset($args['output']) && $args['output'] == 'excel' ) {
+		ini_set('memory_limit', '4192M');
+		require($ciniki['config']['core']['lib_dir'] . '/PHPExcel/PHPExcel.php');
+		$objPHPExcel = new PHPExcel();
+		$title = "Expenses";
+		$sheet_title = "Expenses"; 	// Will be overwritten, which is fine
+		if( isset($args['year']) && $args['year'] != '' ) {
+			$title .= " - " . $args['year'];
+			$sheet_title = $args['year'];
+		}
+		if( isset($args['month']) && $args['month'] > 0 ) {
+			$title .= " - " . $args['month'];
+			$sheet_title .= " - " . $args['month'];
+		}
+		$sheet = $objPHPExcel->setActiveSheetIndex(0);
+		$sheet->setTitle($sheet_title);
+		//
+		// Setup headings
+		//
+		$i = 0;
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Date', false)->getStyle()->getFont()->setBold(true);
+//		$sheet->getStyle($)->getFont()->setBold(true);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Name', false)->getStyle()->getFont()->setBold(true);
+		foreach($categories as $cid => $category) {
+			$sheet->setCellValueByColumnAndRow($i++, 1, $category['category']['name'], false)->getStyle()->getFont()->setBold(true);
+		}
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false)->getStyle()->getFont()->setBold(true);
+		
+		//
+		// Output rows
+		//
+		$row = 1;
+		foreach($expenses as $eid => $expense) {
+			$row++;
+			$expense = $expense['expense'];
+			$i = 0;
+			$sheet->setCellValueByColumnAndRow($i++, $row, $expense['invoice_date'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $expense['name'], false);
+			foreach($categories as $cid => $category) {
+				$category = $category['category'];
+				$value = '0';
+				foreach($expense['items'] as $iid => $item) {
+					$item = $item['item'];
+					if( $item['category_id'] == $category['id'] ) {
+						$value = $item['amount'];
+						break;
+					}
+				}
+				$sheet->setCellValueByColumnAndRow($i, $row, $value, false);
+				$i++;
+			}
+			
+			$sheet->setCellValueByColumnAndRow($i++, $row, "=SUM(C$row:" . chr(63+$i) . "$row)", false);
+		}
+
+		//
+		// Setup totals row as sum functions
+		//
+		$i=2;
+		$row++;
+		foreach($categories as $cid => $category) {
+			$c = chr(65+$i);
+			$sheet->setCellValueByColumnAndRow($i++, $row, "=SUM($c" . "2:$c" . ($row-1) . ")", false)->getStyle()->getFont()->setBold(true);
+		}
+		$c = chr(65+$i);
+		$sheet->setCellValueByColumnAndRow($i, $row, "=SUM($c" . "2:$c" . ($row-1) . ")", false)->getStyle()->getFont()->setBold(true);
+		$sheet->getStyle('C2:' . chr(65+$i) . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
+		$sheet->getStyle('A1:' . chr(65+$i) . '1')->getFont()->setBold(true);
+		$sheet->getStyle('A' . $row . ':' . chr(65+$i) . $row)->getFont()->setBold(true);
+	
+		//
+		// Output the excel
+		//
+		header('Content-Type: application/vnd.ms-excel');
+		$filename = preg_replace('/[^a-zA-Z0-9\-]/', '', $title);
+		header('Content-Disposition: attachment;filename="' . $filename . '.xls"');
+		header('Cache-Control: max-age=0');
+		
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+		$objWriter->save('php://output');
+
+		return array('stat'=>'exit');
+	}
 
 	return array('stat'=>'ok', 'categories'=>$categories, 'expenses'=>$expenses, 'totals'=>$totals);
 }
