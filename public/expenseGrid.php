@@ -247,8 +247,10 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Name', false)->getStyle()->getFont()->setBold(true);
 		foreach($categories as $cid => $category) {
 			$sheet->setCellValueByColumnAndRow($i++, 1, $category['category']['name'], false)->getStyle()->getFont()->setBold(true);
+			$sheet->getStyle(chr(64+$i) . '1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); 
 		}
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false)->getStyle()->getFont()->setBold(true);
+		$sheet->getStyle(chr(64+$i) . '1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); 
 		
 		//
 		// Output rows
@@ -285,8 +287,11 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow(0, $row, "Totals", false)->getStyle()->getFont()->setBold(true);
 		$sheet->mergeCells("A$row:B$row");
 		$sheet->getStyle("A$row")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); 
+		$sheet->getColumnDimension('A')->setAutoSize(true);
+		$sheet->getColumnDimension('B')->setAutoSize(true);
 		foreach($categories as $cid => $category) {
 			$c = chr(65+$i);
+			$sheet->getColumnDimension($c)->setAutoSize(true);
 			if( $row > 2 ) {
 				$sheet->setCellValueByColumnAndRow($i++, $row, "=SUM($c" . "2:$c" . ($row-1) . ")", false)->getStyle()->getFont()->setBold(true);
 			} else {
@@ -294,6 +299,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 			}
 		}
 		$c = chr(65+$i);
+		$sheet->getColumnDimension($c)->setAutoSize(true);
 		if( $row > 2 ) {
 			$sheet->setCellValueByColumnAndRow($i, $row, "=SUM($c" . "2:$c" . ($row-1) . ")", false)->getStyle()->getFont()->setBold(true);
 		} else {
@@ -302,6 +308,10 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 		$sheet->getStyle('C2:' . chr(65+$i) . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
 		$sheet->getStyle('A1:' . chr(65+$i) . '1')->getFont()->setBold(true);
 		$sheet->getStyle('A' . $row . ':' . chr(65+$i) . $row)->getFont()->setBold(true);
+		//
+		// Set column sizes
+		//
+		
 	
 		//
 		// Output the excel
