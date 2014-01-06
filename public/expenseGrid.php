@@ -174,9 +174,11 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['expenses']) ) {
-		return array('stat'=>'ok', 'categories'=>$categories, 'expenses'=>array(), 'totals'=>array());
+		$expenses = array();
+//		return array('stat'=>'ok', 'categories'=>$categories, 'expenses'=>array(), 'totals'=>array());
+	} else {
+		$expenses = $rc['expenses'];
 	}
-	$expenses = $rc['expenses'];
 	$totals = array(
 		'total_amount'=>0,
 		);
@@ -280,12 +282,23 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 		//
 		$i=2;
 		$row++;
+		$sheet->setCellValueByColumnAndRow(0, $row, "Totals", false)->getStyle()->getFont()->setBold(true);
+		$sheet->mergeCells("A$row:B$row");
+		$sheet->getStyle("A$row")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); 
 		foreach($categories as $cid => $category) {
 			$c = chr(65+$i);
-			$sheet->setCellValueByColumnAndRow($i++, $row, "=SUM($c" . "2:$c" . ($row-1) . ")", false)->getStyle()->getFont()->setBold(true);
+			if( $row > 2 ) {
+				$sheet->setCellValueByColumnAndRow($i++, $row, "=SUM($c" . "2:$c" . ($row-1) . ")", false)->getStyle()->getFont()->setBold(true);
+			} else {
+				$sheet->setCellValueByColumnAndRow($i++, $row, "0", false)->getStyle()->getFont()->setBold(true);
+			}
 		}
 		$c = chr(65+$i);
-		$sheet->setCellValueByColumnAndRow($i, $row, "=SUM($c" . "2:$c" . ($row-1) . ")", false)->getStyle()->getFont()->setBold(true);
+		if( $row > 2 ) {
+			$sheet->setCellValueByColumnAndRow($i, $row, "=SUM($c" . "2:$c" . ($row-1) . ")", false)->getStyle()->getFont()->setBold(true);
+		} else {
+			$sheet->setCellValueByColumnAndRow($i, $row, "0", false)->getStyle()->getFont()->setBold(true);
+		}
 		$sheet->getStyle('C2:' . chr(65+$i) . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
 		$sheet->getStyle('A1:' . chr(65+$i) . '1')->getFont()->setBold(true);
 		$sheet->getStyle('A' . $row . ':' . chr(65+$i) . $row)->getFont()->setBold(true);
