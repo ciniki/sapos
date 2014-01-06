@@ -39,6 +39,9 @@ function ciniki_sapos_invoices() {
 				'sortTypes':['number', 'date', 'text', 'number', 'text'],
 				'noData':'No Invoices Found',
 				},
+			'_buttons':{'label':'', 'buttons':{
+				'excel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_invoices.downloadExcel();'},
+				}},
 //			'totals':{'label':'Totals', 'list':{
 //				'num_invoices':{'label':'Number of Invoices'},
 //				'total_amount':{'label':'Amount Invoiced'},
@@ -152,9 +155,18 @@ function ciniki_sapos_invoices() {
 				var p = M.ciniki_sapos_invoices.invoices;
 				p.data.invoices = rsp.invoices;
 				p.data.totals = rsp.totals;
+				p.sections._buttons.buttons.excel.visible=(rsp.invoices.length>0)?'yes':'no';
 //				p.sections.invoices.visible = (rsp.invoices.length > 0)?'yes':'no';
 				p.refresh();
 				p.show(cb);
 			});
+	};
+
+	this.downloadExcel = function() {
+		var args = {'business_id':M.curBusinessID, 'output':'excel'};
+		if( this.invoices.year != null ) { args.year = this.invoices.year; }
+		if( this.invoices.month != null ) { args.month = this.invoices.month; }
+		if( this.invoices.status != null ) { args.status = this.invoices.status; }
+		window.open(M.api.getUploadURL('ciniki.sapos.invoiceList', args));
 	};
 }
