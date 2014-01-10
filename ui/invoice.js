@@ -389,9 +389,16 @@ function ciniki_sapos_invoice() {
 			p.sections.customer.changeTxt = 'Change Customer';
 			var c = rsp.invoice.customer;
 			p.data.customer = {};
-			p.data.customer = {'name':{'label':'Customer', 'value':c.name}};
-			if( c.company != null && c.company != '' ) {
-				p.data.customer['company'] = {'label':'Company', 'value':c.company};
+			if( c.type == 2 ) {
+				if( c.company != null && c.company != '' ) {
+					p.data.customer['company'] = {'label':'Company', 'value':c.company};
+				}
+				p.data.customer['name'] = {'label':'Contact', 'value':c.name};
+			} else {
+				p.data.customer['name'] = {'label':'Customer', 'value':c.name};
+				if( c.company != null && c.company != '' ) {
+					p.data.customer['company'] = {'label':'Company', 'value':c.company};
+				}
 			}
 			if( c.phone_home != null && c.phone_home != '' ) {
 				p.data.customer.phone_home = {'label':'Home Phone', 'value':c.phone_home};

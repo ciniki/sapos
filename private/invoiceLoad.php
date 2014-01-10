@@ -138,8 +138,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	//
 	$invoice['customer'] = array();
 	if( $invoice['customer_id'] > 0 ) {
-		$strsql = "SELECT ciniki_customers.id, "
-			. "CONCAT_WS(' ', prefix, first, middle, last, suffix) AS name, "	
+		$strsql = "SELECT ciniki_customers.id, type, "
+			. "ciniki_customers.name AS name, "
 			. "phone_home, phone_work, phone_fax, phone_cell, "
 			. "ciniki_customers.company, "
 			. "ciniki_customer_emails.email AS emails "
@@ -152,7 +152,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 			. "";
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.customers', array(
 			array('container'=>'customers', 'fname'=>'id', 'name'=>'customer',
-				'fields'=>array('id', 'name', 'company', 
+				'fields'=>array('id', 'type', 'name', 'company', 
 					'phone_home', 'phone_work', 'phone_cell', 'phone_fax', 'emails'),
 				'lists'=>array('emails'),
 				),
@@ -164,10 +164,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		}
 		if( isset($rc['customers']) && isset($rc['customers'][0]['customer']) ) {
 			$invoice['customer'] = $rc['customers'][0]['customer'];
-			$invoice['customer']['name'] = preg_replace('/  /', ' ', $invoice['customer']['name']); 
-			$invoice['customer']['name'] = rtrim($invoice['customer']['name'], ' ');
-			$invoice['customer']['name'] = ltrim($invoice['customer']['name'], ' ');
-
+//			$invoice['customer']['name'] = preg_replace('/  /', ' ', $invoice['customer']['name']); 
+//			$invoice['customer']['name'] = rtrim($invoice['customer']['name'], ' ');
+//			$invoice['customer']['name'] = ltrim($invoice['customer']['name'], ' ');
 		}
 	}
 
@@ -270,9 +269,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "transaction_date, "
 		. "source, "
 		. "source AS source_text, "
-		. "ROUND(customer_amount, 2) AS customer_amount, "
-		. "ROUND(transaction_fees, 2) AS transaction_fees, "
-		. "ROUND(business_amount, 2) AS business_amount, "
+		. "customer_amount, "
+		. "transaction_fees, "
+		. "business_amount, "
 		. "notes "
 		. "FROM ciniki_sapos_transactions "
 		. "WHERE ciniki_sapos_transactions.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "

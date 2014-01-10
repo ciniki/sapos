@@ -70,8 +70,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		. "invoice_date, "
 		. "ciniki_sapos_invoices.status, "
 		. "ciniki_sapos_invoices.status AS status_text, "
-		. "CONCAT_WS(' ', ciniki_customers.prefix, ciniki_customers.first, ciniki_customers.middle, ciniki_customers.last, ciniki_customers.suffix) AS customer_name, "
-		. "ROUND(total_amount, 2) AS total_amount "
+		. "ciniki_customers.type AS customer_type, "
+		. "ciniki_customers.name AS customer_name, ciniki_customers.company, "
+		. "total_amount "
 		. "FROM ciniki_sapos_invoices "
 		. "LEFT JOIN ciniki_customers ON (ciniki_sapos_invoices.customer_id = ciniki_customers.id "
 			. "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -117,7 +118,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
-				'customer_name', 'total_amount'),
+				'customer_type', 'customer_name', 'company', 'total_amount'),
 			'maps'=>array('status_text'=>$status_maps),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			),
@@ -134,7 +135,11 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		'total_amount'=>0,
 		);
 	foreach($invoices as $iid => $invoice) {
-		$invoices[$iid]['invoice']['customer_name'] = ltrim(rtrim(preg_replace('/  /', ' ', $invoice['invoice']['customer_name']), ' '), ' ');
+		if( $invoice['invoice']['customer_type'] == 2 ) {
+			$invoices[$iid]['invoice']['customer_name_display'] = $invoice['invoice']['company'] . ' (' . $invoice['invoice']['customer_name'] . ')';
+		} else {
+			$invoices[$iid]['invoice']['customer_name_display'] = $invoice['invoice']['customer_name'];
+		}
 		$invoices[$iid]['invoice']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
 			$invoice['invoice']['total_amount'], $intl_currency);
 		$totals['total_amount'] = bcadd($totals['total_amount'], $invoice['invoice']['total_amount'], 2);
@@ -189,7 +194,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 			$i = 0;
 			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_date'], false);
-			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['customer_name'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['customer_name_display'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['status_text'], false);
 			$row++;

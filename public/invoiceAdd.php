@@ -80,9 +80,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// based on the customer.  
 	//
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
-		$strsql = "SELECT ciniki_customers.id, "
-			. "CONCAT_WS(' ', ciniki_customers.prefix, ciniki_customers.first, "
-				. "ciniki_customers.middle, ciniki_customers.last, ciniki_customers.suffix) AS name, "
+		$strsql = "SELECT ciniki_customers.id, type, name, "
 			. "ciniki_customers.company "
 			. "ciniki_customer_addresses.id AS address_id, "
 			. "ciniki_customer_addresses.flags, "
@@ -112,10 +110,18 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 			$customer = $rc['customers'][$args['customer_id']];
 			$customer_name = $customer['name'];
 			if( $args['billing_name'] == '' ) {
-				$args['billing_name'] = $customer['name'];
+				if( $customer['type'] == 2 ) {
+					$args['billing_name'] = $customer['company'];
+				} else {
+					$args['billing_name'] = $customer['name'];
+				}
 			}
 			if( $args['shipping_name'] == '' ) {
-				$args['shipping_name'] = $customer['name'];
+				if( $customer['type'] == 2 ) {
+					$args['shipping_name'] = $customer['company'];
+				} else {
+					$args['shipping_name'] = $customer['name'];
+				}
 			}
 			foreach($customer['addresses'] as $aid => $address) {
 				if( ($address['flags']&0x01) == 0x01 && $args['shipping_address1'] == '' ) {

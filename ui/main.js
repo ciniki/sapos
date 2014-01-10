@@ -61,7 +61,7 @@ function ciniki_sapos_main() {
 				switch (j) {
 					case 0: return d.invoice.invoice_number;
 					case 1: return d.invoice.invoice_date;
-					case 2: return d.invoice.customer_name;
+					case 2: return d.invoice.customer_name_display;
 					case 3: return d.invoice.total_amount_display;
 					case 4: return d.invoice.status_text;
 				}
@@ -95,7 +95,7 @@ function ciniki_sapos_main() {
 				switch(j) {
 					case 0: return d.invoice.invoice_number;
 					case 1: return d.invoice.invoice_date;
-					case 2: return d.invoice.customer_name;
+					case 2: return d.invoice.customer_name_display;
 					case 3: return d.invoice.total_amount_display;
 					case 4: return d.invoice.status_text;
 				}
