@@ -21,7 +21,7 @@ function ciniki_sapos_main() {
 				'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.showMenu();\');',
 				},
 			'expense_search':{'label':'Expenses', 'type':'livesearchgrid', 'livesearchcols':3, 
-				'headerValues':['Date','Expense','Amount'],
+				'headerValues':['Expense','Date','Amount'],
 				'hint':'Search expenses', 
 				'noData':'No Expenses Found',
 				},
@@ -61,15 +61,15 @@ function ciniki_sapos_main() {
 				switch (j) {
 					case 0: return d.invoice.invoice_number;
 					case 1: return d.invoice.invoice_date;
-					case 2: return d.invoice.customer_name_display;
+					case 2: return d.invoice.customer_display_name;
 					case 3: return d.invoice.total_amount_display;
 					case 4: return d.invoice.status_text;
 				}
 			}
 			else if( s == 'expense_search' ) { 
 				switch (j) {
-					case 0: return d.expense.invoice_date;
-					case 1: return d.expense.name;
+					case 0: return d.expense.name;
+					case 1: return d.expense.invoice_date;
 					case 2: return d.expense.total_amount_display;
 				}
 			}
@@ -95,7 +95,7 @@ function ciniki_sapos_main() {
 				switch(j) {
 					case 0: return d.invoice.invoice_number;
 					case 1: return d.invoice.invoice_date;
-					case 2: return d.invoice.customer_name_display;
+					case 2: return d.invoice.customer_display_name;
 					case 3: return d.invoice.total_amount_display;
 					case 4: return d.invoice.status_text;
 				}

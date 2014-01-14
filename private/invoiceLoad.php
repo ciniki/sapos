@@ -139,7 +139,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	$invoice['customer'] = array();
 	if( $invoice['customer_id'] > 0 ) {
 		$strsql = "SELECT ciniki_customers.id, type, "
-			. "ciniki_customers.name AS name, "
+			. "ciniki_customers.display_name, "
 			. "phone_home, phone_work, phone_fax, phone_cell, "
 			. "ciniki_customers.company, "
 			. "ciniki_customer_emails.email AS emails "
@@ -152,7 +152,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 			. "";
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.customers', array(
 			array('container'=>'customers', 'fname'=>'id', 'name'=>'customer',
-				'fields'=>array('id', 'type', 'name', 'company', 
+				'fields'=>array('id', 'type', 'display_name',
 					'phone_home', 'phone_work', 'phone_cell', 'phone_fax', 'emails'),
 				'lists'=>array('emails'),
 				),
@@ -164,9 +164,6 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		}
 		if( isset($rc['customers']) && isset($rc['customers'][0]['customer']) ) {
 			$invoice['customer'] = $rc['customers'][0]['customer'];
-//			$invoice['customer']['name'] = preg_replace('/  /', ' ', $invoice['customer']['name']); 
-//			$invoice['customer']['name'] = rtrim($invoice['customer']['name'], ' ');
-//			$invoice['customer']['name'] = ltrim($invoice['customer']['name'], ' ');
 		}
 	}
 

@@ -21,8 +21,7 @@ function ciniki_sapos_customerInvoices($ciniki, $business_id, $customer_id, $lim
 	//
 	// Get the invoices for a customer
 	//
-	$strsql = "SELECT CONCAT_WS(' ', ciniki_customers.first, ciniki_customers.last) AS name, "
-		. "ciniki_customers.first, ciniki_customers.last, ciniki_customers.business, "
+	$strsql = "SELECT ciniki_customers.display_name AS customer_name, "
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, 
@@ -42,7 +41,7 @@ function ciniki_sapos_customerInvoices($ciniki, $business_id, $customer_id, $lim
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-			'fields'=>array('id, 'customer_name', 'first', 'last', 'business', 'invoice_number', 'invoice_date',
+			'fields'=>array('id, 'customer_name', 'invoice_number', 'invoice_date',
 				'status', 'status_text', 'total_amount'),
 			'maps'=>array('status_text'=>array('10'=>'Pending', '40'=>'Partial Payment', '50'=>'Paid', '60'=>'Cancelled'))),
 		));

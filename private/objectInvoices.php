@@ -42,8 +42,7 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 	// Get the invoices where an object has been invoiced for
 	//
 	$strsql = "SELECT ciniki_sapos_invoices.id, "
-		. "CONCAT_WS(' ', ciniki_customers.prefix, ciniki_customers.first, ciniki_customers.middle, ciniki_customers.last, ciniki_customers.suffix) AS customer_name, "
-		. "ciniki_customers.first, ciniki_customers.last, ciniki_customers.company, "
+		. "ciniki_customers.display_name AS customer_name, "
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
@@ -70,7 +69,7 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-			'fields'=>array('id', 'customer_name', 'first', 'last', 'company', 
+			'fields'=>array('id', 'customer_name', 
 				'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'item_amount'=>'item_total_amount', 'total_amount'),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
@@ -81,7 +80,6 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
 	}
 	if( isset($rc['invoices']) ) {
 		foreach($rc['invoices'] as $iid => $invoice) {
-			$rc['invoices'][$iid]['invoice']['customer_name'] = ltrim(rtrim(preg_replace('/  /', ' ', $invoice['invoice']['customer_name']), ' '), ' ');
 			$rc['invoices'][$iid]['invoice']['item_amount'] = numfmt_format_currency($intl_currency_fmt,
 				$invoice['invoice']['item_amount'], $intl_currency);
 			$rc['invoices'][$iid]['invoice']['total_amount'] = numfmt_format_currency($intl_currency_fmt,

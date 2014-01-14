@@ -80,7 +80,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// based on the customer.  
 	//
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
-		$strsql = "SELECT ciniki_customers.id, type, name, "
+		$strsql = "SELECT ciniki_customers.id, type, display_name, "
 			. "ciniki_customers.company "
 			. "ciniki_customer_addresses.id AS address_id, "
 			. "ciniki_customer_addresses.flags, "
@@ -99,7 +99,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 			. "";
 		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(
 			array('container'=>'customers', 'fname'=>'id', 
-				'fields'=>array('id', 'name', 'company')),
+				'fields'=>array('id', 'display_name', 'company')),
 			array('container'=>'addresses', 'fname'=>'address_id',
 				'fields'=>array('id'=>'address_id', 'flags', 'address1', 'address2', 'city', 'province', 'postal', 'country')),
 			));
@@ -108,20 +108,22 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		}
 		if( isset($rc['customers']) && isset($rc['customers'][$args['customer_id']]) ) {
 			$customer = $rc['customers'][$args['customer_id']];
-			$customer_name = $customer['name'];
+			$customer_name = $customer['display_name'];
 			if( $args['billing_name'] == '' ) {
-				if( $customer['type'] == 2 ) {
-					$args['billing_name'] = $customer['company'];
-				} else {
-					$args['billing_name'] = $customer['name'];
-				}
+// Just use the display_name for billing purposes.  If changing, change also in invoiceUpdate
+//				if( $customer['type'] == 2 ) {
+//					$args['billing_name'] = $customer['company'];
+//				} else {
+					$args['billing_name'] = $customer['display_name'];
+//				}
 			}
 			if( $args['shipping_name'] == '' ) {
-				if( $customer['type'] == 2 ) {
-					$args['shipping_name'] = $customer['company'];
-				} else {
-					$args['shipping_name'] = $customer['name'];
-				}
+// Just use the display_name for shipping purposes.  If changing, change also in invoiceUpdate
+//				if( $customer['type'] == 2 ) {
+//					$args['shipping_name'] = $customer['company'];
+//				} else {
+					$args['shipping_name'] = $customer['display_name'];
+//				}
 			}
 			foreach($customer['addresses'] as $aid => $address) {
 				if( ($address['flags']&0x01) == 0x01 && $args['shipping_address1'] == '' ) {

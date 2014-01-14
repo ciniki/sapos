@@ -68,7 +68,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		. "ciniki_sapos_invoices.status, "
 		. "ciniki_sapos_invoices.status AS status_text, "
 		. "ciniki_customers.type AS customer_type, "
-		. "ciniki_customers.name AS customer_name, ciniki_customers.company, "
+		. "ciniki_customers.display_name AS customer_display_name, "
 		. "total_amount "
 		. "FROM ciniki_sapos_invoices "
 		. "LEFT JOIN ciniki_customers ON (ciniki_sapos_invoices.customer_id = ciniki_customers.id "
@@ -88,7 +88,7 @@ function ciniki_sapos_latest(&$ciniki) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
-				'customer_type', 'customer_name', 'company', 'total_amount'),
+				'customer_type', 'customer_display_name', 'total_amount'),
 			'maps'=>array('status_text'=>$status_maps),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$php_date_format)), 
 			),
@@ -100,11 +100,6 @@ function ciniki_sapos_latest(&$ciniki) {
 		$invoices = array();
 	} else {	
 		foreach($rc['invoices'] as $iid => $invoice) {
-			if( $invoice['invoice']['customer_type'] == 2 ) {
-				$rc['invoices'][$iid]['invoice']['customer_name_display'] = $invoice['invoice']['company'] . ' (' . $invoice['invoice']['customer_name'] . ')';
-			} else {
-				$rc['invoices'][$iid]['invoice']['customer_name_display'] = $invoice['invoice']['customer_name'];
-			}
 			$rc['invoices'][$iid]['invoice']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
 				$invoice['invoice']['total_amount'], $intl_currency);
 		}
