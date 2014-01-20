@@ -70,7 +70,7 @@ function ciniki_sapos_qi() {
 		};
 		this.add.fieldValue = function(s, i, d) { return ''; }
 		this.add.cellValue = function(s, i, j, d) {
-			return '<span class="maintext">' + d.invoice.customer_display_name + '</span><span class="subtext">' + d.invoice.invoice_date + '</span>';
+			return '<span class="maintext">' + d.invoice.customer_display_name + '</span><span class="subtext">' + d.invoice.invoice_date + ' - ' + d.invoice.total_amount_display + '</span>';
 		};
 		this.add.rowFn = function(s, i, d) {
 			return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_qi.showAdd();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';

@@ -9,6 +9,9 @@ function ciniki_sapos_main() {
 			'mc', 'medium', 'sectioned', 'ciniki.sapos.main.menu');
 		this.menu.data = {};
 		this.menu.sections = {
+			'_quickadd':{'label':'', 'visible':'no', 'buttons':{
+				'quickadd':{'label':'Quick Invoice', 'fn':'M.startApp(\'ciniki.sapos.qi\',null,\'M.ciniki_sapos_main.showMenu();\');'},
+				}},
 			'invoice_search':{'label':'Invoices', 'type':'livesearchgrid', 'livesearchcols':5, 
 				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
 				'hint':'Search invoice # or customer name', 
@@ -39,7 +42,6 @@ function ciniki_sapos_main() {
 //			'reports':{'label':'Reports', 'list':{
 //				}},
 			'_buttons':{'label':'', 'buttons':{
-				'quickadd':{'label':'Quick Invoice', 'fn':'M.startApp(\'ciniki.sapos.qi\',null,\'M.ciniki_sapos_main.showMenu();\');'},
 				'settings':{'label':'Setup Expenses', 'fn':'M.startApp(\'ciniki.sapos.settings\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'ecats\':\'yes\'});'},
 				}},
 		};
@@ -160,11 +162,12 @@ function ciniki_sapos_main() {
 				var p = M.ciniki_sapos_main.menu;
 				p.data.invoices = rsp.invoices;
 				p.data.expenses = rsp.expenses;
+				p.sections._quickadd.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0)?'yes':'no';
 				p.sections.invoice_search.visible = (rsp.invoices.length > 0)?'yes':'no';
 				p.sections.invoices.visible = (rsp.invoices.length > 0)?'yes':'no';
 				p.sections.expense_search.visible = (rsp.expenses.length > 0)?'yes':'no';
 				p.sections.expenses.visible = (rsp.expenses.length > 0)?'yes':'no';
-				if( rsp.numcats != null && rsp.numcats == 0 ) {
+				if( rsp.numcats != null && rsp.numcats == 0 && (M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0 ) {
 					if( p.rightbuttons['add_e'] != null ) {
 						delete p.rightbuttons['add_e'];
 					}
