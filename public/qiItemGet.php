@@ -52,7 +52,7 @@ function ciniki_sapos_qiItemGet(&$ciniki) {
 	$datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
 
 	//
-	// Get the category details
+	// Get the item details
 	//
 	$strsql = "SELECT id, "
 		. "name, "
@@ -61,7 +61,7 @@ function ciniki_sapos_qiItemGet(&$ciniki) {
 		. "unit_amount, "
 		. "unit_discount_amount, "
 		. "unit_discount_percentage, "
-		. "taxrate_id "
+		. "taxtype_id "
 		. "FROM ciniki_sapos_qi_items "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
@@ -69,7 +69,9 @@ function ciniki_sapos_qiItemGet(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'name', 'sequence', 'flags', 'taxrate_id', 'start_date', 'end_date'),
+			'fields'=>array('id', 'name', 'description', 'quantity', 
+				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage',
+				'taxtype_id'),
 		)));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -82,6 +84,10 @@ function ciniki_sapos_qiItemGet(&$ciniki) {
 	//
 	// Format currencies
 	//
+	$item['unit_amount'] = numfmt_format_currency($intl_currency_fmt, 
+		$item['unit_amount'], $intl_currency);
+	$item['unit_discount_amount'] = numfmt_format_currency($intl_currency_fmt, 
+		$item['unit_discount_amount'], $intl_currency);
 
 	return array('stat'=>'ok', 'item'=>$item);
 }

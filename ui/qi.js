@@ -3,12 +3,12 @@
 //
 function ciniki_sapos_qi() {
 	this.qiItems = {
-		'1':'Wash',
-		'2':'ShortCut',
-		'3':'LongCut',
-		'4':'Shave',
-		'5':'Trim',
-		'6':'BTrim',
+//		'1':'Wash',
+//		'2':'ShortCut',
+//		'3':'LongCut',
+//		'4':'Shave',
+//		'5':'Trim',
+//		'6':'BTrim',
 		};
 	this.transactionSources = {
 		'10':'Paypal',
@@ -92,11 +92,13 @@ function ciniki_sapos_qi() {
 				M.api.err(rsp);
 				return false;
 			}
-			M.ciniki_sapos_qi.qiItems = {};
-			for(i in rsp.items) {
-				M.ciniki_sapos_qi.qiItems[rsp.items.id] = rsp.items.name;
-			}
 			var p = M.ciniki_sapos_qi.add;
+			// M.ciniki_sapos_qi.qiItems = {};
+			p.sections._items.fields.items.options = {};
+			for(i in rsp.items) {
+				p.sections._items.fields.items.options[rsp.items[i].item.id] = rsp.items[i].item.name;
+				// M.ciniki_sapos_qi.qiItems[rsp.items.id] = rsp.items.name;
+			}
 			p.data.latest = rsp.invoices;
 			p.refresh();
 			p.show(cb);

@@ -79,7 +79,7 @@ function ciniki_sapos_settings() {
 			'ciniki_sapos_settings', 'qi',
 			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.qi');
 		this.qi.sections = {
-			'items':{'label':'Items', 'type':'simplegrid', 'num_cols':1,
+			'items':{'label':'Items', 'type':'simplegrid', 'num_cols':2,
 				'addTxt':'Add',
 				'addFn':'M.ciniki_sapos_settings.editQIItem(\'M.ciniki_sapos_settings.showQI();\',0);',
 				}
@@ -88,6 +88,7 @@ function ciniki_sapos_settings() {
 		this.qi.cellValue = function(s, i, j, d) {
 			switch(j) {
 				case 0: return d.item.name;
+				case 1: return d.item.unit_amount;
 			}
 		};
 		this.qi.rowFn = function(s, i, d) {
@@ -110,8 +111,8 @@ function ciniki_sapos_settings() {
 				'description':{'label':'Description', 'type':'text'},
 				'quantity':{'label':'Quantity', 'type':'text', 'size':'small'},
 				'unit_amount':{'label':'Unit Amount', 'type':'text', 'size':'small'},
-				'unit_discount_amount':{'label':'Unit Amount', 'type':'text', 'size':'small'},
-				'unit_discount_percentage':{'label':'Unit Amount', 'type':'text', 'size':'small'},
+				'unit_discount_amount':{'label':'Discount Amount', 'type':'text', 'size':'small'},
+				'unit_discount_percentage':{'label':'Discount Percentage', 'type':'text', 'size':'small'},
 				'taxtype_id':{'label':'Taxes', 'type':'select', 'options':{}},
 				}},
 			'_buttons':{'label':'', 'buttons':{
@@ -122,6 +123,10 @@ function ciniki_sapos_settings() {
 		this.qiedit.fieldValue = function(s, i, d) {
 			if( this.data[i] == null ) { return ''; }
 			return this.data[i];
+		};
+		this.qiedit.fieldHistoryArgs = function(s, i) {
+			return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+				'object':'ciniki.sapos.qi_item', 'object_id':this.item_id, 'field':i}};
 		};
 		this.qiedit.addClose('Cancel');
 
@@ -360,7 +365,7 @@ function ciniki_sapos_settings() {
 						return false;
 					}
 					var p = M.ciniki_sapos_settings.qiedit;
-					p.data = rsp.category;
+					p.data = rsp.item;
 					p.refresh();
 					p.show(cb);
 				});

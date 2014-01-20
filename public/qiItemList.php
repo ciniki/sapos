@@ -53,6 +53,7 @@ function ciniki_sapos_qiItemList(&$ciniki) {
 	$strsql = "SELECT "	
 		. "ciniki_sapos_qi_items.id, "
 		. "ciniki_sapos_qi_items.name, "
+		. "ciniki_sapos_qi_items.unit_amount, "
 		. "ciniki_sapos_qi_items.taxtype_id "
 		. "FROM ciniki_sapos_qi_items "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -60,7 +61,7 @@ function ciniki_sapos_qiItemList(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'name', 'taxtype_id')),
+			'fields'=>array('id', 'name', 'unit_amount', 'taxtype_id')),
 		));
 	if( $rc['stat'] != 'ok' ) {	
 		return $rc;
@@ -68,7 +69,12 @@ function ciniki_sapos_qiItemList(&$ciniki) {
 	if( !isset($rc['items']) ) {
 		return array('stat'=>'ok', 'items'=>array());
 	}
+	$items = $rc['items'];
+	foreach($items as $iid => $item) {
+		$items[$iid]['item']['unit_amount'] = numfmt_format_currency($intl_currency_fmt, 
+			$item['item']['unit_amount'], $intl_currency);
+	}
 
-	return array('stat'=>'ok', 'items'=>$rc['items']);
+	return array('stat'=>'ok', 'items'=>$items);
 }
 ?>
