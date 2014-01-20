@@ -13,6 +13,7 @@ function ciniki_sapos_settings() {
 		this.menu.sections = {
 			'invoice':{'label':'Invoices', 'list':{
 				'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.editInvoice(\'M.ciniki_sapos_settings.showMenu();\');'},
+				'qi':{'label':'Quick Invoices', 'fn':'M.ciniki_sapos_settings.showQI(\'M.ciniki_sapos_settings.showMenu();\');'},
 				}},
 			'expenses':{'label':'Expenses', 'list':{
 				'expenses':{'label':'Expense Categories', 'fn':'M.ciniki_sapos_settings.showExpenseCategories(\'M.ciniki_sapos_settings.showMenu();\');'},
@@ -70,6 +71,59 @@ function ciniki_sapos_settings() {
 		};
 		this.invoice.addButton('save', 'Save', 'M.ciniki_sapos_settings.saveInvoice();');
 		this.invoice.addClose('Cancel');
+
+		//
+		// The qi settings panel
+		//
+		this.qi = new M.panel('Quick Invoice',
+			'ciniki_sapos_settings', 'qi',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.qi');
+		this.qi.sections = {
+			'items':{'label':'Items', 'type':'simplegrid', 'num_cols':1,
+				'addTxt':'Add',
+				'addFn':'M.ciniki_sapos_settings.editQIItem(\'M.ciniki_sapos_settings.showQI();\',0);',
+				}
+		};
+		this.qi.sectionData = function(s) { return this.data[s]; }
+		this.qi.cellValue = function(s, i, j, d) {
+			switch(j) {
+				case 0: return d.item.name;
+			}
+		};
+		this.qi.rowFn = function(s, i, d) {
+			return 'M.ciniki_sapos_settings.editQIItem(\'M.ciniki_sapos_settings.showQI();\',\'' + d.item.id + '\');';
+		};
+		this.qi.addButton('add', 'Add', 'M.ciniki_sapos_settings.editQIItem(\'M.ciniki_sapos_settings.showQI();\',0);');
+		this.qi.addClose('Back');
+
+		//
+		// The qi item edit panel
+		//
+		this.qiedit = new M.panel('Expense Category',
+			'ciniki_sapos_settings', 'qiedit',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.qiedit');
+		this.qiedit.item_id = 0;
+		this.qiedit.data = {};
+		this.qiedit.sections = {
+			'item':{'label':'Item', 'fields':{
+				'name':{'label':'Name', 'type':'text'},
+				'description':{'label':'Description', 'type':'text'},
+				'quantity':{'label':'Quantity', 'type':'text', 'size':'small'},
+				'unit_amount':{'label':'Unit Amount', 'type':'text', 'size':'small'},
+				'unit_discount_amount':{'label':'Unit Amount', 'type':'text', 'size':'small'},
+				'unit_discount_percentage':{'label':'Unit Amount', 'type':'text', 'size':'small'},
+				'taxtype_id':{'label':'Taxes', 'type':'select', 'options':{}},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveQIItem();'},
+				'delete':{'label':'Delete', 'fn':'M.ciniki_sapos_settings.deleteQIItem(M.ciniki_sapos_settings.qiedit.item_id);'},
+				}},
+		};
+		this.qiedit.fieldValue = function(s, i, d) {
+			if( this.data[i] == null ) { return ''; }
+			return this.data[i];
+		};
+		this.qiedit.addClose('Cancel');
 
 		//
 		// The expenses settings panel
@@ -260,6 +314,109 @@ function ciniki_sapos_settings() {
 		}
 	};
 
+	//
+	// Quick Invoice Items
+	//
+	this.showQI = function(cb) {
+		M.api.getJSONCb('ciniki.sapos.qiItemList', 
+			{'business_id':M.curBusinessID}, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				var p = M.ciniki_sapos_settings.qi;
+				p.data = {'items':rsp.items};
+				p.refresh();
+				p.show(cb);
+			});
+	};
+
+	this.editQIItem = function(cb, iid) {
+		if( M.curBusiness.modules['ciniki.taxes'] != null ) {
+			M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				var p = M.ciniki_sapos_settings.qiedit;
+				p.sections.item.fields.taxtype_id.options[0] = 'No Taxes';
+				for(i in rsp.active) {
+					p.sections.item.fields.taxtype_id.options[rsp.active[i].type.id] = rsp.active[i].type.name + ((rsp.active[i].type.rates==''||rsp.active[i].type.rates==null)?', No Taxes':', ' + rsp.active[i].type.rates);
+				}
+				M.ciniki_sapos_settings.editQIItemLoad(cb, iid);
+			});
+		} else {
+			this.editQIItemLoad(cb, iid);
+		}
+	}
+	this.editQIItemLoad = function(cb, qid) {
+		if( qid != null ) { this.qiedit.item_id = qid; }
+		if( this.qiedit.item_id > 0 ) {
+			this.qiedit.sections._buttons.buttons.delete.visible='yes';
+			M.api.getJSONCb('ciniki.sapos.qiItemGet', {'business_id':M.curBusinessID,
+				'item_id':this.qiedit.item_id}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_settings.qiedit;
+					p.data = rsp.category;
+					p.refresh();
+					p.show(cb);
+				});
+		} else {
+			this.qiedit.reset();
+			this.qiedit.data = {};
+			this.qiedit.sections._buttons.buttons.delete.visible='no';
+			this.qiedit.refresh();
+			this.qiedit.show(cb);
+		}
+	};
+
+	this.saveQIItem = function() {
+		if( this.qiedit.item_id > 0 ) {
+			var c = this.qiedit.serializeForm('no');
+			if( c != '' ) {
+				M.api.postJSONCb('ciniki.sapos.qiItemUpdate', {'business_id':M.curBusinessID,
+					'item_id':this.qiedit.item_id}, c, function(rsp) {
+						if( rsp.stat != 'ok' ) {
+							M.api.err(rsp);
+							return false;
+						}
+						M.ciniki_sapos_settings.qiedit.close();
+					});
+			} else {
+				this.qiedit.close();
+			}
+		} else {
+			var c = this.qiedit.serializeForm('yes');
+			M.api.postJSONCb('ciniki.sapos.qiItemAdd', {'business_id':M.curBusinessID},
+				c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.qiedit.close();
+				});
+		}
+	};
+
+	this.deleteQIItem = function(cid) {
+		if( confirm('Are you sure you want to remove this category?') ) {
+			M.api.getJSONCb('ciniki.sapos.qiItemDelete', {'business_id':M.curBusinessID,
+				'item_id':cid}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.qiedit.close();
+				});
+		}
+	};
+
+	//
+	// Expenses
+	//
 	this.showExpenseCategories = function(cb) {
 		M.api.getJSONCb('ciniki.sapos.expenseCategoryList', 
 			{'business_id':M.curBusinessID}, function(rsp) {

@@ -229,6 +229,6 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 		}
 	}
 
-	return array('stat'=>'ok');
+	return array('stat'=>'ok', 'total_amount'=>$invoice_total_amount);
 }
 ?>

@@ -39,6 +39,7 @@ function ciniki_sapos_main() {
 //			'reports':{'label':'Reports', 'list':{
 //				}},
 			'_buttons':{'label':'', 'buttons':{
+				'quickadd':{'label':'Quick Invoice', 'fn':'M.startApp(\'ciniki.sapos.qi\',null,\'M.ciniki_sapos_main.showMenu();\');'},
 				'settings':{'label':'Setup Expenses', 'fn':'M.startApp(\'ciniki.sapos.settings\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'ecats\':\'yes\'});'},
 				}},
 		};

@@ -87,6 +87,24 @@ function ciniki_sapos_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);
+	$objects['qi_item'] = array(
+		'name'=>'Quick Invoice Item',
+		'sync'=>'yes',
+		'table'=>'ciniki_sapos_qi_items',
+		'fields'=>array(
+			'template'=>array(),
+			'name'=>array(),
+			'object'=>array(),
+			'object_id'=>array(),
+			'description'=>array(),
+			'quantity'=>array(),
+			'unit_amount'=>array(),
+			'unit_discount_amount'=>array(),
+			'unit_discount_percentage'=>array(),
+			'taxtype_id'=>array('ref'=>'ciniki.taxes.type'),
+			),
+		'history_table'=>'ciniki_sapos_history',
+		);
 	$objects['transaction'] = array(
 		'name'=>'Transaction',
 		'sync'=>'yes',
