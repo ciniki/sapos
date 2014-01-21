@@ -77,7 +77,7 @@ function ciniki_sapos_qiItemGet(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['items'][0]['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1423', 'msg'=>'Unable to find quick invoice item.'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1503', 'msg'=>'Unable to find quick invoice item.'));
 	}
 	$item = $rc['items'][0]['item'];
 
