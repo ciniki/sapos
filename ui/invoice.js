@@ -122,7 +122,7 @@ function ciniki_sapos_invoice() {
 					if( discount != '' ) {
 						return '<span class="maintext">' + ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.item.discount_amount_display + ')</span>';
 					} else {
-						return d.item.unit_amount_display;
+						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display;
 					}
 				}
 				if( j == 2 ) {
@@ -255,22 +255,26 @@ function ciniki_sapos_invoice() {
 		};
 		this.item.liveSearchResultValue = function(s,f,i,j,d) {
 			if( f == 'description' && d.item != null ) { 
-				return d.item.description + ' ' + d.item.unit_amount_display; 
+				return d.item.description + ' ' + d.item.unit_amount; 
 			}
 			return '';
 		};
 		this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
 			if( f == 'description' && d.item != null ) {
-				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount_display) + '\',\'' + d.item.taxtype_id + '\');';
+				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\');';
 			}
 		};
-		this.item.updateFromSearch = function(s, fid, o, oid, d, q, u, t) {
+		this.item.updateFromSearch = function(s, fid, o, oid, d, q, u, uda, udp, t) {
 			this.object = o;
 			this.object_id = oid;
 			this.setFieldValue('description', unescape(d));
 			this.setFieldValue('quantity', q);
 			this.setFieldValue('unit_amount', unescape(u));
-			this.setFieldValue('taxtype_id', t);
+			this.setFieldValue('unit_discount_amount', unescape(uda));
+			this.setFieldValue('unit_discount_percentage', unescape(udp));
+			if( M.curBusiness.modules['ciniki.taxes'] != null ) {
+				this.setFieldValue('taxtype_id', t);
+			}
 			this.removeLiveSearch(s, fid);
 		};
 		this.item.fieldValue = function(s, i, d) {

@@ -97,6 +97,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
 	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.sapos');
 	if( $rc['stat'] != 'ok' ) { 
@@ -112,6 +113,29 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 		return $rc;
 	}
 	$item_id = $rc['id'];
+
+	//
+	// Check for a callback to the object
+	//
+	if( $args['object'] != '' && $args['object_id'] != '' ) {
+		list($pkg,$mod,$obj) = explode('.', $args['object']);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemAdd');
+		if( $rc['stat'] == 'ok' ) {
+			$fn = $rc['function_call'];
+			$rc = $fn($ciniki, $args['business_id'], $args['invoice_id'], $args);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+			// Update the invoice item with the new object and object_id
+			if( isset($rc['object']) && $rc['object'] != $args['object'] ) {
+				$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
+					$item_id, $rc, 0x04);
+				if( $rc['stat'] != 'ok' ) {
+					return $rc;
+				}
+			}
+		}
+	}
 
 	//
 	// Update the taxes

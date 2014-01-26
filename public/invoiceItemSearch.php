@@ -91,6 +91,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 		. "ciniki_sapos_invoice_items.taxtype_id "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND object = '' "
 		. "AND (description LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 			. "OR description LIKE ' %" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 			. ") "
@@ -114,8 +115,10 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 	}
 
 	foreach($items as $i => $item) {
-		$items[$i]['item']['unit_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+		$items[$i]['item']['unit_amount'] = numfmt_format_currency($intl_currency_fmt, 
 			$item['item']['unit_amount'], $intl_currency);
+		$items[$i]['item']['unit_discount_amount'] = numfmt_format_currency($intl_currency_fmt, 
+			$item['item']['unit_discount_amount'], $intl_currency);
 		$items[$i]['item']['quantity'] = (float)$item['item']['quantity'];
 	}
 

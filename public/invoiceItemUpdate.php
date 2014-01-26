@@ -54,8 +54,8 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
 	//
 	// Get the existing item details
 	//
-	$strsql = "SELECT id, invoice_id, quantity, unit_amount, "
-		. "unit_discount_amount, unit_discount_percentage, "
+	$strsql = "SELECT id, invoice_id, object, object_id, "
+		. "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
 		. "subtotal_amount, discount_amount, total_amount "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
@@ -116,6 +116,28 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
+	}
+	
+	//
+	// Update the item values for callbacks
+	//
+	if( isset($args['quantity']) && $args['quantity'] != $item['quantity'] ) {
+		$item['quantity'] = $args['quantity'];
+	}
+
+	//
+	// Check for a callback to the object
+	//
+	if( $item['object'] != '' && $item['object_id'] != '' ) {
+		list($pkg,$mod,$obj) = explode('.', $item['object']);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemUpdate');
+		if( $rc['stat'] == 'ok' ) {
+			$fn = $rc['function_call'];
+			$rc = $fn($ciniki, $args['business_id'], $item['invoice_id'], $item);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+		}
 	}
 
 	//

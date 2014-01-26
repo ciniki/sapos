@@ -245,6 +245,29 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 			return $rc;
 		}
+
+		//
+		// Check if there's a callback for the object
+		//
+		if( $item['object'] != '' && $item['object_id'] != '' ) {
+			list($pkg,$mod,$obj) = explode('.', $item['object']);
+			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemAdd');
+			if( $rc['stat'] == 'ok' ) {
+				$fn = $rc['function_call'];
+				$rc = $fn($ciniki, $args['business_id'], $invoice_id, $item);
+				if( $rc['stat'] != 'ok' ) {
+					return $rc;
+				}
+				// Update the invoice item with the new object and object_id
+				if( isset($rc['object']) && $rc['object'] != $args['object'] ) {
+					$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
+						$item_id, $rc, 0x04);
+					if( $rc['stat'] != 'ok' ) {
+						return $rc;
+					}
+				}
+			}
+		}
 	}
 
 	//

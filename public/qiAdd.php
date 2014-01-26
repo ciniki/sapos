@@ -302,7 +302,7 @@ function ciniki_sapos_qiAdd(&$ciniki) {
 	$total = $rc['total_amount'];
 
 	//
-	// FIXME: Add the transaction for the total
+	// Add the transaction for the total
 	//
 	$transaction_args = array(
 		'invoice_id'=>$invoice_id,

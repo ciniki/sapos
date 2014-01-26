@@ -136,11 +136,22 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	}
 
 	//
+	// Start the transaction
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
+	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.sapos');
+	if( $rc['stat'] != 'ok' ) { 
+		return $rc;
+	}   
+
+	//
 	// Update the invoice
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
 	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice', 
-		$args['invoice_id'], $args, 0x07);
+		$args['invoice_id'], $args, 0x04);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
@@ -154,7 +165,45 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
+	$invoice = $rc['invoice'];
 
-	return array('stat'=>'ok', 'invoice'=>$rc['invoice']);
+	//
+	// Check for callbacks
+	//
+	if( isset($invoice['items']) ) {
+		foreach($invoice['items'] as $iid => $item) {
+			$item = $item['item'];
+			if( $item['object'] != '' && $item['object_id'] != '' ) {
+				list($pkg,$mod,$obj) = explode('.', $item['object']);
+				$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'invoiceUpdate');
+				if( $rc['stat'] == 'ok' ) {
+					$fn = $rc['function_call'];
+					$rc = $fn($ciniki, $args['business_id'], $invoice['id'], $item);
+					if( $rc['stat'] != 'ok' ) {
+						return $rc;
+					}
+				}
+			}
+		}
+	}
+
+
+	//
+	// Commit the transaction
+	//
+    $rc = ciniki_core_dbTransactionCommit($ciniki, 'ciniki.sapos');
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+		return $rc;
+	}
+
+	//
+	// Update the last_change date in the business modules
+	// Ignore the result, as we don't want to stop user updates if this fails.
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
+	ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
+
+	return array('stat'=>'ok', 'invoice'=>$invoice);
 }
 ?>

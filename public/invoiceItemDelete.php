@@ -38,7 +38,7 @@ function ciniki_sapos_invoiceItemDelete(&$ciniki) {
 	//
 	// Get the details of the item
 	//
-	$strsql = "SELECT uuid, invoice_id "
+	$strsql = "SELECT uuid, invoice_id, object, object_id "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
 		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -62,6 +62,21 @@ function ciniki_sapos_invoiceItemDelete(&$ciniki) {
 	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.sapos');
 	if( $rc['stat'] != 'ok' ) { 
 		return $rc;
+	}
+
+	//
+	// Check for a callback for the item object
+	//
+	if( $item['object'] != '' && $item['object_id'] != '' ) {
+		list($pkg,$mod,$obj) = explode('.', $item['object']);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemDelete');
+		if( $rc['stat'] == 'ok' ) {
+			$fn = $rc['function_call'];
+			$rc = $fn($ciniki, $args['business_id'], $item['invoice_id'], $item);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+		}
 	}
 
 	//

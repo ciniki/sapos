@@ -86,15 +86,28 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
 	//
 	if( isset($invoice['items']) && count($invoice['items']) > 0 ) {
 		foreach($invoice['items'] as $iid => $item) {
+			$item = $item['item'];
+			//
+			// Check for a callback for the item object
+			//
+			if( $item['object'] != '' && $item['object_id'] != '' ) {
+				list($pkg,$mod,$obj) = explode('.', $item['object']);
+				$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemDelete');
+				if( $rc['stat'] == 'ok' ) {
+					$fn = $rc['function_call'];
+					$rc = $fn($ciniki, $args['business_id'], $item['invoice_id'], $item);
+					if( $rc['stat'] != 'ok' ) {
+						return $rc;
+					}
+				}
+			}
+
 			$rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
-				$item['item']['id'], NULL, 0x04);
+				$item['id'], NULL, 0x04);
 			if( $rc['stat'] != 'ok' ) {
 				ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 				return $rc;
 			}
-			//
-			// FIXME: insert callback hook to object module to return item to inventory
-			//
 		}
 	}
 
