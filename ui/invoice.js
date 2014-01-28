@@ -331,7 +331,10 @@ function ciniki_sapos_invoice() {
 			return false;
 		}
 
-		if( args.object != null && args.object_id != null && args.customer_id != null ) {
+		if( args.items != null && args.customer_id != null ) {
+			// Create new invoice with item
+			this.createInvoice(cb, args.customer_id, null, args.items);
+		} else if( args.object != null && args.object_id != null && args.customer_id != null ) {
 			// Create new invoice with this object/object_id
 			this.createInvoice(cb, args.customer_id, [{'object':args.object,'id':args.object_id}]);
 		} else if( args.object != null && args.object_id != null ) {
@@ -346,17 +349,30 @@ function ciniki_sapos_invoice() {
 		}
 	};
 
-	this.createInvoice = function(cb, cid, items) {
+	this.createInvoice = function(cb, cid, objects, items) {
 		var c = '';
 		var cm = '';
 		// Create the array of items to be added to the new invoice
-		if( items != null ) {
-			for(i in items) {
-				c += cm + items[i].object + ':' + items[i].id;
+		if( objects != null ) {
+			for(i in objects) {
+				c += cm + objects[i].object + ':' + objects[i].id;
 				cm = ',';
 			}
 			c = 'objects=' + c + '&';
 		}
+		if( items != null ) {
+			var json = '';
+			cm = '';
+			for(i in items) {
+				var item = ''
+				for(j in items[i]) {
+					item += (item!=''?',':'') + '"' + j + '":"' + items[i][j] + '"';
+				}
+				json += '{' + item + '}';
+			}
+			c += 'items=' + encodeURIComponent('[' + json + ']');
+		}
+		console.log(c);
 		// Create the new invoice, and then display it
 		M.api.postJSONCb('ciniki.sapos.invoiceAdd', {'business_id':M.curBusinessID,
 			'customer_id':cid}, c, function(rsp) {

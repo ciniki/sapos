@@ -95,7 +95,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
 				$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemDelete');
 				if( $rc['stat'] == 'ok' ) {
 					$fn = $rc['function_call'];
-					$rc = $fn($ciniki, $args['business_id'], $item['invoice_id'], $item);
+					$rc = $fn($ciniki, $args['business_id'], $args['invoice_id'], $item);
 					if( $rc['stat'] != 'ok' ) {
 						return $rc;
 					}

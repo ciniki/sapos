@@ -41,6 +41,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		'invoice_notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Notes'),
 		'internal_notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Internal Notes'),
 		'objects'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'objectlist', 'name'=>'Items'),
+		'items'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'json', 'name'=>'Items'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -81,7 +82,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	//
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
 		$strsql = "SELECT ciniki_customers.id, type, display_name, "
-			. "ciniki_customers.company "
+			. "ciniki_customers.company, "
 			. "ciniki_customer_addresses.id AS address_id, "
 			. "ciniki_customer_addresses.flags, "
 			. "ciniki_customer_addresses.address1, "
@@ -92,10 +93,10 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 			. "ciniki_customer_addresses.country "
 			. "FROM ciniki_customers "
 			. "LEFT JOIN ciniki_customer_addresses ON (ciniki_customers.id = ciniki_customer_addresses.customer_id "
-				. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. "AND ciniki_customer_addresses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 				. ") "
-			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
-			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "WHERE ciniki_customers.id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
+			. "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "";
 		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(
 			array('container'=>'customers', 'fname'=>'id', 
@@ -125,22 +126,24 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 					$args['shipping_name'] = $customer['display_name'];
 //				}
 			}
-			foreach($customer['addresses'] as $aid => $address) {
-				if( ($address['flags']&0x01) == 0x01 && $args['shipping_address1'] == '' ) {
-					$args['shipping_address1'] = $address['address1'];
-					$args['shipping_address2'] = $address['address2'];
-					$args['shipping_city'] = $address['city'];
-					$args['shipping_province'] = $address['province'];
-					$args['shipping_postal'] = $address['postal'];
-					$args['shipping_country'] = $address['country'];
-				}
-				if( ($address['flags']&0x02) == 0x02 && $args['billing_address1'] == '' ) {
-					$args['billing_address1'] = $address['address1'];
-					$args['billing_address2'] = $address['address2'];
-					$args['billing_city'] = $address['city'];
-					$args['billing_province'] = $address['province'];
-					$args['billing_postal'] = $address['postal'];
-					$args['billing_country'] = $address['country'];
+			if( isset($customer['addresses']) ) {
+				foreach($customer['addresses'] as $aid => $address) {
+					if( ($address['flags']&0x01) == 0x01 && $args['shipping_address1'] == '' ) {
+						$args['shipping_address1'] = $address['address1'];
+						$args['shipping_address2'] = $address['address2'];
+						$args['shipping_city'] = $address['city'];
+						$args['shipping_province'] = $address['province'];
+						$args['shipping_postal'] = $address['postal'];
+						$args['shipping_country'] = $address['country'];
+					}
+					if( ($address['flags']&0x02) == 0x02 && $args['billing_address1'] == '' ) {
+						$args['billing_address1'] = $address['address1'];
+						$args['billing_address2'] = $address['address2'];
+						$args['billing_city'] = $address['city'];
+						$args['billing_province'] = $address['province'];
+						$args['billing_postal'] = $address['postal'];
+						$args['billing_country'] = $address['country'];
+					}
 				}
 			}
 		} else {
@@ -156,12 +159,18 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'lookupObjects');
 		$rc = ciniki_sapos_lookupObjects($ciniki, $args['business_id'], $args['objects']);
 		if( $rc['stat'] != 'ok' ) {
-			return $rc;
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1516', 'msg'=>'Unable to lookup invoice item reference', 'err'=>$rc['err']));
 		}
 		if( isset($rc['items']) ) {
 			$invoice_items = $rc['items'];
 		} else {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1101', 'msg'=>'Unable to find specified items.'));
+		}
+	}
+
+	if( isset($args['items']) && is_array($args['items']) && count($args['items']) > 0 ) {
+		foreach($args['items'] as $item) {
+			array_push($invoice_items, $item);
 		}
 	}
 
@@ -239,7 +248,6 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 			$item['discount_amount'] = $rc['discount'];
 			$item['total_amount'] = $rc['total'];
 		}
-
 		$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $item, 0x04);
 		if( $rc['stat'] != 'ok' ) {
 			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
