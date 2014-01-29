@@ -353,7 +353,8 @@ function ciniki_sapos_settings() {
 		} else {
 			this.editQIItemLoad(cb, iid);
 		}
-	}
+	};
+
 	this.editQIItemLoad = function(cb, qid) {
 		if( qid != null ) { this.qiedit.item_id = qid; }
 		if( this.qiedit.item_id > 0 ) {
