@@ -125,7 +125,6 @@ function ciniki_sapos_qi() {
 		if( this.add.formValue('customer_id') == 0 ) {
 			c += 'name=' + encodeURIComponent(M.gE(this.add.panelUID + '_customer_id_fkidstr').value) + '&';
 		}
-		console.log(c);
 		M.api.postJSONCb('ciniki.sapos.qiAdd', {'business_id':M.curBusinessID, 'limit':'10'},
 			c, function(rsp) {
 				if( rsp.stat != 'ok' ) {

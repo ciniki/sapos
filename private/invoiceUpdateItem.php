@@ -25,6 +25,7 @@ function ciniki_sapos_invoiceUpdateItem(&$ciniki, $business_id, $invoice_id, $it
 		. "subtotal_amount, discount_amount, total_amount "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+		. "AND invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 		. "AND object = '" . ciniki_core_dbQuote($ciniki, $item['object']) . "' "
 		. "AND object_id ='" . ciniki_core_dbQuote($ciniki, $item['object_id']) . "' "
 		. "";

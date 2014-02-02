@@ -289,6 +289,16 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	}
 
 	//
+	// Update the shipping costs, taxes, and total
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+	$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $invoice_id);
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+		return $rc;
+	}
+
+	//
 	// Commit the transaction
 	//
     $rc = ciniki_core_dbTransactionCommit($ciniki, 'ciniki.sapos');

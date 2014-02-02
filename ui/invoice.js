@@ -77,7 +77,7 @@ function ciniki_sapos_invoice() {
 				'cellClasses':['', '', 'alignright'],
 				},
 			'_buttons':{'label':'', 'buttons':{
-				'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount);'},
+				'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
 				'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
 				'delete':{'label':'Delete Invoice', 'fn':'M.ciniki_sapos_invoice.deleteInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
@@ -372,7 +372,6 @@ function ciniki_sapos_invoice() {
 			}
 			c += 'items=' + encodeURIComponent('[' + json + ']');
 		}
-		console.log(c);
 		// Create the new invoice, and then display it
 		M.api.postJSONCb('ciniki.sapos.invoiceAdd', {'business_id':M.curBusinessID,
 			'customer_id':cid}, c, function(rsp) {
@@ -482,7 +481,7 @@ function ciniki_sapos_invoice() {
 		if( rsp.invoice.transactions.length > 0 ) {
 			p.sections.transactions.visible='yes';
 			p.data.transactions = rsp.invoice.transactions;
-			if( rsp.invoice.balance_amount != null ) {
+			if( rsp.invoice.balance_amount_display != null ) {
 				p.data.transactions.push({'transaction':{'id':'0', 
 					'transaction_date':'Balance Owing', 
 					'transaction_type':0,
@@ -581,7 +580,7 @@ function ciniki_sapos_invoice() {
 		var d = {
 			'invoice_id':p.invoice_id,
 			'currency':'CAD',
-			'total':p.data.balance_amount,
+			'total':p.data.balance_amount_display,
 			'first_name':'',
 			'last_name':'',
 			'line1':p.data.billing_address1,
@@ -717,7 +716,7 @@ function ciniki_sapos_invoice() {
 		}
 	};
 
-	this.editTransaction = function(cb, tid, inid, date,amount) {
+	this.editTransaction = function(cb, tid, inid, date, amount) {
 		if( tid != null ) { this.transaction.transaction_id = tid; }
 		if( inid != null ) { this.transaction.invoice_id = inid; }
 		if( this.transaction.transaction_id > 0 ) {
