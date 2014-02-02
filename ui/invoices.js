@@ -1,4 +1,3 @@
-//
 function ciniki_sapos_invoices() {
 	this.init = function() {
 		this.invoices = new M.panel('Invoices',

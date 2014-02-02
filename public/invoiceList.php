@@ -18,6 +18,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
         'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
         'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
@@ -105,6 +106,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	}
 	if( isset($args['status']) && $args['status'] > 0 ) {
 		$strsql .= "AND ciniki_sapos_invoices.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
+	}
+	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
+		$strsql .= "AND ciniki_sapos_invoices.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
 	}
 	if( isset($args['sort']) ) {
 		if( $args['sort'] == 'latest' ) {
