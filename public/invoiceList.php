@@ -25,6 +25,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
+        'customer'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Details'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -62,6 +63,20 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		return $rc;
 	}
 	$status_maps = $rc['maps'];
+
+	//
+	// If customer_id is specified, get the details
+	//
+	if( isset($args['customer']) && $args['customer'] == 'yes' 
+		&& isset($args['customer_id']) && $args['customer_id'] != '' ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'private', 'customerDetails');
+		$rc = ciniki_customers__customerDetails($ciniki, $args['business_id'], $args['customer_id'], 
+			array('emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$customer = $rc['details'];
+	}
 
 	//
 	// Build the query to get the list of invoices
@@ -223,6 +238,10 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		$objWriter->save('php://output');
 
 		return array('stat'=>'exit');
+	}
+
+	if( isset($customer) ) {
+		return array('stat'=>'ok', 'customer'=>$customer, 'totals'=>$totals, 'invoices'=>$invoices);
 	}
 
 	return array('stat'=>'ok', 'totals'=>$totals, 'invoices'=>$invoices);

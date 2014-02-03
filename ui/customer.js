@@ -1,8 +1,8 @@
-function ciniki_sapos_customerinvoices() {
+function ciniki_sapos_customer() {
 	this.init = function() {
 		this.invoices = new M.panel('Customer Invoices',
-			'ciniki_sapos_customerinvoices', 'invoices',
-			'mc', 'large', 'sectioned', 'ciniki.sapos.customerinvoices.invoices');
+			'ciniki_sapos_customer', 'invoices',
+			'mc', 'large', 'sectioned', 'ciniki.sapos.customer.invoices');
 		this.invoices.customer_id = 0;
 		this.invoices.year = null;
 		this.invoices.month = 0;
@@ -25,13 +25,16 @@ function ciniki_sapos_customerinvoices() {
 //				'11':{'label':'Nov', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,11);'},
 //				'12':{'label':'Dec', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,12);'},
 //				}},
+			'customer':{'label':'Customer', 'type':'simplegrid', 'num_cols':2,
+				'cellClasses':['label', ''],
+				},
 			'statuses':{'label':'', 'visible':'yes', 'type':'paneltabs', 'selected':'0', 'tabs':{
-				'0':{'label':'All', 'fn':'M.ciniki_sapos_customerinvoices.showInvoices(null,null,null,null,0);'},
-				'20':{'label':'Payment Required', 'fn':'M.ciniki_sapos_customerinvoices.showInvoices(null,null,null,null,20);'},
-				'40':{'label':'Deposit', 'fn':'M.ciniki_sapos_customerinvoices.showInvoices(null,null,null,null,40);'},
-				'50':{'label':'Paid', 'fn':'M.ciniki_sapos_customerinvoices.showInvoices(null,null,null,null,50);'},
-				'55':{'label':'Refunded', 'fn':'M.ciniki_sapos_customerinvoices.showInvoices(null,null,null,null,55);'},
-				'60':{'label':'Void', 'fn':'M.ciniki_sapos_customerinvoices.showInvoices(null,null,null,null,60);'},
+				'0':{'label':'All', 'fn':'M.ciniki_sapos_customer.showInvoices(null,null,null,null,0);'},
+				'20':{'label':'Payment Required', 'fn':'M.ciniki_sapos_customer.showInvoices(null,null,null,null,20);'},
+				'40':{'label':'Deposit', 'fn':'M.ciniki_sapos_customer.showInvoices(null,null,null,null,40);'},
+				'50':{'label':'Paid', 'fn':'M.ciniki_sapos_customer.showInvoices(null,null,null,null,50);'},
+				'55':{'label':'Refunded', 'fn':'M.ciniki_sapos_customer.showInvoices(null,null,null,null,55);'},
+				'60':{'label':'Void', 'fn':'M.ciniki_sapos_customer.showInvoices(null,null,null,null,60);'},
 				}},
 			'invoices':{'label':'', 'type':'simplegrid', 'num_cols':4,
 				'sortable':'yes',
@@ -48,7 +51,7 @@ function ciniki_sapos_customerinvoices() {
 //				}},
 		};
 		this.invoices.footerValue = function(s, i, d) {
-			if( this.data.totals != null ) {
+			if( s == 'invoices' && this.data.totals != null ) {
 				switch(i) {
 					case 0: return this.data.totals.num_invoices;
 					case 1: return '';
@@ -56,9 +59,12 @@ function ciniki_sapos_customerinvoices() {
 					case 3: return '';
 				}
 			}
+			return null;
 		};
 		this.invoices.footerClass = function(s, i, d) {
-			if( i == 3 ) { return 'alignright'; }
+			if( s == 'invoices' ) {
+				if( i == 3 ) { return 'alignright'; }
+			}
 			return '';
 		};
 		this.invoices.sectionData = function(s) {
@@ -74,6 +80,12 @@ function ciniki_sapos_customerinvoices() {
 			return this.data.totals[i];
 		};
 		this.invoices.cellValue = function(s, i, j, d) {
+			if( s == 'customer' ) {
+				switch(j) {
+					case 0: return d.detail.label;
+					case 1: return d.detail.value.replace(/\n/, '<br/>');
+				}
+			}
 			if( s == 'invoices' ) {
 				switch(j) {
 					case 0: return d.invoice.invoice_number;
@@ -86,7 +98,7 @@ function ciniki_sapos_customerinvoices() {
 		
 		this.invoices.rowFn = function(s, i, d) {
 			if( s == 'invoices' ) {
-				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_customerinvoices.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
+				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_customer.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
 			}
 		};
 		this.invoices.addClose('Back');
@@ -104,7 +116,7 @@ function ciniki_sapos_customerinvoices() {
 		// Create the app container if it doesn't exist, and clear it out
 		// if it does exist.
 		//
-		var appContainer = M.createContainer(appPrefix, 'ciniki_sapos_customerinvoices', 'yes');
+		var appContainer = M.createContainer(appPrefix, 'ciniki_sapos_customer', 'yes');
 		if( appContainer == null ) {
 			alert('App Error');
 			return false;
@@ -119,12 +131,13 @@ function ciniki_sapos_customerinvoices() {
 			this.invoices.sections.statuses.selected = status;
 		}
 		M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
-			'customer_id':this.invoices.customer_id, 'status':this.invoices.status}, function(rsp) {
+			'customer_id':this.invoices.customer_id, 'customer':'yes', 
+			'status':this.invoices.status}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
 				}
-				var p = M.ciniki_sapos_customerinvoices.invoices;
+				var p = M.ciniki_sapos_customer.invoices;
 				p.data = rsp;
 //				p.sections._buttons.buttons.excel.visible=(rsp.invoices.length>0)?'yes':'no';
 				p.refresh();
