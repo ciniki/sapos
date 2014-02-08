@@ -74,6 +74,9 @@
 # total_savings:				The sum of all discount_amount on the items in the invoice, and 
 #								the discount_amount for the invoice.
 #
+# paid_amount:					The amount that has been paid.
+# balance_amount:				The amount that remains to be paid on the invoice.
+#
 # user_id:				The ID of the user who created the invoice.  If the invoice was created
 #						online, it should be set to zero (0).
 #

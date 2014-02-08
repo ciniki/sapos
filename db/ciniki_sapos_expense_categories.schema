@@ -20,7 +20,7 @@
 # start_date:		The start date for the category, when it became active, 
 #					or '0000-00-00 00:00:00' for always active
 #
-# start_date:		The end date for the category, when it became deactive, 
+# end_date:			The end date for the category, when it became deactive, 
 #					or '0000-00-00 00:00:00' for no end.
 #
 # date_added:		The UTC date and time the invoice was added.

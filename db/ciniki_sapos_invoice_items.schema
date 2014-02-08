@@ -32,14 +32,19 @@
 #
 # quantity:			The number of units of the item.
 #
-# unit_price:		The price of a single item.
+# unit_amount:		The price of a single item.
 #
 # unit_discount_amount:	The amount to deduct as a discount.
 #
 # unit_discount_percentage:	The percentage to apply as a discount.
 #
+# subtotal_amount:	The amount of the invoice item before discounts.  
+#					This should be the quantity*unit_amount.
+#
 # discount_amount:	The amount of discount applied to this item.  This is the combination 
 #					of unit_discount_percentage and unit_discount_amount.
+#
+# total_amount:		The total amount for this item after quantity and discounts have been applied.
 #
 # taxtype_id:		The tax type to be applied to this item.  The tax types are defined
 #					in the ciniki.taxes module.

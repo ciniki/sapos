@@ -15,6 +15,8 @@
 #
 # name:				The name, typically the business name from the bill/expense/receipt.
 #
+# description:		The description of the expense, if more detail required than just the name.
+#
 # invoice_date:		The date on the invoice from the other company.
 # paid_date:		The date the invoice was paid.
 # total_amount:		The total amount due for this expense.
