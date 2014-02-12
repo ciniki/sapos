@@ -38,7 +38,7 @@ function ciniki_sapos_transactionUpdate(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.transactionAdd'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.transactionUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
