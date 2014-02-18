@@ -289,7 +289,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	}
 
 	//
-	// Update the shipping costs, taxes, and total
+	// Update the invoice status and balance 
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
 	$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $invoice_id);

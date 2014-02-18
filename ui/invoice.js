@@ -4,7 +4,7 @@
 function ciniki_sapos_invoice() {
 	this.invoiceStatuses = {
 		'10':'Shopping Cart',
-		'20':'Creating',
+		'20':'Payment Required',
 		'30':'Entered',
 		'40':'Deposit',
 		'50':'Paid',

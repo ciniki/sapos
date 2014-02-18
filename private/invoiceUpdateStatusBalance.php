@@ -72,7 +72,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	// Check if invoice should be updated status
 	//
 	$new_status = 0;
-	if( $invoice['status'] < 40 ) {
+	if( $invoice['status'] < 40 && $invoice['total_amount'] != 0 ) {
 		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
 			$new_status = 40;
 		} elseif( $amount_paid >= $invoice['total_amount'] ) {
