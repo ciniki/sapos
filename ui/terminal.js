@@ -33,7 +33,6 @@ function ciniki_sapos_terminal() {
 		'12':'12',
 		};
 	this.paypalYears = {
-		'2013':'13',
 		'2014':'14',
 		'2015':'15',
 		'2016':'16',
@@ -45,6 +44,7 @@ function ciniki_sapos_terminal() {
 		'2022':'22',
 		'2023':'23',
 		'2024':'24',
+		'2025':'25',
 	};
 	this.paypalCurrencies = {
 		'USD':'USD',

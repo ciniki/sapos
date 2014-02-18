@@ -597,8 +597,8 @@ function ciniki_sapos_invoice() {
 		if( p.data.billing_name != '' ) {
 			var sn = p.data.billing_name.split(' ');
 			for(i in sn) {
-				if( i == 0 ) { d.first_name = sn[i]; }
-				else if( i > 0 && sn[i].length == 1 ) { d.first_name += ' ' + sn[i]; }
+				if( i == 0 || d.first_name == '' ) { d.first_name = sn[i]; }
+				else if( i > 0 && sn[i].length == 1 ) { d.first_name += (d.first_name!=''?' ':'') + sn[i]; }
 				else if( i == (sn.length-2) && sn[i].length > 1 && sn[i].length < 4 ) { d.last_name += sn[i] + ' '; }
 				else if( i > 0 && i == (sn.length-1) ) { d.last_name += sn[i]; }
 			}
