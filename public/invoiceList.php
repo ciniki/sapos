@@ -71,7 +71,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		&& isset($args['customer_id']) && $args['customer_id'] != '' ) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'private', 'customerDetails');
 		$rc = ciniki_customers__customerDetails($ciniki, $args['business_id'], $args['customer_id'], 
-			array('emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
+			array('phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}

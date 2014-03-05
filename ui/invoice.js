@@ -99,8 +99,8 @@ function ciniki_sapos_invoice() {
 		this.invoice.cellValue = function(s, i, j, d) {
 			if( s == 'customer' ) {
 				switch (j) {
-					case 0: return d.label;
-					case 1: return d.value;
+					case 0: return d.detail.label;
+					case 1: return d.detail.value;
 				}
 			}
 			if( s == 'items' ) {
@@ -406,24 +406,24 @@ function ciniki_sapos_invoice() {
 		if( rsp.invoice.customer_id > 0 ) {
 			p.sections.customer.addTxt = 'Edit Customer';
 			p.sections.customer.changeTxt = 'Change Customer';
-			var c = rsp.invoice.customer;
-			p.data.customer = {};
-			p.data.customer['name'] = {'label':'Name', 'value':c.display_name};
-			if( c.phone_home != null && c.phone_home != '' ) {
-				p.data.customer.phone_home = {'label':'Home Phone', 'value':c.phone_home};
-			}
-			if( c.phone_work != null && c.phone_work != '' ) {
-				p.data.customer.phone_work = {'label':'Work Phone', 'value':c.phone_work};
-			}
-			if( c.phone_cell != null && c.phone_cell != '' ) {
-				p.data.customer.phone_cell = {'label':'Cell Phone', 'value':c.phone_cell};
-			}
-			if( c.phone_fax != null && c.phone_fax != '' ) {
-				p.data.customer.phone_fax = {'label':'Fax', 'value':c.phone_fax};
-			}
-			if( c.emails != null && c.emails != '' ) {
-				p.data.customer.emails = {'label':'Email', 'value':c.emails};
-			}
+//			var c = rsp.invoice.customer;
+//			p.data.customer = {};
+//			p.data.customer['name'] = {'label':'Name', 'value':c.display_name};
+//			if( c.phone_home != null && c.phone_home != '' ) {
+//				p.data.customer.phone_home = {'label':'Home Phone', 'value':c.phone_home};
+//			}
+//			if( c.phone_work != null && c.phone_work != '' ) {
+//				p.data.customer.phone_work = {'label':'Work Phone', 'value':c.phone_work};
+//			}
+//			if( c.phone_cell != null && c.phone_cell != '' ) {
+//				p.data.customer.phone_cell = {'label':'Cell Phone', 'value':c.phone_cell};
+//			}
+//			if( c.phone_fax != null && c.phone_fax != '' ) {
+//				p.data.customer.phone_fax = {'label':'Fax', 'value':c.phone_fax};
+//			}
+//			if( c.emails != null && c.emails != '' ) {
+//				p.data.customer.emails = {'label':'Email', 'value':c.emails};
+//			}
 		} else {
 			p.sections.customer.addTxt = 'Add Customer';
 			p.sections.customer.changeTxt = '';
