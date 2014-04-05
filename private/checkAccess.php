@@ -21,7 +21,7 @@ function ciniki_sapos_checkAccess($ciniki, $business_id, $method) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'checkModuleAccess');
 	$rc = ciniki_businesses_checkModuleAccess($ciniki, $business_id, 'ciniki', 'sapos');
 	if( $rc['stat'] != 'ok' ) {
-		return $rc;
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1688', 'msg'=>'Permission denied', 'err'=>$rc['err']));
 	}
 	$modules = $rc['modules'];
 
