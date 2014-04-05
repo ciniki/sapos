@@ -237,6 +237,13 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 				$pdf->header_addr[] = 'phone: ' . $business_details['contact.tollfree.number'];
 			}
 		}
+		if( !isset($sapos_settings['invoice-header-business-cell'])
+			|| $sapos_settings['invoice-header-business-cell'] == 'yes' ) {
+			if( isset($business_details['contact.cell.number']) 
+				&& $business_details['contact.cell.number'] != '' ) {
+				$pdf->header_addr[] = 'cell: ' . $business_details['contact.cell.number'];
+			}
+		}
 		if( (!isset($sapos_settings['invoice-header-business-fax'])
 			|| $sapos_settings['invoice-header-business-fax'] == 'yes')
 			&& isset($business_details['contact.fax.number']) 

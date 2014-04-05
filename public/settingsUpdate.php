@@ -80,6 +80,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'invoice-header-business-name',
 		'invoice-header-business-address',
 		'invoice-header-business-phone',
+		'invoice-header-business-cell',
 		'invoice-header-business-fax',
 		'invoice-header-business-email',
 		'invoice-header-business-website',
