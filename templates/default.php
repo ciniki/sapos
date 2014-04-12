@@ -106,7 +106,7 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 			// Output the invoice details which should be at the top of each page.
 			//
 			$this->SetCellPadding(2);
-			if( count($this->header_details) <= 5 ) {
+			if( count($this->header_details) <= 6 ) {
 				if( $this->header_name == '' && count($this->header_addr) == 0 ) {
 					$this->Ln($this->header_height+6);
 				} elseif( $this->header_name == '' && count($this->header_addr) > 0 ) {
@@ -132,8 +132,10 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 					$w = array(60,60,60);
 				} elseif( $num_elements == 4 ) {
 					$w = array(45,45,45,45);
-				} else {
+				} elseif( $num_elements == 5 ) {
 					$w = array(36,36,36,36,36);
+				} else {
+					$w = array(30,30,30,30,30,30);
 				}
 				$lh = 6;
 				$this->SetFont('', 'B');
@@ -294,6 +296,9 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 		array('label'=>'Invoice Number', 'value'=>$invoice['invoice_number']),
 		array('label'=>'Invoice Date', 'value'=>$invoice['invoice_date']),
 		);
+	if( isset($invoice['po_number']) && $invoice['po_number'] != '' ) {
+		$pdf->header_details[] = array('label'=>'PO Number', 'value'=>$invoice['po_number']);
+	}
 	if( isset($invoice['due_date']) && $invoice['due_date'] != '' ) {
 		$pdf->header_details[] = array('label'=>'Due Date', 'value'=>$invoice['due_date']);
 	}

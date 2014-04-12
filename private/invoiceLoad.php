@@ -63,6 +63,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	//
 	$strsql = "SELECT id, "
 		. "invoice_number, "
+		. "po_number, "
 		. "customer_id, "
 		. "status, "
 		. "status AS status_text, "
@@ -105,7 +106,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "";
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-			'fields'=>array('id', 'invoice_number', 'customer_id', 'status', 'status_text',
+			'fields'=>array('id', 'invoice_number', 'po_number', 'customer_id', 'status', 'status_text',
 				'flags', 'invoice_date', 'invoice_time', 'invoice_datetime', 'due_date',
 				'billing_name', 'billing_address1', 'billing_address2', 'billing_city', 
 				'billing_province', 'billing_postal', 'billing_country',

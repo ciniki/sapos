@@ -42,6 +42,7 @@ function ciniki_sapos_invoice() {
 		this.invoice.sections = {
 			'details':{'label':'', 'aside':'yes', 'list':{
 				'invoice_number':{'label':'Invoice #'},
+				'po_number':{'label':'PO #'},
 				'status_text':{'label':'Status'},
 				'invoice_date':{'label':'Invoice Date'},
 				'due_date':{'label':'Due Date'},
@@ -181,6 +182,7 @@ function ciniki_sapos_invoice() {
 		this.edit.sections = {
 			'details':{'label':'', 'fields':{
 				'invoice_number':{'label':'Invoice #', 'type':'text', 'size':'small'},
+				'po_number':{'label':'PO #', 'type':'text', 'size':'medium'},
 				'status':{'label':'Status', 'type':'select', 'options':M.ciniki_sapos_invoice.invoiceStatuses},
 				'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
 				'due_date':{'label':'Due Date', 'type':'text', 'size':'medium'},
@@ -403,6 +405,7 @@ function ciniki_sapos_invoice() {
 		p.data = rsp.invoice;
 		p.sections._buttons.buttons.delete.visible=(rsp.invoice.status<40&&rsp.invoice.transactions.length==0)?'yes':'no';
 		p.sections.details.list.due_date.visible=(rsp.invoice.due_date!='')?'yes':'no';
+		p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
 		if( rsp.invoice.customer_id > 0 ) {
 			p.sections.customer.addTxt = 'Edit Customer';
 			p.sections.customer.changeTxt = 'Change Customer';

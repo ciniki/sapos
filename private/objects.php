@@ -18,6 +18,7 @@ function ciniki_sapos_objects($ciniki) {
 		'table'=>'ciniki_sapos_invoices',
 		'fields'=>array(
 			'invoice_number'=>array(),
+			'po_number'=>array(),
 			'customer_id'=>array('ref'=>'ciniki.customers.customer'),
 			'status'=>array(),
 			'invoice_date'=>array(),

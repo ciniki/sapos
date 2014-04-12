@@ -21,6 +21,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'customer_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Customer'), 
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Number'),
+		'po_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'PO Number'),
 		'status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'20', 'name'=>'Status'),
 		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'type'=>'datetimetoutc', 'name'=>'Invoice Date'),
 		'due_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'', 'type'=>'datetimetoutc', 'name'=>'Due Date'),

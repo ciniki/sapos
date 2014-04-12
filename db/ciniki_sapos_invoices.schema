@@ -18,6 +18,8 @@
 #						does not change between SYNC locations.  This number can be alpha-numeric,
 #						but is assumed to be an integer currently.
 #
+# po_number:			The Purchase Order number from the company placing the order.
+#
 # customer_id:			The ID of the customer the invoice is for.
 #
 # status:				The current status for the invoice.
@@ -91,6 +93,7 @@ create table ciniki_sapos_invoices (
 	uuid char(36) not null,
 	business_id int not null,
 	invoice_number varchar(20) not null,
+	po_number varchar(100) not null,
 	customer_id int not null,
 	status tinyint unsigned not null,
 	flags int unsigned not null,
@@ -129,4 +132,4 @@ create table ciniki_sapos_invoices (
 	index (customer_id, status, invoice_date),
 	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.02';
+) ENGINE='InnoDB', COMMENT='v1.03';

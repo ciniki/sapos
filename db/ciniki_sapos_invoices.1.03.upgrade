@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table ciniki_artcatalog to version 1.02.
+#
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN po_number varchar(100) not null AFTER invoice_number;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.03';

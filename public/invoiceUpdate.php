@@ -20,6 +20,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Number'),
+		'po_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'PO Number'),
 		'status'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Status'),
 		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Invoice Date'),
 		'due_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Due Date'),
