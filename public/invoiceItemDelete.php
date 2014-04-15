@@ -38,7 +38,7 @@ function ciniki_sapos_invoiceItemDelete(&$ciniki) {
 	//
 	// Get the details of the item
 	//
-	$strsql = "SELECT uuid, invoice_id, object, object_id "
+	$strsql = "SELECT uuid, invoice_id, object, object_id, quantity "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
 		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "

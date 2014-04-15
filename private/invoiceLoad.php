@@ -129,7 +129,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		return $rc;
 	}
 	if( !isset($rc['invoices']) || !isset($rc['invoices'][0]['invoice']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1083', 'msg'=>'Invoice does not exist'));
+		return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'1083', 'msg'=>'Invoice does not exist'));
 	}
 	$invoice = $rc['invoices'][0]['invoice'];
 	$invoice['subtotal_discount_percentage'] = (float)$invoice['subtotal_discount_percentage'];

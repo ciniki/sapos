@@ -122,6 +122,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
 	// Update the item values for callbacks
 	//
 	if( isset($args['quantity']) && $args['quantity'] != $item['quantity'] ) {
+		$item['old_quantity'] = $item['quantity'];
 		$item['quantity'] = $args['quantity'];
 	}
 
