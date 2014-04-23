@@ -1,0 +1,12 @@
+#
+# This file will upgrade the database table ciniki_artcatalog to version 1.04.
+#
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN invoice_type tinyint unsigned not null AFTER customer_id;
+UPDATE ciniki_sapos_invoices SET invoice_type = 10;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN payment_status tinyint unsigned not null AFTER status;
+UPDATE ciniki_sapos_invoices SET payment_status = status WHERE status >= 40;
+UPDATE ciniki_sapos_invoices SET payment_status = 10 WHERE status < 40;
+UPDATE ciniki_sapos_invoices SET status = 10 WHERE status = 20;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN shipping_status tinyint unsigned not null AFTER payment_status;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN manufacturing_status tinyint unsigned not null AFTER shipping_status;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.04';

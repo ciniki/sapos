@@ -21,8 +21,12 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'customer_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Customer'), 
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Number'),
+		'invoice_type'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'10', 'name'=>'Invoice Type'),
 		'po_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'PO Number'),
-		'status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'20', 'name'=>'Status'),
+		'status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'10', 'name'=>'Status'),
+		'payment_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'10', 'name'=>'Payment Status'),
+		'shipping_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Shipping Status'),
+		'manufacturing_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Manufacturing Status'),
 		'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'type'=>'datetimetoutc', 'name'=>'Invoice Date'),
 		'due_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'', 'type'=>'datetimetoutc', 'name'=>'Due Date'),
 		'billing_name'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Billing Name'),
@@ -82,7 +86,13 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// based on the customer.  
 	//
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
-		$strsql = "SELECT ciniki_customers.id, type, display_name, "
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'getCustomer');
+		$rc = ciniki_sapos_getCustomer($ciniki, $args['business_id'], $args);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$args = $rc['args'];
+/*		$strsql = "SELECT ciniki_customers.id, type, display_name, "
 			. "ciniki_customers.company, "
 			. "ciniki_customer_addresses.id AS address_id, "
 			. "ciniki_customer_addresses.flags, "
@@ -150,6 +160,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		} else {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1109', 'msg'=>'Unable to find customer'));
 		}
+		*/
 	}
 
 	//

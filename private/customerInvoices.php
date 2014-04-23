@@ -34,12 +34,12 @@ function ciniki_sapos_customerInvoices($ciniki, $business_id, $customer_id, $lim
 	//
 	// Load the status maps for the text description of each status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStatusMaps');
-	$rc = ciniki_sapos_invoiceStatusMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
+	$rc = ciniki_sapos_invoiceMaps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	$status_maps = $rc['maps'];
+	$maps = $rc['maps'];
 
 	//
 	// Get the invoices for a customer
@@ -67,7 +67,7 @@ function ciniki_sapos_customerInvoices($ciniki, $business_id, $customer_id, $lim
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'customer_name', 'invoice_number', 'invoice_date',
 				'status', 'status_text', 'total_amount'),
-			'maps'=>array('status_text'=>$status_maps),
+			'maps'=>array('status_text'=>$maps['status']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$php_date_format))), 
 		));
 	if( $rc['stat'] != 'ok' ) {

@@ -82,12 +82,12 @@ function ciniki_sapos_qiAdd(&$ciniki) {
 	//
 	// Get the status maps
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStatusMaps');
-	$rc = ciniki_sapos_invoiceStatusMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
+	$rc = ciniki_sapos_invoiceMaps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	$status_maps = $rc['maps'];
+	$maps = $rc['maps'];
 
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
@@ -386,7 +386,7 @@ function ciniki_sapos_qiAdd(&$ciniki) {
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
-			'maps'=>array('status_text'=>$status_maps),
+			'maps'=>array('status_text'=>$maps['status']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			),
 		));

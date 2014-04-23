@@ -20,10 +20,11 @@ function ciniki_sapos_web_cartLoad($ciniki, $settings, $business_id) {
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
+
 		//
 		// Check to make sure the invoice is still in shopping cart status
 		//
-		if( $rc['cart']['status'] != '10' ) {
+		if( $rc['invoice']['status'] != '10' || $rc['invoice']['invoice_type'] != '20' ) {
 			return array('stat'=>'noexist', 'cart'=>array());
 		}
 

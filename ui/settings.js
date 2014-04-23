@@ -15,7 +15,7 @@ function ciniki_sapos_settings() {
 				'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.editInvoice(\'M.ciniki_sapos_settings.showMenu();\');'},
 				'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showQI(\'M.ciniki_sapos_settings.showMenu();\');'},
 				}},
-			'expenses':{'label':'Expenses', 'list':{
+			'expenses':{'label':'Expenses', 'visible':'no', 'list':{
 				'expenses':{'label':'Expense Categories', 'fn':'M.ciniki_sapos_settings.showExpenseCategories(\'M.ciniki_sapos_settings.showMenu();\');'},
 				}},
 			'paypal':{'label':'Paypal', 'list':{
@@ -245,6 +245,7 @@ function ciniki_sapos_settings() {
 	//
 	this.showMenu = function(cb) {
 		this.menu.sections.invoice.list.qi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
+		this.menu.sections.expenses.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x02)>0?'yes':'no';
 		this.menu.refresh();
 		this.menu.show(cb);
 	}

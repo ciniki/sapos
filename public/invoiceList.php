@@ -21,7 +21,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
         'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
         'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
+        'type'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Type'), 
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
+        'payment_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Payment Status'), 
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
@@ -57,12 +59,12 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	//
 	// Load the status maps for the text description of each status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStatusMaps');
-	$rc = ciniki_sapos_invoiceStatusMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
+	$rc = ciniki_sapos_invoiceMaps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	$status_maps = $rc['maps'];
+	$maps = $rc['maps'];
 
 	//
 	// If customer_id is specified, get the details
@@ -85,7 +87,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "invoice_date, "
 		. "ciniki_sapos_invoices.status, "
-		. "ciniki_sapos_invoices.status AS status_text, "
+		. "CONCAT(ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
 		. "ciniki_customers.type AS customer_type, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "total_amount "
@@ -122,6 +124,12 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	if( isset($args['status']) && $args['status'] > 0 ) {
 		$strsql .= "AND ciniki_sapos_invoices.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
 	}
+	if( isset($args['payment_status']) && $args['payment_status'] > 0 ) {
+		$strsql .= "AND ciniki_sapos_invoices.payment_status = '" . ciniki_core_dbQuote($ciniki, $args['payment_status']) . "' ";
+	}
+	if( isset($args['type']) && $args['type'] > 0 ) {
+		$strsql .= "AND ciniki_sapos_invoices.invoice_type = '" . ciniki_core_dbQuote($ciniki, $args['type']) . "' ";
+	}
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
 		$strsql .= "AND ciniki_sapos_invoices.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
 	}
@@ -138,7 +146,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
-			'maps'=>array('status_text'=>$status_maps),
+			'maps'=>array('status_text'=>$maps['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			),
 		));
@@ -182,8 +190,8 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 			$sheet_title .= " - " . $args['month'];
 		}
 		if( isset($args['status']) && $args['status'] > 0 ) {
-			$title .= " - " . $status_maps[$args['status']];
-			$sheet_title .= " - " . $status_maps[$args['status']];
+			$title .= " - " . $maps['status'][$args['status']];
+			$sheet_title .= " - " . $maps['status'][$args['status']];
 		}
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
 		$sheet->setTitle($sheet_title);

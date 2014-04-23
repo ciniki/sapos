@@ -47,16 +47,6 @@ function ciniki_sapos_invoiceStats(&$ciniki) {
 	$date_format = ciniki_users_dateFormat($ciniki, 'php');
 
 	//
-	// Load the status maps for the text description of each status
-	//
-//	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStatusMaps');
-//	$rc = ciniki_sapos_invoiceStatusMaps($ciniki);
-//	if( $rc['stat'] != 'ok' ) {
-//		return $rc;
-//	}
-//	$status_maps = $rc['maps'];
-
-	//
 	// Build the query to get the list of invoices
 	//
 	$strsql = "SELECT "

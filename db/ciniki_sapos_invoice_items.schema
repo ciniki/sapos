@@ -20,6 +20,13 @@
 # status:			The current status of the item.  shipped/backordered/delivered, etc.
 #
 #					0 - no status **future**
+#					
+# flags:			The flags for the item in the invoice/order.
+#
+#					0x01 - Manufactured Item
+#					0x02 - Shipped Item
+#					0x04 - Downloaded Item
+#					0x08 - 
 #
 # object:			The object for the item in the invoice.  This is the reference to
 #					the package.module.object.  When combined with the object_id the refering
@@ -81,4 +88,4 @@ create table ciniki_sapos_invoice_items (
 	primary key (id),
 	index (invoice_id, object, object_id, taxtype_id),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';

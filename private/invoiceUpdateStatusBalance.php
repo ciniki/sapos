@@ -22,7 +22,8 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	//
 	// Get the invoice details
 	//
-	$strsql = "SELECT status, "
+	$strsql = "SELECT invoice_type, status, "
+		. "payment_status, shipping_status, manufacturing_status, "
 		. "ROUND(total_amount, 2) AS total_amount, "
 		. "ROUND(paid_amount, 2) AS paid_amount, "
 		. "ROUND(balance_amount, 2) AS balance_amount "
@@ -72,34 +73,77 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	// Check if invoice should be updated status
 	//
 	$new_status = 0;
-	if( $invoice['status'] < 40 && $invoice['total_amount'] != 0 ) {
-		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
-			$new_status = 40;
-		} elseif( $amount_paid >= $invoice['total_amount'] ) {
-			$new_status = 50;
+	$new_payment_status = $invoice['payment_status'];
+	//
+	// Check if status should change for
+	//
+	if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
+		if( $invoice['payment_status'] == 10 ) {
+			$new_payment_status = 40;
+		}
+	} elseif( $amount_paid > 0 && $amount_paid >= $invoice['total_amount'] ) {
+		if( $invoice['payment_status'] < 50 ) {
+			$new_payment_status = 50;
 		}
 	}
-	elseif( $invoice['status'] == 40 ) {
-		if( $amount_paid >= $invoice['total_amount'] ) {
-			$new_status = 50;
+
+	//
+	// Check if status should change for invoice
+	//
+	if( $invoice['invoice_type'] == '10' 
+		|| $invoice['invoice_type'] == '20'
+		|| $invoice['invoice_type'] == '30'
+		|| $invoice['invoice_type'] == '40'
+		) {
+		if( $invoice['status'] < 50 ) {
+			if( $invoice['manufacturing_status'] > 0 && $invoice['manufacturing_status'] < 50 ) {
+				$new_status = 20;
+			}
+			elseif( $invoice['shipping_status'] > 0 && $invoice['shipping_status'] < 50 ) {
+				$new_status = 30;
+			}
+			elseif( $new_payment_status == 40 ) {
+				$new_status = 40;
+			} 
+			elseif( $new_payment_status == 50 ) {
+				$new_status = 50;
+			}
+		}
+		elseif( $invoice['status'] == 50 ) {
+			if( $new_payment_status == 40 ) {
+				$new_status = 40;
+			} 
 		}
 	}
-	elseif( $invoice['status'] == 50 ) {
-		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount']) {
-			$new_status = 40;
-		}
-		if( $amount_paid == 0 ) {
-			$new_status = 55;
-		}
-	}
-	elseif( $invoice['status'] == 55 ) {
-		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount']) {
-			$new_status = 40;
-		}
-		if( $amount_paid >= $invoice['total_amount'] ) {
-			$new_status = 50;
-		}
-	}
+
+//	if( $invoice['status'] > 10 && $invoice['status'] < 40 && $invoice['total_amount'] != 0 ) {
+//		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
+//			$new_status = 40;
+//		} elseif( $amount_paid >= $invoice['total_amount'] ) {
+//			$new_status = 50;
+//		}
+//	}
+//	elseif( $invoice['status'] == 40 ) {
+//		if( $amount_paid >= $invoice['total_amount'] ) {
+//			$new_status = 50;
+//		}
+//	}
+//	elseif( $invoice['status'] == 50 ) {
+//		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount']) {
+//			$new_status = 40;
+//		}
+//		if( $amount_paid == 0 ) {
+//			$new_status = 55;
+//		}
+//	}
+//	elseif( $invoice['status'] == 55 ) {
+//		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount']) {
+//			$new_status = 40;
+//		}
+//		if( $amount_paid >= $invoice['total_amount'] ) {
+//			$new_status = 50;
+//		}
+//	}
 	// If status is currently 60 (Void) then don't change.
 
 	//
@@ -108,6 +152,9 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	$args = array();
 	if( $new_status > 0 ) {
 		$args['status'] = $new_status;
+	}
+	if( $new_payment_status != $invoice['payment_status'] ) {
+		$args['payment_status'] = $new_payment_status;
 	}
 	if( $amount_paid != $invoice['paid_amount'] ) {	
 		$args['paid_amount'] = $amount_paid;

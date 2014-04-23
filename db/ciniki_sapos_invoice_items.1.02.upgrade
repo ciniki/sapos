@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table to version 1.02.
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN flags tinyint unsigned not null AFTER status;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.02';

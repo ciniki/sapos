@@ -1,0 +1,35 @@
+#
+# Description
+# -----------
+# This table stores the invoice items that have been shipped as part of a shipment.  
+#
+# Fields
+# ------
+# id:				The invoice ID.
+# uuid:				The Universal Unique ID for the invoice.
+# business_id:		The business the invoice is for.
+#
+# shipment_id:		The ID of the shipment the item is a part of.
+#
+# invoice_id:		The ID of the invoice the shipment is for.
+#
+# item_id:			The ID of the item from invoice that is being shipped.
+#
+# quantity:			The number of units shipped.
+#
+# date_added:		The UTC date and time the shipment item was added.
+# last_updated:		The UTC date and time the shipment item was last updated.
+#
+create table ciniki_sapos_shipment_items (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	shipment_id int not null,
+	item_id int not null,
+	quantity decimal(19,4) not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key (id),
+	index (shipment_id, item_id),
+	index sync (uuid, business_id, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

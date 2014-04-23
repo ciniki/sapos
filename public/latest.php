@@ -18,6 +18,7 @@ function ciniki_sapos_latest(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice Type'), 
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         )); 
@@ -52,21 +53,87 @@ function ciniki_sapos_latest(&$ciniki) {
 	//
 	// Load the status maps for the text description of each status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStatusMaps');
-	$rc = ciniki_sapos_invoiceStatusMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
+	$rc = ciniki_sapos_invoiceMaps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	$status_maps = $rc['maps'];
+	$maps = $rc['maps'];
 
 	//
-	// Build the query to get the list of invoices
+	// Build the query to get the list of expenses
+	//
+	if( isset($args['type']) && $args['type'] == 'expenses' ) {
+		//
+		// Get the number of categories so we can let the user know in the UI to
+		// setup the categories
+		//
+		$num_cats = -1;
+		$strsql = "SELECT 'categories', COUNT(*) "
+			. "FROM ciniki_sapos_expense_categories "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'cats');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['cats']) ) {
+			$num_cats = $rc['cats']['categories'];
+		} else {
+			$num_cats = 0;
+		}
+		//
+		// Build the query to get the latest expenses
+		//
+		$strsql = "SELECT ciniki_sapos_expenses.id, "
+			. "name, "
+			. "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
+			. "total_amount "
+			. "FROM ciniki_sapos_expenses "
+			. "WHERE ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		if( isset($args['sort']) ) {
+			if( $args['sort'] == 'latest' ) {
+				$strsql .= "ORDER BY ciniki_sapos_expenses.last_updated DESC ";
+			}
+		}
+		if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
+			$strsql .= "LIMIT " . intval($args['limit']) . " ";
+		}
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+			array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
+				'fields'=>array('id', 'name', 'invoice_date', 'total_amount'),
+				'maps'=>array('status_text'=>$maps['status']),
+	//			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
+				),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['expenses']) ) {
+			$expenses = array();
+			return array('stat'=>'ok', 'expenses'=>array(), 'numcats'=>$num_cats);
+		} else {
+			foreach($rc['expenses'] as $iid => $expense) {
+				$rc['expenses'][$iid]['expense']['total_amount_display'] = numfmt_format_currency(
+					$intl_currency_fmt, $expense['expense']['total_amount'], $intl_currency);
+			}
+			$expenses = $rc['expenses'];
+		}
+
+		return array('stat'=>'ok', 'expenses'=>$expenses);
+	} 
+
+	//
+	//  Get the latest invoices by type
 	//
 	$strsql = "SELECT ciniki_sapos_invoices.id, "
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
-		. "ciniki_sapos_invoices.status AS status_text, "
+		. "CONCAT(ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
 		. "ciniki_customers.type AS customer_type, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "total_amount "
@@ -76,6 +143,9 @@ function ciniki_sapos_latest(&$ciniki) {
 			. ") "
 		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
+	if( isset($args['type']) && $args['type'] > 0 ) {
+		$strsql .= "AND ciniki_sapos_invoices.invoice_type = '" . ciniki_core_dbQuote($ciniki, $args['type']) . "' ";
+	}
 	if( isset($args['sort']) ) {
 		if( $args['sort'] == 'latest' ) {
 			$strsql .= "ORDER BY ciniki_sapos_invoices.last_updated DESC ";
@@ -89,7 +159,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
-			'maps'=>array('status_text'=>$status_maps),
+			'maps'=>array('status_text'=>$maps['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$php_date_format)), 
 			),
 		));
@@ -106,65 +176,6 @@ function ciniki_sapos_latest(&$ciniki) {
 		$invoices = $rc['invoices'];
 	}
 
-	//
-	// Build the query to get the latest expenses
-	//
-	$strsql = "SELECT ciniki_sapos_expenses.id, "
-		. "name, "
-		. "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
-		. "total_amount "
-		. "FROM ciniki_sapos_expenses "
-		. "WHERE ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "";
-	if( isset($args['sort']) ) {
-		if( $args['sort'] == 'latest' ) {
-			$strsql .= "ORDER BY ciniki_sapos_expenses.last_updated DESC ";
-		}
-	}
-	if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
-		$strsql .= "LIMIT " . intval($args['limit']) . " ";
-	}
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-		array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
-			'fields'=>array('id', 'name', 'invoice_date', 'total_amount'),
-			'maps'=>array('status_text'=>$status_maps),
-//			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
-			),
-		));
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$num_cats = -1;
-	if( !isset($rc['expenses']) ) {
-		$expenses = array();
-		//
-		// Get the number of categories so we can let the user know in the UI to
-		// setup the categories
-		//
-		$strsql = "SELECT 'categories', COUNT(*) "
-			. "FROM ciniki_sapos_expense_categories "
-			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. "";
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
-		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'cats');
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
-		}
-		if( isset($rc['cats']) ) {
-			$num_cats = $rc['cats']['categories'];
-		} else {
-			$num_cats = 0;
-		}
-		return array('stat'=>'ok', 'invoices'=>$invoices, 'expenses'=>array(), 'numcats'=>$num_cats);
-	} else {
-		foreach($rc['expenses'] as $iid => $expense) {
-			$rc['expenses'][$iid]['expense']['total_amount_display'] = numfmt_format_currency(
-				$intl_currency_fmt, $expense['expense']['total_amount'], $intl_currency);
-		}
-		$expenses = $rc['expenses'];
-	}
-
-	return array('stat'=>'ok', 'invoices'=>$invoices, 'expenses'=>$expenses);
+	return array('stat'=>'ok', 'invoices'=>$invoices);
 }
 ?>

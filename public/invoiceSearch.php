@@ -52,12 +52,12 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 	//
 	// Load the status maps for the text description of each status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStatusMaps');
-	$rc = ciniki_sapos_invoiceStatusMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
+	$rc = ciniki_sapos_invoiceMaps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	$status_maps = $rc['maps'];
+	$maps = $rc['maps'];
 
 	//
 	// Build the query to get the list of invoices
@@ -66,7 +66,7 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "invoice_date, "
 		. "ciniki_sapos_invoices.status, "
-		. "ciniki_sapos_invoices.status AS status_text, "
+		. "CONCAT(ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
 		. "ciniki_customers.type AS customer_type, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "total_amount "
@@ -77,7 +77,11 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
 	if( is_numeric($args['start_needle']) ) { 
-		$strsql .= "AND ciniki_sapos_invoices.invoice_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "' ";
+		$strsql .= "AND (ciniki_sapos_invoices.invoice_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "' "
+			. "OR ciniki_sapos_invoices.po_number LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+			. "OR ciniki_sapos_invoices.po_number LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+			. "OR ciniki_sapos_invoices.po_number LIKE '%-" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+			. ") ";
 	} else {
 		$strsql .= "AND (ciniki_customers.display_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 			. "OR ciniki_customers.display_name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
@@ -102,7 +106,7 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
-			'maps'=>array('status_text'=>$status_maps),
+			'maps'=>array('status_text'=>$maps['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			),
 		));

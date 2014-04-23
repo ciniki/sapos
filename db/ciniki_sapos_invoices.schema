@@ -22,9 +22,24 @@
 #
 # customer_id:			The ID of the customer the invoice is for.
 #
+# invoice_type:			The type of invoice
+#
+#						0 - Unknown
+#						10 - Invoice/Services
+#						20 - Shopping Cart
+#						30 - POS
+#						40 - Purchase Order
+#
 # status:				The current status for the invoice.
 #
 #						0 - unknown
+#						10 - Entered
+#						20 - Pending Manufacturing
+#						30 - Pending Shipping
+#						40 - Pending Payment
+#						50 - Fulfilled/Paid/Shipped/Done
+#
+#						Old Status
 #						10 - Shopping Cart, the invoice is still a shopping cart for online ecommerce
 #						20 - Creating, the invoice is being created
 #						30 - Entered, the invoice is finished created, now officially active in the system
@@ -32,11 +47,27 @@
 #						50 - Paid
 #						55 - Refunded
 #						60 - Voided
+#
+# payment_status:		0 - Unknown
+#						10 - Payment Required
+#						40 - Partial Payment
+#						50 - Paid
+#						55 - Refunded
 # 
+# shipping_status:		0 - no shipping
+#						10 - Required
+#						30 - Partial Shipment
+#						50 - Shipped
+#
+# manufacturing_status:	0 - no manufacturing
+#						10 - Required
+#						30 - In Progress
+#						50 - Completed
+#
 # flags:				The flags for the invoice to control shipping/pickup, etc.
 #
-#						0x01 - Ship this order
-#						0x02 - Ship partial order as fulfullied **future**
+#						0x01 - 
+#						0x02 - 
 #						0x04 -
 #						0x08 - 
 #
@@ -95,7 +126,11 @@ create table ciniki_sapos_invoices (
 	invoice_number varchar(20) not null,
 	po_number varchar(100) not null,
 	customer_id int not null,
+	invoice_type tinyint unsigned not null,
 	status tinyint unsigned not null,
+	payment_status tinyint unsigned not null,
+	shipping_status tinyint unsigned not null,
+	manufacturing_status tinyint unsigned not null,
 	flags int unsigned not null,
 	invoice_date datetime not null,
 	due_date datetime not null,
@@ -132,4 +167,4 @@ create table ciniki_sapos_invoices (
 	index (customer_id, status, invoice_date),
 	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.03';
+) ENGINE='InnoDB', COMMENT='v1.04';
