@@ -5,7 +5,7 @@ function ciniki_sapos_expenses() {
 	this.init = function() {
 		this.expenses = new M.panel('Expenses',
 			'ciniki_sapos_expenses', 'expenses',
-			'mc', 'large', 'sectioned', 'ciniki.sapos.expenses.expenses');
+			'mc', 'full', 'sectioned', 'ciniki.sapos.expenses.expenses');
 		this.expenses.year = null;
 		this.expenses.month = 0;
 		this.expenses.categories = {};
