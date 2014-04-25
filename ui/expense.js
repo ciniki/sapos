@@ -121,6 +121,7 @@ function ciniki_sapos_expense() {
 				}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_expense.saveExpense();'},
+				'saveadd':{'label':'Save, Add Another', 'fn':'M.ciniki_sapos_expense.saveExpense(\'yes\');'},
 				'delete':{'label':'Delete', 'fn':'M.ciniki_sapos_expense.deleteExpense(M.ciniki_sapos_expense.edit.expense_id);'},
 				}},
 		};
@@ -193,6 +194,7 @@ function ciniki_sapos_expense() {
 		if( eid != null ) { this.edit.expense_id = eid; }
 		if( this.edit.expense_id > 0 ) {
 			this.edit.sections._buttons.buttons.delete.visible = 'yes';
+			this.edit.sections._buttons.buttons.saveadd.visible = 'no';
 			M.api.getJSONCb('ciniki.sapos.expenseGet', {'business_id':M.curBusinessID,
 				'expense_id':this.edit.expense_id}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
@@ -209,6 +211,8 @@ function ciniki_sapos_expense() {
 				});
 		} else {
 			var p = M.ciniki_sapos_expense.edit;
+			this.edit.sections._buttons.buttons.saveadd.visible = 'yes';
+			this.edit.sections._buttons.buttons.delete.visible = 'no';
 			p.reset();
 			p.data = {};
 			if( date == null || date == '' ) {
@@ -223,7 +227,7 @@ function ciniki_sapos_expense() {
 		}
 	};
 
-	this.saveExpense = function() {
+	this.saveExpense = function(add) {
 		if( this.edit.expense_id > 0 ) {
 			var c = this.edit.serializeForm('no');
 			if( c != '' ) {
@@ -246,7 +250,8 @@ function ciniki_sapos_expense() {
 						M.api.err(rsp);
 						return false;
 					}
-					M.ciniki_sapos_expense.edit.close();
+					if( add == 'yes' ) { M.ciniki_sapos_expense.showEdit(null,0); }
+					else { M.ciniki_sapos_expense.edit.close(); }
 				});
 		}
 	};
