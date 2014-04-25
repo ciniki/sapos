@@ -104,22 +104,22 @@ function ciniki_sapos_expense() {
 		//
 		this.edit = new M.panel('Expense',
 			'ciniki_sapos_expense', 'edit',
-			'mc', 'medium', 'sectioned', 'ciniki.sapos.expense.edit');
+			'mc', 'medium mediumaside', 'sectioned', 'ciniki.sapos.expense.edit');
 		this.edit.expense_id = 0;
 		this.edit.data = {};
 		this.edit.sections = {
-			'details':{'label':'', 'fields':{
-				'name':{'label':'Name', 'type':'text'},
+			'details':{'label':'', 'aside':'left', 'fields':{
+				'name':{'label':'Name', 'type':'text', 'autofocus':'yes'},
 				'description':{'label':'Description', 'type':'text'},
 				'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
 //				'paid_date':{'label':'Paid Date', 'type':'text', 'size':'medium'},
 				}},
-			'items':{'label':'Items', 'fields':{
+			'items':{'label':'', 'aside':'right', 'fields':{
 				}},
-			'_notes':{'label':'Notes', 'fields':{
+			'_notes':{'label':'Notes', 'aside':'left', 'fields':{
 				'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
 				}},
-			'_buttons':{'label':'', 'buttons':{
+			'_buttons':{'label':'', 'aside':'left', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_expense.saveExpense();'},
 				'saveadd':{'label':'Save, Add Another', 'fn':'M.ciniki_sapos_expense.saveExpense(\'yes\');'},
 				'delete':{'label':'Delete', 'fn':'M.ciniki_sapos_expense.deleteExpense(M.ciniki_sapos_expense.edit.expense_id);'},
