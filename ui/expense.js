@@ -140,7 +140,7 @@ function ciniki_sapos_expense() {
 		}
 		this.edit.liveSearchResultValue = function(s,f,i,j,d) {
 			if( f == 'name' && d.expense != null ) {
-				return d.expense.name + d.expense.invoice_date;
+				return d.expense.name + ' <span class="subdue">' + d.expense.description + '</span>';
 			}
 			return '';
 		};
