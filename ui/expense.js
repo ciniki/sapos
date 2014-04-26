@@ -109,7 +109,7 @@ function ciniki_sapos_expense() {
 		this.edit.data = {};
 		this.edit.sections = {
 			'details':{'label':'', 'aside':'left', 'fields':{
-				'name':{'label':'Name', 'type':'text', 'autofocus':'yes'},
+				'name':{'label':'Name', 'type':'text', 'autofocus':'yes', 'livesearch':'yes'},
 				'description':{'label':'Description', 'type':'text'},
 				'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
 //				'paid_date':{'label':'Paid Date', 'type':'text', 'size':'medium'},
@@ -128,6 +128,42 @@ function ciniki_sapos_expense() {
 		this.edit.fieldValue = function(s, i, d) {
 			if( this.data[i] == null ) { return ''; }
 			return this.data[i];
+		};
+		this.edit.liveSearchCb = function(s, i, v) {
+			if( i == 'name' ) {
+				M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'business_id':M.curBusinessID,
+					'items':'yes', 'start_needle':v, 'limit':15}, function(rsp) {
+						M.ciniki_sapos_expense.edit.searchExpenseResults = rsp.expenses;
+						M.ciniki_sapos_expense.edit.liveSearchShow(s,i,M.gE(M.ciniki_sapos_expense.edit.panelUID+'_'+i), rsp.expenses);
+					});
+			}
+		}
+		this.edit.liveSearchResultValue = function(s,f,i,j,d) {
+			if( f == 'name' && d.expense != null ) {
+				return d.expense.name + d.expense.invoice_date;
+			}
+			return '';
+		};
+		this.edit.liveSearchResultRowFn = function(s,f,i,j,d) {
+			if( f == 'name' && d.expense != null ) {
+				return 'M.ciniki_sapos_expense.edit.updateExpense(\'' + s + '\',\'' + f + '\',' + i + ')';
+			}
+		};
+		this.edit.updateExpense = function(s, fid, expense) {
+			var e = M.ciniki_sapos_expense.edit.searchExpenseResults[expense];
+			if( e != null && e.expense != null ) {
+				this.setFieldValue('name', e.expense.name);
+				this.setFieldValue('description', e.expense.description);
+				if( e.expense.items != null ) {
+					for(i in e.expense.items) {
+						var el = M.gE(M.ciniki_sapos_expense.edit.panelUID + '_category_' + e.expense.items[i].item.category_id);
+						if( el != null ) {
+							this.setFieldValue('category_' + e.expense.items[i].item.category_id, e.expense.items[i].item.amount_display);
+						}
+					}
+				}
+				this.removeLiveSearch(s, fid);
+			}
 		};
 		this.edit.fieldHistoryArgs = function(s, i) {
 			if( s == 'items' ) {

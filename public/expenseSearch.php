@@ -21,6 +21,7 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
         'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'), 
         'sort'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Search String'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
+        'items'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Items'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -54,10 +55,21 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
 	//
 	$strsql = "SELECT ciniki_sapos_expenses.id, "
 		. "ciniki_sapos_expenses.name, "
+		. "ciniki_sapos_expenses.description, "
 		. "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
-		. "total_amount "
-		. "FROM ciniki_sapos_expenses "
-		. "WHERE ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "ciniki_sapos_expenses.total_amount ";
+	if( isset($args['items']) && $args['items'] == 'yes' ) {
+		$strsql .= ", ciniki_sapos_expense_items.id AS item_id, "
+			. "ciniki_sapos_expense_items.category_id, "
+			. "ciniki_sapos_expense_items.amount "
+			. "FROM ciniki_sapos_expenses "
+			. "LEFT JOIN ciniki_sapos_expense_items ON (ciniki_sapos_expenses.id = ciniki_sapos_expense_items.expense_id "
+			. "AND ciniki_sapos_expense_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. ") ";
+	} else {
+		$strsql .= "FROM ciniki_sapos_expenses ";
+	}
+	$strsql .= "WHERE ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
 	$strsql .= "AND (ciniki_sapos_expenses.name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 		. "OR ciniki_sapos_expenses.name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
@@ -73,10 +85,19 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
 		$strsql .= "LIMIT " . intval($args['limit']) . " ";
 	}
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-		array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
-			'fields'=>array('id', 'invoice_date', 'name', 'total_amount')),
-		));
+	if( isset($args['items']) && $args['items'] == 'yes' ) {
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+			array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
+				'fields'=>array('id', 'invoice_date', 'name', 'description', 'total_amount')),
+			array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
+				'fields'=>array('id'=>'item_id', 'category_id', 'amount')),
+			));
+	} else {
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+			array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
+				'fields'=>array('id', 'invoice_date', 'name', 'total_amount')),
+			));
+	}
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
@@ -86,6 +107,11 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
 	foreach($rc['expenses'] as $iid => $expense) {
 		$rc['expenses'][$iid]['expense']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
 			$expense['expense']['total_amount'], $intl_currency);
+		if( isset($expense['expense']['items']) ) {
+			foreach($expense['expense']['items'] as $item_id => $item) {
+				$rc['expenses'][$iid]['expense']['items'][$item_id]['item']['amount_display'] = numfmt_format_currency($intl_currency_fmt, $item['item']['amount'], $intl_currency);
+			}
+		}
 	}
 
 	return array('stat'=>'ok', 'expenses'=>$rc['expenses']);
