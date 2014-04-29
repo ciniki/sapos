@@ -422,6 +422,9 @@ function ciniki_sapos_invoice() {
 		} else if( args.object != null && args.object_id != null ) {
 			// Create new invoice with this object/object_id
 			this.createInvoice(cb, 0, [{'object':args.object,'id':args.object_id}]);
+		} else if( args.customer_id != null ) {
+			// Create new invoice with just customer
+			this.createInvoice(cb, args.customer_id, null, null);
 		} else if( args.invoice_id != null ) {
 			// Edit an existing invoice
 			this.showInvoice(cb, args.invoice_id);
