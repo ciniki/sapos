@@ -25,6 +25,7 @@ function ciniki_sapos_objects($ciniki) {
 			'payment_status'=>array(),
 			'shipping_status'=>array(),
 			'manufacturing_status'=>array(),
+			'flags'=>array(),
 			'invoice_date'=>array(),
 			'due_date'=>array(),
 			'billing_name'=>array(),

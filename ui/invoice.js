@@ -49,6 +49,9 @@ function ciniki_sapos_invoice() {
 		'110':'Email Transfer',
 		'120':'Other',
 		};
+	this.invoiceFlags = {
+		'1':{'name':'Hide Savings'},
+		};
 	this.init = function() {
 		//
 		// The invoice panel
@@ -69,6 +72,7 @@ function ciniki_sapos_invoice() {
 				'manufacturing_status_text':{'label':'Manufacturing'},
 				'invoice_date':{'label':'Invoice Date'},
 				'due_date':{'label':'Due Date'},
+				'flags_text':{'label':'Options', 'visible':'no'},
 				}},
 			'customer':{'label':'', 'aside':'right', 'type':'simplegrid', 'num_cols':2,
 				'cellClasses':['label',''],
@@ -143,7 +147,9 @@ function ciniki_sapos_invoice() {
 							discount += '-' + d.item.unit_discount_percentage + '%';
 						}
 					}
-					if( discount != '' ) {
+					if( (this.data.flags&0x01) > 0 ) {
+						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_discounted_amount_display;
+					} else if( discount != '' ) {
 						return '<span class="maintext">' + ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.item.discount_amount_display + ')</span>';
 					} else {
 						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display;
@@ -213,6 +219,7 @@ function ciniki_sapos_invoice() {
 				'manufacturing_status':{'label':'Manufacturing', 'type':'select', 'options':M.ciniki_sapos_invoice.manufacturingStatuses},
 				'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
 				'due_date':{'label':'Due Date', 'type':'text', 'size':'medium'},
+				'flags':{'label':'Options', 'type':'flags', 'flags':this.invoiceFlags},
 				}},
 			'billing':{'label':'Billing Address', 'fields':{
 				'billing_name':{'label':'Name', 'type':'text'},
@@ -488,7 +495,14 @@ function ciniki_sapos_invoice() {
 		var p = this.invoice;
 		p.data = rsp.invoice;
 		p.sections._buttons.buttons.delete.visible=(rsp.invoice.status<40&&rsp.invoice.transactions.length==0)?'yes':'no';
+		p.data.flags_text = '';
+		for(i in this.invoiceFlags) {
+			if( (rsp.invoice.flags&Math.pow(2,i-1)) > 0 ) {
+				p.data.flags_text += (p.data.flags_text!=''?', ':'') + this.invoiceFlags[i].name;
+			}
+		}
 		p.sections.details.list.due_date.visible=(rsp.invoice.due_date!='')?'yes':'no';
+		p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
 		p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
 		if( rsp.invoice.status < 50 ) {
 			p.sections.details.list.status_text.visible = 'no';

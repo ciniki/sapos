@@ -229,6 +229,23 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	} else {
 		$invoice['items'] = $rc['items'];
 		foreach($invoice['items'] as $iid => $item) {
+			//
+			// Apply the dollar amount discount first
+			//
+			$unit_discounted_amount = $item['item']['unit_amount'];
+			if( isset($item['item']['unit_discount_amount']) && $item['item']['unit_discount_amount'] > 0 ) {
+				$unit_discounted_amount = bcsub($unit_discounted_amount, $item['item']['unit_discount_amount'], 4);
+			}
+			//
+			// Apply the percentage discount second
+			//
+			if( isset($item['item']['unit_discount_percentage']) && $item['item']['unit_discount_percentage'] > 0 ) {
+				$percentage = bcdiv($item['item']['unit_discount_percentage'], 100, 4);
+				$unit_discounted_amount = bcsub($unit_discounted_amount, bcmul($unit_discounted_amount, $percentage, 4), 4);
+			}
+			$invoice['items'][$iid]['item']['unit_discounted_amount_display'] = numfmt_format_currency(
+				$intl_currency_fmt, $unit_discounted_amount, $intl_currency);
+
 			$invoice['items'][$iid]['item']['unit_discount_percentage'] = (float)$item['item']['unit_discount_percentage'];
 			$invoice['items'][$iid]['item']['quantity'] = (float)$item['item']['quantity'];
 			$invoice['items'][$iid]['item']['unit_discount_amount_display'] = numfmt_format_currency(
