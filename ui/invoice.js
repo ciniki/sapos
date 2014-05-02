@@ -587,7 +587,7 @@ function ciniki_sapos_invoice() {
 			}
 		}
 		p.data.tallies['total'] = {'tally':{'description':'Total', 'amount':rsp.invoice.total_amount_display}};
-		if( rsp.invoice.total_savings > 0 ) {
+		if( rsp.invoice.total_savings > 0 && (rsp.invoice.flags&0x01) == 0 ) {
 			p.data.tallies['savings'] = {'tally':{'description':'Savings', 'amount':rsp.invoice.total_savings_display}};
 		}
 		if( rsp.invoice.transactions.length > 0 ) {
