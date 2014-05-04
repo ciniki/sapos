@@ -37,7 +37,7 @@ function ciniki_sapos_templates_envelope(&$ciniki, $business_id, $invoice_id, $b
 	//
 	// Start a new document
 	//
-	$pdf = new MYPDF('L', PDF_UNIT, "COMMENV_N9", true, 'UTF-8', false);
+	$pdf = new MYPDF('L', PDF_UNIT, "COMMENV_N10", true, 'UTF-8', false);
 //	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 	//
@@ -131,10 +131,10 @@ function ciniki_sapos_templates_envelope(&$ciniki, $business_id, $invoice_id, $b
 	}
 
 	$pdf->MultiCell(100, $return_addr_height, implode("\n", $return_addr), 0, 'L', 0, 
-		0, 8, 8, true, 0, false, true, 0, 'T', false);
+		0, 10, 10, true, 0, false, true, 0, 'T', false);
 
 	$pdf->MultiCell(0, 0, implode("\n", $baddr), 0, 'L', 0, 
-		0, 75, 45, true, 0, false, true, 0, 'T', false);
+		0, 85, 50, true, 0, false, true, 0, 'T', false);
 
 	//Close and output PDF document
 	$pdf->Output('invoice_' . $invoice['invoice_number'] . '_env.pdf', 'D');
