@@ -231,7 +231,7 @@ function ciniki_sapos_invoices() {
 			this.invoices.sections.types.visible = 'yes';
 		}
 		M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
-			'year':this.invoices.year, 'month':this.invoices.month, 
+			'year':this.invoices.year, 'month':this.invoices.month,
 			'payment_status':this.invoices.payment_status, 'type':this.invoices.invoice_type}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);

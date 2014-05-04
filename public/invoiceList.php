@@ -25,7 +25,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
         'payment_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Payment Status'), 
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
-        'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
+        'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
         'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
         'customer'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Details'), 
         )); 

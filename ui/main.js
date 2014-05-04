@@ -262,7 +262,7 @@ function ciniki_sapos_main() {
 				case 'orders': this.menu.invoice_type = 40; break;
 			}
 			M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID,
-				'limit':'15', 'sort':'latest', 'type':this.menu.invoice_type}, function(rsp) {
+				'limit':'10', 'sort':'latest', 'type':this.menu.invoice_type}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;
@@ -278,7 +278,7 @@ function ciniki_sapos_main() {
 
 		else if( this.menu.formtab == 'expenses' ) {
 			M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID,
-				'limit':'15', 'sort':'latest', 'type':'expenses'}, function(rsp) {
+				'limit':'10', 'sort':'latest', 'type':'expenses'}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;
