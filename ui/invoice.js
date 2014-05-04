@@ -109,6 +109,7 @@ function ciniki_sapos_invoice() {
 				'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
 				'delete':{'label':'Delete Invoice', 'fn':'M.ciniki_sapos_invoice.deleteInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
+				'printenv':{'label':'Print Envelope', 'fn':'M.ciniki_sapos_invoice.printEnvelope(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				}},
 			'invoice_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
 			'internal_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
@@ -684,6 +685,12 @@ function ciniki_sapos_invoice() {
 	this.printInvoice = function(iid) {
 		if( iid <= 0 ) { return false; }
 		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
+			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+	};
+
+	this.printEnvelope = function(iid) {
+		if( iid <= 0 ) { return false; }
+		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDFEnv',
 			{'business_id':M.curBusinessID, 'invoice_id':iid}));
 	};
 
