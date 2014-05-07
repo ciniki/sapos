@@ -84,6 +84,7 @@ function ciniki_sapos_expenses() {
 				return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_expenses.showExpenses();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
 			}
 		};
+		this.expenses.addButton('add', 'Expense', 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.showExpenses();\',\'mc\',{});');
 		this.expenses.addClose('Back');
 	};
 
