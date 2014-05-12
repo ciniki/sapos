@@ -163,6 +163,6 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		return array('stat'=>'ok');
 	}
 
-	return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'1611', 'msg'=>'Cart does not exist'));
+	return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'1608', 'msg'=>'Cart does not exist'));
 }
 ?>

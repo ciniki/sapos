@@ -1,0 +1,35 @@
+#
+# Description
+# -----------
+# This table stores the rates to be charged for mileage.  Each rate has a start and end date
+# so it can be changed through time.
+#
+# Fields
+# ------
+# id:				The invoice ID.
+# uuid:				The Universal Unique ID for the invoice.
+# business_id:		The business the invoice is for.
+#
+# rate:				The change per mile/kilometer
+#
+# start_date:		The UTC date and time the rate is valid from.  The start_date MUST
+#					be specified.
+#
+# end_date:			The UTC date and time the rate is no longer valid.  If end date is not
+#					specified (0000-00-00 00:00:00) then the rate is currently valid.
+#
+# date_added:		The UTC date and time the invoice was added.
+# last_updated:		The UTC date and time the invoice was last updated.
+#
+create table ciniki_sapos_mileage_rates (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	rate decimal(19,4) not null,
+	start_date datetime not null,
+	end_date datetime not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key (id),
+	index sync (uuid, business_id, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

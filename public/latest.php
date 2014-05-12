@@ -43,6 +43,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		return $rc;
 	}
 	$intl_timezone = $rc['settings']['intl-default-timezone'];
+	$intl_distance_units = $rc['settings']['intl-default-distance-units'];
 	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
 	$intl_currency = $rc['settings']['intl-default-currency'];
 
@@ -125,6 +126,89 @@ function ciniki_sapos_latest(&$ciniki) {
 
 		return array('stat'=>'ok', 'expenses'=>$expenses);
 	} 
+
+	else if( isset($args['type']) && $args['type'] == 'mileage' ) {
+		//
+		// Get the number of mileage rates so we can let the user know in the UI to
+		// setup the categories
+		//
+		$num_cats = -1;
+		$strsql = "SELECT 'rates', COUNT(*) "
+			. "FROM ciniki_sapos_mileage_rates "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'rates');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['rates']) ) {
+			$num_rates = $rc['rates']['rates'];
+		} else {
+			$num_rates = 0;
+		}
+
+		//
+		// Build the query to get the latest mileage entries
+		//
+		$strsql = "SELECT ciniki_sapos_mileage.id, "
+			. "ciniki_sapos_mileage.travel_date, "
+			. "ciniki_sapos_mileage.start_name, "
+			. "ciniki_sapos_mileage.end_name, "
+			. "ciniki_sapos_mileage.distance, "
+			. "ciniki_sapos_mileage.flags, "
+			. "ciniki_sapos_mileage_rates.rate "
+			. "FROM ciniki_sapos_mileage "
+			. "LEFT JOIN ciniki_sapos_mileage_rates ON ("
+				. "ciniki_sapos_mileage.travel_date >= ciniki_sapos_mileage_rates.start_date "
+				. "AND (ciniki_sapos_mileage_rates.end_date = '0000-00-00 00:00:00' "
+					. "OR ciniki_sapos_mileage.travel_date < ciniki_sapos_mileage_rates.end_date "
+					. ") "
+				. "AND ciniki_sapos_mileage_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+				. ") "
+			. "WHERE ciniki_sapos_mileage.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		if( isset($args['sort']) ) {
+			if( $args['sort'] == 'latest' ) {
+				$strsql .= "ORDER BY ciniki_sapos_mileage.last_updated DESC ";
+			}
+		}
+		if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
+			$strsql .= "LIMIT " . intval($args['limit']) . " ";
+		}
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+			array('container'=>'mileages', 'fname'=>'id', 'name'=>'mileage',
+				'fields'=>array('id', 'start_name', 'end_name', 'travel_date', 'distance', 'flags', 'rate'),
+				'utctotz'=>array('travel_date'=>array('timezone'=>'UTC', 'format'=>$php_date_format)), 
+				),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['mileages']) ) {
+			$mileages = array();
+			return array('stat'=>'ok', 'mileages'=>array(), 'numrates'=>$num_rates);
+		} else {
+			foreach($rc['mileages'] as $iid => $mileage) {
+				// Check for round trip
+				if( ($mileage['mileage']['flags']&0x01) > 0 ) {
+					$total_distance = bcmul($mileage['mileage']['distance'], 2, 2);
+				} else {
+					$total_distance = $mileage['mileage']['distance'];
+				}
+				$rc['mileages'][$iid]['mileage']['distance'] = (float)$mileage['mileage']['distance'];
+				$rc['mileages'][$iid]['mileage']['total_distance'] = (float)$total_distance;
+				$rc['mileages'][$iid]['mileage']['amount'] = bcmul($total_distance, $mileage['mileage']['rate'], 2);
+				$rc['mileages'][$iid]['mileage']['amount_display'] = numfmt_format_currency(
+					$intl_currency_fmt, $rc['mileages'][$iid]['mileage']['amount'], $intl_currency);
+				$rc['mileages'][$iid]['mileage']['units'] = $intl_distance_units;
+			}
+			$mileages = $rc['mileages'];
+		}
+
+		return array('stat'=>'ok', 'num_rates'=>$num_rates, 'mileages'=>$mileages);
+	}
 
 	//
 	//  Get the latest invoices by type

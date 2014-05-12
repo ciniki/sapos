@@ -111,5 +111,31 @@ function ciniki_sapos_history($ciniki) {
 		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
 			$args['business_id'], 'ciniki_sapos_expense_items', $args['object_id'], $args['field']);
 	}
+	elseif( $args['object'] == 'ciniki.sapos.mileage' ) {
+		if( $args['field'] == 'travel_date' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+				$args['business_id'], 'ciniki_sapos_mileage', $args['object_id'], $args['field'], 'utcdate');
+		} 
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
+		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+			$args['business_id'], 'ciniki_sapos_mileage', $args['object_id'], $args['field']);
+	}
+	elseif( $args['object'] == 'ciniki.sapos.mileage_rate' ) {
+		if( $args['field'] == 'rate' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+				$args['business_id'], 'ciniki_sapos_mileage_rates', $args['object_id'], $args['field'], 
+				'currency');
+		} 
+		elseif( $args['field'] == 'start_date' || $args['field'] == 'end_date' ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+				$args['business_id'], 'ciniki_sapos_mileage_rates', $args['object_id'], $args['field'], 'utcdate');
+		} 
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
+		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
+			$args['business_id'], 'ciniki_sapos_mileage_rates', $args['object_id'], $args['field']);
+	}
 }
 ?>

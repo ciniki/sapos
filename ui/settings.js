@@ -18,6 +18,9 @@ function ciniki_sapos_settings() {
 			'expenses':{'label':'Expenses', 'visible':'no', 'list':{
 				'expenses':{'label':'Expense Categories', 'fn':'M.ciniki_sapos_settings.showExpenseCategories(\'M.ciniki_sapos_settings.showMenu();\');'},
 				}},
+			'mileage':{'label':'Mileage', 'visible':'no', 'list':{
+				'mileagerates':{'label':'Rates', 'fn':'M.ciniki_sapos_settings.showMileageRates(\'M.ciniki_sapos_settings.showMenu();\');'},
+				}},
 			'paypal':{'label':'Paypal', 'list':{
 				'paypal':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.editPaypal(\'M.ciniki_sapos_settings.showMenu();\');'},
 				}},
@@ -180,6 +183,62 @@ function ciniki_sapos_settings() {
 		this.ecatedit.addClose('Cancel');
 
 		//
+		// The mileage rates settings panel
+		//
+		this.mrates = new M.panel('Mileage Rates',
+			'ciniki_sapos_settings', 'mrates',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.mrates');
+		this.mrates.sections = {
+			'rates':{'label':'Mileage Rates', 'type':'simplegrid', 'num_cols':3,
+				'headerValues':['Rate', 'Start', 'End'],
+				'addTxt':'Add',
+				'addFn':'M.ciniki_sapos_settings.editMileageRate(\'M.ciniki_sapos_settings.showMileageRates();\',0);',
+				}
+		};
+		this.mrates.sectionData = function(s) { return this.data[s]; }
+		this.mrates.cellValue = function(s, i, j, d) {
+			switch(j) {
+				case 0: return d.rate.rate_display;
+				case 1: return d.rate.start_date;
+				case 2: return d.rate.end_date;
+			}
+		};
+		this.mrates.rowFn = function(s, i, d) {
+			return 'M.ciniki_sapos_settings.editMileageRate(\'M.ciniki_sapos_settings.showMileageRates();\',\'' + d.rate.id + '\');';
+		};
+		this.mrates.addButton('add', 'Add', 'M.ciniki_sapos_settings.editMileageRate(\'M.ciniki_sapos_settings.showMileageRates();\',0);');
+		this.mrates.addClose('Back');
+
+		//
+		// The expense category edit panel
+		//
+		this.mrateedit = new M.panel('Expense Category',
+			'ciniki_sapos_settings', 'mrateedit',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.mrateedit');
+		this.mrateedit.rate_id = 0;
+		this.mrateedit.data = {};
+		this.mrateedit.sections = {
+			'_rate':{'label':'Mileage Rate', 'fields':{
+				'rate':{'label':'Rate/km', 'type':'text', 'size':'small'},
+				'start_date':{'label':'Start Date', 'type':'date', 'size':'medium'},
+				'end_date':{'label':'End Date', 'type':'date', 'size':'medium'},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveMileageRate();'},
+				'delete':{'label':'Delete', 'fn':'M.ciniki_sapos_settings.deleteMileageRate(M.ciniki_sapos_settings.mrateedit.rate_id);'},
+				}},
+		};
+		this.mrateedit.fieldValue = function(s, i, d) {
+			if( this.data[i] == null ) { return ''; }
+			return this.data[i];
+		};
+		this.mrateedit.fieldHistoryArgs = function(s, i) {
+			return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+				'object':'ciniki.sapos.mileage_rate', 'object_id':this.rate_id, 'field':i}};
+		};
+		this.mrateedit.addClose('Cancel');
+
+		//
 		// The paypal settings panel
 		//
 		this.paypal = new M.panel('Paypal Settings',
@@ -246,6 +305,7 @@ function ciniki_sapos_settings() {
 	this.showMenu = function(cb) {
 		this.menu.sections.invoice.list.qi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
 		this.menu.sections.expenses.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x02)>0?'yes':'no';
+		this.menu.sections.mileage.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100)>0?'yes':'no';
 		this.menu.refresh();
 		this.menu.show(cb);
 	}
@@ -499,6 +559,88 @@ function ciniki_sapos_settings() {
 						return false;
 					}
 					M.ciniki_sapos_settings.ecatedit.close();
+				});
+		}
+	};
+
+	//
+	// Mileage
+	//
+	this.showMileageRates = function(cb) {
+		M.api.getJSONCb('ciniki.sapos.mileageRateList', 
+			{'business_id':M.curBusinessID}, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				var p = M.ciniki_sapos_settings.mrates;
+				p.data = {'rates':rsp.rates};
+				p.refresh();
+				p.show(cb);
+			});
+	};
+
+	this.editMileageRate = function(cb, rid) {
+		if( rid != null ) { this.mrateedit.rate_id = rid; }
+		if( this.mrateedit.rate_id > 0 ) {
+			this.mrateedit.sections._buttons.buttons.delete.visible='yes';
+			M.api.getJSONCb('ciniki.sapos.mileageRateGet', {'business_id':M.curBusinessID,
+				'rate_id':this.mrateedit.rate_id}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_settings.mrateedit;
+					p.data = rsp.rate;
+					p.refresh();
+					p.show(cb);
+				});
+		} else {
+			this.mrateedit.reset();
+			this.mrateedit.data = {};
+			this.mrateedit.sections._buttons.buttons.delete.visible='no';
+			this.mrateedit.refresh();
+			this.mrateedit.show(cb);
+		}
+	};
+
+	this.saveMileageRate = function() {
+		if( this.mrateedit.rate_id > 0 ) {
+			var c = this.mrateedit.serializeForm('no');
+			if( c != '' ) {
+				M.api.postJSONCb('ciniki.sapos.mileageRateUpdate', {'business_id':M.curBusinessID,
+					'rate_id':this.mrateedit.rate_id}, c, function(rsp) {
+						if( rsp.stat != 'ok' ) {
+							M.api.err(rsp);
+							return false;
+						}
+						M.ciniki_sapos_settings.mrateedit.close();
+					});
+			} else {
+				this.mrateedit.close();
+			}
+		} else {
+			var c = this.mrateedit.serializeForm('yes');
+			M.api.postJSONCb('ciniki.sapos.mileageRateAdd', {'business_id':M.curBusinessID},
+				c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.mrateedit.close();
+				});
+		}
+	};
+
+	this.deleteMileageRate = function(rid) {
+		if( confirm('Are you sure you want to remove this rate?') ) {
+			M.api.getJSONCb('ciniki.sapos.mileageRateDelete', {'business_id':M.curBusinessID,
+				'rate_id':rid}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.mrateedit.close();
 				});
 		}
 	};

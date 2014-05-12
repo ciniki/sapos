@@ -182,6 +182,33 @@ function ciniki_sapos_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);
+	$objects['mileage'] = array(
+		'name'=>'Mileage',
+		'sync'=>'yes',
+		'table'=>'ciniki_sapos_mileage',
+		'fields'=>array(
+			'start_name'=>array(),
+			'start_address'=>array(),
+			'end_name'=>array(),
+			'end_address'=>array(),
+			'travel_date'=>array(),
+			'distance'=>array(),
+			'flags'=>array(),
+			'notes'=>array(),
+			),
+		'history_table'=>'ciniki_sapos_history',
+		);
+	$objects['mileage_rate'] = array(
+		'name'=>'Mileage Rate',
+		'sync'=>'yes',
+		'table'=>'ciniki_sapos_mileage_rates',
+		'fields'=>array(
+			'rate'=>array(),
+			'start_date'=>array(),
+			'end_date'=>array(),
+			),
+		'history_table'=>'ciniki_sapos_history',
+		);
 	
 	return array('stat'=>'ok', 'objects'=>$objects);
 }

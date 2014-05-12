@@ -16,6 +16,7 @@ function ciniki_sapos_main() {
 			'pos':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"pos");'},
 			'orders':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"orders");'},
 			'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"expenses");'},
+			'mileage':{'label':'Mileage', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"mileage");'},
 			}};
 		this.menu.forms = {};
 		this.menu.forms.invoices = {
@@ -89,6 +90,22 @@ function ciniki_sapos_main() {
 				'settings':{'label':'Setup Expenses', 'visible':'no', 'fn':'M.startApp(\'ciniki.sapos.settings\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'ecats\':\'yes\'});'},
 				}},
 			};
+		this.menu.forms.mileage = {
+			'mileage_search':{'label':'Mileage', 'type':'livesearchgrid', 'livesearchcols':3, 
+				'headerValues':['Date', 'From/To', 'Distance'],
+				'hint':'Search mileage', 
+				'noData':'No Mileage Entries Found',
+				},
+			'mileages':{'label':'Recent Mileage', 'type':'simplegrid', 'num_cols':4,
+				'headerValues':['Date', 'From/To', 'Distance', 'Amount'],
+				'noData':'No Mileage',
+				'addTxt':'More',
+				'addFn':'M.startApp(\'ciniki.sapos.mileages\',null,\'M.ciniki_sapos_main.showMenu();\');',
+				},
+			'_buttons':{'label':'', 'visible':'no', 'buttons':{
+				'settings':{'label':'Setup Mileage', 'visible':'no', 'fn':'M.startApp(\'ciniki.sapos.settings\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'mrates\':\'yes\'});'},
+				}},
+			};
 		this.menu.liveSearchCb = function(s, i, v) {
 			if( s == 'invoice_search' && v != '' ) {
 				M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
@@ -100,6 +117,12 @@ function ciniki_sapos_main() {
 				M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'business_id':M.curBusinessID,
 					'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
 						M.ciniki_sapos_main.menu.liveSearchShow('expense_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.expenses);
+					});
+			}
+			else if( s == 'mileage_search' && v != '' ) {
+				M.api.getJSONBgCb('ciniki.sapos.mileageSearch', {'business_id':M.curBusinessID,
+					'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
+						M.ciniki_sapos_main.menu.liveSearchShow('mileage_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.mileages);
 					});
 			}
 		};
@@ -120,6 +143,14 @@ function ciniki_sapos_main() {
 					case 2: return d.expense.total_amount_display;
 				}
 			}
+			else if( s == 'mileage_search' ) { 
+				switch (j) {
+					case 0: return d.mileage.travel_date;
+					case 1: return d.mileage.start_name + ' - ' + d.mileage.end_name;
+					case 2: return d.mileage.total_distance + ' ' + d.mileage.units;
+					case 3: return d.mileage.amount_display;
+				}
+			}
 			return '';
 		};
 		this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
@@ -129,9 +160,12 @@ function ciniki_sapos_main() {
 			if( s == 'expense_search' ) {
 				return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
 			}
+			if( s == 'mileage_search' ) {
+				return 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'mileage_id\':\'' + d.mileage.id + '\'});';
+			}
 		};
 		this.menu.sectionData = function(s) {
-			if( s == 'invoices' || s == 'expenses' ) { return this.data[s]; }
+			if( s == 'invoices' || s == 'expenses' || s == 'mileages' ) { return this.data[s]; }
 			return this.sections[s].list;
 		};
 		this.menu.noData = function(s) {
@@ -154,6 +188,14 @@ function ciniki_sapos_main() {
 					case 2: return d.expense.total_amount_display;
 				}
 			}
+			if( s == 'mileages' ) {
+				switch(j) {
+					case 0: return d.mileage.travel_date;
+					case 1: return d.mileage.start_name + ' - ' + d.mileage.end_name;
+					case 2: return d.mileage.total_distance + ' ' + d.mileage.units;
+					case 3: return d.mileage.amount_display;
+				}
+			}
 		};
 		this.menu.rowFn = function(s, i, d) {
 			if( s == 'invoices' ) {
@@ -161,6 +203,9 @@ function ciniki_sapos_main() {
 			}
 			if( s == 'expenses' ) {
 				return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
+			}
+			if( s == 'mileages' ) {
+				return 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'mileage_id\':\'' + d.mileage.id + '\'});';
 			}
 		};
 //		this.menu.addButton('add_i', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
@@ -193,6 +238,8 @@ function ciniki_sapos_main() {
 		// Remove add buttons
 		if( this.menu.rightbuttons['add_i'] != null ) { delete this.menu.rightbuttons['add_i']; }
 		if( this.menu.rightbuttons['add_e'] != null ) { delete this.menu.rightbuttons['add_e']; }
+		if( this.menu.rightbuttons['add_m'] != null ) { delete this.menu.rightbuttons['add_m']; }
+		if( this.menu.leftbuttons['add_m'] != null ) { delete this.menu.leftbuttons['add_m']; }
 		// Setup the panel tabs
 		var ct = 0;
 		var sp = '';
@@ -224,16 +271,31 @@ function ciniki_sapos_main() {
 		} else {
 			this.menu.formtabs.tabs.orders.visible = 'no';
 		}
+		var bts = 0;
 		if( ct > 0 ) {
 			this.menu.addButton('add_i', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
+			bts++;
 		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x02) > 0 ) {
 			this.menu.formtabs.tabs.expenses.visible = 'yes';
 			this.menu.addButton('add_e', 'Expense', 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
+			bts++;
 			if( sp == '' ) { sp = 'expenses'; }
 			ct++;
 		} else {
 			this.menu.formtabs.tabs.expenses.visible = 'no';
+		}
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x100) > 0 ) {
+			this.menu.formtabs.tabs.mileage.visible = 'yes';
+			if( bts >= 2 ) {
+				this.menu.addLeftButton('add_m', 'Mileage', 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
+			} else {
+				this.menu.addButton('add_m', 'Mileage', 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
+			}
+			if( sp == '' ) { sp = 'mileage'; }
+			ct++;
+		} else {
+			this.menu.formtabs.tabs.mileage.visible = 'no';
 		}
 		if( ct > 1 ) {
 			this.menu.formtabs.visible = 'yes';
@@ -295,6 +357,30 @@ function ciniki_sapos_main() {
 						p.forms.expenses.expenses.visible = 'no';
 						p.forms.expenses._buttons.visible = 'yes';
 						p.forms.expenses._buttons.buttons.settings.visible = 'yes';
+					}
+					p.refresh();
+					p.show(cb);
+				});
+		}
+		else if( this.menu.formtab == 'mileage' ) {
+			M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID,
+				'limit':'10', 'sort':'latest', 'type':'mileage'}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_main.menu;
+					p.data.mileages = rsp.mileages;
+					if( rsp.mileages.length > 0 ) {
+						p.forms.mileage.mileage_search.visible = 'yes';
+						p.forms.mileage.mileages.visible = 'yes';
+						p.forms.mileage._buttons.visible = 'no';
+						p.forms.mileage._buttons.buttons.settings.visible = 'no';
+					} else {
+						p.forms.mileage.mileage_search.visible = 'no';
+						p.forms.mileage.mileages.visible = 'no';
+						p.forms.mileage._buttons.visible = 'yes';
+						p.forms.mileage._buttons.buttons.settings.visible = 'yes';
 					}
 					p.refresh();
 					p.show(cb);
