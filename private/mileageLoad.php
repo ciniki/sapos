@@ -57,7 +57,6 @@ function ciniki_sapos_mileageLoad($ciniki, $business_id, $mileage_id) {
 		. "WHERE ciniki_sapos_mileage.id = '" . ciniki_core_dbQuote($ciniki, $mileage_id) . "' "
 		. "AND ciniki_sapos_mileage.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "";
-	error_log($strsql);
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'mileages', 'fname'=>'id', 'name'=>'mileage',
 			'fields'=>array('id', 'start_name', 'start_address', 'end_name', 'end_address', 
