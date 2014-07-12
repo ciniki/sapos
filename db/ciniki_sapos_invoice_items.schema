@@ -24,9 +24,9 @@
 # flags:			The flags for the item in the invoice/order.
 #
 #					0x01 - Manufactured Item
-#					0x02 - Shipped Item
+#					0x02 - Inventoried Item
 #					0x04 - Downloaded Item
-#					0x08 - 
+#					0x08 - Registration Item
 #
 # object:			The object for the item in the invoice.  This is the reference to
 #					the package.module.object.  When combined with the object_id the refering
@@ -70,7 +70,8 @@ create table ciniki_sapos_invoice_items (
 	business_id int not null,
 	invoice_id int not null,
 	line_number int not null,
-	status tinyint not null,
+	status tinyint unsigned not null,
+	flags tinyint unsigned not null,
 	object varchar(100) not null,
 	object_id varchar(100) not null,
 	description varchar(250) not null,

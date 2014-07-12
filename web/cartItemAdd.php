@@ -37,7 +37,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 				$fn = $rc['function_call'];
 				$rc = $fn($ciniki, $business_id, $args);
 				if( $rc['stat'] != 'ok' ) {
-					return $rc;
+					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1817', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
 				}
 				$item = $rc['item'];
 			}
@@ -60,6 +60,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		//
 		// Setup item pricing
 		//
+		$args['flags'] = $item['flags'];
 		$args['invoice_id'] = $ciniki['session']['cart']['sapos_id'];
 		$args['status'] = 0;
 		$args['description'] = $item['description'];
@@ -112,8 +113,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
 		$rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
 		if( $rc['stat'] != 'ok' ) {
-			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-			return $rc;
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1813', 'msg'=>'Internal Error', 'err'=>$rc['err']));
 		}
 		$item_id = $rc['id'];
 
@@ -146,7 +146,6 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
 		$rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $invoice_id);
 		if( $rc['stat'] != 'ok' ) {
-			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 			return $rc;
 		}
 
@@ -156,7 +155,6 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
 		$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice_id);
 		if( $rc['stat'] != 'ok' ) {
-			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 			return $rc;
 		}
 

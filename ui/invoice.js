@@ -62,7 +62,7 @@ function ciniki_sapos_invoice() {
 		this.invoice.invoice_id = 0;
 		this.invoice.data = {};
 		this.invoice.sections = {
-			'details':{'label':'', 'aside':'right', 'list':{
+			'details':{'label':'', 'aside':'yes', 'list':{
 				'invoice_number':{'label':'Invoice #'},
 				'invoice_type_text':{'label':'Type'},
 				'po_number':{'label':'PO #'},
@@ -74,18 +74,18 @@ function ciniki_sapos_invoice() {
 				'due_date':{'label':'Due Date'},
 				'flags_text':{'label':'Options', 'visible':'no'},
 				}},
-			'customer':{'label':'', 'aside':'right', 'type':'simplegrid', 'num_cols':2,
+			'customer':{'label':'', 'aside':'yes', 'type':'simplegrid', 'num_cols':2,
 				'cellClasses':['label',''],
 				'addTxt':'Edit',
 				'addFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'customer_id\':M.ciniki_sapos_invoice.invoice.data.customer_id});',
 				'changeTxt':'Change customer',
 				'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'customer_id\':0});',
 				},
-			'billing':{'label':'', 'aside':'right', 'visible':'no', 'list':{
+			'billing':{'label':'', 'aside':'yes', 'visible':'no', 'list':{
 //				'billing_name':{'label':'Bill To'},
 				'billing_address':{'label':'Bill To'},
 				}},
-			'shipping':{'label':'', 'aside':'right', 'visible':'no', 'list':{
+			'shipping':{'label':'', 'aside':'yes', 'visible':'no', 'list':{
 //				'shipping_name':{'label':'Ship To'},
 				'shipping_address':{'label':'Ship To'},
 				}},
