@@ -60,7 +60,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		//
 		// Setup item pricing
 		//
-		$args['flags'] = $item['flags'];
+		$args['flags'] = isset($item['flags'])?$item['flags']:0;
 		$args['invoice_id'] = $ciniki['session']['cart']['sapos_id'];
 		$args['status'] = 0;
 		$args['description'] = $item['description'];
@@ -69,6 +69,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		$args['unit_discount_percentage'] = $item['unit_discount_percentage'];
 		$args['taxtype_id'] = $item['taxtype_id'];
 		$args['notes'] = '';
+
 
 		//
 		// Calculate the final amount for each item in the invoice

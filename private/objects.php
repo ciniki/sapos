@@ -65,6 +65,7 @@ function ciniki_sapos_objects($ciniki) {
 			'invoice_id'=>array('ref'=>'ciniki.sapos.invoice'),
 			'line_number'=>array(),
 			'status'=>array(),
+			'flags'=>array(),
 			'object'=>array(),
 			'object_id'=>array(),
 			'description'=>array(),
