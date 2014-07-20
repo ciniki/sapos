@@ -35,9 +35,16 @@
 #
 # object_id:		The ID of the object for the item in the invoice.
 #
+# price_id:			The ID of the price attached at the object.  Can be used to track which price
+#					was used for this invoice.
+#
 # description:		The description of the item.
 #
 # quantity:			The number of units of the item.
+#
+# shipped_quantity:	The number of units that have been shipped/picked and pack for the order.  All 
+#					items should have the quantity = shipped_quantity when they have been removed from
+#					inventory.  This also tracks when the items have been removed from inventory.
 #
 # unit_amount:		The price of a single item.
 #
@@ -74,8 +81,10 @@ create table ciniki_sapos_invoice_items (
 	flags tinyint unsigned not null,
 	object varchar(100) not null,
 	object_id varchar(100) not null,
+	price_id varchar(100) not null,
 	description varchar(250) not null,
 	quantity decimal(19,4) not null,
+	shipped_quantity decimal(19,4) not null,
 	unit_amount decimal(19,4) not null,
 	unit_discount_amount decimal(19,4) not null,
 	unit_discount_percentage decimal(19,4) not null,
@@ -89,4 +98,4 @@ create table ciniki_sapos_invoice_items (
 	primary key (id),
 	index (invoice_id, object, object_id, taxtype_id),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.02';
+) ENGINE='InnoDB', COMMENT='v1.03';

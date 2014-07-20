@@ -25,6 +25,10 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 			) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1609', 'msg'=>'No item specified'));
 		}
+
+		if( !isset($args['price_id']) ) {
+			$args['price_id'] = 0;
+		}
 	
 		//
 		// Lookup the object
@@ -42,6 +46,9 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 				$item = $rc['item'];
 			}
 		}
+		if( isset($item['object']) ) { print "ttsdf"; $args['object'] = $item['object']; }
+		if( isset($item['object_id']) ) { $args['object_id'] = $item['object_id']; }
+		if( isset($item['price_id']) ) { $args['price_id'] = $item['price_id']; }
 		
 		//
 		// Check quantity available
@@ -60,6 +67,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		//
 		// Setup item pricing
 		//
+		$args['shipped_quantity'] = 0;
 		$args['flags'] = isset($item['flags'])?$item['flags']:0;
 		$args['invoice_id'] = $ciniki['session']['cart']['sapos_id'];
 		$args['status'] = 0;
@@ -69,7 +77,6 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		$args['unit_discount_percentage'] = $item['unit_discount_percentage'];
 		$args['taxtype_id'] = $item['taxtype_id'];
 		$args['notes'] = '';
-
 
 		//
 		// Calculate the final amount for each item in the invoice

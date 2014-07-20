@@ -1,0 +1,7 @@
+#
+# This file will upgrade the database table to version 1.03.
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN price_id varchar(100) not null AFTER object_id;
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN shipped_quantity decimal(19,4) not null AFTER quantity;
+UPDATE ciniki_sapos_invoice_items SET shipped_quantity = quantity;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.03';

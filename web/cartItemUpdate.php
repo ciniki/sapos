@@ -26,7 +26,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
 		//
 		// Get the existing item details
 		//
-		$strsql = "SELECT id, invoice_id, object, object_id, "
+		$strsql = "SELECT id, invoice_id, object, object_id, price_id, "
 			. "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
 			. "subtotal_amount, discount_amount, total_amount "
 			. "FROM ciniki_sapos_invoice_items "
@@ -52,7 +52,8 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
 				$fn = $rc['function_call'];
 				$rc = $fn($ciniki, $business_id, array(
 					'object'=>$item['object'],
-					'object_id'=>$item['object_id']
+					'object_id'=>$item['object_id'],
+					'price_id'=>$item['price_id'],
 					));
 				if( $rc['stat'] != 'ok' ) {
 					return $rc;
