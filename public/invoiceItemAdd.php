@@ -21,10 +21,13 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 		'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'),
 		'line_number'=>array('required'=>'no', 'blank'=>'no', 'default'=>'1', 'name'=>'Line Number'),
 		'status'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Status'),
+		'flags'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Options'),
 		'object'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Object'),
 		'object_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Object ID'),
+		'price_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Price'),
 		'description'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Description'),
 		'quantity'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'1', 'type'=>'int', 'name'=>'Quantity'),
+		'shipped_quantity'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'type'=>'int', 'name'=>'Shipped'),
 		'unit_amount'=>array('required'=>'yes', 'blank'=>'yes', 'default'=>'0', 'type'=>'currency', 
 			'name'=>'Unit Amount'),
 		'unit_discount_amount'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'type'=>'currency', 
@@ -52,6 +55,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	if( !isset($args['unit_discount_percentage']) || $args['unit_discount_percentage'] == '' ) {
 		$args['unit_discount_percentage'] = 0;
 	}
+
 
 	//
 	// Calculate the final amount for each item in the invoice
