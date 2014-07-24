@@ -36,17 +36,17 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		$item = array();
 		if( $args['object'] != '' && $args['object_id'] != '' ) {
 			list($pkg,$mod,$obj) = explode('.', $args['object']);
-			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
+			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemLookup');
 			if( $rc['stat'] == 'ok' ) {
 				$fn = $rc['function_call'];
-				$rc = $fn($ciniki, $business_id, $args);
+				$rc = $fn($ciniki, $business_id, $ciniki['session']['customer'], $args);
 				if( $rc['stat'] != 'ok' ) {
 					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1817', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
 				}
 				$item = $rc['item'];
 			}
 		}
-		if( isset($item['object']) ) { print "ttsdf"; $args['object'] = $item['object']; }
+		if( isset($item['object']) ) { $args['object'] = $item['object']; }
 		if( isset($item['object_id']) ) { $args['object_id'] = $item['object_id']; }
 		if( isset($item['price_id']) ) { $args['price_id'] = $item['price_id']; }
 		
