@@ -30,7 +30,7 @@ function ciniki_sapos_mileageRateDelete(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.mileageRateUpdate'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.mileageRateDelete'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
