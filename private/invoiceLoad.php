@@ -193,6 +193,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	//
 	$strsql = "SELECT ciniki_sapos_invoice_items.id, "	
 		. "ciniki_sapos_invoice_items.line_number, "
+		. "ciniki_sapos_invoice_items.flags, "
 		. "ciniki_sapos_invoice_items.status, "
 		. "ciniki_sapos_invoice_items.object, "
 		. "ciniki_sapos_invoice_items.object_id, "
@@ -216,7 +217,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "";
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'line_number', 'status',
+			'fields'=>array('id', 'line_number', 'flags', 'status',
 				'object', 'object_id',
 				'description', 'quantity', 'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
 				'subtotal_amount', 'discount_amount', 'total_amount', 'notes', 'taxtype_name')),

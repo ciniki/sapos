@@ -25,8 +25,11 @@
 #
 #					0x01 - Manufactured Item
 #					0x02 - Inventoried Item
-#					0x04 - Downloaded Item
-#					0x08 - Registration Item
+#					0x04 - Backorder Available
+#					0x08 - 
+#					0x10 - Downloaded Item
+#					0x20 - Registration Item
+#
 #
 # object:			The object for the item in the invoice.  This is the reference to
 #					the package.module.object.  When combined with the object_id the refering

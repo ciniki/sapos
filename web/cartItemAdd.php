@@ -56,7 +56,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		if( isset($item['limited_units']) && $item['limited_units'] == 'yes' 
 			&& isset($item['units_available']) && $item['units_available'] != '' ) {
 			if( $args['quantity'] > $item['units_available'] ) {
-				if( $item['units_availble'] > 0 ) {
+				if( $item['units_available'] > 0 ) {
 					$args['quantity'] = $item['units_available'];
 				} else {
 					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1602', 'msg'=>"I'm sorry there are no more available."));

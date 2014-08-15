@@ -47,7 +47,7 @@ function ciniki_sapos_web_cartItemDelete($ciniki, $settings, $business_id, $args
 		//
 		if( $item['object'] != '' && $item['object_id'] != '' ) {
 			list($pkg,$mod,$obj) = explode('.', $item['object']);
-			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemDelete');
+			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemDelete');
 			if( $rc['stat'] == 'ok' ) {
 				$fn = $rc['function_call'];
 				$rc = $fn($ciniki, $business_id, $invoice_id, $item);

@@ -47,10 +47,10 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
 		//
 		if( $item['object'] != '' && $item['object_id'] != '' ) {
 			list($pkg,$mod,$obj) = explode('.', $item['object']);
-			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
+			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemLookup');
 			if( $rc['stat'] == 'ok' ) {
 				$fn = $rc['function_call'];
-				$rc = $fn($ciniki, $business_id, array(
+				$rc = $fn($ciniki, $business_id, $ciniki['session']['customer'], array(
 					'object'=>$item['object'],
 					'object_id'=>$item['object_id'],
 					'price_id'=>$item['price_id'],
@@ -132,7 +132,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
 		//
 		if( $item['object'] != '' && $item['object_id'] != '' ) {
 			list($pkg,$mod,$obj) = explode('.', $item['object']);
-			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemUpdate');
+			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemUpdate');
 			if( $rc['stat'] == 'ok' ) {
 				$fn = $rc['function_call'];
 				$rc = $fn($ciniki, $business_id, $invoice_id, $item);
