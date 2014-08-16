@@ -83,6 +83,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 	if( isset($ciniki['business']['modules']['ciniki.taxes']['flags'])
 		&& ($ciniki['business']['modules']['ciniki.taxes']['flags']&0x01) > 0
 		&& $invoice['tax_location_id'] == 0 && $invoice['customer_id'] > 0 ) {
+		error_log('test');
 		$strsql = "SELECT tax_location_id "
 			. "FROM ciniki_customers "
 			. "WHERE ciniki_customers.id = '" . ciniki_core_dbQuote($ciniki, $invoice['customer_id']) . "' "

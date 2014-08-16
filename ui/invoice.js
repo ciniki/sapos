@@ -422,6 +422,23 @@ function ciniki_sapos_invoice() {
 		this.edit.sections.details.fields.shipping_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0)?'yes':'no';
 		this.edit.sections.details.fields.manufacturing_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x80)>0)?'yes':'no';
 
+		//
+		// Setup the taxtypes available for the business
+		//
+		if( M.curBusiness.modules['ciniki.taxes'] != null ) {
+			this.item.sections.details.fields.taxtype_id.active = 'yes';
+			this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
+			if( M.curBusiness.taxes != null && M.curBusiness.taxes.settings.types != null ) {
+				for(i in M.curBusiness.taxes.settings.types) {
+					this.item.sections.details.fields.taxtype_id.options[M.curBusiness.taxes.settings.types[i].type.id] = M.curBusiness.taxes.settings.types[i].type.name;
+				}
+			}
+		} else {
+			this.item.sections.details.fields.taxtype_id.active = 'no';
+			this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
+		}
+
+
 		if( args.items != null && args.customer_id != null ) {
 			// Create new invoice with item
 			this.createInvoice(cb, args.customer_id, null, args.items);
@@ -632,7 +649,16 @@ function ciniki_sapos_invoice() {
 					M.ciniki_sapos_invoice.showInvoiceFinish(null,rsp);
 				});
 		} else {
-			this.showInvoice();
+			M.api.getJSONCb('ciniki.sapos.invoiceUpdate', {'business_id':M.curBusinessID,
+				'invoice_id':this.invoice.invoice_id, 
+				'billing_update':'yes', 'shipping_update':'yes'}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_invoice.showInvoiceFinish(null,rsp);
+				});
+//			this.showInvoice();
 		}
 	};
 
@@ -745,17 +771,17 @@ function ciniki_sapos_invoice() {
 					}
 					var p = M.ciniki_sapos_invoice.item;
 					p.data = rsp.item;
-					if( rsp.taxtypes != null ) {
-						p.sections.details.fields.taxtype_id.active = 'yes';
-						p.sections.details.fields.taxtype_id.type=((rsp.taxtypes.length>4)?'select':'toggle');
-						p.sections.details.fields.taxtype_id.options = {'0':'No Tax'};
-						for(i in rsp.taxtypes) {
-							p.sections.details.fields.taxtype_id.options[rsp.taxtypes[i].type.id] = rsp.taxtypes[i].type.name + ((rsp.taxtypes[i].type.rates==''||rsp.taxtypes[i].type.rates==null)?', No Taxes':', ' + rsp.taxtypes[i].type.rates);
-						}
-						p.sections.details.fields.taxtype_id.toggles=p.sections.details.fields.taxtype_id.options;
-					} else {
-						p.sections.details.fields.taxtype_id.active = 'no';
-					}
+//					if( rsp.taxtypes != null ) {
+//						p.sections.details.fields.taxtype_id.active = 'yes';
+//						p.sections.details.fields.taxtype_id.type=((rsp.taxtypes.length>4)?'select':'toggle');
+//						p.sections.details.fields.taxtype_id.options = {'0':'No Tax'};
+//						for(i in rsp.taxtypes) {
+//							p.sections.details.fields.taxtype_id.options[rsp.taxtypes[i].type.id] = rsp.taxtypes[i].type.name + ((rsp.taxtypes[i].type.rates==''||rsp.taxtypes[i].type.rates==null)?', No Taxes':', ' + rsp.taxtypes[i].type.rates);
+//						}
+//						p.sections.details.fields.taxtype_id.toggles=p.sections.details.fields.taxtype_id.options;
+//					} else {
+//						p.sections.details.fields.taxtype_id.active = 'no';
+//					}
 					p.refresh();
 					p.show(cb);
 				});
@@ -765,26 +791,26 @@ function ciniki_sapos_invoice() {
 			p.object = '';
 			p.object_id = 0;
 			p.sections._buttons.buttons.delete.visible = 'no';
-			if( M.curBusiness.modules['ciniki.taxes'] != null ) {
-				M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
-					if( rsp.stat != 'ok' ) {
-						M.api.err(rsp);
-						return false;
-					}
-					p.sections.details.fields.taxtype_id.active = 'yes';
-					p.sections.details.fields.taxtype_id.options = {'0':'No Tax'};
-					for(i in rsp.active) {
-						p.sections.details.fields.taxtype_id.options[rsp.active[i].type.id] = rsp.active[i].type.name + ((rsp.active[i].type.rates==''||rsp.active[i].type.rates==null)?', No Taxes':', ' + rsp.active[i].type.rates);
-					}
-					p.refresh();
-					p.show(cb);
-				});
-			} else {
+//			if( M.curBusiness.modules['ciniki.taxes'] != null ) {
+//				M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
+//					if( rsp.stat != 'ok' ) {
+//						M.api.err(rsp);
+//						return false;
+//					}
+//					p.sections.details.fields.taxtype_id.active = 'yes';
+//					p.sections.details.fields.taxtype_id.options = {'0':'No Tax'};
+//					for(i in rsp.active) {
+//						p.sections.details.fields.taxtype_id.options[rsp.active[i].type.id] = rsp.active[i].type.name + ((rsp.active[i].type.rates==''||rsp.active[i].type.rates==null)?', No Taxes':', ' + rsp.active[i].type.rates);
+//					}
+//					p.refresh();
+//					p.show(cb);
+//				});
+//			} else {
 				p.data = {};
-				p.sections.details.fields.taxtype_id.active = 'no';
+//				p.sections.details.fields.taxtype_id.active = 'no';
 				p.refresh();
 				p.show(cb);
-			}
+//			}
 		}
 	};
 

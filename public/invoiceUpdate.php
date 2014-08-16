@@ -193,6 +193,24 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		}
 	}
 
+	//
+	// Update the taxes/shipping incase something relavent changed
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
+	$rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $args['business_id'], $args['invoice_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+
+	//
+	// Reload the invoice record incase anything has changed
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
+	$rc = ciniki_sapos_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$invoice = $rc['invoice'];
 
 	//
 	// Commit the transaction
