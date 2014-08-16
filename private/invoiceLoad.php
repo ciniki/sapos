@@ -162,7 +162,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
-		$invoice['customer'] = $rc['details'];
+		$invoice['customer'] = $rc['customer'];
+		$invoice['customer_details'] = $rc['details'];
 //		$strsql = "SELECT ciniki_customers.id, type, "
 //			. "ciniki_customers.display_name, "
 //			. "ciniki_customers.company, "

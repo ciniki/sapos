@@ -20,6 +20,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'), 
+        'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Pricepoint'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -37,6 +38,10 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
         return $rc;
     }
 	$modules = $rc['modules'];
+
+	if( isset($args['pricepoint_id']) && $args['pricepoint_id'] == '' ) {
+		$args['pricepoint_id'] = 0;
+	}
 
 	//
 	// Load business INTL settings
@@ -68,7 +73,10 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 		if( !is_callable($search_function) ) {
 			continue;
 		}
-		$rc = $search_function($ciniki, $args['business_id'], $args['start_needle'], $args['limit']);
+		$rc = $search_function($ciniki, $args['business_id'], array(
+			'start_needle'=>$args['start_needle'], 
+			'pricepoint_id'=>$args['pricepoint_id'],
+			'limit'=>$args['limit']));
 		if( $rc['stat'] != 'ok' ) {
 			continue;
 		}
