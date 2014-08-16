@@ -24,11 +24,23 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 	//
 	// Get the invoice details, so we know what taxes are applicable for the invoice date
 	//
-	$strsql = "SELECT status, invoice_date, "
-		. "shipping_amount, subtotal_amount, "
-		. "subtotal_discount_percentage, subtotal_discount_amount, "
-		. "discount_amount, "
-		. "total_amount, total_savings "
+	$strsql = "SELECT ciniki_sapos_invoices.status, "
+		. "ciniki_sapos_invoices.invoice_date, "
+		. "ciniki_sapos_invoices.customer_id, "
+		. "ciniki_sapos_invoices.shipping_amount, "
+		. "ciniki_sapos_invoices.subtotal_amount, "
+		. "ciniki_sapos_invoices.subtotal_discount_percentage, "
+		. "ciniki_sapos_invoices.subtotal_discount_amount, "
+		. "ciniki_sapos_invoices.discount_amount, "
+		. "ciniki_sapos_invoices.total_amount, "
+		. "ciniki_sapos_invoices.total_savings, "
+		. "ciniki_sapos_invoices.shipping_address1, "
+		. "ciniki_sapos_invoices.shipping_address2, "
+		. "ciniki_sapos_invoices.shipping_city, "
+		. "ciniki_sapos_invoices.shipping_province, "
+		. "ciniki_sapos_invoices.shipping_postal, "
+		. "ciniki_sapos_invoices.shipping_country, "
+		. "ciniki_sapos_invoices.tax_location_id "
 		. "FROM ciniki_sapos_invoices "
 		. "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 		. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -46,6 +58,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 	//
 	$invoice = array(
 		'status'=>$rc['invoice']['status'],
+		'customer_id'=>$rc['invoice']['customer_id'],
 		'date'=>$rc['invoice']['invoice_date'],
 		'subtotal_amount'=>$rc['invoice']['subtotal_amount'],
 		'subtotal_discount_amount'=>$rc['invoice']['subtotal_discount_amount'],
@@ -54,8 +67,35 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 		'shipping_amount'=>$rc['invoice']['shipping_amount'],
 		'total_amount'=>$rc['invoice']['total_amount'],
 		'total_savings'=>$rc['invoice']['total_savings'],
+		'shipping_address1'=>$rc['invoice']['shipping_address1'],
+		'shipping_address2'=>$rc['invoice']['shipping_address2'],
+		'shipping_city'=>$rc['invoice']['shipping_city'],
+		'shipping_province'=>$rc['invoice']['shipping_province'],
+		'shipping_postal'=>$rc['invoice']['shipping_postal'],
+		'shipping_country'=>$rc['invoice']['shipping_country'],
+		'tax_location_id'=>$rc['invoice']['tax_location_id'],
 		'items'=>array(),
 		);
+
+	//
+	// Check for a customer tax location if specified
+	//
+	if( isset($ciniki['business']['modules']['ciniki.taxes']['flags'])
+		&& ($ciniki['business']['modules']['ciniki.taxes']['flags']&0x01) > 0
+		&& $invoice['tax_location_id'] == 0 && $invoice['customer_id'] > 0 ) {
+		$strsql = "SELECT tax_location_id "
+			. "FROM ciniki_customers "
+			. "WHERE ciniki_customers.id = '" . ciniki_core_dbQuote($ciniki, $invoice['customer_id']) . "' "
+			. "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.customers', 'customer');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['customer']) && $rc['customer']['tax_location_id'] > 0 ) {
+			$invoice['tax_location_id'] = $rc['customer']['tax_location_id'];
+		}
+	}
 
 	//
 	// Get the items from the invoice

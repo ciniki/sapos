@@ -97,6 +97,9 @@
 # shipping_country:		The shipping country.
 # shipping_notes:		The shipping notes.
 #
+# tax_location_id:		The ID of the tax location for the invoice.  If set to 0, then
+#						use the customers tax location if specified.
+#
 # subtotal_amount:				The amount before taxes, NOT including shipping amount.
 # subtotal_discount_percentage:	The percent discount to apply to the subtotal amount.
 # subtotal_discount_amount:		The amount to discount the subtotal amount.
@@ -149,6 +152,7 @@ create table ciniki_sapos_invoices (
 	shipping_postal varchar(10) not null,
 	shipping_country varchar(50) not null,
 	shipping_notes varchar(5000) not null,
+	tax_location_id int not null,
 	subtotal_amount decimal(19,4) not null,
 	subtotal_discount_amount decimal(19,4) not null,
 	subtotal_discount_percentage decimal(19,4) not null,
@@ -167,4 +171,4 @@ create table ciniki_sapos_invoices (
 	index (customer_id, status, invoice_date),
 	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.04';
+) ENGINE='InnoDB', COMMENT='v1.05';
