@@ -269,7 +269,9 @@ function ciniki_sapos_invoice() {
 		this.item.data = {};
 		this.item.sections = {
 			'details':{'label':'', 'fields':{
-				'description':{'label':'Description', 'type':'text', 'livesearch':'yes'},
+				'description':{'label':'Description', 'type':'text', 'livesearch':'yes', 
+					'livesearchcols':3,
+					},
 //				'description':{'label':'Description', 'type':'text', 'livesearch':'yes'},
 				'quantity':{'label':'Quantity', 'type':'text', 'size':'small'},
 				'unit_amount':{'label':'Price', 'type':'text', 'size':'small'},
@@ -288,14 +290,31 @@ function ciniki_sapos_invoice() {
 		this.item.liveSearchCb = function(s, i, v) {
 			if( i == 'description' ) {
 				M.api.getJSONBgCb('ciniki.sapos.invoiceItemSearch', {'business_id':M.curBusinessID,
-					'field':i, 'pricepoint_id':M.ciniki_sapos_invoice.invoice.pricepoint_id, 'start_needle':v, 'limit':15}, function(rsp) {
+					'field':i, 'pricepoint_id':M.ciniki_sapos_invoice.invoice.pricepoint_id, 'invoice_id':M.ciniki_sapos_invoice.invoice.invoice_id, 'start_needle':v, 'limit':15}, function(rsp) {
 						M.ciniki_sapos_invoice.item.liveSearchShow(s,i,M.gE(M.ciniki_sapos_invoice.item.panelUID + '_' + i), rsp.items);
 					});
 			}
 		};
+		this.item.liveSearchResultClass = function(s,f,i,j,d) {
+			if( d.item.price_description != null && d.item.price_description != '' 
+				&& this.sections[s].fields[f].livesearchcols-j == 1 ) {
+				return 'multiline';
+			}
+		};
 		this.item.liveSearchResultValue = function(s,f,i,j,d) {
-			if( f == 'description' && d.item != null ) { 
-				return d.item.description + ' ' + d.item.unit_amount; 
+			if( j == 0 ) {
+				if( f == 'description' && d.item != null ) { 
+					return d.item.description; 
+				}
+			}
+			if( j == 1 && this.sections[s].fields[f].livesearchcols == 3 ) {
+				if( d.item.inventory_available != null ) { return d.item.inventory_available; }
+			}
+			if( this.sections[s].fields[f].livesearchcols-j == 1 ) {
+				if( d.item.price_description != null && d.item.price_description != '' ) {
+					return '<span class="maintext">' + d.item.unit_amount + '</span><span class="subtext">' + d.item.price_description + '</span>';
+				}
+				return d.item.unit_amount;
 			}
 			return '';
 		};
@@ -438,6 +457,14 @@ function ciniki_sapos_invoice() {
 		} else {
 			this.item.sections.details.fields.taxtype_id.active = 'no';
 			this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
+		}
+
+		if( (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0 ) {
+			this.item.sections.details.fields.description.livesearchcols=3;
+			this.item.sections.details.fields.description.headerValues = ['Item', 'Inventory', 'Price'];
+		} else {
+			this.item.sections.details.fields.description.livesearchcols=2;
+			this.item.sections.details.fields.description.headerValues = ['Item', 'Price'];
 		}
 
 		this.item.pricepoint_id = 0;

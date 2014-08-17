@@ -20,6 +20,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'), 
+        'invoice_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Invoice'), 
         'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Pricepoint'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         )); 
@@ -76,6 +77,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 		$rc = $search_function($ciniki, $args['business_id'], array(
 			'start_needle'=>$args['start_needle'], 
 			'pricepoint_id'=>$args['pricepoint_id'],
+			'invoice_id'=>$args['invoice_id'],
 			'limit'=>$args['limit']));
 		if( $rc['stat'] != 'ok' ) {
 			continue;
