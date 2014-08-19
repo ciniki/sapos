@@ -109,6 +109,7 @@ function ciniki_sapos_invoice() {
 				'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
 				'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
 				'delete':{'label':'Delete Invoice', 'fn':'M.ciniki_sapos_invoice.deleteInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
+				'picklist':{'label':'Print Pick/Pack', 'fn':'M.ciniki_sapos_invoice.printPickList(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'printenv':{'label':'Print Envelope', 'fn':'M.ciniki_sapos_invoice.printEnvelope(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				}},
@@ -729,6 +730,12 @@ function ciniki_sapos_invoice() {
 		if( iid <= 0 ) { return false; }
 		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
 			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+	};
+
+	this.printPickList = function(iid) {
+		if( iid <= 0 ) { return false; }
+		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
+			{'business_id':M.curBusinessID, 'invoice_id':iid, 'type':'picklist'}));
 	};
 
 	this.printEnvelope = function(iid) {

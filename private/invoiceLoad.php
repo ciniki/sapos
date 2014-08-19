@@ -200,6 +200,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "ciniki_sapos_invoice_items.object_id, "
 		. "ciniki_sapos_invoice_items.description, "
 		. "ciniki_sapos_invoice_items.quantity, "
+		. "ciniki_sapos_invoice_items.shipped_quantity, "
 		. "ROUND(ciniki_sapos_invoice_items.unit_amount, 2) AS unit_amount, "
 		. "ROUND(ciniki_sapos_invoice_items.unit_discount_amount, 2) AS unit_discount_amount, "
 		. "ciniki_sapos_invoice_items.unit_discount_percentage, "
@@ -220,7 +221,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
 			'fields'=>array('id', 'line_number', 'flags', 'status',
 				'object', 'object_id',
-				'description', 'quantity', 'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
+				'description', 'quantity', 'shipped_quantity', 
+				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
 				'subtotal_amount', 'discount_amount', 'total_amount', 'notes', 'taxtype_name')),
 		));
 	if( $rc['stat'] != 'ok' ) {

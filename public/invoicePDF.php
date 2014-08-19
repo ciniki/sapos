@@ -19,6 +19,7 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
+		'type'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'invoice', 'name'=>'Output Type'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -65,21 +66,26 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
 	}
 	
 	//
-	// FIXME: check for invoice-default-template
+	// check for invoice-default-template
 	//
-	if( !isset($sapos_settings['invoice-default-template']) 
-		|| $sapos_settings['invoice-default-template'] == '' ) {
-		$invoice_template = 'default';
+	if( isset($args['type']) && $args['type'] == 'picklist' ) {
+		$invoice_template = 'picklist';
 	} else {
-		$invoice_template = $sapos_settings['invoice-default-template'];
+		if( !isset($sapos_settings['invoice-default-template']) 
+			|| $sapos_settings['invoice-default-template'] == '' ) {
+			$invoice_template = 'default';
+		} else {
+			$invoice_template = $sapos_settings['invoice-default-template'];
+		}
 	}
-
+	
 	$rc = ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'templates', $invoice_template);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
+	$fn = $rc['function_call'];
 
-	return ciniki_sapos_templates_default($ciniki, $args['business_id'], $args['invoice_id'],
+	return $fn($ciniki, $args['business_id'], $args['invoice_id'],
 		$business_details, $sapos_settings);
 }
 ?>
