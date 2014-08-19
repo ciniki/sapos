@@ -25,6 +25,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 	// Get the invoice details, so we know what taxes are applicable for the invoice date
 	//
 	$strsql = "SELECT ciniki_sapos_invoices.status, "
+		. "ciniki_sapos_invoices.shipping_status, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.customer_id, "
 		. "ciniki_sapos_invoices.shipping_amount, "
@@ -67,6 +68,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 		'shipping_amount'=>$rc['invoice']['shipping_amount'],
 		'total_amount'=>$rc['invoice']['total_amount'],
 		'total_savings'=>$rc['invoice']['total_savings'],
+		'shipping_status'=>$rc['invoice']['shipping_status'],
 		'shipping_address1'=>$rc['invoice']['shipping_address1'],
 		'shipping_address2'=>$rc['invoice']['shipping_address2'],
 		'shipping_city'=>$rc['invoice']['shipping_city'],
@@ -101,6 +103,9 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 	// Get the items from the invoice
 	//
 	$strsql = "SELECT id, "
+		. "flags, "
+		. "quantity, "
+		. "shipped_quantity, "
 		. "discount_amount, "
 		. "total_amount, "
 		. "taxtype_id "
@@ -124,6 +129,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 	//
 	// Build the hash of invoice details and items to pass to ciniki.taxes for tax calculations
 	//
+	$shipping_status = $invoice['shipping_status'];
 	if( count($items) > 0 ) {
 		foreach($items as $iid => $item) {
 			$invoice['items'][] = array(
@@ -133,6 +139,14 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 				);
 			$invoice_subtotal_amount = bcadd($invoice_subtotal_amount, $item['total_amount'], 4);
 			$invoice_total_savings = bcadd($invoice_total_savings, $item['discount_amount'], 4);
+			// Check if shipping item
+			error_log('test:' . $item['flags']);
+			if( ($item['flags']&0x02) > 0 ) {
+				error_log('test1');
+				if( $item['shipped_quantity'] < $item['quantity'] ) {	
+					$shipping_status = 10;
+				}
+			}
 		}
 	}
 	
@@ -260,6 +274,10 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 	}
 	if( $invoice_total_savings != floatval($invoice['total_savings']) ) {
 		$args['total_savings'] = $invoice_total_savings;
+	}
+	error_log($shipping_status);
+	if( $shipping_status != $invoice['shipping_status'] ) {
+		$args['shipping_status'] = $shipping_status;
 	}
 	if( count($args) > 0 ) {
 		$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 

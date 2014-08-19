@@ -549,6 +549,7 @@ function ciniki_sapos_invoice() {
 			p.pricepoint_id = rsp.invoice.customer.pricepoint_id;
 		}
 		p.sections._buttons.buttons.delete.visible=(rsp.invoice.status<40&&rsp.invoice.transactions.length==0)?'yes':'no';
+		p.sections._buttons.buttons.picklist.visible=(rsp.invoice.shipping_status>0?'yes':'no');
 		p.data.flags_text = '';
 		for(i in this.invoiceFlags) {
 			if( (rsp.invoice.flags&Math.pow(2,i-1)) > 0 ) {

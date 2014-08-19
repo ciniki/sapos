@@ -154,7 +154,9 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 					return $rc;
 				}
 				// Update the invoice item with the new object and object_id
-				if( isset($rc['object']) && $rc['object'] != $args['object'] ) {
+				if( (isset($rc['object']) && $rc['object'] != $args['object'])
+					|| (isset($rc['flags']) && $rc['flags'] != $args['flags'])
+					) {
 					$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
 						$item_id, $rc, 0x04);
 					if( $rc['stat'] != 'ok' ) {
