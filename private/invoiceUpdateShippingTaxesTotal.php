@@ -140,9 +140,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 			$invoice_subtotal_amount = bcadd($invoice_subtotal_amount, $item['total_amount'], 4);
 			$invoice_total_savings = bcadd($invoice_total_savings, $item['discount_amount'], 4);
 			// Check if shipping item
-			error_log('test:' . $item['flags']);
 			if( ($item['flags']&0x02) > 0 ) {
-				error_log('test1');
 				if( $item['shipped_quantity'] < $item['quantity'] ) {	
 					$shipping_status = 10;
 				}
@@ -275,7 +273,6 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 	if( $invoice_total_savings != floatval($invoice['total_savings']) ) {
 		$args['total_savings'] = $invoice_total_savings;
 	}
-	error_log($shipping_status);
 	if( $shipping_status != $invoice['shipping_status'] ) {
 		$args['shipping_status'] = $shipping_status;
 	}
