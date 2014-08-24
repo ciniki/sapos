@@ -460,7 +460,8 @@ function ciniki_sapos_invoice() {
 			this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
 		}
 
-		if( (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0 ) {
+		if( M.curBusiness.modules['ciniki.products'] != null 
+			&& (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0 ) {
 			this.item.sections.details.fields.description.livesearchcols=3;
 			this.item.sections.details.fields.description.headerValues = ['Item', 'Inventory', 'Price'];
 		} else {
