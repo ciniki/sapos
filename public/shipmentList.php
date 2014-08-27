@@ -11,20 +11,20 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_invoiceList(&$ciniki) {
+function ciniki_sapos_shipmentList(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
-        'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
-        'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
-        'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
-        'type'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Type'), 
+//        'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
+//        'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
+//        'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
+//        'type'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Type'), 
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
-        'shipping_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Status'), 
-        'payment_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Payment Status'), 
+//        'shipping_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Status'), 
+//        'payment_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Payment Status'), 
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
         'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
@@ -40,7 +40,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceList'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.shipmentList'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -70,48 +70,40 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	//
 	// If customer_id is specified, get the details
 	//
-	if( isset($args['customer']) && $args['customer'] == 'yes' 
-		&& isset($args['customer_id']) && $args['customer_id'] != '' ) {
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'private', 'customerDetails');
-		$rc = ciniki_customers__customerDetails($ciniki, $args['business_id'], $args['customer_id'], 
-			array('phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
-		}
-		$customer = $rc['details'];
-	}
+//	if( isset($args['customer']) && $args['customer'] == 'yes' 
+//		&& isset($args['customer_id']) && $args['customer_id'] != '' ) {
+//		ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'private', 'customerDetails');
+//		$rc = ciniki_customers__customerDetails($ciniki, $args['business_id'], $args['customer_id'], 
+//			array('phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
+//		if( $rc['stat'] != 'ok' ) {
+//			return $rc;
+//		}
+//		$customer = $rc['details'];
+//	}
 
 	//
 	// Build the query to get the list of invoices
 	//
-	$strsql = "SELECT ciniki_sapos_invoices.id, "
+	$strsql = "SELECT ciniki_sapos_shipments.id, "
+		. "ciniki_sapos_shipments.invoice_id, "
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
 		. "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
 		. "ciniki_customers.type AS customer_type, "
 		. "ciniki_customers.display_name AS customer_display_name, "
-		. "";
-	if( isset($args['shipping_status']) && $args['shipping_status'] == 'packlist' ) {
-		$strsql .= "COUNT(ciniki_sapos_invoice_items.id) AS items_to_be_shipped, ";
-	}
-	$strsql .= "ciniki_sapos_invoices.total_amount "
-		. "FROM ciniki_sapos_invoices "
-		. "";
-	if( isset($args['shipping_status']) && $args['shipping_status'] == 'packlist' ) {
-		$strsql .= "LEFT JOIN ciniki_sapos_invoice_items ON ("
-			. "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
-			. "AND (ciniki_sapos_invoice_items.flags&0x40) > 0 " // Shipped item
-			. "AND ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity > 0 "
-			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. ") ";
-	}
-	$strsql .= "LEFT JOIN ciniki_customers ON (ciniki_sapos_invoices.customer_id = ciniki_customers.id "
+		. "ciniki_sapos_invoices.total_amount "
+		. "FROM ciniki_sapos_shipments "
+		. "LEFT JOIN ciniki_sapos_invoices ON ("
+			. "ciniki_sapos_shipments.invoice_id = ciniki_sapos_invoices.id "
+			. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. ") "
+		. "LEFT JOIN ciniki_customers ON (ciniki_sapos_invoices.customer_id = ciniki_customers.id "
 			. "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") "
 		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
-	if( isset($args['year']) && $args['year'] != '' ) {
+/*	if( isset($args['year']) && $args['year'] != '' ) {
 		//
 		// Set the start and end date for the business timezone, then convert to UTC
 		//
@@ -135,11 +127,20 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		$strsql .= "AND ciniki_sapos_invoices.invoice_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
 		$strsql .= "AND ciniki_sapos_invoices.invoice_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
 	}
+*/
 	if( isset($args['status']) && $args['status'] > 0 ) {
-		$strsql .= "AND ciniki_sapos_invoices.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
+		$strsql .= "AND ciniki_sapos_shipments.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
 	}
-	if( isset($args['payment_status']) && $args['payment_status'] > 0 ) {
+/*	if( isset($args['payment_status']) && $args['payment_status'] > 0 ) {
 		$strsql .= "AND ciniki_sapos_invoices.payment_status = '" . ciniki_core_dbQuote($ciniki, $args['payment_status']) . "' ";
+	}
+	if( isset($args['shipping_status']) ) {
+		if( $args['shipping_status'] == 'unshipped' ) {
+			$strsql .= "AND ciniki_sapos_invoices.shipping_status > 0 "
+				. "AND ciniki_sapos_invoices.shipping_status < 50 ";
+		} elseif( $args['shipping_status'] > 0 ) {
+			$strsql .= "AND ciniki_sapos_invoices.shipping_status = '" . ciniki_core_dbQuote($ciniki, $args['shipping_status']) . "' ";
+		}
 	}
 	if( isset($args['type']) && $args['type'] > 0 ) {
 		$strsql .= "AND ciniki_sapos_invoices.invoice_type = '" . ciniki_core_dbQuote($ciniki, $args['type']) . "' ";
@@ -147,19 +148,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
 		$strsql .= "AND ciniki_sapos_invoices.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
 	}
-	if( isset($args['shipping_status']) ) {
-		if( $args['shipping_status'] == 'packlist' ) {
-			$strsql .= "AND ciniki_sapos_invoices.shipping_status > 0 "
-				. "AND ciniki_sapos_invoices.shipping_status < 50 "
-				. "";
-		} elseif( $args['shipping_status'] > 0 ) {
-			$strsql .= "AND ciniki_sapos_invoices.shipping_status = '" . ciniki_core_dbQuote($ciniki, $args['shipping_status']) . "' ";
-		}
-	}
-	$strsql .= "GROUP BY ciniki_sapos_invoices.id ";
-	if( isset($args['shipping_status']) && $args['shipping_status'] == 'packlist' ) {
-		$strsql .= "HAVING items_to_be_shipped > 0 ";
-	}
+*/
 	if( isset($args['sort']) ) {
 		if( $args['sort'] == 'latest' ) {
 			$strsql .= "ORDER BY ciniki_sapos_invoices.last_updated DESC ";
@@ -173,8 +162,8 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	error_log($strsql);
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
+		array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
+			'fields'=>array('id', 'invoice_id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
 			'maps'=>array('status_text'=>$maps['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
@@ -183,24 +172,11 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	if( !isset($rc['invoices']) ) {
-		$invoices = array();
+	if( !isset($rc['shipments']) ) {
+		$shipments = array();
 	} else {
-		$invoices = $rc['invoices'];
+		$shipments = $rc['shipments'];
 	}
-	$totals = array(
-		'total_amount'=>0,
-		);
-	foreach($invoices as $iid => $invoice) {
-		$invoices[$iid]['invoice']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
-			$invoice['invoice']['total_amount'], $intl_currency);
-		$totals['total_amount'] = bcadd($totals['total_amount'], $invoice['invoice']['total_amount'], 2);
-	}
-
-	$totals['total_amount'] = numfmt_format_currency($intl_currency_fmt,
-		$totals['total_amount'], $intl_currency);
-	$totals['num_invoices'] = count($invoices);
-
 	
 	//
 	// Check if output should be excel
@@ -241,7 +217,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		// Output the invoice list
 		//
 		$row = 2;
-		foreach($invoices as $iid => $invoice) {
+		foreach($shipments as $iid => $shipment) {
 			$invoice = $invoice['invoice'];
 			$i = 0;
 			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
@@ -279,9 +255,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	}
 
 	if( isset($customer) ) {
-		return array('stat'=>'ok', 'customer'=>$customer, 'totals'=>$totals, 'invoices'=>$invoices);
+		return array('stat'=>'ok', 'customer'=>$customer, 'shipments'=>$shipments);
 	}
 
-	return array('stat'=>'ok', 'totals'=>$totals, 'invoices'=>$invoices);
+	return array('stat'=>'ok', 'shipments'=>$shipments);
 }
 ?>

@@ -70,9 +70,76 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	}
 
 	//
+	// In the future, check the manufacturing status
+	//
+	$new_manufacturing_status = $invoice['manufacturing_status'];
+
+	//
+	// Determine the new shipping status for the order
+	//
+	$new_shipping_status = $invoice['shipping_status'];
+	if( $invoice['shipping_status'] > 0 ) {
+		$remaining_quantity = 'none';
+		//
+		// Get the items, to see if there is any quantity left of anything to ship
+		//
+		$strsql = "SELECT id, quantity-shipped_quantity AS remaining_quantity "
+			. "FROM ciniki_sapos_invoice_items "
+			. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "HAVING remaining_quantity > 0 "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+		if( $rc['stat'] != 'ok' ) { 
+			return $rc;
+		}   
+		if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
+			$remaining_quantity = 'some';
+		}
+		//
+		// Check for the shipments
+		//
+		$shipments = 'none';
+		$strsql = "SELECT id, status "
+			. "FROM ciniki_sapos_shipments "
+			. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+		if( $rc['stat'] != 'ok' ) { 
+			return $rc;
+		}   
+		if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
+			// Since there are shipments, assume all have been shipped	
+			foreach($rc['rows'] as $rid => $row) {
+				if( $row['status'] < 30 && $shipments == 'all' ) { 
+					$shipments = 'some';
+				} elseif( $row['status'] >= 30 && $shipments == 'none' ) {
+					$shipments = 'all';
+				}
+			}
+		}
+		
+		//
+		// Decide what the new status should be
+		//
+		if( $remaining_quantity == 'none' && $shipments == 'all' ) {
+			// Nothing remaining to be shipped, and all shipments have been sent
+			$new_shipping_status = 50;
+		}
+		elseif( $remaining_quantity = 'some' && $shipments == 'some' ) {
+			// Some items have shipped, but not all
+			$new_shipping_status = 30;
+		}
+		elseif( $remaining_quantity = 'some' && $shipments == 'none' ) {	
+			// Nothing has been shipped
+			$new_shipping_status = 10;
+		}
+	}
+
+	//
 	// Check if invoice should be updated status
 	//
-	$new_status = 0;
 	$new_payment_status = $invoice['payment_status'];
 	//
 	// Check if status should change for
@@ -87,33 +154,45 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 		}
 	}
 
+
 	//
 	// Check if status should change for invoice
 	//
+	$new_status = $invoice['status'];
+	error_log('testing');
 	if( $invoice['invoice_type'] == '10' 
 		|| $invoice['invoice_type'] == '20'
 		|| $invoice['invoice_type'] == '30'
 		|| $invoice['invoice_type'] == '40'
 		) {
-		if( $invoice['status'] < 50 ) {
-			if( $invoice['manufacturing_status'] > 0 && $invoice['manufacturing_status'] < 50 ) {
+	error_log('testing');
+//		if( $invoice['status'] < 50 ) {
+			if( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
+				error_log('manu');
 				$new_status = 20;
 			}
-			elseif( $invoice['shipping_status'] > 0 && $invoice['shipping_status'] < 50 ) {
+			elseif( $new_shipping_status > 0 && $new_shipping_status < 50 ) {	
+				error_log('ship');
 				$new_status = 30;
 			}
-			elseif( $new_payment_status == 40 ) {
+			elseif( $new_payment_status > 0 && $new_payment_status < 50 ) {
+				error_log('pay');
 				$new_status = 40;
 			} 
-			elseif( $new_payment_status == 50 ) {
+			// Each status is either ignored, or completed
+			elseif( ($new_manufacturing_status == 0 || $new_manufacturing_status >= 50) 
+				&& ($new_shipping_status == 0 || $new_shipping_status >= 50) 
+				&& ($new_payment_status == 0 || $new_payment_status >= 50) 
+				) {
+				error_log('full');
 				$new_status = 50;
 			}
-		}
-		elseif( $invoice['status'] == 50 ) {
-			if( $new_payment_status == 40 ) {
-				$new_status = 40;
-			} 
-		}
+//		}
+//		elseif( $invoice['status'] == 50 ) {
+//			if( $new_payment_status == 40 ) {
+//				$new_status = 40;
+//			} 
+//		}
 	}
 
 //	if( $invoice['status'] > 10 && $invoice['status'] < 40 && $invoice['total_amount'] != 0 ) {
@@ -150,11 +229,14 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	// Check if any values have changed
 	//
 	$args = array();
-	if( $new_status > 0 ) {
+	if( $new_status != $invoice['status'] ) {
 		$args['status'] = $new_status;
 	}
 	if( $new_payment_status != $invoice['payment_status'] ) {
 		$args['payment_status'] = $new_payment_status;
+	}
+	if( $new_shipping_status != $invoice['shipping_status'] ) {
+		$args['shipping_status'] = $new_shipping_status;
 	}
 	if( $amount_paid != $invoice['paid_amount'] ) {	
 		$args['paid_amount'] = $amount_paid;

@@ -36,6 +36,7 @@
 #
 # boxes:				The number of boxes used in the shipment.
 #
+# pack_date:			The UTC date and time the shipment was started to be packed.
 # ship_date:			The UTC date and time the package was picked up/dropped off at shipping company.
 #
 # date_added:			The UTC date and time the shipment was added.
@@ -52,6 +53,7 @@ create table ciniki_sapos_shipments (
 	shipping_company varchar(150) not null,
 	tracking_number varchar(255) not null,
 	boxes int not null,
+	pack_date datetime not null,
 	ship_date datetime not null,
 	date_added datetime not null,
 	last_updated datetime not null,

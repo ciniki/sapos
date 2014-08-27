@@ -135,6 +135,34 @@ function ciniki_sapos_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);
+	$objects['shipment'] = array(
+		'name'=>'Shipment',
+		'sync'=>'yes',
+		'table'=>'ciniki_sapos_shipments',
+		'fields'=>array(
+			'invoice_id'=>array('ref'=>'ciniki.sapos.invoice'),
+			'status'=>array(),
+			'weight'=>array(),
+			'weight_units'=>array(),
+			'shipping_company'=>array(),
+			'tracking_number'=>array(),
+			'boxes'=>array(),
+			'pack_date'=>array(),
+			'ship_date'=>array(),
+			),
+		'history_table'=>'ciniki_sapos_history',
+		);
+	$objects['shipment_item'] = array(
+		'name'=>'Shipment Item',
+		'sync'=>'yes',
+		'table'=>'ciniki_sapos_shipment_items',
+		'fields'=>array(
+			'shipment_id'=>array('ref'=>'ciniki.sapos.shipment'),
+			'item_id'=>array('ref'=>'ciniki.sapos.invoice_item'),
+			'quantity'=>array(),
+			),
+		'history_table'=>'ciniki_sapos_history',
+		);
 	$objects['expense'] = array(
 		'name'=>'Expense',
 		'sync'=>'yes',

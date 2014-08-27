@@ -10,9 +10,10 @@
 // Returns
 // -------
 //
-function ciniki_sapos_invoiceMaps($ciniki) {
+function ciniki_sapos_maps($ciniki) {
 
-	$maps = array(
+	$maps = array();
+	$maps['invoice'] = array(
 		'invoice_type'=>array(
 			'10'=>'Invoice',
 			'20'=>'Cart',
@@ -76,6 +77,29 @@ function ciniki_sapos_invoiceMaps($ciniki) {
 			'30'=>'Manufacturing In Progress',
 			'50'=>'Manufactured',
 			),
+		);
+	$maps['transaction'] = array(
+		'source'=>array(
+			'10'=>'Paypal',
+			'20'=>'Square',
+			'50'=>'Visa',
+			'55'=>'Mastercard',
+			'60'=>'Discover',
+			'65'=>'Amex',
+			'90'=>'Interac',
+			'100'=>'Cash',
+			'105'=>'Check',
+			'110'=>'Email Transfer',
+			'120'=>'Other',
+			)
+		);
+	$maps['shipment'] = array(
+		'status'=>array(
+			'10'=>'Packing',
+			'20'=>'Packed',
+			'30'=>'Shipped',
+			'40'=>'Received',
+			)
 		);
 	
 	return array('stat'=>'ok', 'maps'=>$maps);

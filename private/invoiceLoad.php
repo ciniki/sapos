@@ -39,22 +39,12 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	//
 	// Load the status maps for the text description of each status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
-	$rc = ciniki_sapos_invoiceMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
+	$rc = ciniki_sapos_maps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
 	$maps = $rc['maps'];
-
-	//
-	// Load the transaction source maps
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'transactionSourceMaps');
-	$rc = ciniki_sapos_transactionSourceMaps($ciniki);
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$source_maps = $rc['maps'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 
@@ -68,7 +58,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "invoice_type, "
 		. "invoice_type AS invoice_type_text, "
 		. "status, "
-		. "CONCAT(invoice_type, status) AS status_text, "
+		. "CONCAT_WS('.', invoice_type, status) AS status_text, "
 		. "payment_status, "
 		. "payment_status AS payment_status_text, "
 		. "shipping_status, "
@@ -135,11 +125,11 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'due_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
 				'due_datetime'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
 				),
-			'maps'=>array('status_text'=>$maps['typestatus'], 
-				'invoice_type_text'=>$maps['invoice_type'],
-				'payment_status_text'=>$maps['payment_status'],
-				'shipping_status_text'=>$maps['shipping_status'],
-				'manufacturing_status_text'=>$maps['manufacturing_status'],
+			'maps'=>array('status_text'=>$maps['invoice']['typestatus'], 
+				'invoice_type_text'=>$maps['invoice']['invoice_type'],
+				'payment_status_text'=>$maps['invoice']['payment_status'],
+				'shipping_status_text'=>$maps['invoice']['shipping_status'],
+				'manufacturing_status_text'=>$maps['invoice']['manufacturing_status'],
 				)),
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -201,6 +191,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "ciniki_sapos_invoice_items.description, "
 		. "ciniki_sapos_invoice_items.quantity, "
 		. "ciniki_sapos_invoice_items.shipped_quantity, "
+		. "ciniki_sapos_invoice_items.quantity - shipped_quantity AS required_quantity, "
 		. "ROUND(ciniki_sapos_invoice_items.unit_amount, 2) AS unit_amount, "
 		. "ROUND(ciniki_sapos_invoice_items.unit_discount_amount, 2) AS unit_discount_amount, "
 		. "ciniki_sapos_invoice_items.unit_discount_percentage, "
@@ -221,7 +212,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
 			'fields'=>array('id', 'line_number', 'flags', 'status',
 				'object', 'object_id',
-				'description', 'quantity', 'shipped_quantity', 
+				'description', 'quantity', 'shipped_quantity', 'required_quantity', 
 				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
 				'subtotal_amount', 'discount_amount', 'total_amount', 'notes', 'taxtype_name')),
 		));
@@ -252,6 +243,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 
 			$invoice['items'][$iid]['item']['unit_discount_percentage'] = (float)$item['item']['unit_discount_percentage'];
 			$invoice['items'][$iid]['item']['quantity'] = (float)$item['item']['quantity'];
+			$invoice['items'][$iid]['item']['shipped_quantity'] = (float)$item['item']['shipped_quantity'];
+			$invoice['items'][$iid]['item']['required_quantity'] = (float)$item['item']['required_quantity'];
 			$invoice['items'][$iid]['item']['unit_discount_amount_display'] = numfmt_format_currency(
 				$intl_currency_fmt, $item['item']['unit_discount_amount'], $intl_currency);
 			$invoice['items'][$iid]['item']['unit_amount_display'] = numfmt_format_currency(
@@ -323,7 +316,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'source', 'source_text', 
 				'customer_amount', 'transaction_fees', 'business_amount', 'notes'),
 			'maps'=>array(
-				'source_text'=>$source_maps,
+				'source_text'=>$maps['transaction']['source'],
 				'transaction_type_text'=>array('10'=>'Deposit', '20'=>'Payment', '60'=>'Refund'),
 				),
 			'utctotz'=>array('transaction_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format))),
@@ -357,8 +350,33 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	}
 
 	//
-	// FIXME: Get the list of shipments for the invoice
+	// Get the list of shipments for the invoice
 	//
+	if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x40) > 0 
+		&& $invoice['shipping_status'] > 0
+		) {
+		$strsql = "SELECT id, status, status AS status_text, ship_date, pack_date "
+			. "FROM ciniki_sapos_shipments "
+			. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+			array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
+				'fields'=>array('id', 'status', 'status_text', 'pack_date', 'ship_date'),
+				'maps'=>array(
+					'status_text'=>$maps['shipment']['status'],
+					),
+				'utctotz'=>array('pack_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+					'ship_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+					)),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['shipments']) ) {
+			$invoice['shipments'] = $rc['shipments'];
+		}
+	}
 
 	//
 	// Format the currency numbers

@@ -12,9 +12,9 @@ function ciniki_sapos_main() {
 		this.menu.formtab = 'invoices';
 		this.menu.formtabs = {'label':'', 'visible':'no', 'tabs':{
 			'invoices':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"invoices");'},
-			'carts':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"carts");'},
 			'pos':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"pos");'},
 			'orders':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"orders");'},
+			'carts':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"carts");'},
 			'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"expenses");'},
 			'mileage':{'label':'Mileage', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"mileage");'},
 			}};
@@ -62,11 +62,15 @@ function ciniki_sapos_main() {
 				},
 			};
 		this.menu.forms.orders = {
-			'invoice_search':{'label':'Purchase Orders', 'type':'livesearchgrid', 'livesearchcols':5, 
+			'order_search':{'label':'Purchase Orders', 'type':'livesearchgrid', 'livesearchcols':5, 
 				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
 				'hint':'Search invoice # or customer name', 
 				'noData':'No Invoices Found',
 				},
+			'menu':{'label':'', 'list':{
+				'packlist':{'label':'Packing Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'list\':\'packlist\'});'},
+				'pendship':{'label':'Shipping Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'list\':\'pendship\'});'},
+				}},
 			'invoices':{'label':'Recent Orders', 'type':'simplegrid', 'num_cols':5,
 				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
 				'noData':'No Invoices',
@@ -113,6 +117,12 @@ function ciniki_sapos_main() {
 						M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
 					});
 			}
+			else if( s == 'order_search' && v != '' ) {
+				M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+					'start_needle':v, 'invoice_type':'40', 'sort':'reverse', 'limit':'10'}, function(rsp) {
+						M.ciniki_sapos_main.menu.liveSearchShow('order_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
+					});
+			}
 			else if( s == 'expense_search' && v != '' ) {
 				M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'business_id':M.curBusinessID,
 					'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
@@ -127,7 +137,7 @@ function ciniki_sapos_main() {
 			}
 		};
 		this.menu.liveSearchResultValue = function(s, f, i, j, d) {
-			if( s == 'invoice_search' ) { 
+			if( s == 'invoice_search' || s == 'order_search' ) { 
 				switch (j) {
 					case 0: return d.invoice.invoice_number;
 					case 1: return d.invoice.invoice_date;
@@ -154,7 +164,7 @@ function ciniki_sapos_main() {
 			return '';
 		};
 		this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
-			if( s == 'invoice_search' ) {
+			if( s == 'invoice_search' || s == 'order_search' ) {
 				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
 			}
 			if( s == 'expense_search' ) {
@@ -250,13 +260,6 @@ function ciniki_sapos_main() {
 		} else {
 			this.menu.formtabs.tabs.invoices.visible = 'no';
 		}
-		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
-			this.menu.formtabs.tabs.carts.visible = 'yes';
-			if( sp == '' ) { sp = 'carts'; }
-			ct++;
-		} else {
-			this.menu.formtabs.tabs.carts.visible = 'no';
-		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
 			this.menu.formtabs.tabs.pos.visible = 'yes';
 			if( sp == '' ) { sp = 'pos'; }
@@ -270,6 +273,13 @@ function ciniki_sapos_main() {
 			ct++;
 		} else {
 			this.menu.formtabs.tabs.orders.visible = 'no';
+		}
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
+			this.menu.formtabs.tabs.carts.visible = 'yes';
+			if( sp == '' ) { sp = 'carts'; }
+			ct++;
+		} else {
+			this.menu.formtabs.tabs.carts.visible = 'no';
 		}
 		var bts = 0;
 		if( ct > 0 ) {

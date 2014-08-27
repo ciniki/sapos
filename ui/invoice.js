@@ -105,6 +105,12 @@ function ciniki_sapos_invoice() {
 				'headerValues':null,
 				'cellClasses':['', '', 'alignright'],
 				},
+			'shipments':{'label':'Shipments', 'type':'simplegrid', 'num_cols':2,
+				'headerValues':null,
+				'cellClasses':[''],
+				'addTxt':'Add Shipment',
+				'addFn':'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'shipment_id\':0, \'invoice_id\':M.ciniki_sapos_invoice.invoice.invoice_id});',
+				},
 			'_buttons':{'label':'', 'buttons':{
 				'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
 				'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
@@ -177,6 +183,12 @@ function ciniki_sapos_invoice() {
 //					case 4: return d.transaction.business_amount;
 				}
 			}
+			if( s == 'shipments' ) {
+				switch(j) {
+					case 0: return d.shipment.pack_date;
+					case 1: return d.shipment.status_text;
+				}
+			}
 		};
 //		this.invoice.cellClass = function(s, i, j, d) {
 //			if( s == 'items' && j >= 2) { return 'alignright'; }
@@ -198,6 +210,9 @@ function ciniki_sapos_invoice() {
 				} 
 				return '';
 //				return 'M.startApp(\'ciniki.sapos.transactions\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'transaction_id\':\'' + d.transaction.id + '\'});';
+			}
+			if( s == 'shipments' ) {
+				return 'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'shipment_id\':\'' + d.shipment.id + '\'});';
 			}
 		};
 		this.invoice.addButton('edit', 'Edit', 'M.ciniki_sapos_invoice.editInvoice(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.invoice_id);');
@@ -550,12 +565,18 @@ function ciniki_sapos_invoice() {
 			p.pricepoint_id = rsp.invoice.customer.pricepoint_id;
 		}
 		p.sections._buttons.buttons.delete.visible=(rsp.invoice.status<40&&rsp.invoice.transactions.length==0)?'yes':'no';
-		p.sections._buttons.buttons.picklist.visible=(rsp.invoice.shipping_status>0?'yes':'no');
 		p.data.flags_text = '';
 		for(i in this.invoiceFlags) {
 			if( (rsp.invoice.flags&Math.pow(2,i-1)) > 0 ) {
 				p.data.flags_text += (p.data.flags_text!=''?', ':'') + this.invoiceFlags[i].name;
 			}
+		}
+		if( rsp.invoice.invoice_type == '10' ) {
+			if( p.rightbuttons['add'] == null ) {
+				this.invoice.addButton('add', 'Invoice', 'M.ciniki_sapos_invoice.createInvoice(M.ciniki_sapos_invoice.invoice.cb,0,null);');
+			}
+		} else if( p.rightbuttons['add'] != null ) {
+			delete(p.rightbuttons['add']);
 		}
 		p.sections.details.list.due_date.visible=(rsp.invoice.due_date!='')?'yes':'no';
 		p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
@@ -647,6 +668,13 @@ function ciniki_sapos_invoice() {
 			p.sections._buttons.buttons.terminal.visible='yes';
 		} else {
 			p.sections._buttons.buttons.terminal.visible='no';
+		}
+		if( rsp.invoice.shipping_status > 0 ) {
+			p.sections._buttons.buttons.picklist.visible = 'yes';
+			p.sections.shipments.visible = 'yes';
+		} else {
+			p.sections._buttons.buttons.picklist.visible = 'no';
+			p.sections.shipments.visible = 'no';
 		}
 		p.sections.invoice_notes.visible=(rsp.invoice.invoice_notes!='')?'yes':'no';
 		p.sections.internal_notes.visible=(rsp.invoice.internal_notes!='')?'yes':'no';

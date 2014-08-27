@@ -217,7 +217,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
-		. "CONCAT(ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
+		. "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
 		. "ciniki_customers.type AS customer_type, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "total_amount "

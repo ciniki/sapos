@@ -18,6 +18,7 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'invoice_type'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Type'), 
         'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'), 
         'sort'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Search String'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
@@ -66,7 +67,7 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "invoice_date, "
 		. "ciniki_sapos_invoices.status, "
-		. "CONCAT(ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
+		. "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
 		. "ciniki_customers.type AS customer_type, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "total_amount "
@@ -76,6 +77,9 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 			. ") "
 		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
+	if( isset($args['invoice_type']) && $args['invoice_type'] != '' ) {
+		$strsql .= "AND ciniki_sapos_invoices.invoice_type = '" . ciniki_core_dbQuote($ciniki, $args['invoice_type']) . "' ";
+	}
 	if( is_numeric($args['start_needle']) ) { 
 		$strsql .= "AND (ciniki_sapos_invoices.invoice_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "' "
 			. "OR ciniki_sapos_invoices.po_number LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
