@@ -159,24 +159,18 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	// Check if status should change for invoice
 	//
 	$new_status = $invoice['status'];
-	error_log('testing');
 	if( $invoice['invoice_type'] == '10' 
-		|| $invoice['invoice_type'] == '20'
 		|| $invoice['invoice_type'] == '30'
 		|| $invoice['invoice_type'] == '40'
 		) {
-	error_log('testing');
 //		if( $invoice['status'] < 50 ) {
 			if( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
-				error_log('manu');
 				$new_status = 20;
 			}
 			elseif( $new_shipping_status > 0 && $new_shipping_status < 50 ) {	
-				error_log('ship');
 				$new_status = 30;
 			}
 			elseif( $new_payment_status > 0 && $new_payment_status < 50 ) {
-				error_log('pay');
 				$new_status = 40;
 			} 
 			// Each status is either ignored, or completed
@@ -184,7 +178,6 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 				&& ($new_shipping_status == 0 || $new_shipping_status >= 50) 
 				&& ($new_payment_status == 0 || $new_payment_status >= 50) 
 				) {
-				error_log('full');
 				$new_status = 50;
 			}
 //		}

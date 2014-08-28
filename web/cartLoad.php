@@ -54,6 +54,9 @@ function ciniki_sapos_web_cartLoad(&$ciniki, $settings, $business_id) {
 			return array('stat'=>'noexist', 'cart'=>array());
 		}
 
+		if( !isset($rc['invoice']['items']) ) {
+			$rc['invoice']['items'] = array();
+		}
 		return array('stat'=>'ok', 'cart'=>$rc['invoice']);
 	}
 

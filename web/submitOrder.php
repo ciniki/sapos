@@ -23,7 +23,8 @@ function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id) {
 	}
 	
 	if( (!isset($ciniki['session']['customer']['dealer_status']) 
-			|| $ciniki['session']['customer']['dealer_status'] != 10)
+			|| $ciniki['session']['customer']['dealer_status'] <= 0
+			|| $ciniki['session']['customer']['dealer_status'] >= 60)
 		&& (!isset($ciniki['session']['customer']['distributor_status'])
 			|| $ciniki['session']['customer']['distributor_status'] != 10)
 		) {
@@ -56,12 +57,12 @@ function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id) {
 	if( $rc['invoice']['status'] == 10 ) {
 		$args['status'] = 30;
 	}
-	if( $rc['invoice']['payment_status'] < 10 ) {
-		$args['payment_status'] = 10;
-	}
-	if( $rc['invoice']['shipping_status'] < 10 ) {
-		$args['shipping_status'] = 10;
-	}
+//	if( $rc['invoice']['payment_status'] < 10 ) {
+//		$args['payment_status'] = 10;
+//	}
+//	if( $rc['invoice']['shipping_status'] < 10 ) {
+//		$args['shipping_status'] = 10;
+//	}
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
 	$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 
 		$ciniki['session']['cart']['sapos_id'], $args, 0x07);
