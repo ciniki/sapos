@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will return the detail for a transaction for an invoice.
+// This method will return the detail for a shipment item for an invoice.
 //
 // Arguments
 // ---------
@@ -37,7 +37,7 @@ function ciniki_sapos_shipmentItemGet(&$ciniki) {
 	$modules = $rc['modules'];
 
 	//
-	// Get the transaction details
+	// Get the item details
 	//
 	$strsql = "SELECT id, "
 		. "shipment_id, "
@@ -46,21 +46,17 @@ function ciniki_sapos_shipmentItemGet(&$ciniki) {
 		. "FROM ciniki_sapos_shipment_items "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['sitem_id']) . "' "
-		. "ORDER BY transaction_date ASC "
 		. "";
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'shipment_id', 'item_id', 'quantity')),
-		));
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	if( !isset($rc['items']) ) {
-		return array('stat'=>'ok', 'items'=>array());
+	if( !isset($rc['item']) ) {
+		return array('stat'=>'ok', 'item'=>array());
 	}
-	$items = $rc['items'];
+	$item = $rc['item'];
+	$item['quantity'] = (float)$item['quantity'];
 
-	return array('stat'=>'ok', 'items'=>$items);
+	return array('stat'=>'ok', 'item'=>$item);
 }
 ?>

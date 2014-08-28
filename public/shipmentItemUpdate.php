@@ -45,9 +45,9 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	}
 
 	//
-	// Check that the item already exists in the shipment
+	// Get the existing details
 	//
-	$strsql = "SELECT id, quantity "
+	$strsql = "SELECT id, shipment_id, item_id, quantity "
 		. "FROM ciniki_sapos_shipment_items "
 		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['sitem_id']) . "' "
 		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -56,17 +56,17 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	if( !isset($rc['rows']) || !isset($rc['rows'][0]) ) {
+	if( !isset($rc['item']) ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1935', 'msg'=>'Item does not exist.'));
 	}
-	$old_quantity = $rc['rows'][0]['quantity'];
+	$item = $rc['item'];
 
 	//
 	// Get the details of the shipment
 	//
 	$strsql = "SELECT id, invoice_id, status "
 		. "FROM ciniki_sapos_shipments "
-		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['shipment_id']) . "' "
+		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['shipment_id']) . "' "
 		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
 	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
@@ -84,14 +84,14 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	$strsql = "SELECT id, invoice_id, object, object_id, quantity, shipped_quantity "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
-		. "AND item_id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
+		. "AND id = '" . ciniki_core_dbQuote($ciniki, $item['item_id']) . "' "
 		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
 	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	if( !isset($rc['invoice']) ) {
+	if( !isset($rc['item']) ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1937', 'msg'=>'Invoice does not exist.'));
 	}
 	$invoice_item = $rc['item'];
@@ -99,7 +99,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	//
 	// Quantity is the same, nothing to do
 	//
-	if( $old_quantity == $args['quantity'] ) {
+	if( $item['quantity'] == $args['quantity'] ) {
 		return array('stat'=>'ok');
 	}
 
@@ -120,14 +120,13 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	//
 	// New quantity is less
 	//
-	if( $args['quantity'] < $old_quantity ) {
+	if( $args['quantity'] < $item['quantity'] ) {
 		// The amount removed from the quantity
-		$quantity_removed = $old_quantity - $args['quantity'];
+		$quantity_removed = $item['quantity'] - $args['quantity'];
 
 		$new_shipped_quantity = $invoice_item['shipped_quantity'] - $quantity_removed;
 		if( $new_shipped_quantity < 0 ) {
-			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1983', 'msg'=>'The new shipped quantity for the invoice item will be less than zero.'));
+			$new_shipped_quantity = 0;
 		}
 		$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $invoice_item['id'], array('shipped_quantity'=>$new_shipped_quantity), 0x04);
 		if( $rc['stat'] != 'ok' ) {
@@ -158,14 +157,14 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	//
 	// New quantity is more, adjust inventory
 	//
-	elseif( $args['quantity'] < $old_quantity ) {
+	elseif( $args['quantity'] > $item['quantity'] ) {
 		// The amount added to the quantity
-		$quantity_added = $old_quantity - $args['quantity'];
+		$quantity_added = $args['quantity'] - $item['quantity'];
 
 		//
 		// Check that shipped quantity will not be greater than quantity
 		//
-		if( ($invoice_item['quantity'] - $invoice_item['shipped_quantity'] - $quantity_added) <= 0 ) {
+		if( ($invoice_item['quantity'] - $invoice_item['shipped_quantity'] - $quantity_added) < 0 ) {
 			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1978', 'msg'=>'The quantity is more than was ordered.'));
 		}
@@ -222,7 +221,6 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
 	}
-	$item_id = $rc['id'];
 
 	//
 	// Commit the transaction
@@ -240,6 +238,6 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
 	ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
 
-	return array('stat'=>'ok', 'id'=>$item_id);
+	return array('stat'=>'ok');
 }
 ?>

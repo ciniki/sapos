@@ -81,7 +81,7 @@ function ciniki_sapos_shipment() {
 				}
 			}
 			if( s == 'items' && M.ciniki_sapos_shipment.edit.data.status < 30 ) {
-				return 'M.ciniki_sapos_shipment.editItem(\'' + d.item.id + '\');';
+				return 'M.ciniki_sapos_shipment.editItem(\'M.ciniki_sapos_shipment.showShipment();\',\'' + d.item.id + '\');';
 			}
 			return '';
 		};
@@ -335,7 +335,7 @@ function ciniki_sapos_shipment() {
 	this.deleteItem = function(iid) {
 		if( iid <= 0 ) { return false; }
 		if( confirm("Are you sure you want to remove this item from the shipment?") ) {
-			M.api.getJSONCb('ciniki.sapos.invoiceItemDelete', {'business_id':M.curBusinessID,
+			M.api.getJSONCb('ciniki.sapos.shipmentItemDelete', {'business_id':M.curBusinessID,
 				'sitem_id':iid}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
