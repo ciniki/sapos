@@ -38,6 +38,23 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     }
 
 	//
+	// Check if there are shipments attached to invoice
+	//
+	$strsql = "SELECT COUNT(id) AS num_shipments "
+		. "FROM ciniki_sapos_shipments "
+		. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' " 
+		. "";
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipments');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( isset($rc['shipments']) ) {
+		$n = $rc['shipments']['num_shipments'];
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2000', 'msg'=>"Unable to remove, you have " . $n . " shipment" . ($n>1?'s':'') ."."));
+	}
+
+	//
 	// Load the invoice record
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
