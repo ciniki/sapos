@@ -355,14 +355,14 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x40) > 0 
 		&& $invoice['shipping_status'] > 0
 		) {
-		$strsql = "SELECT id, status, status AS status_text, ship_date, pack_date "
+		$strsql = "SELECT id, shipment_number, status, status AS status_text, ship_date, pack_date "
 			. "FROM ciniki_sapos_shipments "
 			. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 			. "";
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 			array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
-				'fields'=>array('id', 'status', 'status_text', 'pack_date', 'ship_date'),
+				'fields'=>array('id', 'shipment_number', 'status', 'status_text', 'pack_date', 'ship_date'),
 				'maps'=>array(
 					'status_text'=>$maps['shipment']['status'],
 					),

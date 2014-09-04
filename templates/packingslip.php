@@ -11,16 +11,16 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $business_details, $sapos_settings) {
+function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id, $business_details, $sapos_settings) {
 	//
 	// Get the invoice record
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-	$rc = ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'packingListLoad');
+	$rc = ciniki_sapos_packinglistLoad($ciniki, $business_id, $shipment_id);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	$invoice = $rc['invoice'];
+	$shipment = $rc['shipment'];
 	
 	//
 	// Load TCPDF library
@@ -293,24 +293,22 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 	// Determine the header details
 	//
 	$pdf->header_details = array(
-		array('label'=>'Invoice Number', 'value'=>$invoice['invoice_number']),
-		array('label'=>'Invoice Date', 'value'=>$invoice['invoice_date']),
+		array('label'=>'Packing Slip', 'value'=>$shipment['packing_slip_number']),
+		array('label'=>'Order Date', 'value'=>$shipment['invoice']['invoice_date']),
 		);
-	if( isset($invoice['po_number']) && $invoice['po_number'] != '' ) {
-		$pdf->header_details[] = array('label'=>'PO Number', 'value'=>$invoice['po_number']);
+	if( isset($shipment['invoice']['po_number']) && $shipment['invoice']['po_number'] != '' ) {
+		$pdf->header_details[] = array('label'=>'PO Number', 'value'=>$shipment['invoice']['po_number']);
 	}
-	if( isset($invoice['due_date']) && $invoice['due_date'] != '' ) {
-		$pdf->header_details[] = array('label'=>'Due Date', 'value'=>$invoice['due_date']);
+	if( isset($shipment['salesrep_display_name']) ) {
+		$pdf->header_details[] = array('label'=>'Rep', 'value'=>$shipment['salesrep_display_name']);
 	}
-	$pdf->header_details[] = array('label'=>'Status', 'value'=>$invoice['status_text']);
-	$pdf->header_details[] = array('label'=>'Balance', 'value'=>$invoice['balance_amount_display']);
 
 	//
 	// Setup the PDF basics
 	//
 	$pdf->SetCreator('Ciniki');
 	$pdf->SetAuthor($business_details['name']);
-	$pdf->SetTitle('Invoice #' . $invoice['invoice_number']);
+	$pdf->SetTitle('Packing Slip #' . $shipment['packing_slip_number']);
 	$pdf->SetSubject('');
 	$pdf->SetKeywords('');
 
@@ -335,68 +333,68 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 	// Determine the billing address information
 	//
 	$baddr = array();
-	if( isset($invoice['billing_name']) && $invoice['billing_name'] != '' ) {
-		$baddr[] = $invoice['billing_name'];
+	if( isset($shipment['invoice']['billing_name']) && $shipment['invoice']['billing_name'] != '' ) {
+		$baddr[] = $shipment['invoice']['billing_name'];
 	}
-	if( isset($invoice['billing_address1']) && $invoice['billing_address1'] != '' ) {
-		$baddr[] = $invoice['billing_address1'];
+	if( isset($shipment['invoice']['billing_address1']) && $shipment['invoice']['billing_address1'] != '' ) {
+		$baddr[] = $shipment['invoice']['billing_address1'];
 	}
-	if( isset($invoice['billing_address2']) && $invoice['billing_address2'] != '' ) {
-		$baddr[] = $invoice['billing_address2'];
+	if( isset($shipment['invoice']['billing_address2']) && $shipment['invoice']['billing_address2'] != '' ) {
+		$baddr[] = $shipment['invoice']['billing_address2'];
 	}
 	$city = '';
-	if( isset($invoice['billing_city']) && $invoice['billing_city'] != '' ) {
-		$city = $invoice['billing_city'];
+	if( isset($shipment['invoice']['billing_city']) && $shipment['invoice']['billing_city'] != '' ) {
+		$city = $shipment['invoice']['billing_city'];
 	}
-	if( isset($invoice['billing_province']) && $invoice['billing_province'] != '' ) {
-		$city .= (($city!='')?', ':'') . $invoice['billing_province'];
+	if( isset($shipment['invoice']['billing_province']) && $shipment['invoice']['billing_province'] != '' ) {
+		$city .= (($city!='')?', ':'') . $shipment['invoice']['billing_province'];
 	}
-	if( isset($invoice['billing_postal']) && $invoice['billing_postal'] != '' ) {
-		$city .= (($city!='')?',  ':'') . $invoice['billing_postal'];
+	if( isset($shipment['invoice']['billing_postal']) && $shipment['invoice']['billing_postal'] != '' ) {
+		$city .= (($city!='')?',  ':'') . $shipment['invoice']['billing_postal'];
 	}
 	if( $city != '' ) {
 		$baddr[] = $city;
 	}
-	if( isset($invoice['billing_country']) && $invoice['billing_country'] != '' ) {
-		$baddr[] = $invoice['billing_country'];
+	if( isset($shipment['invoice']['billing_country']) && $shipment['invoice']['billing_country'] != '' ) {
+		$baddr[] = $shipment['invoice']['billing_country'];
 	}
 
 	//
 	// Determine the shipping information
 	//
 	$saddr = array();
-	if( $invoice['shipping_status'] > 0 ) {
-		if( isset($invoice['shipping_name']) && $invoice['shipping_name'] != '' ) {
-			$saddr[] = $invoice['shipping_name'];
+	if( $shipment['invoice']['shipping_status'] > 0 ) {
+		if( isset($shipment['invoice']['shipping_name']) && $shipment['invoice']['shipping_name'] != '' ) {
+			$saddr[] = $shipment['invoice']['shipping_name'];
 		}
-		if( isset($invoice['shipping_address1']) && $invoice['shipping_address1'] != '' ) {
-			$saddr[] = $invoice['shipping_address1'];
+		if( isset($shipment['invoice']['shipping_address1']) && $shipment['invoice']['shipping_address1'] != '' ) {
+			$saddr[] = $shipment['invoice']['shipping_address1'];
 		}
-		if( isset($invoice['shipping_address2']) && $invoice['shipping_address2'] != '' ) {
-			$saddr[] = $invoice['shipping_address2'];
+		if( isset($shipment['invoice']['shipping_address2']) && $shipment['invoice']['shipping_address2'] != '' ) {
+			$saddr[] = $shipment['invoice']['shipping_address2'];
 		}
 		$city = '';
-		if( isset($invoice['shipping_city']) && $invoice['shipping_city'] != '' ) {
-			$city = $invoice['shipping_city'];
+		if( isset($shipment['invoice']['shipping_city']) && $shipment['invoice']['shipping_city'] != '' ) {
+			$city = $shipment['invoice']['shipping_city'];
 		}
-		if( isset($invoice['shipping_province']) && $invoice['shipping_province'] != '' ) {
-			$city .= (($city!='')?', ':'') . $invoice['shipping_province'];
+		if( isset($shipment['invoice']['shipping_province']) && $shipment['invoice']['shipping_province'] != '' ) {
+			$city .= (($city!='')?', ':'') . $shipment['invoice']['shipping_province'];
 		}
-		if( isset($invoice['shipping_postal']) && $invoice['shipping_postal'] != '' ) {
-			$city .= (($city!='')?',  ':'') . $invoice['shipping_postal'];
+		if( isset($shipment['invoice']['shipping_postal']) && $shipment['invoice']['shipping_postal'] != '' ) {
+			$city .= (($city!='')?',  ':'') . $shipment['invoice']['shipping_postal'];
 		}
 		if( $city != '' ) {
 			$saddr[] = $city;
 		}
-		if( isset($invoice['shipping_country']) && $invoice['shipping_country'] != '' ) {
-			$saddr[] = $invoice['shipping_country'];
+		if( isset($shipment['invoice']['shipping_country']) && $shipment['invoice']['shipping_country'] != '' ) {
+			$saddr[] = $shipment['invoice']['shipping_country'];
 		}
 	}
 
 	//
 	// Output the bill to and ship to information
 	//
-	if( $invoice['shipping_status'] > 0 ) {
+	if( $shipment['invoice']['shipping_status'] > 0 ) {
 		$w = array(90, 90);
 	} else {
 		$w = array(100, 80);
@@ -407,14 +405,14 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 		$pdf->SetFont('', 'B');
 		$pdf->Cell($w[0], $lh, 'Bill To:', 'B', 0, 'L', 1);
 		$border = 1;
-		if( $invoice['shipping_status'] > 0 ) {
+		if( $shipment['invoice']['shipping_status'] > 0 ) {
 			$pdf->Cell($w[1], $lh, 'Ship To:', 'B', 0, 'L', 1);
 			$border = 1;
 		}
 		$pdf->Ln($lh);	
 		$pdf->SetFont('');
 		$pdf->MultiCell($w[0], $lh, implode("\n", $baddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
-		if( $invoice['shipping_status'] > 0 ) {
+		if( $shipment['invoice']['shipping_status'] > 0 ) {
 			$pdf->MultiCell($w[1], $lh, implode("\n", $saddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
 		}
 		$pdf->Ln($lh);
@@ -424,42 +422,68 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 	//
 	// Add an extra space for invoices with few items
 	//
-	if( count($baddr) == 0 && count($saddr) == 0 && count($invoice['items']) < 5 ) {
+	if( count($baddr) == 0 && count($saddr) == 0 && count($shipment['items']) < 5 ) {
 		$pdf->Ln(10);
 	}
 
 	//
+	// Add the shipment details
+	//
+	if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
+		&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
+		// Tax number
+		$w = array(30, 30, 30, 30, 30, 30);
+	} else {
+		$w = array(35, 35, 40, 35, 35);
+	}
+	$pdf->SetFillColor(224);
+	$pdf->SetFont('', 'B');
+	$pdf->SetCellPadding(2);
+	$pdf->Cell($w[0], 6, 'Ship Date', 1, 0, 'C', 1);
+	$pdf->Cell($w[1], 6, 'Shipper', 1, 0, 'C', 1);
+	$pdf->Cell($w[2], 6, 'Tracking #', 1, 0, 'C', 1);
+	$pdf->Cell($w[3], 6, 'E-mail', 1, 0, 'C', 1);
+	$pdf->Cell($w[4], 6, 'Phone #', 1, 0, 'C', 1);
+	if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
+		&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
+		$pdf->Cell($w[5], 6, 'Tax #', 1, 0, 'C', 1);
+	}
+	$pdf->Ln();
+
+	$pdf->SetFillColor(255);
+	$pdf->SetFont('');
+	$pdf->Cell($w[0], 6, $shipment['ship_date'], 1, 0, 'C', 1);
+	$pdf->Cell($w[1], 6, $shipment['shipping_company'], 1, 0, 'C', 1);
+	$pdf->Cell($w[2], 6, $shipment['tracking_number'], 1, 0, 'C', 1);
+	$pdf->Cell($w[3], 6, $shipment['customer']['email'], 1, 0, 'C', 1);
+	$pdf->Cell($w[4], 6, $shipment['customer']['phone'], 1, 0, 'C', 1);
+	if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
+		&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
+		$pdf->Cell($w[5], 6, $shipment['customer']['tax_number'], 1, 0, 'C', 1);
+	}
+	$pdf->Ln();
+	$pdf->Ln();
+	
+
+
+	//
 	// Add the invoice items
 	//
-	$w = array(100, 50, 30);
+	$w = array(120, 30, 30);
 	$pdf->SetFillColor(224);
 	$pdf->SetFont('', 'B');
 	$pdf->SetCellPadding(2);
 	$pdf->Cell($w[0], 6, 'Item', 1, 0, 'C', 1);
-	$pdf->Cell($w[1], 6, 'Quantity/Price', 1, 0, 'C', 1);
-	$pdf->Cell($w[2], 6, 'Total', 1, 0, 'C', 1);
+	$pdf->Cell($w[1], 6, 'Qty', 1, 0, 'C', 1);
+	$pdf->Cell($w[2], 6, 'B/O Qty', 1, 0, 'C', 1);
 	$pdf->Ln();
 	$pdf->SetFillColor(236);
 	$pdf->SetTextColor(0);
 	$pdf->SetFont('');
 
 	$fill=0;
-	foreach($invoice['items'] as $item) {
-		$discount = '';
-		if( $item['item']['discount_amount'] != 0 ) {
-			if( $item['item']['unit_discount_amount'] > 0 ) {
-				$discount .= '-' . $item['item']['unit_discount_amount_display'] . (($item['item']['quantity']>0&&$item['item']['quantity']!=1)?('x'.$item['item']['quantity']):'');
-			}
-			if( $item['item']['unit_discount_percentage'] > 0 ) {
-				if( $discount != '' ) { 
-					$discount .= ', '; 
-				}
-				$discount .= '-' . $item['item']['unit_discount_percentage'] . '%';
-			}
-			$discount .= ' (-' . $item['item']['discount_amount_display'] . ')';
-		}
-		$lh = ($discount!=''&&($invoice['flags']&0x01)==0)?13:6;
-//		$pdf->Cell($w[0], $lh, $item['item']['description'], 1, 0, 'L', $fill, '', 0, false, 'T', 'T');
+	$lh = 6;
+	foreach($shipment['invoice']['items'] as $item) {
 		$nlines = $pdf->getNumLines($item['item']['description'], $w[0]);
 		if( $nlines == 2 ) {
 			$lh = 3+($nlines*5);
@@ -472,8 +496,8 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 			$pdf->SetFillColor(224);
 			$pdf->SetFont('', 'B');
 			$pdf->Cell($w[0], 6, 'Item', 1, 0, 'C', 1);
-			$pdf->Cell($w[1], 6, 'Quantity/Price', 1, 0, 'C', 1);
-			$pdf->Cell($w[2], 6, 'Total', 1, 0, 'C', 1);
+			$pdf->Cell($w[1], 6, 'Qty', 1, 0, 'C', 1);
+			$pdf->Cell($w[2], 6, 'B/O Qty', 1, 0, 'C', 1);
 			$pdf->Ln();
 			$pdf->SetFillColor(236);
 			$pdf->SetTextColor(0);
@@ -481,106 +505,11 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 		}
 		$pdf->MultiCell($w[0], $lh, $item['item']['description'], 1, 'L', $fill, 
 			0, '', '', true, 0, false, true, 0, 'T', false);
-		$quantity = (($item['item']['quantity']>0&&$item['item']['quantity']!=1)?($item['item']['quantity'].' @ '):'');
-		if( ($invoice['flags']&0x01) > 0 ) {
-			$pdf->MultiCell($w[1], $lh, $quantity . $item['item']['unit_discounted_amount_display'], 1, 'R', $fill, 
-				0, '', '', true, 0, false, true, 0, 'T', false);
-		} else if( $discount == '' ) {
-//			$pdf->Cell($w[1], $lh, $quantity . $item['item']['unit_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-			$pdf->MultiCell($w[1], $lh, $quantity . $item['item']['unit_amount_display'], 1, 'R', $fill, 
-				0, '', '', true, 0, false, true, 0, 'T', false);
-		} else {
-			$pdf->MultiCell($w[1], $lh, $quantity . '' . $item['item']['unit_amount_display'] . (($discount!='')?"\n" . $discount:""), 1, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
-		}
-//		$pdf->Cell($w[2], $lh, $item['item']['total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->MultiCell($w[2], $lh, $item['item']['total_amount_display'], 1, 'R', $fill, 
+		$pdf->MultiCell($w[1], $lh, $item['item']['shipment_quantity'], 1, 'C', $fill, 
+			0, '', '', true, 0, false, true, 0, 'T', false);
+		$pdf->MultiCell($w[2], $lh, $item['item']['backordered_quantity'], 1, 'C', $fill, 
 			0, '', '', true, 0, false, true, 0, 'T', false);
 		$pdf->Ln();	
-		$fill=!$fill;
-	}
-
-	// Check if we need a page break
-	if( $pdf->getY() > ($pdf->getPageHeight() - 40) ) {
-		$pdf->AddPage();
-	}
-
-	//
-	// Output the invoice tallies
-	//
-	$lh = 6;
-	$blank_border = '';
-	$pdf->Cell($w[0], $lh, '', $blank_border);
-	$pdf->Cell($w[1], $lh, 'Subtotal', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-	$pdf->Cell($w[2], $lh, $invoice['subtotal_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-	$pdf->Ln();
-	$fill=!$fill;
-	if( $invoice['discount_amount'] > 0 ) {
-		$discount = '';
-		if( $invoice['subtotal_discount_amount'] != 0 ) {
-			$discount = '-' . $invoice['subtotal_discount_amount_display'];
-		}
-		if( $invoice['subtotal_discount_percentage'] != 0 ) {
-			$discount .= (($invoice['subtotal_discount_amount']!=0)?', ':'') . '-' . $invoice['subtotal_discount_percentage'] . '%';
-		}
-		$pdf->Cell($w[0], $lh, '', $blank_border);
-		$pdf->Cell($w[1], $lh, 'Overall Discount (' . $discount . ')', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Cell($w[2], $lh, $invoice['subtotal_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Ln();
-		$fill=!$fill;
-	}
-
-	if( $invoice['shipping_status'] > 0 ) {
-		$pdf->Cell($w[0], $lh, '', $blank_border);
-		$pdf->Cell($w[1], $lh, 'Shipping & Handling', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Cell($w[2], $lh, '$' . ((isset($invoice['shipping_amount'])&&$invoice['shipping_amount']>0)?$invoice['shipping_amount_display']:'0.00'), 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Ln();
-		$fill=!$fill;
-	}
-
-	//
-	// Add taxes
-	//
-	if( isset($invoice['taxes']) && count($invoice['taxes']) > 0 ) {
-		foreach($invoice['taxes'] as $tax) {
-			$pdf->Cell($w[0], $lh, '', $blank_border);
-			$pdf->Cell($w[1], $lh, $tax['tax']['description'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-			$pdf->Cell($w[2], $lh, $tax['tax']['amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-			$pdf->Ln();
-			$fill=!$fill;
-		}
-	}
-
-
-	//
-	// If paid_amount > 0
-	//
-	if( $invoice['paid_amount'] > 0 ) {
-		$pdf->SetFont('', 'B');
-		$pdf->Cell($w[0], $lh, '', $blank_border);
-		$pdf->Cell($w[1], $lh, 'Total:', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Cell($w[2], $lh, $invoice['total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Ln();
-		$fill=!$fill;
-
-		$pdf->SetFont('', '');
-		$pdf->Cell($w[0], $lh, '', $blank_border);
-		$pdf->Cell($w[1], $lh, 'Paid:', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Cell($w[2], $lh, $invoice['paid_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Ln();
-		$fill=!$fill;
-
-		$pdf->SetFont('', '');
-		$pdf->Cell($w[0], $lh, '', (($blank_border!='')?'LB':''));
-		$pdf->Cell($w[1], $lh, 'Balance:', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Cell($w[2], $lh, $invoice['balance_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Ln();
-		$fill=!$fill;
-	} else {
-		$pdf->SetFont('', 'B');
-		$pdf->Cell($w[0], $lh, '', (($blank_border!='')?'LB':''));
-		$pdf->Cell($w[1], $lh, 'Total:', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Cell($w[2], $lh, $invoice['total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-		$pdf->Ln();
 		$fill=!$fill;
 	}
 
@@ -597,7 +526,8 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 	// ---------------------------------------------------------
 
 	//Close and output PDF document
-	$pdf->Output('invoice_' . $invoice['invoice_number'] . '.pdf', 'D');
+	$filename = 'packing-slip-' . preg_replace("/ /", '', $shipment['packing_slip_number']) . '.pdf';
+	$pdf->Output($filename, 'D');
 
 	return array('stat'=>'exit');
 }

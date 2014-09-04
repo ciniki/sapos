@@ -141,6 +141,7 @@ function ciniki_sapos_objects($ciniki) {
 		'table'=>'ciniki_sapos_shipments',
 		'fields'=>array(
 			'invoice_id'=>array('ref'=>'ciniki.sapos.invoice'),
+			'shipment_number'=>array(),
 			'status'=>array(),
 			'weight'=>array(),
 			'weight_units'=>array(),

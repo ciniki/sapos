@@ -42,6 +42,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	//
 	$strsql = "SELECT ciniki_sapos_shipments.id, "
 		. "ciniki_sapos_shipments.invoice_id, "
+		. "ciniki_sapos_shipments.shipment_number, "
 		. "ciniki_sapos_shipments.status, "
 		. "ciniki_sapos_shipments.status AS status_text, "
 		. "ciniki_sapos_shipments.weight, "
@@ -58,7 +59,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
-			'fields'=>array('id', 'invoice_id', 'status', 'weight',
+			'fields'=>array('id', 'invoice_id', 'shipment_number', 'status', 'weight',
 				'weight_units', 'shipping_company', 'tracking_number', 'boxes', 
 				'pack_date', 'ship_date'),
 			'maps'=>array('status_text'=>$maps['shipment']['status']),
@@ -144,6 +145,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 			}
 		}
 	}
+
 	
 
 	//

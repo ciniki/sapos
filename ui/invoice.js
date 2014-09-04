@@ -61,6 +61,7 @@ function ciniki_sapos_invoice() {
 			'mc', 'medium mediumaside', 'sectioned', 'ciniki.sapos.invoice.invoice');
 		this.invoice.invoice_id = 0;
 		this.invoice.pricepoint_id = 0;
+		this.invoice.nextShipmentNumber = '1';
 		this.invoice.data = {};
 		this.invoice.sections = {
 			'details':{'label':'', 'aside':'yes', 'list':{
@@ -109,7 +110,7 @@ function ciniki_sapos_invoice() {
 				'headerValues':null,
 				'cellClasses':[''],
 				'addTxt':'Add Shipment',
-				'addFn':'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'shipment_id\':0, \'invoice_id\':M.ciniki_sapos_invoice.invoice.invoice_id});',
+				'addFn':'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'shipment_id\':0, \'invoice_id\':M.ciniki_sapos_invoice.invoice.invoice_id,\'shipment_number\':M.ciniki_sapos_invoice.invoice.nextShipmentNumber});',
 				},
 			'_buttons':{'label':'', 'buttons':{
 				'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
@@ -688,6 +689,15 @@ function ciniki_sapos_invoice() {
 		if( rsp.invoice.shipping_status > 0 ) {
 			p.sections._buttons.buttons.picklist.visible = 'yes';
 			p.sections.shipments.visible = 'yes';
+			if( p.data.shipments != null ) {
+				var max_num = 0;
+				for(i in p.data.shipments) {
+					if( p.data.shipments[i].shipment.shipment_number != null && parseInt(p.data.shipments[i].shipment.shipment_number) > max_num ) {
+						max_num = parseInt(p.data.shipments[i].shipment.shipment_number);
+					}
+				}
+				p.nextShipmentNumber = max_num+5;
+			}
 		} else {
 			p.sections._buttons.buttons.picklist.visible = 'no';
 			p.sections.shipments.visible = 'no';

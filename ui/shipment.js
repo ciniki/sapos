@@ -24,6 +24,7 @@ function ciniki_sapos_shipment() {
 		this.edit.data = {};
 		this.edit.sections = {
 			'details':{'label':'', 'aside':'yes', 'fields':{
+				'shipment_number':{'label':'Number', 'type':'text', 'size':'small'},
 				'status':{'label':'Status', 'type':'select', 'options':M.ciniki_sapos_shipment.shipmentStatus},
 				'weight':{'label':'Weight', 'active':'yes', 'type':'text', 'size':'small'},
 				'weight_units':{'label':'Units', 'type':'toggle', 'default':'10', 'toggles':this.weightUnits},
@@ -42,6 +43,7 @@ function ciniki_sapos_shipment() {
 				},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_shipment.saveShipment();'},
+				'print':{'label':'Print', 'fn':'M.ciniki_sapos_shipment.printPackingSlip(M.ciniki_sapos_shipment.edit.shipment_id);'},
 				'delete':{'label':'Delete', 'fn':'M.ciniki_sapos_shipment.deleteShipment();'},
 				}},
 		};
@@ -129,21 +131,23 @@ function ciniki_sapos_shipment() {
 			alert('App Error');
 			return false;
 		}
-	
+
+console.log(args);
 		if( args.shipment_id != null && args.invoice_id != null ) {
-			this.showShipment(cb, args.shipment_id, args.invoice_id);
+			this.showShipment(cb, args.shipment_id, args.invoice_id, args.shipment_number);
 		} else if( args.invoice_id != null ) {
-			this.showShipment(cb, 0, args.invoice_id);
+			this.showShipment(cb, 0, args.invoice_id, args.shipment_number);
 		} else {
 			this.showShipment(cb, args.shipment_id);
 		}
 	};
 
-	this.showShipment = function(cb, sid, iid) {
+	this.showShipment = function(cb, sid, iid, snum) {
 		if( sid != null ) { this.edit.shipment_id = sid; }
 		if( iid != null ) { this.edit.invoice_id = iid; }
 		if( this.edit.shipment_id > 0 ) {
 			this.edit.sections._buttons.buttons.delete.visible = 'yes';
+			this.edit.sections._buttons.buttons.print.visible = 'yes';
 			M.api.getJSONCb('ciniki.sapos.shipmentGet', {'business_id':M.curBusinessID,
 				'shipment_id':this.edit.shipment_id}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
@@ -173,6 +177,7 @@ function ciniki_sapos_shipment() {
 				});
 		} else if( this.edit.invoice_id > 0 ) {
 			this.edit.sections._buttons.buttons.delete.visible = 'no';
+			this.edit.sections._buttons.buttons.print.visible = 'no';
 			M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID,
 				'invoice_id':this.edit.invoice_id, 'inventory':'yes'}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
@@ -181,6 +186,7 @@ function ciniki_sapos_shipment() {
 					}
 					var p = M.ciniki_sapos_shipment.edit;
 					p.data = {'status':'10',
+						'shipment_number':(snum!=null?snum:'1'),
 						'weight':'',
 						'weight_units':'10',
 						'shipping_company':'',
@@ -279,10 +285,10 @@ function ciniki_sapos_shipment() {
 		}
 	};
 
-	this.printPacking = function(iid) {
-		if( iid <= 0 ) { return false; }
-		window.open(M.api.getUploadURL('ciniki.sapos.shipmentPDF',
-			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+	this.printPackingSlip = function(sid) {
+		if( sid <= 0 ) { return false; }
+		window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
+			{'business_id':M.curBusinessID, 'shipment_id':sid}));
 	};
 
 	this.editItem = function(cb, iid, sid) {

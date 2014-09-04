@@ -47,6 +47,7 @@ create table ciniki_sapos_shipments (
 	uuid char(36) not null,
 	business_id int not null,
 	invoice_id int not null,
+	shipment_number varchar(20) not null,
 	status tinyint unsigned not null,
 	weight decimal(10,4) not null,
 	weight_units tinyint unsigned not null,

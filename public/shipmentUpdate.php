@@ -19,6 +19,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'shipment_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Shipment'), 
+        'shipment_number'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Shipment Number'), 
 		'status'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Status'),
 		'weight'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weight'),
 		'weight_units'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weight Units'),
