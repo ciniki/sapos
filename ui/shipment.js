@@ -286,9 +286,24 @@ console.log(args);
 	};
 
 	this.printPackingSlip = function(sid) {
-		if( sid <= 0 ) { return false; }
-		window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
-			{'business_id':M.curBusinessID, 'shipment_id':sid}));
+		if( this.edit.shipment_id > 0 ) {
+			var c = this.edit.serializeForm('no');
+			if( c != '' ) {
+				M.api.postJSONCb('ciniki.sapos.shipmentUpdate', {'business_id':M.curBusinessID,
+					'shipment_id':this.edit.shipment_id}, c, function(rsp) {
+						if( rsp.stat != 'ok' ) {
+							M.api.err(rsp);
+							return false;
+						}
+						M.ciniki_sapos_shipment.showShipment();
+						window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
+							{'business_id':M.curBusinessID, 'shipment_id':sid}));
+					});	
+			} else {
+				window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
+					{'business_id':M.curBusinessID, 'shipment_id':sid}));
+			}
+		}
 	};
 
 	this.editItem = function(cb, iid, sid) {
