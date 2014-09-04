@@ -132,7 +132,6 @@ function ciniki_sapos_shipment() {
 			return false;
 		}
 
-console.log(args);
 		if( args.shipment_id != null && args.invoice_id != null ) {
 			this.showShipment(cb, args.shipment_id, args.invoice_id, args.shipment_number);
 		} else if( args.invoice_id != null ) {
