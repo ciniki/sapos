@@ -22,7 +22,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	//
 	// Get the invoice details
 	//
-	$strsql = "SELECT invoice_type, status, "
+	$strsql = "SELECT customer_id, invoice_type, status, "
 		. "payment_status, shipping_status, manufacturing_status, "
 		. "ROUND(total_amount, 2) AS total_amount, "
 		. "ROUND(paid_amount, 2) AS paid_amount, "
@@ -39,6 +39,25 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1397', 'msg'=>'Unable to locate the invoice'));
 	}
 	$invoice = $rc['invoice'];
+
+	//
+	// Get the customer status
+	//
+	if( $invoice['customer_id'] > 0 ) {
+		$strsql = "SELECT status "
+			. "FROM ciniki_customers "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $invoice['customer_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.customers', 'customer');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['customer']) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2002', 'msg'=>'Unable to find customer'));
+		}
+		$customer = $rc['customer'];
+	}
 
 	//
 	// Get the invoice transactions
@@ -78,7 +97,9 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	// Determine the new shipping status for the order
 	//
 	$new_shipping_status = $invoice['shipping_status'];
-	if( $invoice['shipping_status'] > 0 ) {
+	if( $invoice['shipping_status'] > 0 
+		&& ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x40) > 0
+		) {
 		$remaining_quantity = 'none';
 		//
 		// Get the items, to see if there is any quantity left of anything to ship
@@ -142,50 +163,69 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	//
 	$new_payment_status = $invoice['payment_status'];
 	//
-	// Check if status should change for
+	// Check if status should change for invoice, but only if payments are enabled
 	//
-	if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
-		if( $invoice['payment_status'] == 10 ) {
-			$new_payment_status = 40;
-		}
-	} elseif( $amount_paid > 0 && $amount_paid >= $invoice['total_amount'] ) {
-		if( $invoice['payment_status'] < 50 ) {
-			$new_payment_status = 50;
+	if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0200) > 0 ) {
+		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
+			if( $invoice['payment_status'] == 10 ) {
+				$new_payment_status = 40;
+			}
+		} elseif( $amount_paid > 0 && $amount_paid >= $invoice['total_amount'] ) {
+			if( $invoice['payment_status'] < 50 ) {
+				$new_payment_status = 50;
+			}
 		}
 	}
-
 
 	//
 	// Check if status should change for invoice
 	//
 	$new_status = $invoice['status'];
-	if( $invoice['invoice_type'] == '10' 
+	if( $invoice['invoice_type'] == '40' && $invoice['status'] > 15 ) {
+		//
+		// Only update order status if status > 10, otherwise it's considered still entered
+		//
+		if( isset($customer) && isset($customer['status']) && $customer['status'] == '40' 
+			&& $new_status < 50 ) {
+			// Customer is on hold, and order is not fulfilled, make the invoice on hold as well
+			$new_status = 15;
+		}
+		elseif( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
+			$new_status = 20;
+		}
+		elseif( $new_shipping_status > 0 && $new_shipping_status < 50 ) {	
+			$new_status = 30;
+		}
+		elseif( $new_payment_status > 0 && $new_payment_status < 50 ) {
+			$new_status = 40;
+		} 
+		// Each status is either ignored, or completed
+		elseif( ($new_manufacturing_status == 0 || $new_manufacturing_status >= 50) 
+			&& ($new_shipping_status == 0 || $new_shipping_status >= 50) 
+			&& ($new_payment_status == 0 || $new_payment_status >= 50) 
+			) {
+			$new_status = 50;
+		}
+	}
+	elseif( $invoice['invoice_type'] == '10' 
 		|| $invoice['invoice_type'] == '30'
-		|| $invoice['invoice_type'] == '40'
 		) {
-//		if( $invoice['status'] < 50 ) {
-			if( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
-				$new_status = 20;
-			}
-			elseif( $new_shipping_status > 0 && $new_shipping_status < 50 ) {	
-				$new_status = 30;
-			}
-			elseif( $new_payment_status > 0 && $new_payment_status < 50 ) {
-				$new_status = 40;
-			} 
-			// Each status is either ignored, or completed
-			elseif( ($new_manufacturing_status == 0 || $new_manufacturing_status >= 50) 
-				&& ($new_shipping_status == 0 || $new_shipping_status >= 50) 
-				&& ($new_payment_status == 0 || $new_payment_status >= 50) 
-				) {
-				$new_status = 50;
-			}
-//		}
-//		elseif( $invoice['status'] == 50 ) {
-//			if( $new_payment_status == 40 ) {
-//				$new_status = 40;
-//			} 
-//		}
+		if( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
+			$new_status = 20;
+		}
+		elseif( $new_shipping_status > 0 && $new_shipping_status < 50 ) {	
+			$new_status = 30;
+		}
+		elseif( $new_payment_status > 0 && $new_payment_status < 50 ) {
+			$new_status = 40;
+		} 
+		// Each status is either ignored, or completed
+		elseif( ($new_manufacturing_status == 0 || $new_manufacturing_status >= 50) 
+			&& ($new_shipping_status == 0 || $new_shipping_status >= 50) 
+			&& ($new_payment_status == 0 || $new_payment_status >= 50) 
+			) {
+			$new_status = 50;
+		}
 	}
 
 //	if( $invoice['status'] > 10 && $invoice['status'] < 40 && $invoice['total_amount'] != 0 ) {
@@ -243,7 +283,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 		$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 
 			$invoice_id, $args, 0x04);
 		if( $rc['stat'] != 'ok' ) {
-			return $rc;
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2010', 'msg'=>'Unable to update invoice', 'err'=>$rc['err']));
 		}
 	}
 

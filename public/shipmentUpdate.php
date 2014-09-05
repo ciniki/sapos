@@ -25,6 +25,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 		'weight_units'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Weight Units'),
 		'shipping_company'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Company'),
 		'tracking_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Tracking Number'),
+		'td_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'TD Number'),
 		'boxes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Boxes'),
 		'pack_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Date Packed'),
 		'ship_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Date Shipped'),
@@ -47,7 +48,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 	//
 	// Get the invoice of the shipment
 	//
-	$strsql = "SELECT invoice_id "
+	$strsql = "SELECT invoice_id, ship_date "
 		. "FROM ciniki_sapos_shipments "
 		. "WHERE ciniki_sapos_shipments.id = '" . ciniki_core_dbQuote($ciniki, $args['shipment_id']) . "' "
 		. "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -59,7 +60,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 	if( !isset($rc['shipment']) ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1996', 'msg'=>'Shipment does not exist'));
 	}
-	$invoice_id = $rc['shipment']['invoice_id'];
+	$shipment = $rc['shipment'];
 
 
 	//
@@ -77,6 +78,14 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 	}   
 
 	//
+	// Check if ship_date should be set
+	//
+	if( $shipment['ship_date'] == '0000-00-00 00:00:00' && isset($args['status']) && $args['status'] == '30' ) {
+		$date = new DateTime('now', new DateTimeZone('UTC'));
+		$args['ship_date'] = $date->format('Y-m-d H:i:s');
+	}
+
+	//
 	// Update the shipment
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
@@ -87,10 +96,20 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 	}
 
 	//
+	// Update the shipment
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentUpdateStatus');
+	$rc = ciniki_sapos_shipmentUpdateStatus($ciniki, $args['business_id'], $args['shipment_id']);
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+		return $rc;
+	}
+
+	//
 	// Update the invoice
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-	$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $invoice_id);
+	$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $shipment['invoice_id']);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;

@@ -400,17 +400,20 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
 		$w = array(100, 80);
 	}
 	$lh = 6;
-	$pdf->setCellPaddings(2, 1, 2, 1);
+	$pdf->SetFillColor(224);
+//	$pdf->setCellPaddings(2, 1, 2, 1);
+	$pdf->setCellPadding(2);
 	if( count($baddr) > 0 || count($saddr) > 0 ) {
 		$pdf->SetFont('', 'B');
-		$pdf->Cell($w[0], $lh, 'Bill To:', 'B', 0, 'L', 1);
+		$pdf->Cell($w[0], $lh, 'Bill To', 1, 0, 'L', 1);
 		$border = 1;
 		if( $shipment['invoice']['shipping_status'] > 0 ) {
-			$pdf->Cell($w[1], $lh, 'Ship To:', 'B', 0, 'L', 1);
+			$pdf->Cell($w[1], $lh, 'Ship To', 1, 0, 'L', 1);
 			$border = 1;
 		}
 		$pdf->Ln($lh);	
 		$pdf->SetFont('');
+		$pdf->setCellPaddings(2, 4, 2, 2);
 		$pdf->MultiCell($w[0], $lh, implode("\n", $baddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
 		if( $shipment['invoice']['shipping_status'] > 0 ) {
 			$pdf->MultiCell($w[1], $lh, implode("\n", $saddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
@@ -429,42 +432,44 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
 	//
 	// Add the shipment details
 	//
-	if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
-		&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
-		// Tax number
-		$w = array(30, 30, 30, 30, 30, 30);
-	} else {
-		$w = array(35, 35, 40, 35, 35);
-	}
-	$pdf->SetFillColor(224);
-	$pdf->SetFont('', 'B');
-	$pdf->SetCellPadding(2);
-	$pdf->Cell($w[0], 6, 'Ship Date', 1, 0, 'C', 1);
-	$pdf->Cell($w[1], 6, 'Shipper', 1, 0, 'C', 1);
-	$pdf->Cell($w[2], 6, 'Tracking #', 1, 0, 'C', 1);
-	$pdf->Cell($w[3], 6, 'E-mail', 1, 0, 'C', 1);
-	$pdf->Cell($w[4], 6, 'Phone #', 1, 0, 'C', 1);
-	if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
-		&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
-		$pdf->Cell($w[5], 6, 'Tax #', 1, 0, 'C', 1);
-	}
-	$pdf->Ln();
+	if( isset($sapos_settings['packingslip-shipper-info']) 
+		&& $sapos_settings['packingslip-shipper-info'] == 'yes' 
+		) {
+		if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
+			&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
+			// Tax number
+			$w = array(30, 30, 30, 30, 30, 30);
+		} else {
+			$w = array(35, 35, 40, 35, 35);
+		}
+		$pdf->SetFillColor(224);
+		$pdf->SetFont('', 'B');
+		$pdf->SetCellPadding(2);
+		$pdf->Cell($w[0], 6, 'Ship Date', 1, 0, 'C', 1);
+		$pdf->Cell($w[1], 6, 'Shipper', 1, 0, 'C', 1);
+		$pdf->Cell($w[2], 6, 'Tracking #', 1, 0, 'C', 1);
+		$pdf->Cell($w[3], 6, 'E-mail', 1, 0, 'C', 1);
+		$pdf->Cell($w[4], 6, 'Phone #', 1, 0, 'C', 1);
+		if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
+			&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
+			$pdf->Cell($w[5], 6, 'Tax #', 1, 0, 'C', 1);
+		}
+		$pdf->Ln();
 
-	$pdf->SetFillColor(255);
-	$pdf->SetFont('');
-	$pdf->Cell($w[0], 6, $shipment['ship_date'], 1, 0, 'C', 1);
-	$pdf->Cell($w[1], 6, $shipment['shipping_company'], 1, 0, 'C', 1);
-	$pdf->Cell($w[2], 6, $shipment['tracking_number'], 1, 0, 'C', 1);
-	$pdf->Cell($w[3], 6, $shipment['customer']['email'], 1, 0, 'C', 1);
-	$pdf->Cell($w[4], 6, $shipment['customer']['phone'], 1, 0, 'C', 1);
-	if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
-		&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
-		$pdf->Cell($w[5], 6, $shipment['customer']['tax_number'], 1, 0, 'C', 1);
+		$pdf->SetFillColor(255);
+		$pdf->SetFont('');
+		$pdf->Cell($w[0], 6, $shipment['ship_date'], 1, 0, 'C', 1);
+		$pdf->Cell($w[1], 6, $shipment['shipping_company'], 1, 0, 'C', 1);
+		$pdf->Cell($w[2], 6, $shipment['tracking_number'], 1, 0, 'C', 1);
+		$pdf->Cell($w[3], 6, $shipment['customer']['email'], 1, 0, 'C', 1);
+		$pdf->Cell($w[4], 6, $shipment['customer']['phone'], 1, 0, 'C', 1);
+		if( isset($ciniki['business']['modules']['ciniki.customers']['flags'])
+			&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x020000) > 0 ) {
+			$pdf->Cell($w[5], 6, $shipment['customer']['tax_number'], 1, 0, 'C', 1);
+		}
+		$pdf->Ln();
+		$pdf->Ln();
 	}
-	$pdf->Ln();
-	$pdf->Ln();
-	
-
 
 	//
 	// Add the invoice items

@@ -21,6 +21,7 @@ function ciniki_sapos_latest(&$ciniki) {
         'type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice Type'), 
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
+        'stats'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Stats'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -54,12 +55,49 @@ function ciniki_sapos_latest(&$ciniki) {
 	//
 	// Load the status maps for the text description of each status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
-	$rc = ciniki_sapos_invoiceMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
+	$rc = ciniki_sapos_maps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
 	$maps = $rc['maps'];
+
+	//
+	// Check if we should get the stats as well
+	//
+	$stats = array();
+	if( isset($args['stats']) && $args['stats'] == 'yes' ) {
+		//
+		// Check the number of orders that need packing
+		//
+		$strsql = "SELECT status, COUNT(id) "
+			. "FROM ciniki_sapos_shipments "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "GROUP BY status "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'stats');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$stats['shipments'] = array('status'=>$rc['stats']);
+
+		//
+		// Get the number
+		//
+		$strsql = "SELECT "
+			. "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS typestatus, "
+			. "COUNT(id) "
+			. "FROM ciniki_sapos_invoices "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "GROUP BY invoice_type, status "
+			. "";
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'stats');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$stats['invoices'] = array('typestatus'=>$rc['stats']);
+	}
 
 	//
 	// Build the query to get the list of expenses
@@ -106,7 +144,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 			array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
 				'fields'=>array('id', 'name', 'invoice_date', 'total_amount'),
-				'maps'=>array('status_text'=>$maps['status']),
+				'maps'=>array('status_text'=>$maps['invoice']['status']),
 	//			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 				),
 			));
@@ -115,7 +153,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		}
 		if( !isset($rc['expenses']) ) {
 			$expenses = array();
-			return array('stat'=>'ok', 'expenses'=>array(), 'numcats'=>$num_cats);
+			return array('stat'=>'ok', 'expenses'=>array(), 'numcats'=>$num_cats, 'stats'=>$stats);
 		} else {
 			foreach($rc['expenses'] as $iid => $expense) {
 				$rc['expenses'][$iid]['expense']['total_amount_display'] = numfmt_format_currency(
@@ -124,7 +162,7 @@ function ciniki_sapos_latest(&$ciniki) {
 			$expenses = $rc['expenses'];
 		}
 
-		return array('stat'=>'ok', 'expenses'=>$expenses);
+		return array('stat'=>'ok', 'expenses'=>$expenses, 'stats'=>$stats);
 	} 
 
 	else if( isset($args['type']) && $args['type'] == 'mileage' ) {
@@ -188,7 +226,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		}
 		if( !isset($rc['mileages']) ) {
 			$mileages = array();
-			return array('stat'=>'ok', 'mileages'=>array(), 'numrates'=>$num_rates);
+			return array('stat'=>'ok', 'mileages'=>array(), 'numrates'=>$num_rates, 'stats'=>$stats);
 		} else {
 			foreach($rc['mileages'] as $iid => $mileage) {
 				// Check for round trip
@@ -207,7 +245,7 @@ function ciniki_sapos_latest(&$ciniki) {
 			$mileages = $rc['mileages'];
 		}
 
-		return array('stat'=>'ok', 'num_rates'=>$num_rates, 'mileages'=>$mileages);
+		return array('stat'=>'ok', 'num_rates'=>$num_rates, 'mileages'=>$mileages, 'stats'=>$stats);
 	}
 
 	//
@@ -243,7 +281,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
-			'maps'=>array('status_text'=>$maps['typestatus']),
+			'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$php_date_format)), 
 			),
 		));
@@ -260,6 +298,6 @@ function ciniki_sapos_latest(&$ciniki) {
 		$invoices = $rc['invoices'];
 	}
 
-	return array('stat'=>'ok', 'invoices'=>$invoices);
+	return array('stat'=>'ok', 'invoices'=>$invoices, 'stats'=>$stats);
 }
 ?>

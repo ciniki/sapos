@@ -60,8 +60,8 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	//
 	// Load the status maps for the text description of each status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
-	$rc = ciniki_sapos_invoiceMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
+	$rc = ciniki_sapos_maps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
@@ -151,6 +151,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		if( $args['shipping_status'] == 'packlist' ) {
 			$strsql .= "AND ciniki_sapos_invoices.shipping_status > 0 "
 				. "AND ciniki_sapos_invoices.shipping_status < 50 "
+				. "AND ciniki_sapos_invoices.invoice_type != 20 "
 				. "";
 		} elseif( $args['shipping_status'] > 0 ) {
 			$strsql .= "AND ciniki_sapos_invoices.shipping_status = '" . ciniki_core_dbQuote($ciniki, $args['shipping_status']) . "' ";
@@ -165,6 +166,8 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 			$strsql .= "ORDER BY ciniki_sapos_invoices.last_updated DESC ";
 		} elseif( $args['sort'] == 'invoice_date' ) {
 			$strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC ";
+		} elseif( $args['sort'] == 'invoice_date_desc' ) {
+			$strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date DESC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs DESC ";
 		}
 	}
 	if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
@@ -175,7 +178,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
-			'maps'=>array('status_text'=>$maps['typestatus']),
+			'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 			),
 		));
@@ -219,8 +222,8 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 			$sheet_title .= " - " . $args['month'];
 		}
 		if( isset($args['status']) && $args['status'] > 0 ) {
-			$title .= " - " . $maps['status'][$args['status']];
-			$sheet_title .= " - " . $maps['status'][$args['status']];
+			$title .= " - " . $maps['invoice']['status'][$args['status']];
+			$sheet_title .= " - " . $maps['invoice']['status'][$args['status']];
 		}
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
 		$sheet->setTitle($sheet_title);

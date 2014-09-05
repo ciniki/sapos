@@ -21,7 +21,47 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 		return $rc;
 	}
 	$invoice = $rc['invoice'];
-	
+
+	//
+	// Get the inventory
+	//
+	$objects = array();
+	foreach($invoice['items'] as $iid => $item) {
+		$item = $item['item'];
+		if( !isset($objects[$item['object']]) ) {
+			$objects[$item['object']] = array();
+		}
+		$objects[$item['object']][] = $item['object_id'];
+	}
+	// 
+	// Get the inventory levels for each object
+	//
+	foreach($objects as $object => $object_ids) {
+		list($pkg,$mod,$obj) = explode('.', $object);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryLevels');
+		if( $rc['stat'] == 'ok' ) {
+			$fn = $rc['function_call'];
+			$rc = $fn($ciniki, $business_id, array(
+				'object'=>$object,
+				'object_ids'=>$object_ids,
+				));
+			if( $rc['stat'] != 'ok' ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1995', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+			}
+			//
+			// Update the inventory levels for the invoice items
+			//
+			$quantities = $rc['quantities'];
+			foreach($invoice['items'] as $iid => $item) {
+				if( $item['item']['object'] == $object 
+					&& isset($quantities[$item['item']['object_id']]) 
+					) {
+					$invoice['items'][$iid]['item']['inventory_quantity'] = $quantities[$item['item']['object_id']]['inventory_quantity'];
+				}
+			}
+		}
+	}
+
 	//
 	// Load TCPDF library
 	//
@@ -431,12 +471,13 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 	//
 	// Add the invoice items
 	//
-	$w = array(150, 30);
+	$w = array(120, 30, 30);
 	$pdf->SetFillColor(224);
 	$pdf->SetFont('', 'B');
 	$pdf->SetCellPadding(2);
 	$pdf->Cell($w[0], 6, 'Item', 1, 0, 'C', 1);
 	$pdf->Cell($w[1], 6, 'Quantity', 1, 0, 'C', 1);
+	$pdf->Cell($w[1], 6, 'Inventory', 1, 0, 'C', 1);
 //	$pdf->Cell($w[2], 6, 'Total', 1, 0, 'C', 1);
 	$pdf->Ln();
 	$pdf->SetFillColor(236);
@@ -456,6 +497,12 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 		} else {
 			$quantity = $item['item']['quantity'] - $item['item']['shipped_quantity'];
 		}
+
+//		if( $item['item']['inventory_quantity'] >= $item['item']['quantity'] ) {
+//			$inventory_quantity = '0';
+//		} else {
+//			$quantity = $item['item']['quantity'] - $item['item']['shipped_quantity'];
+//		}
 
 		$discount = '';
 //		if( $item['item']['discount_amount'] != 0 ) {
@@ -486,6 +533,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 			$pdf->SetFont('', 'B');
 			$pdf->Cell($w[0], 6, 'Item', 1, 0, 'C', 1);
 			$pdf->Cell($w[1], 6, 'Quantity', 1, 0, 'C', 1);
+			$pdf->Cell($w[1], 6, 'Inventory', 1, 0, 'C', 1);
 //			$pdf->Cell($w[2], 6, 'Total', 1, 0, 'C', 1);
 			$pdf->Ln();
 			$pdf->SetFillColor(236);
@@ -495,6 +543,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 		$pdf->MultiCell($w[0], $lh, $item['item']['description'], 1, 'L', $fill, 
 			0, '', '', true, 0, false, true, 0, 'T', false);
 		$pdf->MultiCell($w[1], $lh, $quantity, 1, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
+		$pdf->MultiCell($w[1], $lh, $item['item']['inventory_quantity'], 1, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
 //		$pdf->Cell($w[2], $lh, $item['item']['total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
 //		$pdf->MultiCell($w[2], $lh, $item['item']['total_amount_display'], 1, 'R', $fill, 
 //			0, '', '', true, 0, false, true, 0, 'T', false);

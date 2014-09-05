@@ -33,7 +33,8 @@
 # status:				The current status for the invoice.
 #
 #						0 - unknown
-#						10 - Entered
+#						10 - Entering/Incomplete
+#						15 - On Hold
 #						20 - Pending Manufacturing
 #						30 - Pending Shipping
 #						40 - Pending Payment

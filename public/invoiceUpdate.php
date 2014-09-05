@@ -45,6 +45,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		'shipping_province'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Province'),
 		'shipping_postal'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Postal'),
 		'shipping_country'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Country'),
+		'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -138,6 +139,25 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 			}
 		} else {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1096', 'msg'=>'Unable to find customer'));
+		}
+	}
+
+	if( isset($args['action']) && $args['action'] == 'submit' ) {
+		$strsql = "SELECT invoice_type, status, shipping_status "
+			. "FROM ciniki_sapos_invoices "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['invoice']) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2006', 'msg'=>'Unable to find invoice'));
+		}
+		$invoice = $rc['invoice'];
+		if( $invoice['invoice_type'] == 40 && $invoice['status'] == 10 ) {
+			$args['status'] = 30;
 		}
 	}
 

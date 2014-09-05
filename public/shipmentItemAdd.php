@@ -118,7 +118,8 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentUpdateStatus');
 	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.sapos');
 	if( $rc['stat'] != 'ok' ) { 
 		return $rc;
@@ -166,6 +167,24 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 		return $rc;
 	}
 	$item_id = $rc['id'];
+
+	//
+	// Update the shipment status
+	//
+	$rc = ciniki_sapos_shipmentUpdateStatus($ciniki, $args['business_id'], $args['shipment_id']);
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+		return $rc;
+	}
+
+	//
+	// Update the invoice status
+	//
+	$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $shipment['invoice_id']);
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+		return $rc;
+	}
 
 	//
 	// Commit the transaction

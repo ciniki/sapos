@@ -147,6 +147,7 @@ function ciniki_sapos_objects($ciniki) {
 			'weight_units'=>array(),
 			'shipping_company'=>array(),
 			'tracking_number'=>array(),
+			'td_number'=>array(),
 			'boxes'=>array(),
 			'pack_date'=>array(),
 			'ship_date'=>array(),

@@ -25,6 +25,7 @@ function ciniki_sapos_shipmentAdd(&$ciniki) {
 		'weight_units'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'10', 'name'=>'Weight Units'),
 		'shipping_company'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Company'),
 		'tracking_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Tracking Number'),
+		'td_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'TD Number'),
 		'boxes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Boxes'),
 		'pack_date'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'now', 'type'=>'datetimetoutc', 'name'=>'Date Packed'),
 		'ship_date'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'type'=>'datetimetoutc', 'name'=>'Date Shipped'),

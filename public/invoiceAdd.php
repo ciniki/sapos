@@ -24,7 +24,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		'invoice_type'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'10', 'name'=>'Invoice Type'),
 		'po_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'PO Number'),
 		'status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'10', 'name'=>'Status'),
-		'payment_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'10', 'name'=>'Payment Status'),
+		'payment_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Payment Status'),
 		'shipping_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Shipping Status'),
 		'manufacturing_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Manufacturing Status'),
 		'flags'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Options'),
@@ -65,6 +65,15 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
     }
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+
+	//
+	// Check if payment_status is used
+	//
+	if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0200) > 0 ) {
+		if( $args['payment_status'] == '0' ) {
+			$args['payment_status'] == '10';
+		}
+	}
 
 	//
 	// Force the invoice_date and due_date to be a date time with 12:00:00 (noon)

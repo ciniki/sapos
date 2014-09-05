@@ -24,6 +24,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
 		array('flag'=>array('bit'=>'8', 'name'=>'Manufacturing')),
 		// 0x0100
 		array('flag'=>array('bit'=>'9', 'name'=>'Mileage')),
+		array('flag'=>array('bit'=>'10', 'name'=>'Payments')),  // If the business is handling payments elsewhere turn this off
 		);
 
 	return array('stat'=>'ok', 'flags'=>$flags);

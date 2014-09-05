@@ -8,7 +8,7 @@ function ciniki_sapos_shipments() {
 			'mc', 'medium', 'sectioned', 'ciniki.sapos.shipments.invoices');
 		this.invoices.data = {};
 		this.invoices.sections = {
-			'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
+			'invoices':{'label':'', 'type':'simplegrid', 'num_cols':4,
 				'sortable':'yes',
 				'headerValues':['Invoice #', 'Date', 'Customer', 'Status'],
 				'sortTypes':['number', 'date', 'text', 'text'],
@@ -27,7 +27,7 @@ function ciniki_sapos_shipments() {
 					case 0: return d.invoice.invoice_number;
 					case 1: return d.invoice.invoice_date;
 					case 2: return d.invoice.customer_display_name;
-					case 4: return d.invoice.status_text;
+					case 3: return d.invoice.status_text;
 				}
 			}
 		};
@@ -46,7 +46,7 @@ function ciniki_sapos_shipments() {
 			'mc', 'medium', 'sectioned', 'ciniki.sapos.shipments.list');
 		this.list.data = {};
 		this.list.sections = {
-			'shipments':{'label':'', 'type':'simplegrid', 'num_cols':5,
+			'shipments':{'label':'', 'type':'simplegrid', 'num_cols':4,
 				'sortable':'yes',
 				'headerValues':['Invoice #', 'Date', 'Customer', 'Status'],
 				'sortTypes':['number', 'date', 'text', 'text'],
@@ -65,7 +65,7 @@ function ciniki_sapos_shipments() {
 					case 0: return d.shipment.invoice_number;
 					case 1: return d.shipment.invoice_date;
 					case 2: return d.shipment.customer_display_name;
-					case 4: return d.shipment.status_text;
+					case 3: return d.shipment.status_text;
 				}
 			}
 		};
@@ -109,7 +109,7 @@ function ciniki_sapos_shipments() {
 		if( list != null ) { this.invoices._list = list; }
 		if( this.invoices._list == 'packlist' ) {
 			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
-				'shipping_status':'packlist', 'sort':'invoice_date'}, function(rsp) {
+				'status':'30', 'sort':'invoice_date'}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;

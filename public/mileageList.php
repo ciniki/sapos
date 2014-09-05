@@ -54,8 +54,8 @@ function ciniki_sapos_mileageList(&$ciniki) {
 	//
 	// Load the status maps for the text description of each status
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceMaps');
-	$rc = ciniki_sapos_invoiceMaps($ciniki);
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
+	$rc = ciniki_sapos_maps($ciniki);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}

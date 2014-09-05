@@ -67,10 +67,10 @@ function ciniki_sapos_main() {
 				'hint':'Search invoice # or customer name', 
 				'noData':'No Invoices Found',
 				},
-			'menu':{'label':'', 'list':{
-				'packlist':{'label':'Packing Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'list\':\'packlist\'});'},
-				'pendship':{'label':'Shipping Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'list\':\'pendship\'});'},
-				}},
+//			'menu':{'label':'', 'list':{
+//				'packlist':{'label':'Packing Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'list\':\'packlist\'});'},
+//				'pendship':{'label':'Shipping Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'list\':\'pendship\'});'},
+//				}},
 			'invoices':{'label':'Recent Orders', 'type':'simplegrid', 'num_cols':5,
 				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
 				'noData':'No Invoices',
