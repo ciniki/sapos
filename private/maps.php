@@ -103,7 +103,11 @@ function ciniki_sapos_maps($ciniki) {
 			'20'=>'Packed',
 			'30'=>'Shipped',
 			'40'=>'Received',
-			)
+			),
+		'weight_units'=>array(
+			'10'=>array('field'=>'weight', 's'=>'lb', 'p'=>'lbs'),
+			'20'=>array('field'=>'weight', 's'=>'kg', 'p'=>'kgs'),
+			),
 		);
 	
 	return array('stat'=>'ok', 'maps'=>$maps);
