@@ -8,7 +8,7 @@ function ciniki_sapos_invoice() {
 		'20':'Pending Manufacturing',
 		'30':'Pending Shipping',
 		'40':'Payment Required',
-		'50':'Fulfilled',
+		'50':'Paid',
 		'55':'Refunded',
 		'60':'Void',
 		};
@@ -375,6 +375,9 @@ function ciniki_sapos_invoice() {
 		this.item.addButton('save', 'Save', 'M.ciniki_sapos_invoice.saveItem();');
 		this.item.addClose('Cancel');
 
+		//
+		// The transaction panel
+		//
 		this.transaction = new M.panel('Transaction',
 			'ciniki_sapos_invoice', 'transaction',
 			'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.transaction');
@@ -437,7 +440,7 @@ function ciniki_sapos_invoice() {
 			this.invoiceStatuses['40'] = 'Payment Required';
 			this.orderStatuses['40'] = 'Payment Required';
 		}
-		this.invoiceStatuses['50'] = 'Fulfilled';
+		this.invoiceStatuses['50'] = 'Paid';
 		this.invoiceStatuses['55'] = 'Refunded';
 		this.invoiceStatuses['60'] = 'Void';
 		this.orderStatuses['50'] = 'Fulfilled';

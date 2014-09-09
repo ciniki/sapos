@@ -49,7 +49,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
-	if( isset($rc['shipments']) ) {
+	if( isset($rc['shipments']) && $rc['shipments']['num_shipments'] > 0 ) {
 		$n = $rc['shipments']['num_shipments'];
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2000', 'msg'=>"Unable to remove, you have " . $n . " shipment" . ($n>1?'s':'') ."."));
 	}
