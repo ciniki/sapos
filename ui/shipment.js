@@ -197,6 +197,12 @@ function ciniki_sapos_shipment() {
 						'invoice_items':[],
 						'items':[],
 						};
+					if( M.curBusiness.sapos.settings['shipments-default-shipper'] != null ) {
+						p.data['shipping_company'] = M.curBusiness.sapos.settings['shipments-default-shipper'];
+					}
+					if( M.curBusiness.sapos.settings['shipments-default-weight-units'] != null ) {
+						p.data['weight_units'] = M.curBusiness.sapos.settings['shipments-default-weight-units'];
+					}
 					if( rsp.invoice.items != null ) {
 						for(i in rsp.invoice.items) {
 							if( rsp.invoice.items[i].item.shipped_quantity < rsp.invoice.items[i].item.quantity ) {

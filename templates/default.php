@@ -402,17 +402,30 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 		$w = array(100, 80);
 	}
 	$lh = 6;
-	$pdf->setCellPaddings(2, 1, 2, 1);
+	$pdf->SetFillColor(224);
+	$pdf->setCellPadding(2);
 	if( count($baddr) > 0 || count($saddr) > 0 ) {
 		$pdf->SetFont('', 'B');
-		$pdf->Cell($w[0], $lh, 'Bill To:', 'B', 0, 'L', 1);
+		$pdf->Cell($w[0], $lh, 'Bill To:', 1, 0, 'L', 1);
 		$border = 1;
 		if( $invoice['shipping_status'] > 0 ) {
-			$pdf->Cell($w[1], $lh, 'Ship To:', 'B', 0, 'L', 1);
+			$pdf->Cell($w[1], $lh, 'Ship To:', 1, 0, 'L', 1);
 			$border = 1;
+			$diff_lines = (count($baddr) - count($saddr));
+			// Add padding so the boxes line up
+			if( $diff_lines > 0 ) {
+				for($i=0;$i<$diff_lines;$i++) {
+					$saddr[] = " ";
+				}
+			} elseif( $diff_lines < 0 ) {
+				for($i=0;$i<abs($diff_lines);$i++) {
+					$baddr[] = " ";
+				}
+			}
 		}
 		$pdf->Ln($lh);	
 		$pdf->SetFont('');
+		$pdf->setCellPaddings(2, 4, 2, 2);
 		$pdf->MultiCell($w[0], $lh, implode("\n", $baddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
 		if( $invoice['shipping_status'] > 0 ) {
 			$pdf->MultiCell($w[1], $lh, implode("\n", $saddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);

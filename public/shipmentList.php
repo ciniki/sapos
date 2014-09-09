@@ -86,6 +86,8 @@ function ciniki_sapos_shipmentList(&$ciniki) {
 	//
 	$strsql = "SELECT ciniki_sapos_shipments.id, "
 		. "ciniki_sapos_shipments.invoice_id, "
+		. "ciniki_sapos_shipments.shipment_number, "
+		. "CONCAT_WS('-', ciniki_sapos_invoices.invoice_number, ciniki_sapos_shipments.shipment_number) AS packing_slip_number, "
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
@@ -162,7 +164,8 @@ function ciniki_sapos_shipmentList(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
-			'fields'=>array('id', 'invoice_id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
+			'fields'=>array('id', 'invoice_id', 'invoice_number', 'shipment_number', 
+				'packing_slip_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 

@@ -410,6 +410,17 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
 		if( $shipment['invoice']['shipping_status'] > 0 ) {
 			$pdf->Cell($w[1], $lh, 'Ship To', 1, 0, 'L', 1);
 			$border = 1;
+			$diff_lines = (count($baddr) - count($saddr));
+			// Add padding so the boxes line up
+			if( $diff_lines > 0 ) {
+				for($i=0;$i<$diff_lines;$i++) {
+					$saddr[] = " ";
+				}
+			} elseif( $diff_lines < 0 ) {
+				for($i=0;$i<abs($diff_lines);$i++) {
+					$baddr[] = " ";
+				}
+			}
 		}
 		$pdf->Ln($lh);	
 		$pdf->SetFont('');

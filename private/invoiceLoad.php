@@ -359,6 +359,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 			. "FROM ciniki_sapos_shipments "
 			. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "ORDER BY shipment_number "
 			. "";
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 			array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',

@@ -2,6 +2,10 @@
 function ciniki_sapos_settings() {
 	this.toggleOptions = {'no':'Hide', 'yes':'Display'};
 	this.positionOptions = {'left':'Left', 'center':'Center', 'right':'Right', 'off':'Off'};
+	this.weightUnits = {
+		'10':'lb',
+		'20':'kg',
+		};
 
 	this.init = function() {
 		//
@@ -14,6 +18,9 @@ function ciniki_sapos_settings() {
 			'invoice':{'label':'Invoices', 'list':{
 				'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.editInvoice(\'M.ciniki_sapos_settings.showMenu();\');'},
 				'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showQI(\'M.ciniki_sapos_settings.showMenu();\');'},
+				}},
+			'shipments':{'label':'Shipments', 'visible':'no', 'list':{
+				'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.editShipment(\'M.ciniki_sapos_settings.showMenu();\');'},
 				}},
 			'expenses':{'label':'Expenses', 'visible':'no', 'list':{
 				'expenses':{'label':'Expense Categories', 'fn':'M.ciniki_sapos_settings.showExpenseCategories(\'M.ciniki_sapos_settings.showMenu();\');'},
@@ -75,6 +82,32 @@ function ciniki_sapos_settings() {
 		};
 		this.invoice.addButton('save', 'Save', 'M.ciniki_sapos_settings.saveInvoice();');
 		this.invoice.addClose('Cancel');
+
+		//
+		// The invoice settings panel
+		//
+		this.shipment = new M.panel('Shipment Settings',
+			'ciniki_sapos_settings', 'shipment',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.shipment');
+		this.shipment.sections = {
+			'_defaults':{'label':'Defaults', 'fields':{
+				'shipments-default-shipper':{'label':'Shipper', 'type':'text'},
+				'shipments-default-weight-units':{'label':'Units', 'type':'toggle', 'default':'10', 'toggles':this.weightUnits},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveShipment();'},
+				}},
+		};
+		this.shipment.fieldHistoryArgs = function(s, i) {
+			return {'method':'ciniki.sapos.settingsHistory', 
+				'args':{'business_id':M.curBusinessID, 'setting':i}};
+		}
+		this.shipment.fieldValue = function(s, i, d) {
+			if( this.data[i] == null && d.default != null ) { return d.default; }
+			return this.data[i];
+		};
+		this.shipment.addButton('save', 'Save', 'M.ciniki_sapos_settings.saveShipment();');
+		this.shipment.addClose('Cancel');
 
 		//
 		// The qi settings panel
@@ -304,6 +337,7 @@ function ciniki_sapos_settings() {
 	//
 	this.showMenu = function(cb) {
 		this.menu.sections.invoice.list.qi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
+		this.menu.sections.shipments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0?'yes':'no';
 		this.menu.sections.expenses.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x02)>0?'yes':'no';
 		this.menu.sections.mileage.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100)>0?'yes':'no';
 		this.menu.refresh();
@@ -377,6 +411,41 @@ function ciniki_sapos_settings() {
 				});
 		} else {
 			this.invoice.close();
+		}
+	};
+
+	//
+	// show the shipment settings
+	//
+	this.editShipment = function(cb) {
+		M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			var p = M.ciniki_sapos_settings.shipment;
+			p.data = rsp.settings;
+			p.refresh();
+			p.show(cb);
+		});
+	};
+
+	//
+	// Save the Shipment settings
+	//
+	this.saveShipment = function() {
+		var c = this.shipment.serializeForm('no');
+		if( c != '' ) {
+			M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+				c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.shipment.close();
+				});
+		} else {
+			this.shipment.close();
 		}
 	};
 

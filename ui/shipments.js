@@ -62,7 +62,7 @@ function ciniki_sapos_shipments() {
 		this.list.cellValue = function(s, i, j, d) {
 			if( s == 'shipments' ) {
 				switch(j) {
-					case 0: return d.shipment.invoice_number;
+					case 0: return d.shipment.packing_slip_number;
 					case 1: return d.shipment.invoice_date;
 					case 2: return d.shipment.customer_display_name;
 					case 3: return d.shipment.status_text;

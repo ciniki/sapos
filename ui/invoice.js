@@ -116,8 +116,8 @@ function ciniki_sapos_invoice() {
 				'headerValues':null,
 				'cellClasses':['', '', 'alignright'],
 				},
-			'shipments':{'label':'Shipments', 'type':'simplegrid', 'num_cols':2,
-				'headerValues':null,
+			'shipments':{'label':'Shipments', 'type':'simplegrid', 'num_cols':4,
+				'headerValues':['#', 'Pack Date', 'Ship Date', 'Status'],
 				'cellClasses':[''],
 				'addTxt':'Add Shipment',
 				'addFn':'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'shipment_id\':0, \'invoice_id\':M.ciniki_sapos_invoice.invoice.invoice_id,\'shipment_number\':M.ciniki_sapos_invoice.invoice.nextShipmentNumber});',
@@ -197,8 +197,10 @@ function ciniki_sapos_invoice() {
 			}
 			if( s == 'shipments' ) {
 				switch(j) {
-					case 0: return d.shipment.pack_date;
-					case 1: return d.shipment.status_text;
+					case 0: return d.shipment.shipment_number;
+					case 1: return d.shipment.pack_date;
+					case 2: return d.shipment.ship_date;
+					case 3: return d.shipment.status_text;
 				}
 			}
 		};

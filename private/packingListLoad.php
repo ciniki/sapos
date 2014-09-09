@@ -255,7 +255,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	//
 	$shipment['packing_slip_number'] = $shipment['invoice']['invoice_number'];
 	if( $shipment['shipment_number'] != '' ) {
-		$shipment['packing_slip_number'] .= $shipment['shipment_number'];
+		$shipment['packing_slip_number'] .= '-' . $shipment['shipment_number'];
 	}
 
 	return array('stat'=>'ok', 'shipment'=>$shipment);

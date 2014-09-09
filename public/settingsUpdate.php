@@ -86,6 +86,8 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'invoice-header-business-website',
 		'invoice-bottom-message',
 		'invoice-footer-message',
+		'shipments-default-shipper',
+		'shipments-default-weight-units',
 		);
 	//
 	// Check each valid setting and see if a new value was passed in the arguments for it.
