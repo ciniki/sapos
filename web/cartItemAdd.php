@@ -71,7 +71,17 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		$args['flags'] = isset($item['flags'])?$item['flags']:0;
 		$args['invoice_id'] = $ciniki['session']['cart']['sapos_id'];
 		$args['status'] = 0;
-		$args['description'] = $item['description'];
+		if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0400) > 0 ) {
+			$args['code'] = (isset($item['code'])?$item['code']:'');
+			$args['description'] = $item['description'];
+		} else {
+			$args['code'] = '';
+			if( isset($item['code']) && $item['code'] != '' ) {
+				$args['description'] = $item['code'] . ' - ' . $item['description'];
+			} else {
+				$args['description'] = $item['description'];
+			}
+		}
 		$args['unit_amount'] = $item['unit_amount'];
 		$args['unit_discount_amount'] = $item['unit_discount_amount'];
 		$args['unit_discount_percentage'] = $item['unit_discount_percentage'];

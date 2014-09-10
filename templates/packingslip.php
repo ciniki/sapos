@@ -500,6 +500,9 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
 	$fill=0;
 	$lh = 6;
 	foreach($shipment['invoice']['items'] as $item) {
+		if( isset($item['item']['code']) && $item['item']['code'] != '' ) {
+			$item['item']['description'] = $item['item']['code'] . ' - ' . $item['item']['description'];
+		}
 		$nlines = $pdf->getNumLines($item['item']['description'], $w[0]);
 		if( $nlines == 2 ) {
 			$lh = 3+($nlines*5);

@@ -92,7 +92,8 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		. "ciniki_customers.type AS customer_type, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "";
-	if( isset($args['shipping_status']) && $args['shipping_status'] == 'packlist' ) {
+	if( isset($args['shipping_status']) 
+		&& ($args['shipping_status'] == 'packlist' || $args['shipping_status'] == 'backordered') ) {
 		$strsql .= "COUNT(ciniki_sapos_invoice_items.id) AS items_to_be_shipped, ";
 	}
 	$strsql .= "ciniki_sapos_invoices.total_amount "
@@ -102,7 +103,14 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		$strsql .= "LEFT JOIN ciniki_sapos_invoice_items ON ("
 			. "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
 			. "AND (ciniki_sapos_invoice_items.flags&0x40) > 0 " // Shipped item
-			. "AND ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity > 0 "
+			. "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "
+			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. ") ";
+	} elseif( isset($args['shipping_status']) && $args['shipping_status'] == 'backordered' ) {
+		$strsql .= "LEFT JOIN ciniki_sapos_invoice_items ON ("
+			. "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
+			. "AND (ciniki_sapos_invoice_items.flags&0x0140) = 0x0140 " // Shipped and backordered item
+			. "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") ";
 	}
@@ -148,17 +156,19 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		$strsql .= "AND ciniki_sapos_invoices.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
 	}
 	if( isset($args['shipping_status']) ) {
-		if( $args['shipping_status'] == 'packlist' ) {
+		if( $args['shipping_status'] == 'packlist' || $args['shipping_status'] == 'backordered' ) {
 			$strsql .= "AND ciniki_sapos_invoices.shipping_status > 0 "
 				. "AND ciniki_sapos_invoices.shipping_status < 50 "
 				. "AND ciniki_sapos_invoices.invoice_type != 20 "
+				. "AND ciniki_sapos_invoices.status >= 20 "
 				. "";
 		} elseif( $args['shipping_status'] > 0 ) {
 			$strsql .= "AND ciniki_sapos_invoices.shipping_status = '" . ciniki_core_dbQuote($ciniki, $args['shipping_status']) . "' ";
 		}
 	}
 	$strsql .= "GROUP BY ciniki_sapos_invoices.id ";
-	if( isset($args['shipping_status']) && $args['shipping_status'] == 'packlist' ) {
+	if( isset($args['shipping_status']) 
+		&& ($args['shipping_status'] == 'packlist' || $args['shipping_status'] == 'backordered') ) {
 		$strsql .= "HAVING items_to_be_shipped > 0 ";
 	}
 	if( isset($args['sort']) ) {

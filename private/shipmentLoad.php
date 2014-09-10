@@ -83,6 +83,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	$strsql = "SELECT ciniki_sapos_invoice_items.id, "
 		. "ciniki_sapos_invoice_items.object, "
 		. "ciniki_sapos_invoice_items.object_id, "
+		. "ciniki_sapos_invoice_items.code, "
 		. "ciniki_sapos_invoice_items.description, "
 		. "ciniki_sapos_invoice_items.quantity, "
 		. "ciniki_sapos_invoice_items.shipped_quantity "
@@ -93,7 +94,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'object', 'object_id', 'description', 'quantity', 'shipped_quantity')),
+			'fields'=>array('id', 'object', 'object_id', 'code', 'description', 'quantity', 'shipped_quantity')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -173,6 +174,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		foreach($shipment['items'] as $iid => $item) {
 			$shipment['items'][$iid]['item']['quantity'] = (float)$item['item']['quantity'];
 			if( isset($invoice_items[$item['item']['item_id']]) ) {
+				$shipment['items'][$iid]['item']['code'] = $invoice_items[$item['item']['item_id']]['code'];
 				$shipment['items'][$iid]['item']['description'] = $invoice_items[$item['item']['item_id']]['description'];
 			}
 		}

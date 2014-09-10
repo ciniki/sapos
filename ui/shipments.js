@@ -48,7 +48,7 @@ function ciniki_sapos_shipments() {
 		this.list.sections = {
 			'shipments':{'label':'', 'type':'simplegrid', 'num_cols':4,
 				'sortable':'yes',
-				'headerValues':['Invoice #', 'Date', 'Customer', 'Status'],
+				'headerValues':['Inv #-Shipment #', 'Date', 'Customer', 'Status'],
 				'sortTypes':['number', 'date', 'text', 'text'],
 				'noData':'Nothing to be shipped',
 				},
@@ -102,6 +102,12 @@ function ciniki_sapos_shipments() {
 			else if( args.list == 'pendship' ) {
 				this.showShipments(cb, args.list);
 			}
+			else if( args.list == 'onhold' ) {
+				this.showInvoices(cb, args.list);
+			}
+			else if( args.list == 'backordered' ) {
+				this.showInvoices(cb, args.list);
+			}
 		}
 	};
 
@@ -109,7 +115,31 @@ function ciniki_sapos_shipments() {
 		if( list != null ) { this.invoices._list = list; }
 		if( this.invoices._list == 'packlist' ) {
 			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
-				'status':'30', 'sort':'invoice_date'}, function(rsp) {
+				'shipping_status':'packlist', 'sort':'invoice_date'}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_shipments.invoices;
+					p.data.invoices = rsp.invoices;
+					p.refresh();
+					p.show(cb);
+				});
+		} else if( this.invoices._list == 'onhold' ) {
+			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+				'status':'15', 'sort':'invoice_date'}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_shipments.invoices;
+					p.data.invoices = rsp.invoices;
+					p.refresh();
+					p.show(cb);
+				});
+		} else if( this.invoices._list == 'backordered' ) {
+			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+				'shipping_status':'backordered', 'sort':'invoice_date'}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;

@@ -31,6 +31,7 @@
 #					0x20 - Registration Item
 #					0x40 - Shipped Item
 #					0x80 -
+#					0x0100 - Backordered, the item is out of stock and currently backordered
 #
 # object:			The object for the item in the invoice.  This is the reference to
 #					the package.module.object.  When combined with the object_id the refering
@@ -41,6 +42,8 @@
 #
 # price_id:			The ID of the price attached at the object.  Can be used to track which price
 #					was used for this invoice.
+#
+# code:				The code for the item, if using codes.
 #
 # description:		The description of the item.
 #
@@ -86,6 +89,7 @@ create table ciniki_sapos_invoice_items (
 	object varchar(100) not null,
 	object_id varchar(100) not null,
 	price_id varchar(100) not null,
+	code varchar(150) not null,
 	description varchar(250) not null,
 	quantity decimal(19,4) not null,
 	shipped_quantity decimal(19,4) not null,
@@ -102,4 +106,4 @@ create table ciniki_sapos_invoice_items (
 	primary key (id),
 	index (invoice_id, object, object_id, taxtype_id),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.03';
+) ENGINE='InnoDB', COMMENT='v1.04';

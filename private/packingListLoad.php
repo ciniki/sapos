@@ -188,6 +188,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	$strsql = "SELECT ciniki_sapos_invoice_items.id, "
 		. "ciniki_sapos_invoice_items.object, "
 		. "ciniki_sapos_invoice_items.object_id, "
+		. "ciniki_sapos_invoice_items.code, "
 		. "ciniki_sapos_invoice_items.description, "
 		. "ciniki_sapos_invoice_items.quantity, "
 		. "ciniki_sapos_invoice_items.shipped_quantity, "
@@ -199,7 +200,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'object', 'object_id', 'description', 
+			'fields'=>array('id', 'object', 'object_id', 'code', 'description', 
 				'quantity', 'shipped_quantity', 'backordered_quantity')),
 		));
 	if( $rc['stat'] != 'ok' ) {

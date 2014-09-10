@@ -154,6 +154,9 @@ function ciniki_sapos_invoice() {
 			}
 			if( s == 'items' ) {
 				if( j == 0 ) {
+					if( d.item.code != null && d.item.code != '' ) {
+						return d.item.code + ' - ' + d.item.description;
+					}
 					return d.item.description;
 				}
 				if( j == 1 ) {
@@ -299,6 +302,9 @@ function ciniki_sapos_invoice() {
 		this.item.data = {};
 		this.item.sections = {
 			'details':{'label':'', 'fields':{
+				'code':{'label':'Code', 'type':'text', 'livesearch':'yes', 
+					'livesearchcols':3,
+					},
 				'description':{'label':'Description', 'type':'text', 'livesearch':'yes', 
 					'livesearchcols':3,
 					},
@@ -318,7 +324,7 @@ function ciniki_sapos_invoice() {
 				}},
 			};
 		this.item.liveSearchCb = function(s, i, v) {
-			if( i == 'description' ) {
+			if( i == 'code' || i == 'description' ) {
 				M.api.getJSONBgCb('ciniki.sapos.invoiceItemSearch', {'business_id':M.curBusinessID,
 					'field':i, 'pricepoint_id':M.ciniki_sapos_invoice.invoice.pricepoint_id, 'invoice_id':M.ciniki_sapos_invoice.invoice.invoice_id, 'start_needle':v, 'limit':15}, function(rsp) {
 						M.ciniki_sapos_invoice.item.liveSearchShow(s,i,M.gE(M.ciniki_sapos_invoice.item.panelUID + '_' + i), rsp.items);
@@ -333,7 +339,10 @@ function ciniki_sapos_invoice() {
 		};
 		this.item.liveSearchResultValue = function(s,f,i,j,d) {
 			if( j == 0 ) {
-				if( f == 'description' && d.item != null ) { 
+				if( (f == 'code' || f == 'description') && d.item != null ) { 
+					if( d.item.code != null && d.item.code != '' ) {
+						return d.item.code + ' - ' + d.item.description;
+					}
 					return d.item.description; 
 				}
 			}
@@ -349,15 +358,21 @@ function ciniki_sapos_invoice() {
 			return '';
 		};
 		this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
-			if( f == 'description' && d.item != null ) {
-				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\');';
+			if( (f == 'code' || f == 'description') && d.item != null ) {
+				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\');';
 			}
 		};
-		this.item.updateFromSearch = function(s, fid, o, oid, d, q, u, uda, udp, t) {
+		this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, t) {
 			this.object = o;
 			this.object_id = oid;
+			if( this.sections.details.fields.code.active == 'yes' ) {
+				this.setFieldValue('code', unescape(c));
+			}
 			this.setFieldValue('description', unescape(d));
-			this.setFieldValue('quantity', q);
+			// Only update quantity if nothing specified yet
+			if( this.formFieldValue(this.sections.details.fields.quantity, 'quantity') == '' ) {
+				this.setFieldValue('quantity', q);
+			}
 			this.setFieldValue('unit_amount', unescape(u));
 			this.setFieldValue('unit_discount_amount', unescape(uda));
 			this.setFieldValue('unit_discount_percentage', unescape(udp));
@@ -490,6 +505,8 @@ function ciniki_sapos_invoice() {
 		this.edit.sections.details.fields.shipping_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0)?'yes':'no';
 		this.edit.sections.details.fields.manufacturing_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x80)>0)?'yes':'no';
 
+		this.item.sections.details.fields.code.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0400)>0?'yes':'no');
+
 		//
 		// Setup the taxtypes available for the business
 		//
@@ -508,9 +525,13 @@ function ciniki_sapos_invoice() {
 
 		if( M.curBusiness.modules['ciniki.products'] != null 
 			&& (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0 ) {
+			this.item.sections.details.fields.code.livesearchcols=3;
+			this.item.sections.details.fields.code.headerValues = ['Item', 'Inventory', 'Price'];
 			this.item.sections.details.fields.description.livesearchcols=3;
 			this.item.sections.details.fields.description.headerValues = ['Item', 'Inventory', 'Price'];
 		} else {
+			this.item.sections.details.fields.code.livesearchcols=2;
+			this.item.sections.details.fields.code.headerValues = ['Item', 'Price'];
 			this.item.sections.details.fields.description.livesearchcols=2;
 			this.item.sections.details.fields.description.headerValues = ['Item', 'Price'];
 		}

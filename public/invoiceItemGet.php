@@ -61,6 +61,7 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
 		. "status, "
 		. "object, "
 		. "object_id, "
+		. "code, "
 		. "description, "
 		. "quantity, "
 		. "unit_amount, "

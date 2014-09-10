@@ -15,9 +15,13 @@ function ciniki_sapos_orders() {
 				'noData':'No orders found',
 				},
 			'orders':{'label':'', 'list':{
-				'packlist':{'label':'Packing Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'packlist\'});'},
+//				'packlist':{'label':'Packing Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'packlist\'});'},
+//				'pendship':{'label':'Shipping Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'pendship\'});'},
+				'packlist':{'label':'Packing Required', 'fn':'M.ciniki_sapos_orders.showInvoices(\'M.ciniki_sapos_orders.showMenu();\',\'packlist\',\'Packing Required\');'},
 				'pendship':{'label':'Shipping Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'pendship\'});'},
-				'backordered':{'label':'Backordered Orders', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'backordered\'});'},
+//				'onhold':{'label':'On Hold', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'onhold\'});'},
+				'onhold':{'label':'On Hold', 'fn':'M.ciniki_sapos_orders.showInvoices(\'M.ciniki_sapos_orders.showMenu();\',\'onhold\',\'On Hold\');'},
+				'backordered':{'label':'Backordered', 'fn':'M.ciniki_sapos_orders.showInvoices(\'M.ciniki_sapos_orders.showMenu();\',\'backordered\',\'Backordered\');'},
 				}},
 			'carts':{'label':'', 'list':{
 				'opencarts':{'label':'Open Shopping Carts', 'fn':'M.startApp(\'ciniki.sapos.carts\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'opencarts\'});'},
@@ -67,14 +71,26 @@ function ciniki_sapos_orders() {
 		};
 		this.menu.listCount = function(s, i, d) {
 			if( i == 'packlist' ) {
-				if( this.data.stats.invoices.typestatus['40.30'] != null ) {
-					return this.data.stats.invoices.typestatus['40.30'];
+				if( this.data.stats.shipping.status['available'] != null ) {
+					return this.data.stats.shipping.status['available'];
 				}
 				return '0';
 			}
 			if( i == 'pendship' ) {
 				if( this.data.stats.shipments.status['20'] != null ) {
 					return this.data.stats.shipments.status['20'];
+				}
+				return '0';
+			}
+			if( i == 'onhold' ) {
+				if( this.data.stats.invoices.typestatus['40.15'] != null ) {
+					return this.data.stats.invoices.typestatus['40.15'];
+				}
+				return '0';
+			}
+			if( i == 'backordered' ) {
+				if( this.data.stats.shipping.status['backordered'] != null ) {
+					return this.data.stats.shipping.status['backordered'];
 				}
 				return '0';
 			}
@@ -104,6 +120,45 @@ function ciniki_sapos_orders() {
 		};
 		this.menu.addButton('add', 'Order', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'customer_id\':\'0\',\'invoice_type\':\'40\'});', 'add');
 		this.menu.addClose('Back');
+
+		//
+		// The panel to display a list of invoices 
+		//
+		this.invoices = new M.panel('Orders',
+			'ciniki_sapos_orders', 'invoices',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.orders.invoices');
+		this.invoices.data = {};
+		this.invoices.sections = {
+			'invoices':{'label':'', 'type':'simplegrid', 'num_cols':4,
+				'sortable':'yes',
+				'headerValues':['Invoice #', 'Date', 'Customer', 'Status'],
+				'sortTypes':['number', 'date', 'text', 'text'],
+				'noData':'No orders found',
+				},
+		};
+		this.invoices.sectionData = function(s) {
+			return this.data[s];
+		};
+		this.invoices.noData = function(s) {
+			return this.sections[s].noData;
+		};
+		this.invoices.cellValue = function(s, i, j, d) {
+			if( s == 'invoices' ) {
+				switch(j) {
+					case 0: return d.invoice.invoice_number;
+					case 1: return d.invoice.invoice_date;
+					case 2: return d.invoice.customer_display_name;
+					case 3: return d.invoice.status_text;
+				}
+			}
+		};
+		this.invoices.rowFn = function(s, i, d) {
+			if( s == 'invoices' ) {
+				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
+			}
+		};
+		this.invoices.addClose('Back');
+
 	};
 
 	//
@@ -160,4 +215,47 @@ function ciniki_sapos_orders() {
 				p.show(cb);
 			});
 	};
+
+	this.showInvoices = function(cb, list, title) {
+		if( list != null ) { this.invoices._list = list; }
+		if( title != null ) { this.invoices.title = title; }
+		if( this.invoices._list == 'packlist' ) {
+			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+				'shipping_status':'packlist', 'sort':'invoice_date'}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_orders.invoices;
+					p.data.invoices = rsp.invoices;
+					p.refresh();
+					p.show(cb);
+				});
+		} else if( this.invoices._list == 'onhold' ) {
+			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+				'status':'15', 'sort':'invoice_date'}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_orders.invoices;
+					p.data.invoices = rsp.invoices;
+					p.refresh();
+					p.show(cb);
+				});
+		} else if( this.invoices._list == 'backordered' ) {
+			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+				'shipping_status':'backordered', 'sort':'invoice_date'}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_orders.invoices;
+					p.data.invoices = rsp.invoices;
+					p.refresh();
+					p.show(cb);
+				});
+		}
+	};
+
 }

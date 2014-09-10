@@ -83,6 +83,29 @@ function ciniki_sapos_latest(&$ciniki) {
 		$stats['shipments'] = array('status'=>$rc['stats']);
 
 		//
+		// Get the number of orders that have items left to be shipped
+		//
+		$strsql = "SELECT IF((ciniki_sapos_invoice_items.flags&0x0100)=0,'available','backordered') AS bo_status, "
+			. "COUNT(DISTINCT ciniki_sapos_invoices.id) "
+			. "FROM ciniki_sapos_invoices, ciniki_sapos_invoice_items "
+			. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_sapos_invoices.status >= 20 "
+			. "AND ciniki_sapos_invoices.shipping_status > 0 "
+			. "AND ciniki_sapos_invoices.shipping_status < 50 "
+			. "AND ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
+			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "
+			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "GROUP BY bo_status "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'stats');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$stats['shipping'] = array('status'=>$rc['stats']);
+
+		//
 		// Get the number
 		//
 		$strsql = "SELECT "
