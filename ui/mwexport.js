@@ -13,7 +13,7 @@ function ciniki_sapos_mwexport() {
 		//
 		// The panel to display the Calendars, which include any business appointments
 		//
-		this.shipments = new M.panel('Smart Border',
+		this.shipments = new M.panel('Export',
 			'ciniki_sapos_mwexport', 'shipments',
 			'mc', 'xlarge', 'sectioned', 'ciniki.sapos.mwexport.shipments');
 		this.shipments.data = {};
@@ -28,6 +28,8 @@ function ciniki_sapos_mwexport() {
 				}},
 			'_buttons':{'label':'', 'buttons':{
 				'update':{'label':'Update', 'fn':'M.ciniki_sapos_mwexport.showShipments();'},
+//				'downloadtab':{'label':'Download Tab Delimited', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'tab\');'},
+				'downloadexcel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'excel\');'},
 				}},
 			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':8,
 				'headerValues':['INV #', 'Ship #', 'Order Date', 'Ship Date', 'Customer', 'Code', 'Description', 'Quantity'],
@@ -52,6 +54,9 @@ function ciniki_sapos_mwexport() {
 				case 6: return d.item.description;
 				case 7: return d.item.shipment_quantity;
 			}
+		};
+		this.shipments.rowFn = function(s, i, d) {
+			return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_mwexport\',\'mc\',{\'invoice_id\':\'' + d.item.invoice_id + '\'});';
 		};
 		this.shipments.addClose('Back');
 	}
@@ -78,11 +83,12 @@ function ciniki_sapos_mwexport() {
 		if( args.date != null ) {
 			this.showShipments(cb, args.date);
 		} else {
-			this.showShipments(cb, 'today');
+			var dt = new Date();
+			this.showShipments(cb, M.dateFormat(dt));
 		}
 	}
 
-	this.showShipments = function(cb, sd) {
+	this.showShipments = function(cb, sd, format) {
 		if( sd != null ) { 
 			this.shipments.data.start_date = sd;
 			this.shipments.data.end_date = '';
@@ -90,17 +96,24 @@ function ciniki_sapos_mwexport() {
 			this.shipments.data.start_date = this.shipments.formFieldValue(this.shipments.sections.datepicker.fields.start_date, 'start_date');
 			this.shipments.data.end_date = this.shipments.formFieldValue(this.shipments.sections.datepicker.fields.end_date, 'end_date');
 		}
-		M.api.getJSONCb('ciniki.sapos.reportMWExport', 
-			{'business_id':M.curBusinessID, 'start_date':this.shipments.data.start_date,
-				'end_date':this.shipments.data.end_date}, function(rsp) {
-				if( rsp.stat != 'ok' ) {
-					M.api.err(rsp);
-					return false;
-				}
-				var p = M.ciniki_sapos_mwexport.shipments;
-				p.data.items = rsp.items;
-				p.refresh();
-				p.show(cb);
-			});
+		var args = {'business_id':M.curBusinessID, 
+			'start_date':this.shipments.data.start_date,
+			'end_date':this.shipments.data.end_date,
+			};
+		if( format != null ) {
+			args['output'] = format;
+			window.open(M.api.getUploadURL('ciniki.sapos.reportMWExport', args));
+			delete(args['output']);
+		}
+		M.api.getJSONCb('ciniki.sapos.reportMWExport', args, function(rsp) {
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			var p = M.ciniki_sapos_mwexport.shipments;
+			p.data.items = rsp.items;
+			p.refresh();
+			p.show(cb);
+		});
 	};
 }

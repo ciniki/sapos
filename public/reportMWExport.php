@@ -20,6 +20,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'start_date'=>array('required'=>'yes', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Start Date'), 
         'end_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'End Date'), 
+        'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -62,17 +63,26 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	// Build the date range
 	//
 	$rsp = array('stat'=>'ok');
+	$start_date = new DateTime($args['start_date'], new DateTimeZone('UTC'));
+	$args['start_date'] = $start_date->format('Y-m-d H:i:s');
 	if( !isset($args['end_date']) || $args['end_date'] == '' ) {
 		// Set the end date if not specified to one day in the future
-		$ts = strtotime($args['start_date']);
-		$start_date = new DateTime($args['start_date'], new DateTimeZone('UTC'));
 		$end_date = clone($start_date);
 		$end_date->add(new DateInterval('P1D'));
 		$args['end_date'] = $end_date->format('Y-m-d H:i:s');
+		$start_date->setTimezone(new DateTimeZone($intl_timezone));
+		$excel_title = "Export_" . $start_date->format('Y-m-d');
+		$sheet_title = $start_date->format('Y-m-d');
 	} else {
 		// Make sure end date is set to end of day
-		$ts = strtotime($args['end_date']);
 		$end_date = new DateTime($args['end_date'], new DateTimeZone('UTC'));
+
+		$start_date->setTimezone(new DateTimeZone($intl_timezone));
+		$excel_title = "Export_" . $start_date->format('Y-m-d');
+		$sheet_title = $start_date->format('Y-m-d');
+		$end_date->setTimezone(new DateTimeZone($intl_timezone));
+		$sheet_title .= ' - ' . $end_date->format('Y-m-d');
+
 		$end_date->add(new DateInterval('P1D'));
 		$args['end_date'] = $end_date->format('Y-m-d H:i:s');
 	}
@@ -183,6 +193,77 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 //		$shipments[$sid]['shipment']['num_pieces'] = $num_pieces;
 //	}
 //	
+	//
+	// Check if output should be excel
+	//
+	if( isset($args['output']) && $args['output'] == 'excel' ) {
+		ini_set('memory_limit', '4192M');
+		require($ciniki['config']['core']['lib_dir'] . '/PHPExcel/PHPExcel.php');
+		$objPHPExcel = new PHPExcel();
+		$sheet = $objPHPExcel->setActiveSheetIndex(0);
+		error_log($sheet_title);
+		$sheet->setTitle($sheet_title);
+
+		//
+		// Headers
+		//
+		$i = 0;
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Ship #', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Order Date', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Ship Date', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Code', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Description', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Quantity', false);
+		$sheet->getStyle('A1:H1')->getFont()->setBold(true);
+
+		//
+		// Output the invoice list
+		//
+		$row = 2;
+		foreach($items as $iid => $item) {
+			$item = $item['item'];
+			$i = 0;
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_number'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_number'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_date'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['ship_date'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['customer_display_name'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['code'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['description'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_quantity'], false);
+			$row++;
+		}
+		$sheet->getColumnDimension('A')->setAutoSize(true);
+		$sheet->getColumnDimension('B')->setAutoSize(true);
+		$sheet->getColumnDimension('C')->setAutoSize(true);
+		$sheet->getColumnDimension('D')->setAutoSize(true);
+		$sheet->getColumnDimension('E')->setAutoSize(true);
+		$sheet->getColumnDimension('F')->setAutoSize(true);
+		$sheet->getColumnDimension('G')->setAutoSize(true);
+		$sheet->getColumnDimension('H')->setAutoSize(true);
+
+		//
+		// Output the excel
+		//
+		header('Content-Type: application/vnd.ms-excel');
+		$filename = preg_replace('/[^a-zA-Z0-9_\-]/', '', $excel_title);
+		header('Content-Disposition: attachment;filename="' . $filename . '.xls"');
+		header('Cache-Control: max-age=0');
+		
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+		$objWriter->save('php://output');
+
+		return array('stat'=>'exit');
+	}
+
+	elseif( isset($args['output']) && $args['output'] == 'tab' ) {
+		// FIXME: output tab delimited version
+	}
+
+	
+
 	return array('stat'=>'ok', 'items'=>$items);
 }
 ?>
