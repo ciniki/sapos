@@ -33,10 +33,10 @@ function ciniki_sapos_mwexport() {
 //				'downloadtab':{'label':'Download Tab Delimited', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'tab\');'},
 				'downloadexcel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'excel\');'},
 				}},
-			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':19,
+			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':22,
 				'headerValues':['INV #', 'Ship #', 'Order Date', 'Ship Date', 'Invoice Status', 
 					'ID', 'Customer', 'Rep', 
-					'Shipper', 'Tracking #', 'Freight Amount', 
+					'Shipper', 'Tracking #', 'Freight Amount', '# Boxes', '# Pieces', 'Weight',
 					'Code', 'Description', 'Quantity',
 					'Price Code', 'Unit Amount', 'Total', 'Tax Code', 'Invoice Total'],
 				'sortable':'yes',
@@ -70,14 +70,17 @@ function ciniki_sapos_mwexport() {
 				case 8: return d.item.shipping_company;
 				case 9: return d.item.tracking_number;
 				case 10: return d.item.freight_amount_display;
-				case 11: return d.item.code;
-				case 12: return d.item.description;
-				case 13: return d.item.shipment_quantity;
-				case 14: return d.item.pricepoint_code;
-				case 15: return d.item.unit_amount_display;
-				case 16: return d.item.total_amount_display;
-				case 17: return d.item.tax_location_code;
-				case 18: return d.item.invoice_total_amount_display;
+				case 11: return d.item.num_boxes;
+				case 12: return d.item.num_pieces;
+				case 13: return d.item.weight;
+				case 14: return d.item.code;
+				case 15: return d.item.description;
+				case 16: return d.item.shipment_quantity;
+				case 17: return d.item.pricepoint_code;
+				case 18: return d.item.unit_amount_display;
+				case 19: return d.item.total_amount_display;
+				case 20: return d.item.tax_location_code;
+				case 21: return d.item.invoice_total_amount_display;
 			}
 		};
 		this.shipments.rowFn = function(s, i, d) {

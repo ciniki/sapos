@@ -273,7 +273,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	$invoices = array();	// The array of invoice totals
 	foreach($items as $iid => $item) {
 		if( !isset($invoices[$item['item']['invoice_id']]) ) {
-			$invoices[$item['item']['invoice_id']] = array('total_amount'=>0);
+			$invoices[$item['item']['invoice_id']] = array('total_amount'=>0, 'num_pieces'=>0);
 		}
 		if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0800) > 0 ) {
 			if( isset($salesreps[$item['item']['salesrep_id']]) ) {
@@ -311,15 +311,17 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$rc['total'], $intl_currency);
 		$items[$iid]['item']['unit_amount_display'] = numfmt_format_currency($intl_currency_fmt,
 			$item['item']['unit_amount'], $intl_currency);
-		$invoices[$item['item']['invoice_id']]['total_amount'] += $rc['total'];
 		$items[$iid]['item']['freight_amount_display'] = numfmt_format_currency($intl_currency_fmt,
 			$item['item']['freight_amount'], $intl_currency);
+		$invoices[$item['item']['invoice_id']]['total_amount'] += $rc['total'];
+		$invoices[$item['item']['invoice_id']]['num_pieces'] += $item['item']['shipment_quantity'];
 	}
 
 	//
 	// Set the invoice totals
 	//
 	foreach($items as $iid => $item) {
+		$items[$iid]['item']['num_pieces'] = $invoices[$item['item']['invoice_id']]['num_pieces'];
 		$items[$iid]['item']['invoice_total_amount'] = $invoices[$item['item']['invoice_id']]['total_amount'];
 		$items[$iid]['item']['invoice_total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
 			$invoices[$item['item']['invoice_id']]['total_amount'], $intl_currency);
@@ -366,6 +368,9 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipper', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tracking Number', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Freight Amount', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Num Boxes', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Num Pieces', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Weight', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Description', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Quantity', false);
@@ -394,6 +399,9 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_company'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tracking_number'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['freight_amount'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_boxes'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_pieces'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['weight'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['description'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_quantity'], false);
@@ -423,6 +431,9 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->getColumnDimension('Q')->setAutoSize(true);
 		$sheet->getColumnDimension('R')->setAutoSize(true);
 		$sheet->getColumnDimension('S')->setAutoSize(true);
+		$sheet->getColumnDimension('T')->setAutoSize(true);
+		$sheet->getColumnDimension('U')->setAutoSize(true);
+		$sheet->getColumnDimension('V')->setAutoSize(true);
 
 		//
 		// Output the excel
