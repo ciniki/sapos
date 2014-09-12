@@ -321,6 +321,8 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	//
 	foreach($items as $iid => $item) {
 		$items[$iid]['item']['invoice_total_amount'] = $invoices[$item['item']['invoice_id']]['total_amount'];
+		$items[$iid]['item']['invoice_total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
+			$invoices[$item['item']['invoice_id']]['total_amount'], $intl_currency);
 	}
 //		$num_pieces = 0;
 //		$total_amount = 0;
@@ -353,14 +355,25 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		// Headers
 		//
 		$i = 0;
-		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
-		$sheet->setCellValueByColumnAndRow($i++, 1, 'Ship #', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Number', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment Number', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Order Date', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Ship Date', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Status', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Customer ID', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Rep', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipper', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tracking Number', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Freight Amount', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Description', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Quantity', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Price Code', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Unit Amount', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tax Code', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
 		$sheet->getStyle('A1:H1')->getFont()->setBold(true);
 
 		//
@@ -374,10 +387,21 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_number'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_date'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['ship_date'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['status_text'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['customer_eid'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['customer_display_name'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['salesrep_display_name'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_company'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tracking_number'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['freight_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['description'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_quantity'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['pricepoint_code'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['unit_amount'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['total_amount'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tax_location_code'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_total_amount'], false);
 			$row++;
 		}
 		$sheet->getColumnDimension('A')->setAutoSize(true);
@@ -388,6 +412,17 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->getColumnDimension('F')->setAutoSize(true);
 		$sheet->getColumnDimension('G')->setAutoSize(true);
 		$sheet->getColumnDimension('H')->setAutoSize(true);
+		$sheet->getColumnDimension('I')->setAutoSize(true);
+		$sheet->getColumnDimension('J')->setAutoSize(true);
+		$sheet->getColumnDimension('K')->setAutoSize(true);
+		$sheet->getColumnDimension('L')->setAutoSize(true);
+		$sheet->getColumnDimension('M')->setAutoSize(true);
+		$sheet->getColumnDimension('N')->setAutoSize(true);
+		$sheet->getColumnDimension('O')->setAutoSize(true);
+		$sheet->getColumnDimension('P')->setAutoSize(true);
+		$sheet->getColumnDimension('Q')->setAutoSize(true);
+		$sheet->getColumnDimension('R')->setAutoSize(true);
+		$sheet->getColumnDimension('S')->setAutoSize(true);
 
 		//
 		// Output the excel
