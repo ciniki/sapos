@@ -78,6 +78,7 @@ function ciniki_sapos_invoice() {
 				'invoice_number':{'label':'Invoice #'},
 				'invoice_type_text':{'label':'Type'},
 				'po_number':{'label':'PO #'},
+				'salesrep_id_text':{'label':'Sales Rep'},
 				'status_text':{'label':'Status'},
 				'payment_status_text':{'label':'Payment'},
 				'shipping_status_text':{'label':'Shipping'},
@@ -249,6 +250,7 @@ function ciniki_sapos_invoice() {
 				'invoice_type':{'label':'Type', 'active':'yes', 'type':'toggle', 'default':'invoice', 'toggles':M.ciniki_sapos_invoice.invoiceTypes},
 				'invoice_number':{'label':'Invoice #', 'type':'text', 'size':'small'},
 				'po_number':{'label':'PO #', 'type':'text', 'size':'medium'},
+				'salesrep_id':{'label':'Sales Rep', 'active':'no', 'type':'select', 'options':{}},
 				'status':{'label':'Status', 'type':'select', 'options':M.ciniki_sapos_invoice.invoiceStatuses},
 				'payment_status':{'label':'Payment', 'type':'select', 'options':M.ciniki_sapos_invoice.paymentStatuses},
 				'shipping_status':{'label':'Shipping', 'type':'select', 'options':M.ciniki_sapos_invoice.shippingStatuses},
@@ -256,6 +258,8 @@ function ciniki_sapos_invoice() {
 				'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
 				'due_date':{'label':'Due Date', 'type':'text', 'size':'medium'},
 				'flags':{'label':'Options', 'type':'flags', 'flags':this.invoiceFlags},
+				'tax_location_id':{'label':'Tax Location', 'active':'no', 'type':'select', 'options':{}},
+				'pricepoint_id':{'label':'Pricepoint', 'active':'no', 'type':'select', 'options':{}},
 				}},
 			'billing':{'label':'Billing Address', 'fields':{
 				'billing_name':{'label':'Name', 'type':'text'},
@@ -299,6 +303,7 @@ function ciniki_sapos_invoice() {
 //		this.item.pricepoint_id = 0;
 		this.item.object = '';
 		this.item.object_id = 0;
+		this.item.price_id = 0;
 		this.item.data = {};
 		this.item.sections = {
 			'details':{'label':'', 'fields':{
@@ -359,10 +364,10 @@ function ciniki_sapos_invoice() {
 		};
 		this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
 			if( (f == 'code' || f == 'description') && d.item != null ) {
-				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\');';
+				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\');';
 			}
 		};
-		this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, t) {
+		this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, t, pid) {
 			this.object = o;
 			this.object_id = oid;
 			if( this.sections.details.fields.code.active == 'yes' ) {
@@ -379,6 +384,7 @@ function ciniki_sapos_invoice() {
 			if( M.curBusiness.modules['ciniki.taxes'] != null ) {
 				this.setFieldValue('taxtype_id', t);
 			}
+			this.price_id = pid;
 			this.removeLiveSearch(s, fid);
 		};
 		this.item.fieldValue = function(s, i, d) {
@@ -518,7 +524,23 @@ function ciniki_sapos_invoice() {
 					this.item.sections.details.fields.taxtype_id.options[M.curBusiness.taxes.settings.types[i].type.id] = M.curBusiness.taxes.settings.types[i].type.name;
 				}
 			}
+			//
+			// Setup the tax locations
+			//
+			if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 
+				&& M.curBusiness.taxes.settings != null
+				&& M.curBusiness.taxes.settings.locations != null
+				) {
+				var locations = {'0':'Use Shipping Address'};
+				var locs = M.curBusiness.taxes.settings.locations;
+				for(i in locs) {
+					locations[locs[i].location.id] = locs[i].location.name + ' [' + (locs[i].location.rates!=null?locs[i].location.rates:'None') + ']';
+				}
+				this.edit.sections.details.fields.tax_location_id.active = 'yes';
+				this.edit.sections.details.fields.tax_location_id.options = locations;
+			}
 		} else {
+			this.edit.sections.details.fields.tax_location_id.active = 'no';
 			this.item.sections.details.fields.taxtype_id.active = 'no';
 			this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
 		}
@@ -668,6 +690,7 @@ function ciniki_sapos_invoice() {
 		p.sections.details.list.due_date.visible=(rsp.invoice.due_date!='')?'yes':'no';
 		p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
 		p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
+		p.sections.details.list.salesrep_id_text.visible=(rsp.invoice.salesrep_id_text!=null&&rsp.invoice.salesrep_id_text!='')?'yes':'no';
 		if( rsp.invoice.status < 50 ) {
 			p.sections.details.list.status_text.visible = 'yes';
 			p.sections.details.list.payment_status_text.visible = (rsp.invoice.payment_status>0)?'yes':'no';
@@ -816,13 +839,28 @@ function ciniki_sapos_invoice() {
 		if( iid != null ) { this.edit.invoice_id = iid; }
 		if( this.invoice.invoice_id > 0 ) {
 			M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID,
-				'invoice_id':this.invoice.invoice_id}, function(rsp) {
+				'invoice_id':this.invoice.invoice_id, 'salesreps':'yes'}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;
 					}
 					var p = M.ciniki_sapos_invoice.edit;
 					p.data = rsp.invoice;
+					// Sales Reps
+					if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
+						if( rsp.salesreps != null ) {
+							p.sections.details.fields.salesrep_id.active = 'yes';
+							var reps = {'0':'None'};
+							for(i in rsp.salesreps) {
+								reps[rsp.salesreps[i].user.id] = rsp.salesreps[i].user.name;
+							}
+							p.sections.details.fields.salesrep_id.options = reps;
+						} else {
+							p.sections.details.fields.salesrep_id.options = {'0':'None'};
+						}
+					} else {
+						p.sections.details.fields.salesrep_id.active = 'no';
+					}
 					p.refresh();
 					p.show(cb);
 				});
@@ -939,6 +977,7 @@ function ciniki_sapos_invoice() {
 					}
 					var p = M.ciniki_sapos_invoice.item;
 					p.data = rsp.item;
+					p.price_id = rsp.item.price_id;
 //					if( rsp.taxtypes != null ) {
 //						p.sections.details.fields.taxtype_id.active = 'yes';
 //						p.sections.details.fields.taxtype_id.type=((rsp.taxtypes.length>4)?'select':'toggle');
@@ -958,6 +997,7 @@ function ciniki_sapos_invoice() {
 			p.reset();
 			p.object = '';
 			p.object_id = 0;
+			p.price_id = 0;
 			p.sections._buttons.buttons.delete.visible = 'no';
 //			if( M.curBusiness.modules['ciniki.taxes'] != null ) {
 //				M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
@@ -985,6 +1025,15 @@ function ciniki_sapos_invoice() {
 	this.saveItem = function() {
 		if( this.item.item_id > 0 ) {
 			var c = this.item.serializeForm('no');
+			if( this.item.object != this.item.data.object ) {
+				c += 'object=' + this.item.object + '&';
+			}
+			if( this.item.object_id != this.item.data.object_id ) {
+				c += 'object_id=' + this.item.object_id + '&';
+			}
+			if( this.item.price_id != this.item.data.price_id ) {
+				c += 'price_id=' + this.item.price_id + '&';
+			}
 			if( c != '' ) {
 				M.api.postJSONCb('ciniki.sapos.invoiceItemUpdate', {'business_id':M.curBusinessID,
 					'item_id':this.item.item_id}, c, function(rsp) {
@@ -1004,6 +1053,9 @@ function ciniki_sapos_invoice() {
 			}
 			if( this.item.object_id > 0 ) {
 				c += 'object_id=' + this.item.object_id + '&';
+			}
+			if( this.item.price_id > 0 ) {
+				c += 'price_id=' + this.item.price_id + '&';
 			}
 			M.api.postJSONCb('ciniki.sapos.invoiceItemAdd', {'business_id':M.curBusinessID,
 				'invoice_id':this.item.invoice_id}, c, function(rsp) {

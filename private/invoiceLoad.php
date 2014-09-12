@@ -55,6 +55,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "invoice_number, "
 		. "po_number, "
 		. "customer_id, "
+		. "salesrep_id, "
 		. "invoice_type, "
 		. "invoice_type AS invoice_type_text, "
 		. "status, "
@@ -87,6 +88,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "shipping_postal, "
 		. "shipping_country, "
 		. "shipping_notes, "
+		. "tax_location_id, "
+		. "pricepoint_id, "
 		. "shipping_amount, "
 		. "subtotal_amount, "
 		. "subtotal_discount_percentage, "
@@ -104,7 +107,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "";
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-			'fields'=>array('id', 'invoice_number', 'po_number', 'customer_id', 
+			'fields'=>array('id', 'invoice_number', 'po_number', 'customer_id', 'salesrep_id',
 				'invoice_type', 'invoice_type_text', 'status', 'status_text',
 				'payment_status', 'payment_status_text',
 				'shipping_status', 'shipping_status_text',
@@ -114,6 +117,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'billing_province', 'billing_postal', 'billing_country',
 				'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
 				'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_notes',
+				'tax_location_id', 'pricepoint_id', 
 				'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
 				'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
 				'paid_amount', 'balance_amount',
@@ -177,6 +181,27 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 //		if( isset($rc['customers']) && isset($rc['customers'][0]['customer']) ) {
 //			$invoice['customer'] = $rc['customers'][0]['customer'];
 //		}
+	}
+
+	//
+	// Check if salesrep specified
+	//
+	if( $invoice['salesrep_id'] > 0 ) {
+		$strsql = "SELECT display_name "
+			. "FROM ciniki_business_users, ciniki_users "
+			. "WHERE ciniki_business_users.user_id = '" . ciniki_core_dbQuote($ciniki, $invoice['salesrep_id']) . "' "
+			. "AND ciniki_business_users.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND ciniki_business_users.package = 'ciniki' "
+			. "AND ciniki_business_users.permission_group = 'salesreps' "
+			. "AND ciniki_business_users.user_id = ciniki_users.id "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'user');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['user']) ) {
+			$invoice['salesrep_id_text'] = $rc['user']['display_name'];
+		}
 	}
 
 	//

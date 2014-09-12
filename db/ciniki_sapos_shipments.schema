@@ -59,6 +59,7 @@ create table ciniki_sapos_shipments (
 	boxes int not null,
 	pack_date datetime not null,
 	ship_date datetime not null,
+	freight_amount decimal(19,4) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),

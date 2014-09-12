@@ -22,6 +22,8 @@
 #
 # customer_id:			The ID of the customer the invoice is for.
 #
+# salesrep_id:			The ID of the salesrep for this invoice, 0 if no rep.
+#
 # invoice_type:			The type of invoice
 #
 #						0 - Unknown
@@ -100,6 +102,8 @@
 #
 # tax_location_id:		The ID of the tax location for the invoice.  If set to 0, then
 #						use the customers tax location if specified.
+# 
+# pricepoint_id:		The ID of the pricepoint for this invoice, from customers.
 #
 # subtotal_amount:				The amount before taxes, NOT including shipping amount.
 # subtotal_discount_percentage:	The percent discount to apply to the subtotal amount.
@@ -130,6 +134,7 @@ create table ciniki_sapos_invoices (
 	invoice_number varchar(20) not null,
 	po_number varchar(100) not null,
 	customer_id int not null,
+	salesrep_id int not null,
 	invoice_type tinyint unsigned not null,
 	status tinyint unsigned not null,
 	payment_status tinyint unsigned not null,
@@ -154,6 +159,7 @@ create table ciniki_sapos_invoices (
 	shipping_country varchar(50) not null,
 	shipping_notes varchar(5000) not null,
 	tax_location_id int not null,
+	pricepoint_id int not null,
 	subtotal_amount decimal(19,4) not null,
 	subtotal_discount_amount decimal(19,4) not null,
 	subtotal_discount_percentage decimal(19,4) not null,
@@ -172,4 +178,4 @@ create table ciniki_sapos_invoices (
 	index (customer_id, status, invoice_date),
 	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.05';
+) ENGINE='InnoDB', COMMENT='v1.06';

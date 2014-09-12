@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table ciniki_sapos_invoices to version 1.04.
+#
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN salesrep_id int not null AFTER customer_id;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.06';

@@ -67,6 +67,7 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
 		. "unit_amount, "
 		. "unit_discount_amount, "
 		. "unit_discount_percentage, "
+		. "price_id, "
 		. "subtotal_amount, "
 		. "discount_amount, "
 		. "total_amount, "

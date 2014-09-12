@@ -19,6 +19,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
+        'salesrep_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Salesrep'), 
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Number'),
 		'invoice_type'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Type'),
 		'po_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'PO Number'),
@@ -45,6 +46,8 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		'shipping_province'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Province'),
 		'shipping_postal'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Postal'),
 		'shipping_country'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Country'),
+		'tax_location_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Tax Location'),
+		'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Pricepoint'),
 		'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -65,12 +68,32 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
 	//
+	// Get the existing invoice details to compare fields
+	//
+	$strsql = "SELECT invoice_number, customer_id, salesrep_id, tax_location_id, pricepoint_id "
+		. "FROM ciniki_sapos_invoices "
+		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( !isset($rc['invoice']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2011', 'msg'=>'Unable to find invoice'));
+	}
+	$invoice = $rc['invoice'];
+
+	//
 	// If a customer is specified, then lookup the customer details and fill out the invoice
 	// based on the customer.  
 	//
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
 		$strsql = "SELECT ciniki_customers.id, ciniki_customers.type, ciniki_customers.display_name, "
 			. "ciniki_customers.company, "
+			. "ciniki_customers.salesrep_id, "
+			. "ciniki_customers.tax_location_id, "
+			. "ciniki_customers.pricepoint_id, "
 			. "ciniki_customer_addresses.id AS address_id, "
 			. "ciniki_customer_addresses.flags, "
 			. "ciniki_customer_addresses.address1, "
@@ -88,7 +111,8 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 			. "";
 		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(
 			array('container'=>'customers', 'fname'=>'id', 
-				'fields'=>array('id', 'type', 'display_name', 'company')),
+				'fields'=>array('id', 'type', 'display_name', 'company', 
+					'salesrep_id', 'tax_location_id', 'pricepoint_id')),
 			array('container'=>'addresses', 'fname'=>'address_id',
 				'fields'=>array('id'=>'address_id', 'flags', 'address1', 'address2', 'city', 'province', 'postal', 'country')),
 			));
@@ -97,6 +121,22 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		}
 		if( isset($rc['customers']) && isset($rc['customers'][$args['customer_id']]) ) {
 			$customer = $rc['customers'][$args['customer_id']];
+			if( isset($customer['salesrep_id']) && $customer['salesrep_id'] > 0 
+				&& (!isset($args['salesrep_id']) && $invoice['salesrep_id'] == 0) 
+				) {
+				// Only set the salesrep_id if there isn't already one set.
+				$args['salesrep_id'] = $customer['salesrep_id'];
+			}
+			if( isset($customer['tax_location_id']) && $customer['tax_location_id'] > 0 
+				&& (!isset($args['tax_location_id']) && $invoice['tax_location_id'] == 0) 
+				) {
+				$args['tax_location_id'] = $customer['tax_location_id'];
+			}
+			if( isset($customer['pricepoint_id']) && $customer['pricepoint_id'] > 0 
+				&& (!isset($args['pricepoint_id']) && $invoice['pricepoint_id'] == 0) 
+				) {
+				$args['pricepoint_id'] = $customer['pricepoint_id'];
+			}
 //			$rc['customers'][$args['customer_id']]['name'] = $customer['display_name'];
 
 			if( (isset($args['billing_name']) && $args['billing_name'] == '') || $args['billing_update'] == 'yes' ) {

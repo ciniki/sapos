@@ -21,6 +21,7 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'inventory'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Inventory'), 
+        'salesreps'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Sales Reps'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -36,6 +37,7 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
+	$modules = $rc['modules'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
@@ -91,6 +93,39 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
 		}
 	}
 
-	return array('stat'=>'ok', 'invoice'=>$invoice);
+	$rsp = array('stat'=>'ok', 'invoice'=>$invoice);
+
+	//
+	// Check if we need to return the list of sales reps
+	//
+	if( ($modules['ciniki.sapos']['flags']&0x0800) > 0
+		&& isset($args['salesreps']) && $args['salesreps'] == 'yes' 
+		) {
+		//
+		// Get the active sales reps
+		//
+		$strsql = "SELECT ciniki_users.id, ciniki_users.display_name "
+			. "FROM ciniki_business_users, ciniki_users "
+			. "WHERE ciniki_business_users.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_business_users.package = 'ciniki' "
+			. "AND ciniki_business_users.permission_group = 'salesreps' "
+			. "AND ciniki_business_users.status < 60 "
+			. "AND ciniki_business_users.user_id = ciniki_users.id "
+			. "";
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.customers', array(
+			array('container'=>'salesreps', 'fname'=>'id', 'name'=>'user',
+				'fields'=>array('id', 'name'=>'display_name')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['salesreps']) ) {
+			$rsp['salesreps'] = $rc['salesreps'];
+		} else {
+			$rsp['salesreps'] = array();
+		}
+	}
+
+	return $rsp;
 }
 ?>

@@ -59,7 +59,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
 	// Get the existing item details
 	//
 	$strsql = "SELECT id, invoice_id, object, object_id, "
-		. "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
+		. "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, price_id, "
 		. "subtotal_amount, discount_amount, total_amount "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "

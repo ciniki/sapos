@@ -99,7 +99,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	// Check if item already exists in the invoice
 	//
 	$strsql = "SELECT id, invoice_id, object, object_id, "
-		. "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
+		. "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, price_id, "
 		. "subtotal_amount, discount_amount, total_amount "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "

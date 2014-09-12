@@ -34,6 +34,7 @@ function ciniki_sapos_shipment() {
 				'boxes':{'label':'Boxes', 'type':'text', 'size':'small'},
 				'pack_date':{'label':'Pack Date', 'type':'date', 'size':'medium'},
 				'ship_date':{'label':'Ship Date', 'type':'date', 'size':'medium'},
+				'freight_amount':{'label':'Freight Amount', 'type':'date', 'size':'medium'},
 				}},
 			'invoice_items':{'label':'Unshipped Items', 'type':'simplegrid', 'num_cols':4,
 				'headerValues':['Item', 'Qty', 'Inv', ''],

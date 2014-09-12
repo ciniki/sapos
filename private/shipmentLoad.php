@@ -21,8 +21,8 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		return $rc;
 	}
 	$intl_timezone = $rc['settings']['intl-default-timezone'];
-//	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
-//	$intl_currency = $rc['settings']['intl-default-currency'];
+	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+	$intl_currency = $rc['settings']['intl-default-currency'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki, 'php');
@@ -52,7 +52,8 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_shipments.td_number, "
 		. "ciniki_sapos_shipments.boxes, "
 		. "ciniki_sapos_shipments.pack_date, "
-		. "ciniki_sapos_shipments.ship_date "
+		. "ciniki_sapos_shipments.ship_date, "
+		. "ciniki_sapos_shipments.freight_amount "
 		. "FROM ciniki_sapos_shipments "
 		. "WHERE ciniki_sapos_shipments.id = '" . ciniki_core_dbQuote($ciniki, $shipment_id) . "' "
 		. "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -62,7 +63,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
 			'fields'=>array('id', 'invoice_id', 'shipment_number', 'status', 'weight',
 				'weight_units', 'shipping_company', 'tracking_number', 'td_number', 'boxes', 
-				'pack_date', 'ship_date'),
+				'pack_date', 'ship_date', 'freight_amount'),
 			'maps'=>array('status_text'=>$maps['shipment']['status']),
 			'utctotz'=>array('pack_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
 				'ship_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
@@ -76,6 +77,13 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	} else {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1926', 'msg'=>'Shipment does not exist'));
 	}
+
+	//
+	// Format elements
+	//
+	$shipment['weight'] = (float)$shipment['weight'];
+	$shipment['freight_amount'] = numfmt_format_currency(
+		$intl_currency_fmt, $shipment['freight_amount'], $intl_currency);
 
 	//
 	// Get the items in the invoice

@@ -23,21 +23,35 @@ function ciniki_sapos_mwexport() {
 		this.shipments.datePickerValue = function(s, d) { return this.date; }
 		this.shipments.sections = {
 			'datepicker':{'label':'', 'fields':{
-				'start_date':{'label':'Start', 'type':'date'},
-				'end_date':{'label':'End', 'type':'date'},
+				'start_date':{'label':'Start', 'type':'date', 
+					'fn':'M.ciniki_sapos_mwexport.shipments.updateStartDate'},
+				'end_date':{'label':'End', 'type':'date',
+					'fn':'M.ciniki_sapos_mwexport.shipments.updateEndDate'},
 				}},
 			'_buttons':{'label':'', 'buttons':{
-				'update':{'label':'Update', 'fn':'M.ciniki_sapos_mwexport.showShipments();'},
+//				'update':{'label':'Update', 'fn':'M.ciniki_sapos_mwexport.showShipments();'},
 //				'downloadtab':{'label':'Download Tab Delimited', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'tab\');'},
 				'downloadexcel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'excel\');'},
 				}},
-			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':8,
-				'headerValues':['INV #', 'Ship #', 'Order Date', 'Ship Date', 'Customer', 'Code', 'Description', 'Quantity'],
+			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':18,
+				'headerValues':['INV #', 'Ship #', 'Order Date', 'Ship Date', 'Invoice Status', 
+					'ID', 'Customer', 'Rep', 
+					'Shipper', 'Tracking #', 'Freight Amount', 
+					'Code', 'Description', 'Quantity',
+					'Price Code', 'Unit Amount', 'Total', 'Tax code', 'Invoice Total'],
 				'sortable':'yes',
-				'sortTypes':['number','number','date','date','text','text','text','number'],
+//				'sortTypes':['number','number','date','date','text','text','text','number'],
 				'noData':'No shipments',
 				},
 			};
+		this.shipments.updateStartDate = function(field, date) {
+			this.setFromCalendar(field, date);
+			M.ciniki_sapos_mwexport.showShipments();
+		};
+		this.shipments.updateEndDate = function(field, date) {
+			this.setFromCalendar(field, date);
+			M.ciniki_sapos_mwexport.showShipments();
+		};
 		this.shipments.scheduleDate = function(s, d) {
 			return this.date;
 		};
@@ -49,14 +63,25 @@ function ciniki_sapos_mwexport() {
 				case 1: return d.item.shipment_number;
 				case 2: return d.item.invoice_date;
 				case 3: return d.item.ship_date;
-				case 4: return d.item.customer_display_name;
-				case 5: return d.item.code;
-				case 6: return d.item.description;
-				case 7: return d.item.shipment_quantity;
+				case 4: return d.item.status_text;
+				case 5: return d.item.customer_eid;
+				case 6: return d.item.customer_display_name;
+				case 7: return d.item.salesrep_display_name;
+				case 8: return d.item.shipping_company;
+				case 9: return d.item.tracking_number;
+				case 10: return d.item.freight_amount_display;
+				case 11: return d.item.code;
+				case 12: return d.item.description;
+				case 13: return d.item.shipment_quantity;
+				case 14: return d.item.pricepoint_code;
+				case 15: return d.item.unit_amount_display;
+				case 16: return d.item.total_amount_display;
+				case 17: return d.item.tax_location_code;
+				case 18: return d.item.invoice_total_amount;
 			}
 		};
 		this.shipments.rowFn = function(s, i, d) {
-			return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_mwexport\',\'mc\',{\'invoice_id\':\'' + d.item.invoice_id + '\'});';
+			return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_mwexport.showShipments();\',\'mc\',{\'invoice_id\':\'' + d.item.invoice_id + '\'});';
 		};
 		this.shipments.addClose('Back');
 	}
@@ -104,16 +129,17 @@ function ciniki_sapos_mwexport() {
 			args['output'] = format;
 			window.open(M.api.getUploadURL('ciniki.sapos.reportMWExport', args));
 			delete(args['output']);
+		} else {
+			M.api.getJSONCb('ciniki.sapos.reportMWExport', args, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				var p = M.ciniki_sapos_mwexport.shipments;
+				p.data.items = rsp.items;
+				p.refresh();
+				p.show(cb);
+			});
 		}
-		M.api.getJSONCb('ciniki.sapos.reportMWExport', args, function(rsp) {
-			if( rsp.stat != 'ok' ) {
-				M.api.err(rsp);
-				return false;
-			}
-			var p = M.ciniki_sapos_mwexport.shipments;
-			p.data.items = rsp.items;
-			p.refresh();
-			p.show(cb);
-		});
 	};
 }

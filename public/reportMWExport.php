@@ -46,6 +46,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
 	$intl_currency = $rc['settings']['intl-default-currency'];
 
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
 	$date_format = ciniki_users_dateFormat($ciniki, 'php');
 
@@ -88,21 +89,108 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	}
 
 	//
+	// Check if we need to return the list of sales reps
+	//
+	if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0800) > 0 ) {
+		//
+		// Get the active sales reps
+		//
+		$strsql = "SELECT ciniki_users.id, ciniki_users.display_name "
+			. "FROM ciniki_business_users, ciniki_users "
+			. "WHERE ciniki_business_users.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_business_users.package = 'ciniki' "
+			. "AND ciniki_business_users.permission_group = 'salesreps' "
+			. "AND ciniki_business_users.status < 60 "
+			. "AND ciniki_business_users.user_id = ciniki_users.id "
+			. "";
+		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(
+			array('container'=>'salesreps', 'fname'=>'id', 
+				'fields'=>array('id', 'name'=>'display_name')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['salesreps']) ) {
+			$salesreps = $rc['salesreps'];
+		} else {
+			$salesreps = array();
+		}
+	}
+
+	//
+	// Check out if tax codes should be loaded
+	//
+	if( isset($ciniki['business']['modules']['ciniki.taxes'])
+		&& ($ciniki['business']['modules']['ciniki.taxes']['flags']&0x01) > 0 
+		) {
+		$strsql = "SELECT ciniki_tax_locations.id, "
+			. "ciniki_tax_locations.code, "
+			. "ciniki_tax_locations.name "
+			. "FROM ciniki_tax_locations "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.taxes', array(
+			array('container'=>'locations', 'fname'=>'id', 
+				'fields'=>array('id', 'code', 'name')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['locations']) ) {
+			$tax_locations = $rc['locations'];
+		} else {
+			$tax_locations = array();
+		}
+	}
+
+	//
+	// Check if we need to load pricepoints
+	//
+	if( isset($ciniki['business']['modules']['ciniki.customers'])
+		&& ($ciniki['business']['modules']['ciniki.customers']['flags']&0x1000) > 0 
+		) {
+		$strsql = "SELECT id, "
+			. "code, "
+			. "name "
+			. "FROM ciniki_customer_pricepoints "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.taxes', array(
+			array('container'=>'pricepoints', 'fname'=>'id', 
+				'fields'=>array('id', 'code', 'name')),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['pricepoints']) ) {
+			$pricepoints = $rc['pricepoints'];
+		} else {
+			$pricepoints = array();
+		}
+	}
+
+	//
 	// Query for the ship date on shipments
 	//
-
 	$strsql = "SELECT ciniki_sapos_shipments.id, "
 		. "ciniki_sapos_shipments.invoice_id, "
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_shipments.shipment_number, "
+		. "ciniki_customers.eid AS customer_eid, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "ciniki_sapos_invoices.invoice_date, "
+		. "ciniki_sapos_invoices.salesrep_id, "
+		. "ciniki_sapos_shipments.shipping_company, "
+		. "ciniki_sapos_shipments.tracking_number, "
+		. "ciniki_sapos_shipments.td_number, "
 		. "ciniki_sapos_shipments.ship_date, "
+		. "ciniki_sapos_shipments.freight_amount, "
 		. "ciniki_sapos_shipments.boxes, "
 		. "ciniki_sapos_shipments.weight, "
 		. "ciniki_sapos_shipments.weight_units, "
 		. "ciniki_sapos_shipments.weight_units AS weight_units_text, "
 		. "ciniki_sapos_shipments.status, "
+		. "ciniki_sapos_shipments.status AS shipment_status_text, "
 		. "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
 		. "ciniki_sapos_shipment_items.id AS item_id, "
 		. "ciniki_sapos_shipment_items.quantity, "
@@ -111,6 +199,11 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		. "ciniki_sapos_invoice_items.unit_amount, "
 		. "ciniki_sapos_invoice_items.unit_discount_amount, "
 		. "ciniki_sapos_invoice_items.unit_discount_percentage, "
+		. "ciniki_sapos_invoice_items.object, "
+		. "ciniki_sapos_invoice_items.object_id, "
+		. "ciniki_sapos_invoice_items.price_id, "
+		. "IFNULL(ciniki_product_prices.pricepoint_id, 0) AS pricepoint_id, "
+		. "ciniki_sapos_invoices.tax_location_id, "
 		. "ciniki_sapos_invoice_items.taxtype_id "
 		. "FROM ciniki_sapos_shipments "
 		. "LEFT JOIN ciniki_sapos_invoices ON ("
@@ -129,6 +222,13 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			. "AND ciniki_sapos_shipment_items.item_id = ciniki_sapos_invoice_items.id "
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") "
+		. "LEFT JOIN ciniki_product_prices ON ( "
+			. "ciniki_sapos_invoice_items.object = 'ciniki.products.product' "
+			. "AND ciniki_sapos_invoice_items.price_id = ciniki_product_prices.id "
+			. "AND ciniki_sapos_invoice_items.object_id = ciniki_product_prices.product_id "
+			. "AND ciniki_product_prices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			
+			. ") "
 		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND ciniki_sapos_shipments.status > 20 "
 		. "AND ciniki_sapos_shipments.ship_date >= '" . ciniki_core_dbQuote($ciniki, $args['start_date']) . "' "
@@ -142,12 +242,16 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
 			'fields'=>array('id', 'invoice_id', 'invoice_number', 'shipment_number', 'status_text', 
-				'customer_display_name', 'status',
+				'customer_eid', 'customer_display_name', 'status', 'shipment_status_text',
+				'salesrep_id', 
+				'shipping_company', 'tracking_number', 'td_number', 'freight_amount', 
 				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'invoice_date', 'ship_date',
 				'item_id', 'code', 'description', 'shipment_quantity'=>'quantity', 
-				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'taxtype_id'
+				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
+				'tax_location_id', 'pricepoint_id', 'taxtype_id'
 				),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
+				'shipment_status_text'=>$maps['shipment']['status'],
 				'weight_units_text'=>$maps['shipment']['weight_units']),
 			'utctotz'=>array(
 				'ship_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
@@ -164,22 +268,63 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$items = $rc['items'];
 	}
 
-//	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+	$prev_invoice_id = 0;
+	$invoices = array();	// The array of invoice totals
 	foreach($items as $iid => $item) {
+		if( !isset($invoices[$item['item']['invoice_id']]) ) {
+			$invoices[$item['item']['invoice_id']] = array('total_amount'=>0);
+		}
+		if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0800) > 0 ) {
+			if( isset($salesreps[$item['item']['salesrep_id']]) ) {
+				$items[$iid]['item']['salesrep_display_name'] = $salesreps[$item['item']['salesrep_id']]['name'];
+			} else {
+				$items[$iid]['item']['salesrep_display_name'] = '';
+			}
+		}
+		if( isset($tax_locations) ) {
+			if( isset($tax_locations[$item['item']['tax_location_id']]) ) {
+				$items[$iid]['item']['tax_location_code'] = $tax_locations[$item['item']['tax_location_id']]['code'];
+			} else {
+				$items[$iid]['item']['tax_location_code'] = '';
+			}
+		}
+		if( isset($pricepoints) ) {
+			if( isset($pricepoints[$item['item']['pricepoint_id']]) ) {
+				$items[$iid]['item']['pricepoint_code'] = $pricepoints[$item['item']['pricepoint_id']]['code'];
+			} else {
+				$items[$iid]['item']['pricepoint_code'] = '';
+			}
+		}
 		$items[$iid]['item']['shipment_quantity'] = (float)$item['item']['shipment_quantity'];
+		$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
+			'quantity'=>$item['item']['shipment_quantity'],
+			'unit_amount'=>$item['item']['unit_amount'],
+			'unit_discount_amount'=>$item['item']['unit_discount_amount'],
+			'unit_discount_percentage'=>$item['item']['unit_discount_percentage'],
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$items[$iid]['item']['total_amount'] = $rc['total'];
+		$items[$iid]['item']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
+			$rc['total'], $intl_currency);
+		$items[$iid]['item']['unit_amount_display'] = numfmt_format_currency($intl_currency_fmt,
+			$item['item']['unit_amount'], $intl_currency);
+		$invoices[$item['item']['invoice_id']]['total_amount'] += $rc['total'];
+		$items[$iid]['item']['freight_amount_display'] = numfmt_format_currency($intl_currency_fmt,
+			$item['item']['freight_amount'], $intl_currency);
+	}
+
+	//
+	// Set the invoice totals
+	//
+	foreach($items as $iid => $item) {
+		$items[$iid]['item']['invoice_total_amount'] = $invoices[$item['item']['invoice_id']]['total_amount'];
 	}
 //		$num_pieces = 0;
 //		$total_amount = 0;
 //				$num_pieces += $item['item']['quantity'];
-//				$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
-//					'quantity'=>$item['item']['quantity'],
-//					'unit_amount'=>$item['item']['unit_amount'],
-//					'unit_discount_amount'=>$item['item']['unit_discount_amount'],
-//					'unit_discount_percentage'=>$item['item']['unit_discount_percentage'],
-//					));
-//				if( $rc['stat'] != 'ok' ) {
-//					return $rc;
-//				}
 //				$total_amount = bcadd($total_amount, $rc['total'], 4);
 //			}
 //		}
