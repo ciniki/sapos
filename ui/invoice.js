@@ -62,6 +62,7 @@ function ciniki_sapos_invoice() {
 	this.invoiceFlags = {
 		'1':{'name':'Hide Savings'},
 		};
+	this.colours = {};
 	this.init = function() {
 		//
 		// The invoice panel
@@ -102,10 +103,10 @@ function ciniki_sapos_invoice() {
 //				'shipping_name':{'label':'Ship To'},
 				'shipping_address':{'label':'Ship To'},
 				}},
-			'items':{'label':'', 'type':'simplegrid', 'num_cols':3,
-				'headerValues':['Description', 'Quantity/Price', 'Total'],
-				'headerClasses':['', 'alignright', 'alignright'],
-				'cellClasses':['', 'multiline alignright', 'multiline alignright'],
+			'items':{'label':'', 'type':'simplegrid', 'num_cols':7,
+				'headerValues':['Description', 'Inv', 'Req', 'Shp', 'Qty', 'Price', 'Total'],
+				'headerClasses':['', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
+				'cellClasses':['multiline', 'alignright', 'alignright', 'alignright', 'alignright', 'multiline alignright', 'multiline alignright'],
 				'addTxt':'Add',
 				'addFn':'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id);',
 				},
@@ -146,6 +147,26 @@ function ciniki_sapos_invoice() {
 		this.invoice.listValue = function(s, i, d) {
 			return this.data[i];
 		};
+		this.invoice.rowStyle = function(s, i, d) {
+			if( s == 'items' ) {
+				if( d.item.required_quantity != null && d.item.required_quantity == 0 ) {
+					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-fulfilled'] + ';';
+				} else if( d.item.required_quantity > 0 && d.item.inventory_quantity > 0 && d.item.inventory_quantity < d.item.required_quantity) {
+					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-partial'] + ';';
+				} else if( d.item.required_quantity > 0 && d.item.inventory_quantity > 0 ) {
+					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-available'] + ';';
+				} else if( d.item.required_quantity > 0 && d.item.inventory_quantity == 0 ) {
+					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-backordered'] + ';';
+				}
+			}
+			return '';
+		};
+//		this.invoice.cellStyle = function(s, i, j, d) {
+//			if( s == 'items' && j == 1 && d.item.required_quantity > 0 && d.item.required_quantity > d.item.inventory_quantity ) {
+//				return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-backordered'] + ';'; 
+//			}
+//			return '';
+//		};
 		this.invoice.cellValue = function(s, i, j, d) {
 			if( s == 'customer_details' ) {
 				switch (j) {
@@ -156,11 +177,24 @@ function ciniki_sapos_invoice() {
 			if( s == 'items' ) {
 				if( j == 0 ) {
 					if( d.item.code != null && d.item.code != '' ) {
-						return d.item.code + ' - ' + d.item.description;
+						return '<span class="maintext">' + d.item.code + '</span><span class="subtext">' + d.item.description + '</span>';
 					}
 					return d.item.description;
 				}
 				if( j == 1 ) {
+					return d.item.inventory_quantity;
+				}
+				if( j == 2 ) {
+					return d.item.required_quantity;
+				}
+				if( j == 3 ) {
+					return d.item.shipped_quantity;
+				}
+				if( j == 4 ) {
+//					return '<span class="maintext">' + d.item.required_quantity + '</span><span class="subtext">' + d.item.quantity + '</span>';
+					return d.item.quantity;
+				}
+				if( j == 5 ) {
 					var discount = '';
 					if( d.item.discount_amount != 0) {
 						if( d.item.unit_discount_amount > 0 ) {
@@ -173,14 +207,20 @@ function ciniki_sapos_invoice() {
 						}
 					}
 					if( (this.data.flags&0x01) > 0 ) {
-						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_discounted_amount_display;
+//						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_discounted_amount_display;
+//						return d.item.quantity+' @ ' + d.item.unit_discounted_amount_display;
+						return d.item.unit_discounted_amount_display;
 					} else if( discount != '' ) {
-						return '<span class="maintext">' + ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.item.discount_amount_display + ')</span>';
+//						return '<span class="maintext">' + ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.item.discount_amount_display + ')</span>';
+//						return '<span class="maintext">' + d.item.quantity+' @ ' + d.item.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.item.discount_amount_display + ')</span>';
+						return '<span class="maintext">' + d.item.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.item.discount_amount_display + ')</span>';
 					} else {
-						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display;
+//						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display;
+//						return d.item.quantity + ' @ ' + d.item.unit_amount_display;
+						return d.item.unit_amount_display;
 					}
 				}
-				if( j == 2 ) {
+				if( j == 6 ) {
 					return '<span class="maintext">' + d.item.total_amount_display + '</span><span class="subtext">' + ((d.item.taxtype_name!=null)?d.item.taxtype_name:'') + '</span>';
 				}
 			}
@@ -362,11 +402,18 @@ function ciniki_sapos_invoice() {
 			}
 			return '';
 		};
+		this.item.liveSearchResultRowStyle = function(s,f,i,d) {
+			if( d.item.inventory_available <= 0 ) {
+				return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-backordered'] + ';';
+			}
+			return '';
+		};
 		this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
 			if( (f == 'code' || f == 'description') && d.item != null ) {
 				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\');';
 			}
 		};
+
 		this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, t, pid) {
 			this.object = o;
 			this.object_id = oid;
@@ -443,7 +490,19 @@ function ciniki_sapos_invoice() {
 			alert('App Error');
 			return false;
 		}
-		
+
+		// Change also in shipment.js
+		this.colours = {
+			'invoice-item-available':'#C0FFC0',
+			'invoice-item-partial':'#FFFFC0',
+			'invoice-item-backordered':'#FFC6C6',
+			'invoice-item-fulfilled':'#E6E6E6',
+		};
+		for(i in this.colours) {
+			if( M.curBusiness.sapos.settings['ui-colours-' + i] != null ) {
+				this.colours[i] = M.curBusiness.sapos.settings['ui-colours-' + i];
+			}
+		}
 		this.invoiceStatuses = {
 			'10':'Entered',
 			};
@@ -671,18 +730,30 @@ function ciniki_sapos_invoice() {
 		}
 		switch(rsp.invoice.invoice_type) {
 			case '10': 
+				this.invoice.title = 'Invoice';
+				this.invoice.sections.details.list.invoice_number.label = 'Invoice #';
+				this.invoice.sections.details.list.invoice_date.label = 'Invoice Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Invoice';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
 				break;
 			case '20': 
+				this.invoice.title = 'Shopping Cart';
+				this.invoice.sections.details.list.invoice_number.label = 'Cart #';
+				this.invoice.sections.details.list.invoice_date.label = 'Cart Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Cart';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.orderStatuses;
 				break;
 			case '30': 
+				this.invoice.title = 'POS';
+				this.invoice.sections.details.list.invoice_number.label = 'POS #';
+				this.invoice.sections.details.list.invoice_date.label = 'POS Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Sale';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.orderStatuses;
 				break;
 			case '40': 
+				this.invoice.title = 'Order';
+				this.invoice.sections.details.list.invoice_number.label = 'Order #';
+				this.invoice.sections.details.list.invoice_date.label = 'Order Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Order';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.orderStatuses;
 				break;
@@ -978,6 +1049,8 @@ function ciniki_sapos_invoice() {
 					var p = M.ciniki_sapos_invoice.item;
 					p.data = rsp.item;
 					p.price_id = rsp.item.price_id;
+					p.object = rsp.item.object;
+					p.object_id = rsp.item.object_id;
 //					if( rsp.taxtypes != null ) {
 //						p.sections.details.fields.taxtype_id.active = 'yes';
 //						p.sections.details.fields.taxtype_id.type=((rsp.taxtypes.length>4)?'select':'toggle');

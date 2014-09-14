@@ -88,6 +88,9 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'invoice-footer-message',
 		'shipments-default-shipper',
 		'shipments-default-weight-units',
+		'ui-colours-invoice-item-available',
+		'ui-colours-invoice-item-backordered',
+		'ui-colours-invoice-item-fulfilled',
 		);
 	//
 	// Check each valid setting and see if a new value was passed in the arguments for it.

@@ -249,7 +249,19 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		$invoice['items'] = array();
 	} else {
 		$invoice['items'] = $rc['items'];
+		$object_ids = array();
 		foreach($invoice['items'] as $iid => $item) {
+			if( $invoice['shipping_status'] > 0 ) {
+				// Build array of items by id to use in setting up shipment item descriptions below
+				$invoice_items[$item['item']['id']] = $item['item'];
+				if( $item['item']['object'] != '' ) {
+					if( !isset($object_ids[$item['item']['object']]) ) {
+						$object_ids[$item['item']['object']] = array();
+					}
+					$objects[$item['item']['object']][] = $item['item']['object_id'];
+				}
+			}
+
 			//
 			// Apply the dollar amount discount first
 			//
@@ -271,6 +283,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 			$invoice['items'][$iid]['item']['quantity'] = (float)$item['item']['quantity'];
 			$invoice['items'][$iid]['item']['shipped_quantity'] = (float)$item['item']['shipped_quantity'];
 			$invoice['items'][$iid]['item']['required_quantity'] = (float)$item['item']['required_quantity'];
+			$invoice['items'][$iid]['item']['inventory_quantity'] = '';
 			$invoice['items'][$iid]['item']['unit_discount_amount_display'] = numfmt_format_currency(
 				$intl_currency_fmt, $item['item']['unit_discount_amount'], $intl_currency);
 			$invoice['items'][$iid]['item']['unit_amount_display'] = numfmt_format_currency(
@@ -281,6 +294,36 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				$intl_currency_fmt, $item['item']['discount_amount'], $intl_currency);
 			$invoice['items'][$iid]['item']['total_amount_display'] = numfmt_format_currency(
 				$intl_currency_fmt, $item['item']['total_amount'], $intl_currency);
+		}
+	}
+	if( $invoice['shipping_status'] > 0 ) {
+		// 
+		// Get the inventory levels for each object, and upload inventory_quantity
+		//
+		foreach($objects as $object => $object_ids) {
+			list($pkg,$mod,$obj) = explode('.', $object);
+			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryLevels');
+			if( $rc['stat'] == 'ok' ) {
+				$fn = $rc['function_call'];
+				$rc = $fn($ciniki, $business_id, array(
+					'object'=>$object,
+					'object_ids'=>$object_ids,
+					));
+				if( $rc['stat'] != 'ok' ) {
+					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1993', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+				}
+				//
+				// Update the inventory levels for the invoice items
+				//
+				$quantities = $rc['quantities'];
+				foreach($invoice['items'] as $iid => $item) {
+					if( $item['item']['object'] == $object 
+						&& isset($quantities[$item['item']['object_id']]) 
+						) {
+						$invoice['items'][$iid]['item']['inventory_quantity'] = (float)$quantities[$item['item']['object_id']]['inventory_quantity'];
+					}
+				}
+			}
 		}
 	}
 
