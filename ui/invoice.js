@@ -295,6 +295,9 @@ function ciniki_sapos_invoice() {
 //		};
 		this.invoice.rowFn = function(s, i, d) {
 			if( s == 'customer_details' ) { return ''; }
+			if( s == 'shipitems' && M.ciniki_sapos_invoice.invoice.data.status < 50 ) {
+				return 'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
+			}
 			if( s == 'items' && M.ciniki_sapos_invoice.invoice.data.status < 50 ) {
 				return 'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
 			}
