@@ -20,6 +20,7 @@ function ciniki_sapos_orders() {
 				'packlist':{'label':'Packing Required', 'fn':'M.ciniki_sapos_orders.showInvoices(\'M.ciniki_sapos_orders.showMenu();\',\'packlist\',\'Packing Required\');'},
 				'pendship':{'label':'Shipping Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'pendship\'});'},
 //				'onhold':{'label':'On Hold', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'list\':\'onhold\'});'},
+				'incomplete':{'label':'Incomplete', 'fn':'M.ciniki_sapos_orders.showInvoices(\'M.ciniki_sapos_orders.showMenu();\',\'incomplete\',\'Incomplete Orders\');'},
 				'onhold':{'label':'On Hold', 'fn':'M.ciniki_sapos_orders.showInvoices(\'M.ciniki_sapos_orders.showMenu();\',\'onhold\',\'On Hold\');'},
 				'backordered':{'label':'Backordered', 'fn':'M.ciniki_sapos_orders.showInvoices(\'M.ciniki_sapos_orders.showMenu();\',\'backordered\',\'Backordered\');'},
 				}},
@@ -79,6 +80,12 @@ function ciniki_sapos_orders() {
 			if( i == 'pendship' ) {
 				if( this.data.stats.shipments.status['20'] != null ) {
 					return this.data.stats.shipments.status['20'];
+				}
+				return '0';
+			}
+			if( i == 'incomplete' ) {
+				if( this.data.stats.invoices.typestatus['40.10'] != null ) {
+					return this.data.stats.invoices.typestatus['40.10'];
 				}
 				return '0';
 			}
@@ -231,9 +238,21 @@ function ciniki_sapos_orders() {
 					p.refresh();
 					p.show(cb);
 				});
+		} else if( this.invoices._list == 'incomplete' ) {
+			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+				'status':'10', 'type':'40', 'sort':'invoice_date'}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_orders.invoices;
+					p.data.invoices = rsp.invoices;
+					p.refresh();
+					p.show(cb);
+				});
 		} else if( this.invoices._list == 'onhold' ) {
 			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
-				'status':'15', 'sort':'invoice_date'}, function(rsp) {
+				'status':'15', 'type':'40', 'sort':'invoice_date'}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;

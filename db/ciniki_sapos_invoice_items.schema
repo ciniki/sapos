@@ -85,7 +85,7 @@ create table ciniki_sapos_invoice_items (
 	invoice_id int not null,
 	line_number int not null,
 	status tinyint unsigned not null,
-	flags tinyint unsigned not null,
+	flags smallint unsigned not null,
 	object varchar(100) not null,
 	object_id varchar(100) not null,
 	price_id varchar(100) not null,

@@ -36,11 +36,15 @@ function ciniki_sapos_hooks_inventoryUpdated($ciniki, $business_id, $args) {
 	//
 	if( isset($args['object']) && $args['object'] != '' 
 		&& isset($args['object_id']) && $args['object_id'] != '' && $args['object_id'] > 0 
+		&& isset($args['new_inventory_level']) && $args['new_inventory_level'] != '' 
 		) {
 		//
 		// Get the orders that are unfulfilled which contain this item
 		//
-		$strsql = "SELECT id, invoice_type, status, flags "
+		$strsql = "SELECT ciniki_sapos_invoice_items.id, "
+			. "ciniki_sapos_invoices.invoice_type, "
+			. "ciniki_sapos_invoices.status, "
+			. "ciniki_sapos_invoice_items.flags "
 			. "FROM ciniki_sapos_invoice_items, ciniki_sapos_invoices "
 			. "WHERE ciniki_sapos_invoice_items.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
 			. "AND ciniki_sapos_invoice_items.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
@@ -50,6 +54,35 @@ function ciniki_sapos_hooks_inventoryUpdated($ciniki, $business_id, $args) {
 			. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 			. "AND ciniki_sapos_invoices.status < 50 "
 			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['rows']) ) {
+			return array('stat'=>'ok');
+		}
+		$items = $rc['rows'];
+		foreach($items as $iid => $item) {
+			if( $args['new_inventory_level'] > 0 ) {
+				// Check if shipped, inventory and backorderable item and currently backordered
+				if( ($item['flags']&0x0146) == 0x0146 ) {
+					$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
+						$item['id'], array('flags'=>($item['flags']&~0x0100)), 0x04);
+					if( $rc['stat'] != 'ok' ) {
+						return $rc;
+					}
+				}
+			} elseif( $args['new_inventory_level'] <= 0 ) {
+				// Check if shipped, inventory and backorderable item and not backordered
+				if( ($item['flags']&0x0046) == 0x0046 ) {	 
+					$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
+						$item['id'], array('flags'=>(((int)$item['flags'])|0x0100)), 0x04);
+					if( $rc['stat'] != 'ok' ) {
+						return $rc;
+					}
+				}
+			} 
+		}
 	}
 
 	return array('stat'=>'ok');

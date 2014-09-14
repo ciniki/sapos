@@ -116,15 +116,18 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	//
 	// Get the inventory available for the items
 	//
+	$objects = array();
 	$object_ids = array();
 	foreach($shipment['invoice_items'] as $iid => $item) {
 		$shipment['invoice_items'][$iid]['item']['required_quantity'] = $item['item']['quantity'] - $item['item']['shipped_quantity'];
 		// Build array of items by id to use in setting up shipment item descriptions below
 		$invoice_items[$item['item']['id']] = $item['item'];
-		if( !isset($object_ids[$item['item']['object']]) ) {
-			$object_ids[$item['item']['object']] = array();
+		if( $item['item']['object'] != '' ) {
+			if( !isset($object_ids[$item['item']['object']]) ) {
+				$object_ids[$item['item']['object']] = array();
+			}
+			$objects[$item['item']['object']][] = $item['item']['object_id'];
 		}
-		$objects[$item['item']['object']][] = $item['item']['object_id'];
 	}
 
 	// 
@@ -140,7 +143,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 				'object_ids'=>$object_ids,
 				));
 			if( $rc['stat'] != 'ok' ) {
-				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1993', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2014', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
 			}
 			//
 			// Update the inventory levels for the invoice items

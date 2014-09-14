@@ -77,7 +77,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	if( isset($rc['shipments']) && isset($rc['shipments'][0]['shipment']) ) {
 		$shipment = $rc['shipments'][0]['shipment'];
 	} else {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1926', 'msg'=>'Shipment does not exist'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2013', 'msg'=>'Shipment does not exist'));
 	}
 	
 	//
@@ -168,7 +168,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 		return $rc;
 	}
 	if( !isset($rc['invoices']) || !isset($rc['invoices'][0]['invoice']) ) {
-		return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'1083', 'msg'=>'Invoice does not exist'));
+		return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'2012', 'msg'=>'Invoice does not exist'));
 	}
 	$shipment['invoice'] = $rc['invoices'][0]['invoice'];
 
