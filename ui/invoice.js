@@ -103,10 +103,17 @@ function ciniki_sapos_invoice() {
 //				'shipping_name':{'label':'Ship To'},
 				'shipping_address':{'label':'Ship To'},
 				}},
-			'items':{'label':'', 'type':'simplegrid', 'num_cols':7,
+			'shipitems':{'label':'', 'type':'simplegrid', 'num_cols':7,
 				'headerValues':['Description', 'Inv', 'Req', 'Shp', 'Qty', 'Price', 'Total'],
 				'headerClasses':['', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
 				'cellClasses':['multiline', 'alignright', 'alignright', 'alignright', 'alignright', 'multiline alignright', 'multiline alignright'],
+				'addTxt':'Add',
+				'addFn':'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id);',
+				},
+			'items':{'label':'', 'type':'simplegrid', 'num_cols':3,
+				'headerValues':['Description', 'Quantity/Price', 'Total'],
+				'headerClasses':['', 'alignright', 'alignright'],
+				'cellClasses':['multiline', 'multiline alignright', 'multiline alignright'],
 				'addTxt':'Add',
 				'addFn':'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id);',
 				},
@@ -137,6 +144,7 @@ function ciniki_sapos_invoice() {
 			'internal_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
 			};
 		this.invoice.sectionData = function(s) {
+			if( s == 'shipitems' ) { return this.data['items']; }
 			if( s == 'invoice_notes' || s == 'internal_notes' ) { return this.data[s].replace(/\n/g, '<br/>'); }
 			if( s == 'details' || s == 'billing' || s == 'shipping' ) { return this.sections[s].list; }
 			return this.data[s];
@@ -148,7 +156,8 @@ function ciniki_sapos_invoice() {
 			return this.data[i];
 		};
 		this.invoice.rowStyle = function(s, i, d) {
-			if( s == 'items' ) {
+			// if shipping enabled
+			if( s == 'shipitems' && (M.curBusiness.modules['ciniki.sapos'].flags&0x40) > 0 ) {
 				if( d.item.required_quantity != null && d.item.required_quantity == 0 ) {
 					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-fulfilled'] + ';';
 				} else if( d.item.required_quantity > 0 && d.item.inventory_quantity > 0 && d.item.inventory_quantity < d.item.required_quantity) {
@@ -174,7 +183,7 @@ function ciniki_sapos_invoice() {
 					case 1: return d.detail.value;
 				}
 			}
-			if( s == 'items' ) {
+			if( s == 'shipitems' ) {
 				if( j == 0 ) {
 					if( d.item.code != null && d.item.code != '' ) {
 						return '<span class="maintext">' + d.item.code + '</span><span class="subtext">' + d.item.description + '</span>';
@@ -221,6 +230,36 @@ function ciniki_sapos_invoice() {
 					}
 				}
 				if( j == 6 ) {
+					return '<span class="maintext">' + d.item.total_amount_display + '</span><span class="subtext">' + ((d.item.taxtype_name!=null)?d.item.taxtype_name:'') + '</span>';
+				}
+			}
+			if( s == 'items' ) {
+				if( j == 0 ) {
+					if( d.item.code != null && d.item.code != '' ) {
+						return '<span class="maintext">' + d.item.code + '</span><span class="subtext">' + d.item.description + '</span>';
+					}
+					return d.item.description;
+				}
+				if( j == 1 ) {
+					var discount = '';
+					if( d.item.discount_amount != 0) {
+						if( d.item.unit_discount_amount > 0 ) {
+							discount += '-' + ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+'@'):'') + '$' + d.item.unit_discount_amount;
+						}
+						if( d.item.unit_discount_percentage > 0 ) {
+							if( discount != '' ) { discount += ', '; }
+							discount += '-' + d.item.unit_discount_percentage + '%';
+						}
+					}
+					if( (this.data.flags&0x01) > 0 ) {
+						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_discounted_amount_display;
+					} else if( discount != '' ) {
+						return '<span class="maintext">' + ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.item.discount_amount_display + ')</span>';
+					} else {
+						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display;
+					}
+				}
+				if( j == 2 ) {
 					return '<span class="maintext">' + d.item.total_amount_display + '</span><span class="subtext">' + ((d.item.taxtype_name!=null)?d.item.taxtype_name:'') + '</span>';
 				}
 			}
@@ -272,6 +311,7 @@ function ciniki_sapos_invoice() {
 			if( s == 'shipments' ) {
 				return 'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'shipment_id\':\'' + d.shipment.id + '\'});';
 			}
+			return '';
 		};
 		this.invoice.addButton('edit', 'Edit', 'M.ciniki_sapos_invoice.editInvoice(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.invoice_id);');
 		this.invoice.addButton('add', 'Invoice', 'M.ciniki_sapos_invoice.createInvoice(M.ciniki_sapos_invoice.invoice.cb,0,null);');
@@ -615,6 +655,14 @@ function ciniki_sapos_invoice() {
 			this.item.sections.details.fields.code.headerValues = ['Item', 'Price'];
 			this.item.sections.details.fields.description.livesearchcols=2;
 			this.item.sections.details.fields.description.headerValues = ['Item', 'Price'];
+		}
+
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x40) ) {
+			this.invoice.sections.shipitems.active = 'yes';
+			this.invoice.sections.items.active = 'no';
+		} else {
+			this.invoice.sections.shipitems.active = 'no';
+			this.invoice.sections.items.active = 'yes';
 		}
 
 		this.item.pricepoint_id = 0;
