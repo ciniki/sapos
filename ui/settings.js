@@ -60,6 +60,11 @@ function ciniki_sapos_settings() {
 			'_footer_msg':{'label':'Footer Message', 'fields':{
 				'invoice-footer-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
 				}},
+			'_ui':{'label':'UI Options', 'fields':{
+				'ui-options-print-picklist':{'label':'Pick List Button', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
+				'ui-options-print-invoice':{'label':'Print Invoice Button', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
+				'ui-options-print-envelope':{'label':'Print Envelope Button', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
+				}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveInvoice();'},
 				}},

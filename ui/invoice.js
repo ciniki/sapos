@@ -927,8 +927,29 @@ function ciniki_sapos_invoice() {
 			p.sections.shipments.visible = 'no';
 		}
 		p.sections._buttons.buttons.submitorder.visible = (rsp.invoice.invoice_type=='40'&&rsp.invoice.items.length>0&&rsp.invoice.status==10?'yes':'no');
-		p.sections._buttons.buttons.print.visible = (rsp.invoice.status>10?'yes':'no');
-		p.sections._buttons.buttons.printenv.visible = (rsp.invoice.status>10?'yes':'no');
+//		p.sections._buttons.buttons.print.visible = (rsp.invoice.status>10?'yes':'no');
+//		p.sections._buttons.buttons.printenv.visible = (rsp.invoice.status>10?'yes':'no');
+		if( rsp.invoice.status > 10 && (M.curBusiness.sapos.settings['ui-options-print-picklist'] == null 
+			|| M.curBusiness.sapos.settings['ui-options-print-picklist'] == 'yes') 
+			) {
+			p.sections._buttons.buttons.picklist.visible = 'yes';
+		} else {
+			p.sections._buttons.buttons.picklist.visible = 'no';
+		}
+		if( rsp.invoice.status > 10 && (M.curBusiness.sapos.settings['ui-options-print-invoice'] == null 
+			|| M.curBusiness.sapos.settings['ui-options-print-invoice'] == 'yes') 
+			) {
+			p.sections._buttons.buttons.print.visible = 'yes';
+		} else {
+			p.sections._buttons.buttons.print.visible = 'no';
+		}
+		if( rsp.invoice.status > 10 && (M.curBusiness.sapos.settings['ui-options-print-envelope'] == null 
+			|| M.curBusiness.sapos.settings['ui-options-print-envelope'] == 'yes') 
+			) {
+			p.sections._buttons.buttons.printenv.visible = 'yes';
+		} else {
+			p.sections._buttons.buttons.printenv.visible = 'no';
+		}
 		p.sections.invoice_notes.visible=(rsp.invoice.invoice_notes!='')?'yes':'no';
 		p.sections.internal_notes.visible=(rsp.invoice.internal_notes!='')?'yes':'no';
 		p.refresh();

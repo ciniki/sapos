@@ -91,6 +91,9 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'ui-colours-invoice-item-available',
 		'ui-colours-invoice-item-backordered',
 		'ui-colours-invoice-item-fulfilled',
+		'ui-options-print-picklist',
+		'ui-options-print-invoice',
+		'ui-options-print-envelope',
 		);
 	//
 	// Check each valid setting and see if a new value was passed in the arguments for it.
