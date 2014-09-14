@@ -58,6 +58,9 @@ function ciniki_sapos_orders() {
 			}
 			return '';
 		};
+		this.menu.liveSearchSubmitFn = function(s, value) {
+			M.ciniki_sapos_orders.showInvoices('M.ciniki_sapos_orders.showMenu();', '_search', 'Search Results', value);
+		};
 		this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
 			if( s == 'order_search' ) {
 				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
@@ -223,9 +226,10 @@ function ciniki_sapos_orders() {
 			});
 	};
 
-	this.showInvoices = function(cb, list, title) {
+	this.showInvoices = function(cb, list, title, search_str) {
 		if( list != null ) { this.invoices._list = list; }
 		if( title != null ) { this.invoices.title = title; }
+		if( search_str != null ) { this.invoices.search_str = search_str; }
 		if( this.invoices._list == 'packlist' ) {
 			M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
 				'shipping_status':'packlist', 'sort':'invoice_date'}, function(rsp) {
@@ -274,7 +278,20 @@ function ciniki_sapos_orders() {
 					p.refresh();
 					p.show(cb);
 				});
+		} else if( this.invoices._list = '_search' ) {
+			M.api.getJSONCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+				'invoice_type':'40', 'sort':'reverse', 'start_needle':this.invoices.search_str}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_orders.invoices;
+					p.data.invoices = rsp.invoices;
+					p.refresh();
+					p.show(cb);
+				});
 		}
+
 	};
 
 }

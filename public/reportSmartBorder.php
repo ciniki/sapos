@@ -18,8 +18,9 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
-        'start_date'=>array('required'=>'yes', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Start Date'), 
+        'start_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Start Date'), 
         'end_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'End Date'), 
+        'start_needle'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Search String'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -35,6 +36,13 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
+
+	//
+	// Make sure either start_date or search string is set
+	//
+	if( !isset($args['start_date']) && !isset($args['start_needle']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2015', 'msg'=>'You must specify a start date or search string.'));
+	}
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
 	$rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
@@ -61,7 +69,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 	//
 	// Build the date range
 	//
-	if( !isset($args['end_date']) || $args['end_date'] == '' ) {
+	if( isset($args['start_date']) && (!isset($args['end_date']) || $args['end_date'] == '') ) {
 		$ts = strtotime($args['start_date']);
 		$start_date = new DateTime($args['start_date'], new DateTimeZone('UTC'));
 		$end_date = clone($start_date);
@@ -109,10 +117,18 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") "
 		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND ciniki_sapos_shipments.status > 20 "
-		. "AND ciniki_sapos_shipments.ship_date >= '" . ciniki_core_dbQuote($ciniki, $args['start_date']) . "' "
+		. "AND ciniki_sapos_shipments.status > 20 ";
+	if( isset($args['start_date']) ) {
+		$strsql .= "AND ciniki_sapos_shipments.ship_date >= '" . ciniki_core_dbQuote($ciniki, $args['start_date']) . "' "
 		. "AND ciniki_sapos_shipments.ship_date < '" . ciniki_core_dbQuote($ciniki, $args['end_date']) . "' "
-		. "ORDER BY ciniki_sapos_shipments.ship_date DESC "
+		. "";
+	} elseif( isset($args['start_needle']) ) {
+		$strsql .= "AND ciniki_customers.display_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+			. "OR ciniki_customers.display_name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+		. "";
+	
+	}
+	$strsql .= "ORDER BY ciniki_sapos_shipments.ship_date DESC "
 		. "";
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(

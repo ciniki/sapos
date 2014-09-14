@@ -49,6 +49,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		'tax_location_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Tax Location'),
 		'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Pricepoint'),
 		'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action'),
+		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;

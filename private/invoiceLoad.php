@@ -99,6 +99,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "total_savings, "
 		. "paid_amount, "
 		. "balance_amount, "
+		. "customer_notes, "
 		. "invoice_notes, "
 		. "internal_notes "
 		. "FROM ciniki_sapos_invoices "
@@ -121,7 +122,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
 				'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
 				'paid_amount', 'balance_amount',
-				'invoice_notes', 'internal_notes'),
+				'customer_notes', 'invoice_notes', 'internal_notes'),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
 				'invoice_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
 				'invoice_datetime'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),

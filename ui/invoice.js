@@ -88,6 +88,7 @@ function ciniki_sapos_invoice() {
 				'due_date':{'label':'Due Date'},
 				'flags_text':{'label':'Options', 'visible':'no'},
 				}},
+			'customer_notes':{'label':'', 'aside':'yes', 'visible':'no', 'type':'html'},
 			'customer_details':{'label':'', 'aside':'yes', 'type':'simplegrid', 'num_cols':2,
 				'cellClasses':['label',''],
 				'addTxt':'Edit',
@@ -361,6 +362,9 @@ function ciniki_sapos_invoice() {
 				'shipping_province':{'label':'Province/State', 'type':'text'},
 				'shipping_postal':{'label':'Postal/Zip', 'type':'text'},
 				'shipping_country':{'label':'Country', 'type':'text'},
+				}},
+			'_notes':{'label':'Notes', 'fields':{
+				'customer_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
 				}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_invoice.saveInvoice();'},
@@ -812,6 +816,7 @@ function ciniki_sapos_invoice() {
 		p.sections.details.list.due_date.visible=(rsp.invoice.due_date!='')?'yes':'no';
 		p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
 		p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
+		p.sections.customer_notes.visible=(rsp.invoice.customer_notes!='')?'yes':'no';
 		p.sections.details.list.salesrep_id_text.visible=(rsp.invoice.salesrep_id_text!=null&&rsp.invoice.salesrep_id_text!='')?'yes':'no';
 		if( rsp.invoice.status < 50 ) {
 			p.sections.details.list.status_text.visible = 'yes';

@@ -55,6 +55,7 @@ function ciniki_sapos_objects($ciniki) {
 			'paid_amount'=>array(),
 			'balance_amount'=>array(),
 			'user_id'=>array(),
+			'customer_notes'=>array(),
 			'invoice_notes'=>array(),
 			'internal_notes'=>array(),
 			),

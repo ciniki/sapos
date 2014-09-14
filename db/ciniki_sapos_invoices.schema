@@ -121,6 +121,7 @@
 # user_id:				The ID of the user who created the invoice.  If the invoice was created
 #						online, it should be set to zero (0).
 #
+# customer_notes:		Notes that the customer can edit and see on the website shopping cart.
 # invoice_notes:		Notes that will appear on the invoice.
 # internal_notes:		Notes that are for internal use only, and will not be shared with the customer.
 #
@@ -170,6 +171,7 @@ create table ciniki_sapos_invoices (
 	paid_amount decimal(19,4) not null,
 	balance_amount decimal(19,4) not null,
 	user_id int not null,
+	customer_notes varchar(6000) not null,
 	invoice_notes varchar(6000) not null,
 	internal_notes varchar(6000) not null,
 	date_added datetime not null,
