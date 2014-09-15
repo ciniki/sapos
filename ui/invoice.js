@@ -23,6 +23,7 @@ function ciniki_sapos_invoice() {
 		'60':'Void',
 		};
 	this.paymentStatuses = {
+		'0':'None Required',
 		'10':'Required',
 		'40':'Deposit',
 		'50':'Paid',
@@ -613,10 +614,6 @@ function ciniki_sapos_invoice() {
 			this.edit.sections.details.fields.invoice_type.active = 'yes';
 		}
 		this.edit.sections.details.fields.invoice_type.toggles = this.invoiceTypes;
-		this.edit.sections.details.fields.payment_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0)?'yes':'no';
-		this.edit.sections.details.fields.shipping_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0)?'yes':'no';
-		this.edit.sections.details.fields.manufacturing_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x80)>0)?'yes':'no';
-
 		this.item.sections.details.fields.code.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0400)>0?'yes':'no');
 
 		//
@@ -1009,6 +1006,10 @@ function ciniki_sapos_invoice() {
 					} else {
 						p.sections.details.fields.salesrep_id.active = 'no';
 					}
+		p.sections.details.fields.payment_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0||rsp.invoice.payment_status>0)?'yes':'no';
+		p.sections.details.fields.shipping_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0||rsp.invoice.shipping_status>0)?'yes':'no';
+		p.sections.details.fields.manufacturing_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x80)>0||rsp.invoice.manufacturing_status>0)?'yes':'no';
+
 					p.refresh();
 					p.show(cb);
 				});

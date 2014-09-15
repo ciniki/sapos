@@ -25,7 +25,7 @@ function ciniki_sapos_web_cartCreate($ciniki, $settings, $business_id) {
 			'flags'=>0,
 			'po_number'=>'',
 			'status'=>'10',
-			'payment_status'=>'10',
+			'payment_status'=>'0',
 			'shipping_status'=>'0',
 			'manufacturing_status'=>'0',
 			'customer_id'=>'0',
@@ -45,6 +45,7 @@ function ciniki_sapos_web_cartCreate($ciniki, $settings, $business_id) {
 			'shipping_province'=>'',
 			'shipping_postal'=>'',
 			'shipping_country'=>'',
+			'customer_notes'=>'',
 			'invoice_notes'=>'',
 			'internal_notes'=>'',
 			'subtotal_amount'=>0,
@@ -58,6 +59,9 @@ function ciniki_sapos_web_cartCreate($ciniki, $settings, $business_id) {
 			'balance_amount'=>0,
 			'user_id'=>'-2',
 			);
+		if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0200) > 0 ) {
+			$cart_args['payment_status'] = '10';
+		}
 
 		//
 		// Check if customer is already logged in

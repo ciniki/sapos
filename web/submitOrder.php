@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id) {
+function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id, $cart) {
 
 	if( !isset($ciniki['session']['cart']['sapos_id']) || $ciniki['session']['cart']['sapos_id'] == 0 ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1826', 'msg'=>'No order to submit'));
@@ -29,6 +29,15 @@ function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id) {
 			|| $ciniki['session']['customer']['distributor_status'] != 10)
 		) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1828', 'msg'=>"I'm sorry, but you are not allowed to submit orders."));
+	}
+
+	//
+	// If specified required, make sure po_number is filled in
+	//
+	if( isset($settings['page-cart-po-number']) && $settings['page-cart-po-number'] == 'required' ) {
+		if( $cart['po_number'] == '' ) {
+			return array('stat'=>'warn', 'err'=>array('pkg'=>'ciniki', 'code'=>'2018', 'msg'=>'You must enter a Purchase Order Number before submitting your order.'));
+		}
 	}
 
 	//

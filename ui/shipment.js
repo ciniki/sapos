@@ -26,7 +26,7 @@ function ciniki_sapos_shipment() {
 		this.edit.sections = {
 			'details':{'label':'', 'aside':'yes', 'fields':{
 				'shipment_number':{'label':'Number', 'type':'text', 'size':'small'},
-				'status':{'label':'Status', 'type':'select', 'options':M.ciniki_sapos_shipment.shipmentStatus},
+				'status':{'label':'Status', 'type':'toggle', 'toggles':M.ciniki_sapos_shipment.shipmentStatus},
 				'weight':{'label':'Weight', 'active':'yes', 'type':'text', 'size':'small'},
 				'weight_units':{'label':'Units', 'type':'toggle', 'default':'10', 'toggles':this.weightUnits},
 				'shipping_company':{'label':'Shipper', 'type':'text', 'size':'medium'},
