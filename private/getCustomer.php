@@ -45,13 +45,13 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 		}
 		if( isset($rc['customers']) && isset($rc['customers'][$args['customer_id']]) ) {
 			$customer = $rc['customers'][$args['customer_id']];
-			if( isset($customer['salesrep_id']) && $customer['salesrep_id'] > 0 && (!isset($args['salesrep_id']) || $args['salesrep_id'] == 0 || $args['salesrep_id'] == '') ) {
+			if( isset($customer['salesrep_id']) && (!isset($args['salesrep_id']) || $args['salesrep_id'] == 0 || $args['salesrep_id'] == '') ) {
 				$args['salesrep_id'] = $customer['salesrep_id'];
 			}
-			if( isset($customer['tax_location_id']) && $customer['tax_location_id'] > 0 && (!isset($args['tax_location_id']) || $args['tax_location_id'] == 0 || $args['tax_location_id'] == '') ) {
+			if( isset($customer['tax_location_id']) && (!isset($args['tax_location_id']) || $args['tax_location_id'] == 0 || $args['tax_location_id'] == '') ) {
 				$args['tax_location_id'] = $customer['tax_location_id'];
 			}
-			if( isset($customer['pricepoint_id']) && $customer['pricepoint_id'] > 0 && (!isset($args['pricepoint_id']) || $args['pricepoint_id'] == 0 || $args['pricepoint_id'] == '') ) {
+			if( isset($customer['pricepoint_id']) && (!isset($args['pricepoint_id']) || $args['pricepoint_id'] == 0 || $args['pricepoint_id'] == '') ) {
 				$args['pricepoint_id'] = $customer['pricepoint_id'];
 			}
 			if( $args['billing_name'] == '' ) {
