@@ -164,7 +164,7 @@ function ciniki_sapos_orders() {
 		};
 		this.invoices.rowFn = function(s, i, d) {
 			if( s == 'invoices' ) {
-				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
+				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\',\'list\':M.ciniki_sapos_orders.invoices.data.invoices});';
 			}
 		};
 		this.invoices.addClose('Back');

@@ -75,6 +75,7 @@ function ciniki_sapos_invoice() {
 		this.invoice.pricepoint_id = 0;
 		this.invoice.nextShipmentNumber = '1';
 		this.invoice.data = {};
+		this.invoice.prevnext = {'prev_id':0, 'next_id':0, 'list':[]};
 		this.invoice.sections = {
 			'details':{'label':'', 'aside':'yes', 'list':{
 				'invoice_number':{'label':'Invoice #'},
@@ -318,9 +319,21 @@ function ciniki_sapos_invoice() {
 			}
 			return '';
 		};
+		this.invoice.prevButtonFn = function() {
+			if( this.prevnext.prev_id > 0 ) {
+				return 'M.ciniki_sapos_invoice.showInvoice(null,\'' + this.prevnext.prev_id + '\');'
+			}
+		};
+		this.invoice.nextButtonFn = function() {
+			if( this.prevnext.next_id > 0 ) {
+				return 'M.ciniki_sapos_invoice.showInvoice(null,\'' + this.prevnext.next_id + '\');'
+			}
+		};
 		this.invoice.addButton('edit', 'Edit', 'M.ciniki_sapos_invoice.editInvoice(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.invoice_id);');
 		this.invoice.addButton('add', 'Invoice', 'M.ciniki_sapos_invoice.createInvoice(M.ciniki_sapos_invoice.invoice.cb,0,null);');
+		this.invoice.addButton('next', 'Next');
 		this.invoice.addClose('Back');
+		this.invoice.addLeftButton('prev', 'Prev');
 
 		//
 		// The edit invoice panel
@@ -687,7 +700,7 @@ function ciniki_sapos_invoice() {
 			this.createInvoice(cb, args.customer_id, null, null, null);
 		} else if( args.invoice_id != null ) {
 			// Edit an existing invoice
-			this.showInvoice(cb, args.invoice_id);
+			this.showInvoice(cb, args.invoice_id, (args.list!=null?args.list:[]));
 		} else {
 			// Add blank invoice
 			this.createInvoice(cb, 0, null);
@@ -745,8 +758,9 @@ function ciniki_sapos_invoice() {
 			});
 	};
 
-	this.showInvoice = function(cb, iid) {
+	this.showInvoice = function(cb, iid, list) {
 		if( iid != null ) { this.invoice.invoice_id = iid; }
+		if( list != null ) { this.invoice.prevnext.list = list; }
 		M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID,
 			'invoice_id':this.invoice.invoice_id}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
@@ -761,6 +775,22 @@ function ciniki_sapos_invoice() {
 	this.showInvoiceFinish = function(cb, rsp) {
 		var p = this.invoice;
 		p.data = rsp.invoice;
+		// Setup prev/next buttons
+		p.prevnext.prev_id = 0;
+		p.prevnext.next_id = 0;
+		if( p.prevnext.list != null ) {
+			for(i in p.prevnext.list) {
+				if( p.prevnext.next_id == -1 ) {
+					p.prevnext.next_id = p.prevnext.list[i].invoice.id;
+					break;
+				} else if( p.prevnext.list[i].invoice.id == p.invoice_id ) {
+					p.prevnext.next_id = -1;
+				} else {
+					p.prevnext.prev_id = p.prevnext.list[i].invoice.id;
+				}
+			}
+		}
+
 		p.pricepoint_id = 0;
 		if( rsp.invoice.customer != null && rsp.invoice.customer.pricepoint_id > 0 ) {
 			p.pricepoint_id = rsp.invoice.customer.pricepoint_id;
