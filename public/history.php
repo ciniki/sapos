@@ -41,6 +41,50 @@ function ciniki_sapos_history($ciniki) {
 		return $rc;
 	}
 
+	//
+	// Check to make sure the invoice belongs to the salesrep
+	//
+	if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 
+		&& $args['object'] == 'ciniki.sapos.invoice'
+		) {
+		$strsql = "SELECT id "
+			. "FROM ciniki_sapos_invoices "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['invoice']) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2030', 'msg'=>'Permission denied'));
+		}
+	}
+
+	//
+	// Check to make sure the invoice belongs to the salesrep
+	//
+	if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 
+		&& $args['object'] == 'ciniki.sapos.invoice_item'
+		) {
+		$strsql = "SELECT ciniki_sapos_invoices.id "
+			. "FROM ciniki_sapos_invoice_items, ciniki_sapos_invoices "
+			. "WHERE ciniki_sapos_invoice_items.id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_sapos_invoice_items.invoice_id = ciniki_sapos_invoices.id "
+			. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_sapos_invoices.salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['invoice']) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2026', 'msg'=>'Permission denied'));
+		}
+	}
+
 	if( $args['object'] == 'ciniki.sapos.invoice' ) {
 		if( $args['field'] == 'invoice_date' || $args['field'] == 'due_date' ) {
 			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');

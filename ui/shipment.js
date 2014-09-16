@@ -15,6 +15,49 @@ function ciniki_sapos_shipment() {
 	this.colours = {};
 	this.init = function() {
 		//
+		// The shipment panel
+		//
+		this.shipment = new M.panel('Shipment',
+			'ciniki_sapos_shipment', 'shipment',
+			'mc', 'medium mediumaside', 'sectioned', 'ciniki.sapos.shipment.shipment');
+		this.shipment.shipment_id = 0;
+		this.shipment.data = {};
+		this.shipment.sections = {
+			'info':{'label':'', 'aside':'yes', 'list':{
+				'shipment_number':{'label':'Number'},
+				'status':{'label':'Status'},
+				'shipping_company':{'label':'Shipper'},
+				'tracking_number':{'label':'Tracking #'},
+				'td_number':{'label':'TD #'},
+				'boxes':{'label':'Boxes'},
+				'pack_date':{'label':'Pack Date'},
+				'ship_date':{'label':'Ship Date'},
+				}},
+			'items':{'label':'Shipped Items', 'type':'simplegrid', 'num_cols':2,
+				'headerValues':['Item', 'Qty'],
+				},
+		};
+		this.shipment.sectionData = function(s) { 
+			if( s == 'info' ) { return this.sections[s].list; }
+			if( this.data[s] != null ) { return this.data[s]; }
+		};
+		this.shipment.listLabel = function(s, i, d) {
+			return d.label;
+		};
+		this.shipment.listValue = function(s, i, d) {
+			return this.data[i];
+		};
+		this.shipment.cellValue = function(s,i,j,d) {
+			if( s == 'items' ) {
+				switch(j) {
+					case 0: return d.item.description;
+					case 1: return d.item.quantity;
+				}
+			}
+		};
+		this.shipment.addClose('Back');
+		
+		//
 		// The edit invoice panel
 		//
 		this.edit = new M.panel('Shipment',
@@ -57,7 +100,16 @@ function ciniki_sapos_shipment() {
 			return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
 				'object':'ciniki.sapos.shipment', 'object_id':this.shipment_id, 'field':i}};
 		};
-		this.edit.sectionData = function(s) { if( this.data[s] != null ) { return this.data[s]; }};
+		this.edit.sectionData = function(s) { 
+			if( s == 'info' ) { return this.sections[s].list; }
+			if( this.data[s] != null ) { return this.data[s]; }
+		};
+		this.edit.listLabel = function(s, i, d) {
+			return d.label;
+		};
+		this.edit.listValue = function(s, i, d) {
+			return this.data[i];
+		};
 		this.edit.cellValue = function(s,i,j,d) {
 			if( s == 'invoice_items' ) {
 				switch(j) {
@@ -82,11 +134,11 @@ function ciniki_sapos_shipment() {
 		this.edit.rowFn = function(s, i, d) {
 			if( s == 'invoice_items' ) {
 				if( d.item.object == 'ciniki.products.product' ) {
-					return 'M.startApp(\'ciniki.products.inventory\',null,\'M.ciniki_sapos_shipment.showShipment();\',\'mc\',{\'product_id\':\'' + d.item.object_id + '\'});';
+					return 'M.startApp(\'ciniki.products.inventory\',null,\'M.ciniki_sapos_shipment.showEdit();\',\'mc\',{\'product_id\':\'' + d.item.object_id + '\'});';
 				}
 			}
 			if( s == 'items' && M.ciniki_sapos_shipment.edit.data.status < 30 ) {
-				return 'M.ciniki_sapos_shipment.editItem(\'M.ciniki_sapos_shipment.showShipment();\',\'' + d.item.id + '\');';
+				return 'M.ciniki_sapos_shipment.editItem(\'M.ciniki_sapos_shipment.showEdit();\',\'' + d.item.id + '\');';
 			}
 			return '';
 		};
@@ -161,16 +213,44 @@ function ciniki_sapos_shipment() {
 				this.colours[i] = M.curBusiness.sapos.settings['ui-colours-' + i];
 			}
 		}
-		if( args.shipment_id != null && args.invoice_id != null ) {
-			this.showShipment(cb, args.shipment_id, args.invoice_id, args.shipment_number);
-		} else if( args.invoice_id != null ) {
-			this.showShipment(cb, 0, args.invoice_id, args.shipment_number);
-		} else {
+		//
+		// Check what the user should see
+		//
+		if( M.curBusiness.permissions.owners == null 
+			&& M.curBusiness.permissions.employees == null 
+			&& M.curBusiness.permissions.salesreps != null 
+			&& (M.userPerms&0x01) == 0
+			) {
 			this.showShipment(cb, args.shipment_id);
+		} else {
+			if( args.shipment_id != null && args.invoice_id != null ) {
+				this.showEdit(cb, args.shipment_id, args.invoice_id, args.shipment_number);
+			} else if( args.invoice_id != null ) {
+				this.showEdit(cb, 0, args.invoice_id, args.shipment_number);
+			} else {
+				this.showEdit(cb, args.shipment_id);
+			}
 		}
 	};
 
-	this.showShipment = function(cb, sid, iid, snum) {
+	this.showShipment = function(cb, sid) {
+		if( sid != null ) { this.shipment.shipment_id = sid; }
+		if( this.shipment.shipment_id > 0 ) {
+			M.api.getJSONCb('ciniki.sapos.shipmentGet', {'business_id':M.curBusinessID,
+				'shipment_id':this.shipment.shipment_id}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					var p = M.ciniki_sapos_shipment.shipment;
+					p.data = rsp.shipment;
+					p.refresh();
+					p.show(cb);
+				});
+		}
+	}
+
+	this.showEdit = function(cb, sid, iid, snum) {
 		if( sid != null ) { this.edit.shipment_id = sid; }
 		if( iid != null ) { this.edit.invoice_id = iid; }
 		if( this.edit.shipment_id > 0 ) {
@@ -281,7 +361,7 @@ function ciniki_sapos_shipment() {
 						M.api.err(rsp);
 						return false;
 					}
-					M.ciniki_sapos_shipment.showShipment();
+					M.ciniki_sapos_shipment.showEdit();
 				});
 		} else {
 			var c = this.edit.serializeForm('yes');
@@ -299,7 +379,7 @@ function ciniki_sapos_shipment() {
 								M.api.err(rsp);
 								return false;
 							}
-							M.ciniki_sapos_shipment.showShipment();
+							M.ciniki_sapos_shipment.showEdit();
 						});
 				});
 		}
@@ -329,7 +409,7 @@ function ciniki_sapos_shipment() {
 							M.api.err(rsp);
 							return false;
 						}
-						M.ciniki_sapos_shipment.showShipment();
+						M.ciniki_sapos_shipment.showEdit();
 						window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
 							{'business_id':M.curBusinessID, 'shipment_id':sid}));
 					});	

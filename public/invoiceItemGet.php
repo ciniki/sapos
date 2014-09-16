@@ -59,6 +59,7 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
 	//
 	$strsql = "SELECT id, line_number, "
 		. "status, "
+		. "invoice_id, "
 		. "object, "
 		. "object_id, "
 		. "code, "
@@ -97,6 +98,25 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
 		$item['subtotal_amount'], $intl_currency);
 	$item['total_amount'] = numfmt_format_currency($intl_currency_fmt, 
 		$item['total_amount'], $intl_currency);
+
+	//
+	// Check to make sure the invoice belongs to the salesrep
+	//
+	if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
+		$strsql = "SELECT id "
+			. "FROM ciniki_sapos_invoices "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['invoice_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['invoice']) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2025', 'msg'=>'Permission denied'));
+		}
+	}
 
 	//
 	// Get the tax types available for the business

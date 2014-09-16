@@ -88,9 +88,13 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 	}
 
 	//
-	// Check existing items in invoices
+	// Check existing items in invoices, but only if owner/employee
 	//
-	if( count($items) == 0 ) {
+	if( count($items) == 0 
+		&& (!isset($ciniki['business']['user']['perms'])
+			|| ($ciniki['business']['user']['perms']&0x03) > 0
+			)
+		) {
 		$strsql = "SELECT DISTINCT "	
 			. "ciniki_sapos_invoice_items.object, "
 			. "ciniki_sapos_invoice_items.object_id, "

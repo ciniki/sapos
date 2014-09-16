@@ -79,6 +79,26 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	}
 
 	//
+	// Check to make sure the invoice belongs to the salesrep
+	//
+	if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
+		$strsql = "SELECT id "
+			. "FROM ciniki_sapos_invoices "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['invoice']) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2028', 'msg'=>'Permission denied'));
+		}
+	}
+
+
+	//
 	// Format elements
 	//
 	$shipment['weight'] = (float)$shipment['weight'];
@@ -158,8 +178,6 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 			}
 		}
 	}
-
-	
 
 	//
 	// Get the items in the shipment

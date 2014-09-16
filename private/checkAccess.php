@@ -37,60 +37,66 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
 	}
 
 	//
-	// Only the owners can change the settings
+	// Get the list of permission_groups the user is a part of
 	//
-	if( $method == 'ciniki.sapos.settingsGet' 
-		|| $method == 'ciniki.sapos.settingsUpdate' ) {
-		//
-		// Users who are an owner or employee of a business can see the business alerts
-		//
-		$strsql = "SELECT business_id, user_id FROM ciniki_business_users "
-			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-			. "AND user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
-			. "AND package = 'ciniki' "
-			. "AND status = 10 "
-			. "AND (permission_group = 'owners') "
-			. "";
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
-		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'user');
-		if( $rc['stat'] != 'ok' ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1401', 'msg'=>'Access denied.'));
-		}
-		//
-		// If the user has permission, return ok
-		//
-		if( isset($rc['rows']) && isset($rc['rows'][0]) 
-			&& $rc['rows'][0]['user_id'] > 0 && $rc['rows'][0]['user_id'] == $ciniki['session']['user']['id'] ) {
-			return array('stat'=>'ok', 'modules'=>$modules);
-		} 
-		
-		//
-		// Default to deny access
-		//
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1402', 'msg'=>'Access denied.'));
-	} 
-
-	//
-	// Users who are an owner or employee of a business can see the business alerts
-	//
-	$strsql = "SELECT business_id, user_id FROM ciniki_business_users "
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
+	$strsql = "SELECT permission_group FROM ciniki_business_users "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "AND user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
 		. "AND package = 'ciniki' "
-		. "AND status = 10 "
-		. "AND (permission_group = 'owners' OR permission_group = 'employees') "
+		. "AND status = 10 "	// Active user
 		. "";
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
-	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'user');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
+	$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.businesses', 'groups', 'permission_group');
 	if( $rc['stat'] != 'ok' ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1263', 'msg'=>'Access denied.'));
+		return $rc;
 	}
+	if( !isset($rc['groups']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2023', 'msg'=>'Access denied'));
+	}
+	$groups = $rc['groups'];
+
+	$perms = 0;
+	if( in_array('owners', $groups) ) { $perms |= 0x01; }
+	if( in_array('employees', $groups) ) { $perms |= 0x02; }
+	if( in_array('salesreps', $groups) ) { $perms |= 0x04; }
+	$ciniki['business']['user']['perms'] = $perms;
+
 	//
-	// If the user has permission, return ok
+	// If the user is a part of owners they have access to everything
 	//
-	if( isset($rc['rows']) && isset($rc['rows'][0]) 
-		&& $rc['rows'][0]['user_id'] > 0 && $rc['rows'][0]['user_id'] == $ciniki['session']['user']['id'] ) {
-		return array('stat'=>'ok', 'modules'=>$modules);
+	if( ($perms&0x01) == 0x01 ) {
+		return array('stat'=>'ok', 'modules'=>$modules, 'perms'=>$perms);
+	}
+
+	//
+	// Employee methods
+	//
+	if( ($perms&0x02) == 0x02 
+		&& $method != 'ciniki.sapos.settingsGet' 
+		&& $method != 'ciniki.sapos.settingsUpdate'
+		&& $method != 'ciniki.sapos.settingsHistory'
+		) {
+		return array('stat'=>'ok', 'modules'=>$modules, 'perms'=>$perms);
+	}
+
+	//
+	// If the user is part of the salesreps, ensure they have access to request method
+	//
+	$salesreps_methods = array(
+		'ciniki.sapos.invoiceAdd',
+		'ciniki.sapos.invoiceGet',
+		'ciniki.sapos.invoiceItemAdd',
+		'ciniki.sapos.invoiceItemGet',
+		'ciniki.sapos.invoiceItemSearch',
+		'ciniki.sapos.invoiceItemUpdate',
+		'ciniki.sapos.invoiceItemDelete',
+		'ciniki.sapos.invoiceDelete',
+		'ciniki.sapos.history',
+		'ciniki.sapos.shipmentGet',
+		);
+	if( in_array($method, $salesreps_methods) && ($perms&0x04) == 0x04 ) {
+		return array('stat'=>'ok', 'modules'=>$modules, 'perms'=>$perms);
 	}
 
 	//
