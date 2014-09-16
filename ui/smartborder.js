@@ -24,20 +24,20 @@ function ciniki_sapos_smartborder() {
 		this.shipments.sections = {
 			'datepicker':{'label':'', 'type':'datepicker', 
 				'livesearch':'yes', 
-				'livesearchempty':'no', 'livesearchcols':6, 
+				'livesearchempty':'no', 'livesearchcols':7, 
 				'fn':'M.ciniki_sapos_smartborder.showSelectedDay',
 				'hint':'Search',
-				'headerValues':['Ship Date', 'Customer', '# Boxes', '# Pieces', 'Weight', 'Total'],
-				'headerClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright'],
-				'cellClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+				'headerValues':['Ship Date', 'Customer', 'TD Number', '# Boxes', '# Pieces', 'Weight', 'Total'],
+				'headerClasses':['', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+				'cellClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
 				'noData':'No orders found',
 				},
-			'shipments':{'label':'Shipments', 'type':'simplegrid', 'num_cols':6,
-				'headerValues':['Ship Date', 'Customer', '# Boxes', '# Pieces', 'Weight', 'Total'],
-				'headerClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+			'shipments':{'label':'Shipments', 'type':'simplegrid', 'num_cols':7,
+				'headerValues':['Ship Date', 'Customer', 'TD Number', '# Boxes', '# Pieces', 'Weight', 'Total'],
+				'headerClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
 				'sortable':'yes',
-				'sortTypes':['date', 'text','number','number','number','number'],
-				'cellClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+				'sortTypes':['date','text','text','number','number','number','number'],
+				'cellClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
 				'noData':'No shipments',
 				},
 			};
@@ -61,10 +61,11 @@ function ciniki_sapos_smartborder() {
 			switch(j) {
 				case 0: return d.shipment.ship_date;
 				case 1: return d.shipment.customer_display_name;
-				case 2: return d.shipment.num_boxes;
-				case 3: return d.shipment.num_pieces;
-				case 4: return d.shipment.weight + ' ' + d.shipment.weight_units_text;
-				case 5: return d.shipment.total_amount_display;
+				case 2: return d.shipment.td_number;
+				case 3: return d.shipment.num_boxes;
+				case 4: return d.shipment.num_pieces;
+				case 5: return d.shipment.weight + ' ' + d.shipment.weight_units_text;
+				case 6: return d.shipment.total_amount_display;
 			}
 		};
 		this.shipments.addClose('Back');

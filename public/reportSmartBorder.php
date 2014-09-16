@@ -85,6 +85,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 		. "ciniki_sapos_shipments.invoice_id, "
 		. "ciniki_sapos_invoices.invoice_number, "
 		. "ciniki_sapos_shipments.shipment_number, "
+		. "ciniki_sapos_shipments.td_number, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "ciniki_sapos_shipments.ship_date, "
 		. "ciniki_sapos_shipments.boxes, "
@@ -117,24 +118,26 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") "
 		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND ciniki_sapos_shipments.status > 20 ";
+		. "AND ciniki_sapos_shipments.status > 20 "
+		. "AND ciniki_sapos_shipments.td_number <> '' "
+		. "";
 	if( isset($args['start_date']) ) {
 		$strsql .= "AND ciniki_sapos_shipments.ship_date >= '" . ciniki_core_dbQuote($ciniki, $args['start_date']) . "' "
 		. "AND ciniki_sapos_shipments.ship_date < '" . ciniki_core_dbQuote($ciniki, $args['end_date']) . "' "
 		. "";
 	} elseif( isset($args['start_needle']) ) {
-		$strsql .= "AND ciniki_customers.display_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+		$strsql .= "AND (ciniki_customers.display_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 			. "OR ciniki_customers.display_name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+			. ") "
 		. "";
-	
 	}
 	$strsql .= "ORDER BY ciniki_sapos_shipments.ship_date DESC "
 		. "";
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
-			'fields'=>array('id', 'invoice_id', 'invoice_number', 'shipment_number', 'status_text', 
-				'customer_display_name', 'status',
+			'fields'=>array('id', 'invoice_id', 'invoice_number', 'shipment_number', 'td_number', 
+				'status_text', 'customer_display_name', 'status',
 				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'ship_date'),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
 				'weight_units_text'=>$maps['shipment']['weight_units']),
