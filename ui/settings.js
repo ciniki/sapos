@@ -70,10 +70,11 @@ function ciniki_sapos_settings() {
 			'_rules':{'label':'Invoice Rules', 'fields':{
 				'rules-invoice-duplicate-items':{'label':'Allow duplicate items', 'default':'yes', 'type':'toggle', 'toggles':this.yesNoOptions},
 				}},
-			'_salesreps':{'label':'Sales Rep Rules', 'fields':{
-				'rules-salesrep-po-number':{'label':'Enter PO Number', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
-				'rules-salesrep-billing-address':{'label':'Change Billing Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
-				'rules-salesrep-shipping-address':{'label':'Change Shipping Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
+			'_salesreps':{'label':'Sales Rep Rules', 'active':'no', 'fields':{
+				'rules-salesreps-invoice-po_number':{'label':'PO Number', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
+				'rules-salesreps-invoice-billing':{'label':'Billing Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
+				'rules-salesreps-invoice-shipping':{'label':'Shipping Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
+				'rules-salesreps-invoice-notes':{'label':'Customer Notes', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
 				}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveInvoice();'},
@@ -340,6 +341,11 @@ function ciniki_sapos_settings() {
 			return false;
 		} 
 
+		//
+		// Decide what should be visible
+		//
+		this.invoice.sections._salesreps.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0?'yes':'no');
+
 		if( args.ecats != null && args.ecats == 'yes' ) {
 			this.showExpenseCategories(cb);
 		} else {
@@ -355,6 +361,7 @@ function ciniki_sapos_settings() {
 		this.menu.sections.shipments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0?'yes':'no';
 		this.menu.sections.expenses.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x02)>0?'yes':'no';
 		this.menu.sections.mileage.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100)>0?'yes':'no';
+		this.menu.sections.paypal.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0?'yes':'no';
 		this.menu.refresh();
 		this.menu.show(cb);
 	}

@@ -95,6 +95,10 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'ui-options-print-invoice',
 		'ui-options-print-envelope',
 		'rules-invoice-duplicate-items',
+		'rules-salesreps-invoice-po_number',
+		'rules-salesreps-invoice-billing',
+		'rules-salesreps-invoice-shipping',
+		'rules-salesreps-invoice-notes',
 		);
 	//
 	// Check each valid setting and see if a new value was passed in the arguments for it.

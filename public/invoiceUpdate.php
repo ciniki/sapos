@@ -48,7 +48,6 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		'shipping_country'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Country'),
 		'tax_location_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Tax Location'),
 		'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Pricepoint'),
-		'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action'),
 		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -67,6 +66,20 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     }
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+
+	//
+	// Load the settings
+	//
+	$rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 
+		'business_id', $args['business_id'], 'ciniki.sapos', 'settings', '');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$settings = isset($rc['settings'])?$rc['settings']:array();
+
+	if( !isset($args['unit_discount_percentage']) || $args['unit_discount_percentage'] == '' ) {
+		$args['unit_discount_percentage'] = 0;
+	}
 
 	//
 	// Get the existing invoice details to compare fields
@@ -89,26 +102,55 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	// Check to make sure the invoice belongs to the salesrep, if they aren't also owners/employees
 	//
 	if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
-		$strsql = "SELECT id "
-			. "FROM ciniki_sapos_invoices "
-			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['invoice_id']) . "' "
-			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
-			. "";
-		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
+		if( $invoice['salesrep_id'] != $ciniki['session']['user']['id'] ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2035', 'msg'=>'Permission Denied'));
 		}
-		if( !isset($rc['invoice']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2029', 'msg'=>'Permission denied'));
+		$update_args = array();
+		//
+		// Sales rep is only allowed to update certain fields
+		//
+		if( isset($settings['rules-salesreps-invoice-po_number']) 
+			&& $settings['rules-salesreps-invoice-po_number'] == 'edit' 
+			&& isset($args['po_number'])
+			) {
+			$update_args['po_number'] = $args['po_number'];
 		}
+		if( isset($settings['rules-salesreps-invoice-notes']) 
+			&& $settings['rules-salesreps-invoice-notes'] == 'edit' 
+			&& isset($args['customer_notes'])
+			) {
+			$update_args['customer_notes'] = $args['customer_notes'];
+		}
+		$address_args = array('name', 'address1', 'address2', 'city', 'province', 'postal', 'country');
+		if( isset($settings['rules-salesreps-invoice-billing']) 
+			&& $settings['rules-salesreps-invoice-billing'] == 'edit' 
+			) {
+			foreach($address_args as $arg) {
+				if( isset($args['billing_' . $arg]) ) {
+					$update_args['billing_' . $arg] = $args['billing_' . $arg];
+				}
+			}
+		}
+		if( isset($settings['rules-salesreps-invoice-shipping']) 
+			&& $settings['rules-salesreps-invoice-shipping'] == 'edit' 
+			) {
+			foreach($address_args as $arg) {
+				if( isset($args['shipping_' . $arg]) ) {
+					$update_args['shipping_' . $arg] = $args['shipping_' . $arg];
+				}
+			}
+		}
+	} else {
+		$update_args = $args;
 	}
 
 	//
+	// Only owners/employee/sysadmins can update customer,
 	// If a customer is specified, then lookup the customer details and fill out the invoice
 	// based on the customer.  
 	//
-	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
+	if( (!isset($ciniki['business']['user']['perms']) || ($ciniki['business']['user']['perms']&0x03) > 0) 
+		&& isset($args['customer_id']) && $args['customer_id'] > 0 ) {
 		$strsql = "SELECT ciniki_customers.id, ciniki_customers.type, ciniki_customers.display_name, "
 			. "ciniki_customers.company, "
 			. "ciniki_customers.salesrep_id, "
@@ -202,25 +244,6 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		}
 	}
 
-	if( isset($args['action']) && $args['action'] == 'submit' ) {
-		$strsql = "SELECT invoice_type, status, shipping_status "
-			. "FROM ciniki_sapos_invoices "
-			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. "";
-		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
-		}
-		if( !isset($rc['invoice']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2006', 'msg'=>'Unable to find invoice'));
-		}
-		$invoice = $rc['invoice'];
-		if( $invoice['invoice_type'] == 40 && $invoice['status'] == 10 ) {
-			$args['status'] = 30;
-		}
-	}
-
 	//
 	// Start the transaction
 	//
@@ -237,7 +260,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
 	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice', 
-		$args['invoice_id'], $args, 0x04);
+		$args['invoice_id'], $update_args, 0x04);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;

@@ -351,9 +351,9 @@ function ciniki_sapos_invoice() {
 				'po_number':{'label':'PO #', 'type':'text', 'size':'medium'},
 				'salesrep_id':{'label':'Sales Rep', 'active':'no', 'type':'select', 'options':{}},
 				'status':{'label':'Status', 'type':'select', 'options':M.ciniki_sapos_invoice.invoiceStatuses},
-				'payment_status':{'label':'Payment', 'type':'select', 'options':M.ciniki_sapos_invoice.paymentStatuses},
-				'shipping_status':{'label':'Shipping', 'type':'select', 'options':M.ciniki_sapos_invoice.shippingStatuses},
-				'manufacturing_status':{'label':'Manufacturing', 'type':'select', 'options':M.ciniki_sapos_invoice.manufacturingStatuses},
+				'payment_status':{'label':'Payment', 'active':'yes', 'type':'select', 'options':M.ciniki_sapos_invoice.paymentStatuses},
+				'shipping_status':{'label':'Shipping', 'active':'yes', 'type':'select', 'options':M.ciniki_sapos_invoice.shippingStatuses},
+				'manufacturing_status':{'label':'Manufacturing', 'active':'yes', 'type':'select', 'options':M.ciniki_sapos_invoice.manufacturingStatuses},
 				'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
 				'due_date':{'label':'Due Date', 'type':'text', 'size':'medium'},
 				'flags':{'label':'Options', 'type':'flags', 'flags':this.invoiceFlags},
@@ -378,7 +378,7 @@ function ciniki_sapos_invoice() {
 				'shipping_postal':{'label':'Postal/Zip', 'type':'text'},
 				'shipping_country':{'label':'Country', 'type':'text'},
 				}},
-			'_notes':{'label':'Notes', 'fields':{
+			'notes':{'label':'Notes', 'fields':{
 				'customer_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
 				}},
 			'_buttons':{'label':'', 'buttons':{
@@ -682,6 +682,59 @@ function ciniki_sapos_invoice() {
 			this.invoice.sections.shipitems.active = 'no';
 			this.invoice.sections.items.active = 'yes';
 		}
+		// If salesreps are enabled
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
+			this.edit.sections.details.fields.salesrep_id.active = 'yes';
+		} else {
+			this.edit.sections.details.fields.salesrep_id.active = 'no';
+		}
+
+		//
+		// Setup for salesrep
+		//
+		if( M.curBusiness.permissions.owners != null
+			|| M.curBusiness.permissions.employees != null
+			|| (M.userPerms&0x01) > 0 
+			) {
+			for(i in this.edit.sections.details.fields) {
+				this.edit.sections.details.fields[i].active = 'yes';
+			}
+			this.edit.sections.billing.active = 'yes';
+			this.edit.sections.shipping.active = 'yes';
+			this.edit.sections.notes.active = 'yes';
+		} else if( M.curBusiness.permissions.salesreps != null ) {
+			var edit = 'no';
+			for(i in this.edit.sections.details.fields) {
+				if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-' + i] != null
+					&& M.curBusiness.sapos.settings['rules-salesreps-invoice-' + i] == 'edit') ) {
+					this.edit.sections.details.fields[i].active = 'yes';
+					edit = 'yes';
+				} else {
+					this.edit.sections.details.fields[i].active = 'no';
+				}
+			}
+			if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-billing'] != null
+				&& M.curBusiness.sapos.settings['rules-salesreps-invoice-billing'] == 'edit') ) {
+				this.edit.sections.billing.active = 'yes';
+				edit = 'yes';
+			} else {
+				this.edit.sections.billing.active = 'no';
+			}
+			if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-shipping'] != null
+				&& M.curBusiness.sapos.settings['rules-salesreps-invoice-shipping'] == 'edit') ) {
+				this.edit.sections.shipping.active = 'yes';
+				edit = 'yes';
+			} else {
+				this.edit.sections.shipping.active = 'no';
+			}
+			if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-notes'] != null
+				&& M.curBusiness.sapos.settings['rules-salesreps-invoice-notes'] == 'edit') ) {
+				this.edit.sections.notes.active = 'yes';
+				edit = 'yes';
+			} else {
+				this.edit.sections.notes.active = 'no';
+			}
+		}
 
 		this.item.pricepoint_id = 0;
 
@@ -868,6 +921,15 @@ function ciniki_sapos_invoice() {
 			p.sections._buttons.buttons.delete.visible=(rsp.invoice.status==10?'yes':'no');
 			p.sections.shipitems.addTxt = (rsp.invoice.status == 10)?'Add':'';
 			p.sections.items.addTxt = (rsp.invoice.status == 10)?'Add':'';
+			if( ((M.curBusiness.sapos.settings['rules-salesreps-invoice-po_number'] != null
+					&& M.curBusiness.sapos.settings['rules-salesreps-invoice-po_number'] == 'edit') 
+				|| (M.curBusiness.sapos.settings['rules-salesreps-invoice-billing'] != null
+					&& M.curBusiness.sapos.settings['rules-salesreps-billing'] == 'edit') 
+				|| (M.curBusiness.sapos.settings['rules-salesreps-invoice-shipping'] != null
+					&& M.curBusiness.sapos.settings['rules-salesreps-invoice-shipping'] == 'edit') 
+				) && rsp.invoice.status < 20 ) {
+				p.addButton('edit', 'Edit', 'M.ciniki_sapos_invoice.editInvoice(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.invoice_id);');
+			}
 		} else {
 			p.addButton('edit', 'Edit', 'M.ciniki_sapos_invoice.editInvoice(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.invoice_id);');
 			if( rsp.invoice.invoice_type == '10' ) {
@@ -1051,7 +1113,7 @@ function ciniki_sapos_invoice() {
 					// Sales Reps
 					if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
 						if( rsp.salesreps != null ) {
-							p.sections.details.fields.salesrep_id.active = 'yes';
+//							p.sections.details.fields.salesrep_id.active = 'yes';
 							var reps = {'0':'None'};
 							for(i in rsp.salesreps) {
 								reps[rsp.salesreps[i].user.id] = rsp.salesreps[i].user.name;
@@ -1060,12 +1122,18 @@ function ciniki_sapos_invoice() {
 						} else {
 							p.sections.details.fields.salesrep_id.options = {'0':'None'};
 						}
-					} else {
-						p.sections.details.fields.salesrep_id.active = 'no';
+//					} else {
+//						p.sections.details.fields.salesrep_id.active = 'no';
 					}
-		p.sections.details.fields.payment_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0||rsp.invoice.payment_status>0)?'yes':'no';
-		p.sections.details.fields.shipping_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0||rsp.invoice.shipping_status>0)?'yes':'no';
-		p.sections.details.fields.manufacturing_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x80)>0||rsp.invoice.manufacturing_status>0)?'yes':'no';
+					if( p.sections.details.fields.payment_status.active == 'yes' ) {
+						p.sections.details.fields.payment_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0||rsp.invoice.payment_status>0)?'yes':'no';
+					}
+					if( p.sections.details.fields.shipping_status.active == 'yes' ) {
+						p.sections.details.fields.shipping_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0||rsp.invoice.shipping_status>0)?'yes':'no';
+					}
+					if( p.sections.details.fields.manufacturing_status.active == 'yes' ) {
+						p.sections.details.fields.manufacturing_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x80)>0||rsp.invoice.manufacturing_status>0)?'yes':'no';
+					}
 
 					p.refresh();
 					p.show(cb);

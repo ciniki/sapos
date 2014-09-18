@@ -92,6 +92,7 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
 		'ciniki.sapos.invoiceItemUpdate',
 		'ciniki.sapos.invoiceItemDelete',
 		'ciniki.sapos.invoiceDelete',
+		'ciniki.sapos.invoiceUpdate',
 		'ciniki.sapos.invoiceAction',
 		'ciniki.sapos.history',
 		'ciniki.sapos.shipmentGet',
