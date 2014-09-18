@@ -69,6 +69,7 @@ function ciniki_sapos_settings() {
 				}},
 			'_rules':{'label':'Invoice Rules', 'fields':{
 				'rules-invoice-duplicate-items':{'label':'Allow duplicate items', 'default':'yes', 'type':'toggle', 'toggles':this.yesNoOptions},
+				'rules-invoice-submit-require-po_number':{'label':'Require PO Number', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
 				}},
 			'_salesreps':{'label':'Sales Rep Rules', 'active':'no', 'fields':{
 				'rules-salesreps-invoice-po_number':{'label':'PO Number', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},

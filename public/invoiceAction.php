@@ -36,10 +36,27 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         return $rc;
     }
 
+	//
+	// Load the settings
+	//
+	$rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 
+		'business_id', $args['business_id'], 'ciniki.sapos', 'settings', '');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$settings = isset($rc['settings'])?$rc['settings']:array();
+
+	//
+	// Check the discount
+	//
+	if( !isset($args['unit_discount_percentage']) || $args['unit_discount_percentage'] == '' ) {
+		$args['unit_discount_percentage'] = 0;
+	}
+
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
 	if( isset($args['action']) && $args['action'] == 'submit' ) {
-		$strsql = "SELECT invoice_type, status, shipping_status "
+		$strsql = "SELECT po_number, invoice_type, status, shipping_status "
 			. "FROM ciniki_sapos_invoices "
 			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
 			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -59,6 +76,12 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 		// Only allow orders to be submitted if still in incomplete status
 		//
 		if( $invoice['invoice_type'] == 40 && $invoice['status'] == 10 ) {
+			if( isset($settings['rules-invoice-submit-require-po_number']) 
+				&& $settings['rules-invoice-submit-require-po_number'] == 'yes' 
+				&& (!isset($invoice['po_number']) || $invoice['po_number'] == '') 
+				) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2035', 'msg'=>'The order must have a PO Number before it can be submitted.'));
+			}
 			$args['status'] = 30;
 		}
 	} else {
