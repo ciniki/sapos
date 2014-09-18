@@ -1,6 +1,8 @@
 //
 function ciniki_sapos_settings() {
 	this.toggleOptions = {'no':'Hide', 'yes':'Display'};
+	this.yesNoOptions = {'no':'No', 'yes':'Yes'};
+	this.viewEditOptions = {'view':'View', 'edit':'Edit'};
 	this.positionOptions = {'left':'Left', 'center':'Center', 'right':'Right', 'off':'Off'};
 	this.weightUnits = {
 		'10':'lb',
@@ -66,7 +68,7 @@ function ciniki_sapos_settings() {
 				'ui-options-print-envelope':{'label':'Print Envelope Button', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
 				}},
 			'_rules':{'label':'Invoice Rules', 'fields':{
-				'rules-invoice-duplicate-items':{'label':'Allow duplicate items', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
+				'rules-invoice-duplicate-items':{'label':'Allow duplicate items', 'default':'yes', 'type':'toggle', 'toggles':this.yesNoOptions},
 				}},
 			'_salesreps':{'label':'Sales Rep Rules', 'fields':{
 				'rules-salesrep-po-number':{'label':'Enter PO Number', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
