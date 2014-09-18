@@ -86,6 +86,25 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	$invoice = $rc['invoice'];
 
 	//
+	// Check to make sure the invoice belongs to the salesrep, if they aren't also owners/employees
+	//
+	if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
+		$strsql = "SELECT id "
+			. "FROM ciniki_sapos_invoices "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['invoice_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['invoice']) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2029', 'msg'=>'Permission denied'));
+		}
+	}
+
+	//
 	// If a customer is specified, then lookup the customer details and fill out the invoice
 	// based on the customer.  
 	//

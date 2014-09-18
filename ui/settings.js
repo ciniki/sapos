@@ -65,6 +65,14 @@ function ciniki_sapos_settings() {
 				'ui-options-print-invoice':{'label':'Print Invoice Button', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
 				'ui-options-print-envelope':{'label':'Print Envelope Button', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
 				}},
+			'_rules':{'label':'Invoice Rules', 'fields':{
+				'rules-invoice-duplicate-items':{'label':'Allow duplicate items', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
+				}},
+			'_salesreps':{'label':'Sales Rep Rules', 'fields':{
+				'rules-salesrep-po-number':{'label':'Enter PO Number', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
+				'rules-salesrep-billing-address':{'label':'Change Billing Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
+				'rules-salesrep-shipping-address':{'label':'Change Shipping Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
+				}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveInvoice();'},
 				}},

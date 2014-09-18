@@ -52,6 +52,16 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
+	
+	//
+	// Load the settings
+	//
+	$rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 
+		'business_id', $args['business_id'], 'ciniki.sapos', 'settings', '');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$settings = isset($rc['settings'])?$rc['settings']:array();
 
 	if( !isset($args['unit_discount_percentage']) || $args['unit_discount_percentage'] == '' ) {
 		$args['unit_discount_percentage'] = 0;
@@ -116,23 +126,27 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	//
 	// Check if item already exists in the invoice
 	//
-	$strsql = "SELECT id, invoice_id, object, object_id, "
-		. "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, price_id, "
-		. "subtotal_amount, discount_amount, total_amount "
-		. "FROM ciniki_sapos_invoice_items "
-		. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-		. "AND object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
-		. "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
-		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "";
-	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
 	$existing_id = 0;
-	if( isset($rc['rows']) && isset($rc['rows'][0]) ) {
-		$existing_id = $rc['rows'][0]['id'];
-		$item = $rc['rows'][0];
+	if( isset($settings['rules-invoice-duplicate-items'])
+		&& $settings['rules-invoice-duplicate-items'] == 'no' 
+		) {
+		$strsql = "SELECT id, invoice_id, object, object_id, "
+			. "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, price_id, "
+			. "subtotal_amount, discount_amount, total_amount "
+			. "FROM ciniki_sapos_invoice_items "
+			. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+			. "AND object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
+			. "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['rows']) && isset($rc['rows'][0]) ) {
+			$existing_id = $rc['rows'][0]['id'];
+			$item = $rc['rows'][0];
+		}
 	}
 
 	//
