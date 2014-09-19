@@ -73,6 +73,7 @@ function ciniki_sapos_settings() {
 				}},
 			'_salesreps':{'label':'Sales Rep Rules', 'active':'no', 'fields':{
 				'rules-salesreps-invoice-po_number':{'label':'PO Number', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
+				'rules-salesreps-invoice-pricepoint_id':{'label':'Pricepoint', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
 				'rules-salesreps-invoice-billing':{'label':'Billing Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
 				'rules-salesreps-invoice-shipping':{'label':'Shipping Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
 				'rules-salesreps-invoice-notes':{'label':'Customer Notes', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},

@@ -79,10 +79,10 @@ function ciniki_sapos_invoice() {
 		this.invoice.sections = {
 			'details':{'label':'', 'aside':'yes', 'list':{
 				'invoice_number':{'label':'Invoice #'},
-				'invoice_type_text':{'label':'Type'},
+//				'invoice_type_text':{'label':'Type'},
 				'po_number':{'label':'PO #'},
 				'salesrep_id_text':{'label':'Sales Rep'},
-				'status_text':{'label':'Status'},
+//				'status_text':{'label':'Status'},
 				'payment_status_text':{'label':'Payment'},
 				'shipping_status_text':{'label':'Shipping'},
 				'manufacturing_status_text':{'label':'Manufacturing'},
@@ -157,6 +157,9 @@ function ciniki_sapos_invoice() {
 			return d.label;
 		};
 		this.invoice.listValue = function(s, i, d) {
+			if( i == 'invoice_number' ) {
+				return this.data[i] + ' <span class="subdue">[' + this.data['status_text'] + ']</span>';
+			}
 			return this.data[i];
 		};
 		this.invoice.rowStyle = function(s, i, d) {
@@ -621,10 +624,10 @@ function ciniki_sapos_invoice() {
 			ct++;
 		}
 		if( ct == 1 ) {
-			this.invoice.sections.details.list.invoice_type_text.visible = 'no';
+//			this.invoice.sections.details.list.invoice_type_text.visible = 'no';
 			this.edit.sections.details.fields.invoice_type.active = 'no';
 		} else {
-			this.invoice.sections.details.list.invoice_type_text.visible = 'yes';
+//			this.invoice.sections.details.list.invoice_type_text.visible = 'yes';
 			this.edit.sections.details.fields.invoice_type.active = 'yes';
 		}
 		this.edit.sections.details.fields.invoice_type.toggles = this.invoiceTypes;
@@ -689,8 +692,23 @@ function ciniki_sapos_invoice() {
 			this.edit.sections.details.fields.salesrep_id.active = 'no';
 		}
 
+		if( M.curBusiness.modules['ciniki.customers'] != null
+			&& (M.curBusiness.modules['ciniki.customers'].flags&0x1000) > 0 
+			) {
+			var pricepoints = {};
+			var s_pp = M.curBusiness.customers.settings.pricepoints;
+			pricepoints[0] = 'None';
+			for(i in s_pp) {
+				pricepoints[s_pp[i].pricepoint.id] = s_pp[i].pricepoint.name;
+			}
+			this.edit.sections.details.fields.pricepoint_id.active = 'yes';
+			this.edit.sections.details.fields.pricepoint_id.options = pricepoints;
+		} else {
+			this.edit.sections.details.fields.pricepoint_id.active = 'no';
+		}
+
 		//
-		// Setup for salesrep
+		// Setup editable fields for salesrep
 		//
 		if( M.curBusiness.permissions.owners != null
 			|| M.curBusiness.permissions.employees != null
@@ -846,7 +864,9 @@ function ciniki_sapos_invoice() {
 		}
 
 		p.pricepoint_id = 0;
-		if( rsp.invoice.customer != null && rsp.invoice.customer.pricepoint_id > 0 ) {
+		if( rsp.invoice.pricepoint_id != null && rsp.invoice.pricepoint_id > 0 ) {
+			p.pricepoint_id = rsp.invoice.pricepoint_id;
+		} else if( rsp.invoice.customer != null && rsp.invoice.customer.pricepoint_id > 0 ) {
 			p.pricepoint_id = rsp.invoice.customer.pricepoint_id;
 		}
 		p.sections._buttons.buttons.record.visible=(rsp.invoice.status<50&&(M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0)?'yes':'no';
@@ -892,12 +912,16 @@ function ciniki_sapos_invoice() {
 		p.sections.customer_notes.visible=(rsp.invoice.customer_notes!='')?'yes':'no';
 		p.sections.details.list.salesrep_id_text.visible=(rsp.invoice.salesrep_id_text!=null&&rsp.invoice.salesrep_id_text!='')?'yes':'no';
 		if( rsp.invoice.status < 50 ) {
-			p.sections.details.list.status_text.visible = 'yes';
+//			p.sections.details.list.status_text.visible = 'yes';
 			p.sections.details.list.payment_status_text.visible = (rsp.invoice.payment_status>0)?'yes':'no';
 			p.sections.details.list.shipping_status_text.visible = (rsp.invoice.shipping_status>0)?'yes':'no';
 			p.sections.details.list.manufacturing_status_text.visible = (rsp.invoice.manufacturing_status>0)?'yes':'no';
+			// Hide if only shipping status visible
+			if( rsp.invoice.payment_status == 0 && rsp.invoice.manufacturing_status == 0 ) {
+				p.sections.details.list.shipping_status_text.visible = 'no';
+			}
 		} else {
-			p.sections.details.list.status_text.visible = 'yes';
+//			p.sections.details.list.status_text.visible = 'yes';
 			p.sections.details.list.payment_status_text.visible = 'no';
 			p.sections.details.list.shipping_status_text.visible = 'no';
 			p.sections.details.list.manufacturing_status_text.visible = 'no';

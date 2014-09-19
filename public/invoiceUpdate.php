@@ -115,6 +115,12 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 			) {
 			$update_args['po_number'] = $args['po_number'];
 		}
+		if( isset($settings['rules-salesreps-invoice-pricepoint_id']) 
+			&& $settings['rules-salesreps-invoice-pricepoint_id'] == 'edit' 
+			&& isset($args['pricepoint_id'])
+			) {
+			$update_args['pricepoint_id'] = $args['pricepoint_id'];
+		}
 		if( isset($settings['rules-salesreps-invoice-notes']) 
 			&& $settings['rules-salesreps-invoice-notes'] == 'edit' 
 			&& isset($args['customer_notes'])
@@ -149,7 +155,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	// If a customer is specified, then lookup the customer details and fill out the invoice
 	// based on the customer.  
 	//
-	if( (!isset($ciniki['business']['user']['perms']) || ($ciniki['business']['user']['perms']&0x03) > 0) 
+	if( (!isset($ciniki['business']['user']['perms']) || ($ciniki['business']['user']['perms']&0x03) > 0 || ($ciniki['session']['user']['perms']&0x01) > 0 ) 
 		&& isset($args['customer_id']) && $args['customer_id'] > 0 ) {
 		$strsql = "SELECT ciniki_customers.id, ciniki_customers.type, ciniki_customers.display_name, "
 			. "ciniki_customers.company, "
@@ -187,17 +193,17 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 				&& (!isset($args['salesrep_id']) && $invoice['salesrep_id'] == 0) 
 				) {
 				// Only set the salesrep_id if there isn't already one set.
-				$args['salesrep_id'] = $customer['salesrep_id'];
+				$update_args['salesrep_id'] = $customer['salesrep_id'];
 			}
 			if( isset($customer['tax_location_id']) && $customer['tax_location_id'] > 0 
 				&& (!isset($args['tax_location_id']) && $invoice['tax_location_id'] == 0) 
 				) {
-				$args['tax_location_id'] = $customer['tax_location_id'];
+				$update_args['tax_location_id'] = $customer['tax_location_id'];
 			}
 			if( isset($customer['pricepoint_id']) && $customer['pricepoint_id'] > 0 
 				&& (!isset($args['pricepoint_id']) && $invoice['pricepoint_id'] == 0) 
 				) {
-				$args['pricepoint_id'] = $customer['pricepoint_id'];
+				$update_args['pricepoint_id'] = $customer['pricepoint_id'];
 			}
 //			$rc['customers'][$args['customer_id']]['name'] = $customer['display_name'];
 
@@ -205,14 +211,14 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 //				if( $customer['type'] == 2 ) {
 //					$args['billing_name'] = $customer['company'];
 //				} else {
-					$args['billing_name'] = $customer['display_name'];
+					$update_args['billing_name'] = $customer['display_name'];
 //				}
 			}
 			if( (isset($args['shipping_name']) && $args['shipping_name'] == '') || $args['shipping_update'] == 'yes' ) {
 //				if( $customer['type'] == 2 ) {
 //					$args['shipping_name'] = $customer['company'];
 //				} else {
-					$args['shipping_name'] = $customer['display_name'];
+					$update_args['shipping_name'] = $customer['display_name'];
 //				}
 			}
 			if( isset($customer['addresses']) ) {
@@ -220,22 +226,22 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 					if( ($address['flags']&0x01) == 0x01 
 						&& ((isset($args['shipping_address1']) && $args['shipping_address1'] == '') 
 							|| $args['shipping_update'] == 'yes') ) {
-						$args['shipping_address1'] = $address['address1'];
-						$args['shipping_address2'] = $address['address2'];
-						$args['shipping_city'] = $address['city'];
-						$args['shipping_province'] = $address['province'];
-						$args['shipping_postal'] = $address['postal'];
-						$args['shipping_country'] = $address['country'];
+						$update_args['shipping_address1'] = $address['address1'];
+						$update_args['shipping_address2'] = $address['address2'];
+						$update_args['shipping_city'] = $address['city'];
+						$update_args['shipping_province'] = $address['province'];
+						$update_args['shipping_postal'] = $address['postal'];
+						$update_args['shipping_country'] = $address['country'];
 					}
 					if( ($address['flags']&0x02) == 0x02 
 						&& ((isset($args['billing_address1']) && $args['billing_address1'] == '' )
 							|| $args['billing_update'] == 'yes') ) {
-						$args['billing_address1'] = $address['address1'];
-						$args['billing_address2'] = $address['address2'];
-						$args['billing_city'] = $address['city'];
-						$args['billing_province'] = $address['province'];
-						$args['billing_postal'] = $address['postal'];
-						$args['billing_country'] = $address['country'];
+						$update_args['billing_address1'] = $address['address1'];
+						$update_args['billing_address2'] = $address['address2'];
+						$update_args['billing_city'] = $address['city'];
+						$update_args['billing_province'] = $address['province'];
+						$update_args['billing_postal'] = $address['postal'];
+						$update_args['billing_country'] = $address['country'];
 					}
 				}
 			}
@@ -264,6 +270,18 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
+	}
+
+	//
+	// Check if pricepoint was updated, and the invoice prices need to change
+	//
+	if( isset($update_args['pricepoint_id']) && $update_args['pricepoint_id'] != $invoice['pricepoint_id'] ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdatePrices');
+		$rc = ciniki_sapos_invoiceUpdatePrices($ciniki, $args['business_id'], $args['invoice_id'],
+			array('pricepoint_id'=>$update_args['pricepoint_id']));
+		if( $rc['stat'] != 'ok' ) {	
+			return $rc;
+		}
 	}
 
 	//
