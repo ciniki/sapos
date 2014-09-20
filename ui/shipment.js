@@ -67,7 +67,19 @@ function ciniki_sapos_shipment() {
 		this.edit.invoice_id = 0;
 		this.edit.data = {};
 		this.edit.sections = {
-			'details':{'label':'', 'aside':'yes', 'fields':{
+			'info':{'label':'', 'aside':'yes', 'active':'no', 'list':{
+				'shipment_number':{'label':'Number'},
+				'status_text':{'label':'Status'},
+				'weight':{'label':'Weight'},
+				'shipping_company':{'label':'Shipper'},
+				'tracking_number':{'label':'Tracking #'},
+				'td_number':{'label':'TD #'},
+				'boxes':{'label':'Boxes'},
+				'pack_date':{'label':'Pack Date'},
+				'ship_date':{'label':'Ship Date'},
+				'freight_amount':{'label':'Freight Amount'},
+				}},
+			'details':{'label':'', 'aside':'yes', 'active':'yes', 'fields':{
 				'shipment_number':{'label':'Number', 'type':'text', 'size':'small'},
 				'status':{'label':'Status', 'type':'toggle', 'toggles':M.ciniki_sapos_shipment.shipmentStatus},
 				'weight':{'label':'Weight', 'active':'yes', 'type':'text', 'size':'small'},
@@ -108,6 +120,7 @@ function ciniki_sapos_shipment() {
 			return d.label;
 		};
 		this.edit.listValue = function(s, i, d) {
+			if( i == 'weight' ) { return this.data[i] + ' ' + this.data['weight_units_text']; }
 			return this.data[i];
 		};
 		this.edit.cellValue = function(s,i,j,d) {
@@ -118,7 +131,7 @@ function ciniki_sapos_shipment() {
 					case 2: return d.item.inventory_quantity;
 					case 3: 
 						var s = '';
-						if( d.item.inventory_quantity > 0 ) {
+						if( d.item.inventory_quantity > 0 && this.data['status'] < 30 ) {
 							s = "<button onclick=\"event.stopPropagation(); M.ciniki_sapos_shipment.addShipmentItem(\'" + d.item.id + "\',\'" + (d.item.required_quantity<=d.item.inventory_quantity?d.item.required_quantity:d.item.inventory_quantity) + "\'); return false;\">Add</button>";
 						}
 						return s;
@@ -156,7 +169,6 @@ function ciniki_sapos_shipment() {
 			}
 			return '';
 		};
-		this.edit.addButton('save', 'Save', 'M.ciniki_sapos_shipment.saveShipment();');
 		this.edit.addClose('Cancel');
 
 		//
@@ -269,6 +281,20 @@ function ciniki_sapos_shipment() {
 					if( rsp.shipment.status >= 20 ) {
 						p.sections._buttons.buttons.delete.visible = 'no';
 					}
+					p.leftbuttons = {};
+					p.rightbuttons = {};
+					if( rsp.shipment.status >= 30 ) {
+						p.sections.info.active = 'yes';
+						p.sections.details.active = 'no';
+						p.addClose('Back');
+						p.sections._buttons.buttons.save.visible = 'no';
+					} else {
+						p.sections.info.active = 'no';
+						p.sections.details.active = 'yes';
+						p.addButton('save', 'Save', 'M.ciniki_sapos_shipment.saveShipment();');
+						p.addClose('Cancel');
+						p.sections._buttons.buttons.save.visible = 'yes';
+					}
 					if( rsp.shipment.invoice_items == null ) {
 						p.data.invoice_items = {};
 					}
@@ -284,8 +310,15 @@ function ciniki_sapos_shipment() {
 					p.show(cb);
 				});
 		} else if( this.edit.invoice_id > 0 ) {
+			this.edit.sections._buttons.buttons.save.visible = 'yes';
 			this.edit.sections._buttons.buttons.delete.visible = 'no';
 			this.edit.sections._buttons.buttons.print.visible = 'no';
+			this.edit.leftbuttons = {};
+			this.edit.rightbuttons = {};
+			this.edit.addButton('save', 'Save', 'M.ciniki_sapos_shipment.saveShipment();');
+			this.edit.addClose('Cancel');
+			this.edit.sections.info.active = 'no';
+			this.edit.sections.details.active = 'yes';
 			M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID,
 				'invoice_id':this.edit.invoice_id, 'inventory':'yes'}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
@@ -299,10 +332,11 @@ function ciniki_sapos_shipment() {
 						'weight_units':'10',
 						'shipping_company':'',
 						'tracking_number':'',
-						'boxes':'1',
+						'boxes':'',
 						'pack_date':M.dateFormat(new Date()),
 						'ship_date':'',
 						'invoice_items':[],
+						'freight_amount':'',
 						'items':[],
 						};
 					if( M.curBusiness.sapos.settings['shipments-default-shipper'] != null ) {

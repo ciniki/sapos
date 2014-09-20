@@ -80,6 +80,13 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 	$shipment = $rc['shipment'];
 
 	//
+	// Reject if shipment is already shipped
+	//
+	if( $shipment['status'] > 20 ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2038', 'msg'=>'Shipment has already been shipped.'));
+	}
+
+	//
 	// Get the details of the item from the invoice
 	//
 	$strsql = "SELECT id, invoice_id, object, object_id, quantity, shipped_quantity "

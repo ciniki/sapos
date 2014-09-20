@@ -47,9 +47,19 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
     }
 
 	//
+	// Load the settings
+	//
+	$rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 
+		'business_id', $args['business_id'], 'ciniki.sapos', 'settings', '');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$settings = isset($rc['settings'])?$rc['settings']:array();
+
+	//
 	// Get the invoice of the shipment
 	//
-	$strsql = "SELECT invoice_id, ship_date "
+	$strsql = "SELECT invoice_id, ship_date, status, boxes, weight "
 		. "FROM ciniki_sapos_shipments "
 		. "WHERE ciniki_sapos_shipments.id = '" . ciniki_core_dbQuote($ciniki, $args['shipment_id']) . "' "
 		. "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -59,10 +69,40 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
         return $rc;
     }
 	if( !isset($rc['shipment']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1996', 'msg'=>'Shipment does not exist'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2041', 'msg'=>'Shipment does not exist'));
 	}
 	$shipment = $rc['shipment'];
 
+	//
+	// Reject if shipment is already shipped
+	//
+	if( $shipment['status'] > 20 ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2036', 'msg'=>'Shipment has already been shipped.'));
+	}
+
+	//
+	// If the status is being changed to shipped, check for rules
+	//
+	if( $shipment['status'] < 30 
+		&& isset($args['status']) && $args['status'] >= 30 
+		) {
+		// Make sure weight is specified if required
+		if( isset($settings['rules-shipment-shipped-require-weight'])
+			&& $settings['rules-shipment-shipped-require-weight'] == 'yes'
+			&& $shipment['weight'] == 0
+			&& (!isset($args['weight']) || $args['weight'] == '' || $args['weight'] <= 0)
+			) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2043', 'msg'=>'Shipping weight must be specified.'));
+		}
+		// Make sure boxes is specified if required
+		if( isset($settings['rules-shipment-shipped-require-boxes'])
+			&& $settings['rules-shipment-shipped-require-boxes'] == 'yes'
+			&& $shipment['boxes'] == 0
+			&& (!isset($args['boxes']) || $args['boxes'] == '' || $args['boxes'] <= 0)
+			) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2044', 'msg'=>'The number of boxes in a shipment must be specified.'));
+		}
+	}
 
 	//
 	// Start transaction

@@ -112,6 +112,10 @@ function ciniki_sapos_settings() {
 				'shipments-default-shipper':{'label':'Shipper', 'type':'text'},
 				'shipments-default-weight-units':{'label':'Units', 'type':'toggle', 'default':'10', 'toggles':this.weightUnits},
 				}},
+			'_rules':{'label':'Shipment Rules', 'fields':{
+				'rules-shipment-shipped-require-weight':{'label':'Require Weight', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
+				'rules-shipment-shipped-require-boxes':{'label':'Require Boxes', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
+				}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveShipment();'},
 				}},

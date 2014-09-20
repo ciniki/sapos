@@ -36,6 +36,30 @@ function ciniki_sapos_shipmentDelete(&$ciniki) {
     }
 
 	//
+	// Get the shipment details
+	//
+	$strsql = "SELECT invoice_id, ship_date, status "
+		. "FROM ciniki_sapos_shipments "
+		. "WHERE ciniki_sapos_shipments.id = '" . ciniki_core_dbQuote($ciniki, $args['shipment_id']) . "' "
+		. "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
+    if( $rc['stat'] != 'ok' ) { 
+        return $rc;
+    }
+	if( !isset($rc['shipment']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1996', 'msg'=>'Shipment does not exist'));
+	}
+	$shipment = $rc['shipment'];
+
+	//
+	// Reject if shipment is already shipped
+	//
+	if( $shipment['status'] > 20 ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2040', 'msg'=>'Shipment has already been shipped.'));
+	}
+
+	//
 	// Get the items in the shipment
 	//
 	$strsql = "SELECT ciniki_sapos_shipment_items.id, "

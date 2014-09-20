@@ -80,7 +80,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 				&& $settings['rules-invoice-submit-require-po_number'] == 'yes' 
 				&& (!isset($invoice['po_number']) || $invoice['po_number'] == '') 
 				) {
-				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2035', 'msg'=>'The order must have a PO Number before it can be submitted.'));
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2042', 'msg'=>'The order must have a PO Number before it can be submitted.'));
 			}
 			$args['status'] = 30;
 		}

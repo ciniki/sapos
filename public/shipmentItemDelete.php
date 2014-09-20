@@ -70,6 +70,13 @@ function ciniki_sapos_shipmentItemDelete(&$ciniki) {
 	$shipment = $rc['shipment'];
 
 	//
+	// Reject if shipment is already shipped
+	//
+	if( $shipment['status'] > 20 ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2037', 'msg'=>'Shipment has already been shipped.'));
+	}
+
+	//
 	// Get the details of the item from the invoice
 	//
 	$strsql = "SELECT id, invoice_id, object, object_id, quantity, shipped_quantity "

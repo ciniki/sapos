@@ -161,6 +161,21 @@ function ciniki_sapos_invoice() {
 			if( i == 'invoice_number' ) {
 				return this.data[i] + ' <span class="subdue">[' + this.data['status_text'] + ']</span>';
 			}
+			if( i == 'po_number' && this.data.status < 50 ) {
+				// Check if salesrep and if have access to update po_number
+				if( M.curBusiness.permissions.owners != null 
+					|| M.curBusiness.permissions.employees != null
+					|| (M.userPerms&0x01) > 0
+					|| (M.curBusiness.permissions.salesreps != null 
+						&& M.curBusiness.sapos.settings['rules-salesreps-invoice-po_number'] != null
+						&& M.curBusiness.sapos.settings['rules-salesreps-invoice-po_number'] == 'edit'
+						&& this.data.status < 20
+						)
+					) {
+				return this.data[i] + " <button onclick=\"event.stopPropagation(); M.ciniki_sapos_invoice.updateInvoiceField(\'po_number\',\'PO Number\'); return false;\">Edit</button>";
+				} 
+				return this.data[i];
+			}
 			return this.data[i];
 		};
 		this.invoice.rowStyle = function(s, i, d) {
@@ -910,9 +925,8 @@ function ciniki_sapos_invoice() {
 		p.sections.details.list.due_date.visible=(rsp.invoice.due_date!='')?'yes':'no';
 		p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
 		p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
-		if( M.curBusiness.customers != null && M.curBusiness.customers.settings != null
-			&& M.curBusiness.customers.settings['rules-invoice-submit-require-po_number']
-			&& M.curBusiness.customers.settings['rules-invoice-submit-require-po_number'] == 'yes' ) {
+		if( M.curBusiness.sapos.settings['rules-invoice-submit-require-po_number']
+			&& M.curBusiness.sapos.settings['rules-invoice-submit-require-po_number'] == 'yes' ) {
 			// Force visible if required field
 			p.sections.details.list.po_number.visible = 'yes';
 		}
@@ -1204,6 +1218,21 @@ function ciniki_sapos_invoice() {
 				});
 		} else {
 			this.edit.close();
+		}
+	};
+
+	this.updateInvoiceField = function(f, n) {
+		var v = prompt(n, M.ciniki_sapos_invoice.invoice.data[f]);
+		if( v != null && v != '' ) {
+			c = '&' + encodeURIComponent(f) + '=' + encodeURIComponent(v);
+			M.api.postJSONCb('ciniki.sapos.invoiceUpdate', {'business_id':M.curBusinessID,
+				'invoice_id':this.invoice.invoice_id}, c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_invoice.showInvoice();
+				});
 		}
 	};
 
