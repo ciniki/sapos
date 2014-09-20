@@ -41,6 +41,9 @@
 # pack_date:			The UTC date and time the shipment was started to be packed.
 # ship_date:			The UTC date and time the package was picked up/dropped off at shipping company.
 #
+# freight_amount:		The cost billed to the company by the shipping company.  This may be different
+#						than the shipping billed to the customer.
+#
 # date_added:			The UTC date and time the shipment was added.
 # last_updated:			The UTC date and time the shipment was last updated.
 #

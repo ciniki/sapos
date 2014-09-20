@@ -89,6 +89,7 @@ function ciniki_sapos_invoice() {
 				'invoice_date':{'label':'Invoice Date'},
 				'due_date':{'label':'Due Date'},
 				'flags_text':{'label':'Options', 'visible':'no'},
+				'pricepoint_id_text':{'label':'Pricepoint', 'visible':'no'},
 				}},
 			'customer_notes':{'label':'', 'aside':'yes', 'visible':'no', 'type':'html'},
 			'customer_details':{'label':'', 'aside':'yes', 'type':'simplegrid', 'num_cols':2,
@@ -909,8 +910,33 @@ function ciniki_sapos_invoice() {
 		p.sections.details.list.due_date.visible=(rsp.invoice.due_date!='')?'yes':'no';
 		p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
 		p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
+		if( M.curBusiness.customers != null && M.curBusiness.customers.settings != null
+			&& M.curBusiness.customers.settings['rules-invoice-submit-require-po_number']
+			&& M.curBusiness.customers.settings['rules-invoice-submit-require-po_number'] == 'yes' ) {
+			// Force visible if required field
+			p.sections.details.list.po_number.visible = 'yes';
+		}
 		p.sections.customer_notes.visible=(rsp.invoice.customer_notes!='')?'yes':'no';
 		p.sections.details.list.salesrep_id_text.visible=(rsp.invoice.salesrep_id_text!=null&&rsp.invoice.salesrep_id_text!='')?'yes':'no';
+		// Decide if pricepoint should be shown
+		if( M.curBusiness.modules['ciniki.customers'] != null 
+			&& (M.curBusiness.modules['ciniki.customers'].flags&0x1000) > 0 ) {
+			if( rsp.invoice.pricepoint_id != null && rsp.invoice.pricepoint_id > 0 
+				&& M.curBusiness.customers.settings != null
+				&& M.curBusiness.customers.settings.pricepoints != null 
+				) {
+				for(i in M.curBusiness.customers.settings.pricepoints) {
+					if( M.curBusiness.customers.settings.pricepoints[i].pricepoint.id == rsp.invoice.pricepoint_id ) {
+						rsp.invoice.pricepoint_id_text = M.curBusiness.customers.settings.pricepoints[i].pricepoint.name;
+						break;
+					}
+				}
+			} else {
+				rsp.invoice.pricepoint_id_text = 'None';
+			}
+			p.data.pricepoint_id_text = rsp.invoice.pricepoint_id_text;
+		}
+		p.sections.details.list.pricepoint_id_text.visible=(rsp.invoice.pricepoint_id_text!=null&&rsp.invoice.pricepoint_id_text!='')?'yes':'no';
 		if( rsp.invoice.status < 50 ) {
 //			p.sections.details.list.status_text.visible = 'yes';
 			p.sections.details.list.payment_status_text.visible = (rsp.invoice.payment_status>0)?'yes':'no';
