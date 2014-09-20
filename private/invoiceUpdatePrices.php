@@ -42,15 +42,11 @@ function ciniki_sapos_invoiceUpdatePrices($ciniki, $business_id, $invoice_id, $a
 	//
 	// Update the item prices
 	//
-	error_log('Updating item prices');
-		error_log(print_r($items, true));
 	foreach($items as $item) {
-		error_log(print_r($item, true));
 		//
 		// Get the new price for the object
 		//
 		if( $item['object'] != '' && $item['object_id'] != '' ) {
-			error_log('Updating item prices for ' . $item['object_id']);
 			list($pkg,$mod,$obj) = explode('.', $item['object']);
 			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
 			if( $rc['stat'] == 'ok' ) {

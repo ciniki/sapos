@@ -350,7 +350,6 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		require($ciniki['config']['core']['lib_dir'] . '/PHPExcel/PHPExcel.php');
 		$objPHPExcel = new PHPExcel();
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
-		error_log($sheet_title);
 		$sheet->setTitle($sheet_title);
 
 		//
