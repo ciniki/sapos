@@ -21,6 +21,7 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 		'shipment_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Shipment'),
 		'item_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Item'),
 		'quantity'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Quantity'),
+		'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;

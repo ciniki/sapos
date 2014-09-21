@@ -168,6 +168,7 @@ function ciniki_sapos_objects($ciniki) {
 			'shipment_id'=>array('ref'=>'ciniki.sapos.shipment'),
 			'item_id'=>array('ref'=>'ciniki.sapos.invoice_item'),
 			'quantity'=>array(),
+			'notes'=>array(),
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);

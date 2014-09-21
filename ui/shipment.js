@@ -94,10 +94,12 @@ function ciniki_sapos_shipment() {
 				}},
 			'invoice_items':{'label':'Unshipped Items', 'type':'simplegrid', 'num_cols':4,
 				'headerValues':['Item', 'Qty', 'Inv', ''],
+				'cellClasses':['multiline','','',''],
 				'noData':'All items shipped',
 				},
 			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':2,
 				'headerValues':['Item', 'Qty'],
+				'cellClasses':['multiline', ''],
 				},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_shipment.saveShipment();'},
@@ -126,7 +128,14 @@ function ciniki_sapos_shipment() {
 		this.edit.cellValue = function(s,i,j,d) {
 			if( s == 'invoice_items' ) {
 				switch(j) {
-					case 0: return d.item.description;
+					case 0:
+						if( d.item.code != null && d.item.code != '' ) {
+							return '<span class="maintext">' + d.item.code + '</span><span class="subtext">' + d.item.description + '</span>' + (d.item.notes!=null&&d.item.notes!=''?'<span class="subsubtext">'+d.item.notes+'</span>':'');
+						}
+						if( d.item.notes != null && d.item.notes != '' ) {
+							return '<span class="maintext">' + d.item.description + '</span><span class="subtext">' + d.item.notes + '</span>';
+						}
+						return d.item.description;
 					case 1: return d.item.required_quantity;
 					case 2: return d.item.inventory_quantity;
 					case 3: 
@@ -139,7 +148,14 @@ function ciniki_sapos_shipment() {
 			}
 			if( s == 'items' ) {
 				switch(j) {
-					case 0: return d.item.description;
+					case 0:
+						if( d.item.code != null && d.item.code != '' ) {
+							return '<span class="maintext">' + d.item.code + '</span><span class="subtext">' + d.item.description + '</span>' + (d.item.notes!=null&&d.item.notes!=''?'<span class="subsubtext">'+d.item.notes+'</span>':'');
+						}
+						if( d.item.notes != null && d.item.notes != '' ) {
+							return '<span class="maintext">' + d.item.description + '</span><span class="subtext">' + d.item.notes + '</span>';
+						}
+						return d.item.description;
 					case 1: return d.item.quantity;
 				}
 			}

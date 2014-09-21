@@ -476,6 +476,9 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 		if( isset($item['item']['code']) && $item['item']['code'] != '' ) {
 			$item['item']['description'] = $item['item']['code'] . ' - ' . $item['item']['description'];
 		}
+		if( isset($item['item']['notes']) && $item['item']['notes'] != '' ) {
+			$item['item']['description'] .= "\n    " . $item['item']['notes'];
+		}
 		$nlines = $pdf->getNumLines($item['item']['description'], $w[0]);
 		if( $nlines == 2 ) {
 			$lh = 3+($nlines*5);
@@ -598,6 +601,16 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
 		$pdf->Cell($w[2], $lh, $invoice['total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
 		$pdf->Ln();
 		$fill=!$fill;
+	}
+
+	//
+	// Check if there is a notes to be displayed
+	//
+	if( isset($invoice['customer_notes']) 
+		&& $invoice['customer_notes'] != '' ) {
+		$pdf->Ln();
+		$pdf->SetFont('');
+		$pdf->MultiCell(180, 5, $invoice['customer_notes'], 0, 'L');
 	}
 
 	//

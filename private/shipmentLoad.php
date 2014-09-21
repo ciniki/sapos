@@ -117,7 +117,8 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_invoice_items.code, "
 		. "ciniki_sapos_invoice_items.description, "
 		. "ciniki_sapos_invoice_items.quantity, "
-		. "ciniki_sapos_invoice_items.shipped_quantity "
+		. "ciniki_sapos_invoice_items.shipped_quantity, "
+		. "ciniki_sapos_invoice_items.notes "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
 		. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -125,7 +126,8 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'object', 'object_id', 'code', 'description', 'quantity', 'shipped_quantity')),
+			'fields'=>array('id', 'object', 'object_id', 'code', 'description', 
+				'quantity', 'shipped_quantity', 'notes')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -188,7 +190,8 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	$strsql = "SELECT ciniki_sapos_shipment_items.id, "
 		. "ciniki_sapos_shipment_items.shipment_id, "
 		. "ciniki_sapos_shipment_items.item_id, "
-		. "ciniki_sapos_shipment_items.quantity "
+		. "ciniki_sapos_shipment_items.quantity, "
+		. "ciniki_sapos_shipment_items.notes "
 		. "FROM ciniki_sapos_shipment_items "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "AND shipment_id = '" . ciniki_core_dbQuote($ciniki, $shipment_id) . "' "
@@ -196,7 +199,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-			'fields'=>array('id', 'shipment_id', 'item_id', 'quantity')),
+			'fields'=>array('id', 'shipment_id', 'item_id', 'quantity', 'notes')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;

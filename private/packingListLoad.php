@@ -128,6 +128,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 		. "total_savings, "
 		. "paid_amount, "
 		. "balance_amount, "
+		. "customer_notes, "
 		. "invoice_notes, "
 		. "internal_notes "
 		. "FROM ciniki_sapos_invoices "
@@ -149,7 +150,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 				'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
 				'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
 				'paid_amount', 'balance_amount',
-				'invoice_notes', 'internal_notes'),
+				'customer_notes', 'invoice_notes', 'internal_notes'),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
 				'invoice_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
 				'invoice_datetime'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
@@ -192,7 +193,8 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_invoice_items.description, "
 		. "ciniki_sapos_invoice_items.quantity, "
 		. "ciniki_sapos_invoice_items.shipped_quantity, "
-		. "ciniki_sapos_invoice_items.quantity - shipped_quantity AS backordered_quantity "
+		. "ciniki_sapos_invoice_items.quantity - shipped_quantity AS backordered_quantity, "
+		. "ciniki_sapos_invoice_items.notes "
 		. "FROM ciniki_sapos_invoice_items "
 		. "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
 		. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -201,7 +203,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'id', 'name'=>'item',
 			'fields'=>array('id', 'object', 'object_id', 'code', 'description', 
-				'quantity', 'shipped_quantity', 'backordered_quantity')),
+				'quantity', 'shipped_quantity', 'backordered_quantity', 'notes')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -218,7 +220,8 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	$strsql = "SELECT ciniki_sapos_shipment_items.id, "
 		. "ciniki_sapos_shipment_items.shipment_id, "
 		. "ciniki_sapos_shipment_items.item_id, "
-		. "ciniki_sapos_shipment_items.quantity "
+		. "ciniki_sapos_shipment_items.quantity, "
+		. "ciniki_sapos_shipment_items.notes "
 		. "FROM ciniki_sapos_shipment_items "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "AND shipment_id = '" . ciniki_core_dbQuote($ciniki, $shipment_id) . "' "
@@ -226,7 +229,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 	$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'item_id',
-			'fields'=>array('id', 'shipment_id', 'item_id', 'quantity')),
+			'fields'=>array('id', 'shipment_id', 'item_id', 'quantity', 'notes')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -247,6 +250,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 			} else {
 				$shipment['invoice']['items'][$iid]['item']['shipment_quantity'] = 0;
 			}
+			$shipment['invoice']['items'][$iid]['item']['shipment_notes'] = $shipment['items'][$item['item']['id']]['notes'];
 			$shipment['invoice']['items'][$iid]['item']['backordered_quantity'] = (float)$item['item']['backordered_quantity'];
 		}
 	}

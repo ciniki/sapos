@@ -565,6 +565,16 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 	$lh = 6;
 
 	//
+	// Check if there is a notes to be displayed
+	//
+	if( isset($invoice['customer_notes']) 
+		&& $invoice['customer_notes'] != '' ) {
+		$pdf->Ln();
+		$pdf->SetFont('');
+		$pdf->MultiCell(180, 5, $invoice['customer_notes'], 0, 'L');
+	}
+
+	//
 	// Check if there is a message to be displayed
 	//
 	if( isset($sapos_settings['invoice-bottom-message']) 

@@ -180,6 +180,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.salesrep_id, "
+		. "ciniki_sapos_invoices.customer_notes, "
 		. "ciniki_sapos_shipments.shipping_company, "
 		. "ciniki_sapos_shipments.tracking_number, "
 		. "ciniki_sapos_shipments.td_number, "
@@ -243,7 +244,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
 			'fields'=>array('id', 'invoice_id', 'invoice_number', 'shipment_number', 'status_text', 
 				'customer_eid', 'customer_display_name', 'status', 'shipment_status_text',
-				'salesrep_id', 
+				'salesrep_id', 'customer_notes', 
 				'shipping_company', 'tracking_number', 'td_number', 'freight_amount', 
 				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'invoice_date', 'ship_date',
 				'item_id', 'code', 'description', 'shipment_quantity'=>'quantity', 
@@ -378,6 +379,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tax Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Notes', false);
 		$sheet->getStyle('A1:H1')->getFont()->setBold(true);
 
 		//
@@ -409,6 +411,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tax_location_code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_total_amount'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['customer_notes'], false);
 			$row++;
 		}
 		$sheet->getColumnDimension('A')->setAutoSize(true);
@@ -433,6 +436,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->getColumnDimension('T')->setAutoSize(true);
 		$sheet->getColumnDimension('U')->setAutoSize(true);
 		$sheet->getColumnDimension('V')->setAutoSize(true);
+		$sheet->getColumnDimension('W')->setAutoSize(true);
 
 		//
 		// Output the excel

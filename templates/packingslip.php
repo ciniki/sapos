@@ -503,6 +503,12 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
 		if( isset($item['item']['code']) && $item['item']['code'] != '' ) {
 			$item['item']['description'] = $item['item']['code'] . ' - ' . $item['item']['description'];
 		}
+		if( isset($item['item']['notes']) && $item['item']['notes'] != '' ) {
+			$item['item']['description'] .= "\n    " . $item['item']['notes'];
+		}
+		if( isset($item['item']['shipment_notes']) && $item['item']['shipment_notes'] != '' ) {
+			$item['item']['description'] .= "\n    " . $item['item']['shipment_notes'];
+		}
 		$nlines = $pdf->getNumLines($item['item']['description'], $w[0]);
 		if( $nlines == 2 ) {
 			$lh = 3+($nlines*5);
@@ -530,6 +536,15 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
 			0, '', '', true, 0, false, true, 0, 'T', false);
 		$pdf->Ln();	
 		$fill=!$fill;
+	}
+
+	//
+	// Check if there are notes to be added to the invoice
+	//
+	if( isset($shipment['invoice']['customer_notes']) && $shipment['invoice']['customer_notes'] != '' ) {
+		$pdf->Ln();
+		$pdf->SetFont('');
+		$pdf->MultiCell(180, 5, $shipment['invoice']['customer_notes'], 0, 'L');
 	}
 
 	//

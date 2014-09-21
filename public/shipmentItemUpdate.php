@@ -19,8 +19,8 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'sitem_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Shipment Item'),
-		// The only change that can happen is quantity, so it must be specified
-		'quantity'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Quantity'),
+		'quantity'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Quantity'),
+		'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -40,7 +40,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	//
 	// Check if quantity is <= 0
 	//
-	if( $args['quantity'] <= 0 ) {
+	if( isset($args['quantity']) && $args['quantity'] <= 0 ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1980', 'msg'=>'Quantity must be specified and cannot be zero.'));
 	}
 
@@ -106,9 +106,9 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	//
 	// Quantity is the same, nothing to do
 	//
-	if( $item['quantity'] == $args['quantity'] ) {
-		return array('stat'=>'ok');
-	}
+//	if( $item['quantity'] == $args['quantity'] ) {
+//		return array('stat'=>'ok');
+//	}
 
 	//
 	// Start transaction
@@ -128,7 +128,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	//
 	// New quantity is less
 	//
-	if( $args['quantity'] < $item['quantity'] ) {
+	if( isset($args['quantity']) && $args['quantity'] < $item['quantity'] ) {
 		// The amount removed from the quantity
 		$quantity_removed = $item['quantity'] - $args['quantity'];
 
@@ -165,7 +165,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 	//
 	// New quantity is more, adjust inventory
 	//
-	elseif( $args['quantity'] > $item['quantity'] ) {
+	elseif( isset($args['quantity']) && $args['quantity'] > $item['quantity'] ) {
 		// The amount added to the quantity
 		$quantity_added = $args['quantity'] - $item['quantity'];
 
