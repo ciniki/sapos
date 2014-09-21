@@ -59,7 +59,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 	//
 	// Get the invoice of the shipment
 	//
-	$strsql = "SELECT invoice_id, ship_date, status, boxes, weight "
+	$strsql = "SELECT invoice_id, ship_date, status, boxes, tracking_number, weight "
 		. "FROM ciniki_sapos_shipments "
 		. "WHERE ciniki_sapos_shipments.id = '" . ciniki_core_dbQuote($ciniki, $args['shipment_id']) . "' "
 		. "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -93,6 +93,14 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 			&& (!isset($args['weight']) || $args['weight'] == '' || $args['weight'] <= 0)
 			) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2043', 'msg'=>'Shipping weight must be specified.'));
+		}
+		// Make sure tracking_number is specified if required
+		if( isset($settings['rules-shipment-shipped-require-tracking_number'])
+			&& $settings['rules-shipment-shipped-require-tracking_number'] == 'yes'
+			&& ($shipment['tracking_number'] == '' || $shipment['tracking_number'] == '0')
+			&& (!isset($args['tracking_number']) || $args['tracking_number'] == '' || $args['tracking_number'] <= 0)
+			) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2048', 'msg'=>'Tracking number must be specified.'));
 		}
 		// Make sure boxes is specified if required
 		if( isset($settings['rules-shipment-shipped-require-boxes'])

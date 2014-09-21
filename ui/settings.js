@@ -114,6 +114,7 @@ function ciniki_sapos_settings() {
 				}},
 			'_rules':{'label':'Shipment Rules', 'fields':{
 				'rules-shipment-shipped-require-weight':{'label':'Require Weight', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
+				'rules-shipment-shipped-require-tracking_number':{'label':'Require Tracking #', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
 				'rules-shipment-shipped-require-boxes':{'label':'Require Boxes', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
 				}},
 			'_buttons':{'label':'', 'buttons':{

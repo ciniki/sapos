@@ -97,6 +97,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'rules-invoice-duplicate-items',
 		'rules-invoice-submit-require-po_number',
 		'rules-shipment-shipped-require-weight',
+		'rules-shipment-shipped-require-tracking_number',
 		'rules-shipment-shipped-require-boxes',
 		'rules-salesreps-invoice-po_number',
 		'rules-salesreps-invoice-pricepoint_id',

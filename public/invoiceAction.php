@@ -75,7 +75,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 		//
 		// Only allow orders to be submitted if still in incomplete status
 		//
-		if( $invoice['invoice_type'] == 40 && $invoice['status'] == 10 ) {
+		if( ($invoice['invoice_type'] == 40 || $invoice['invoice_type'] == 20) && $invoice['status'] == 10 ) {
 			if( isset($settings['rules-invoice-submit-require-po_number']) 
 				&& $settings['rules-invoice-submit-require-po_number'] == 'yes' 
 				&& (!isset($invoice['po_number']) || $invoice['po_number'] == '') 
@@ -83,6 +83,9 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2042', 'msg'=>'The order must have a PO Number before it can be submitted.'));
 			}
 			$args['status'] = 30;
+		}
+		if( $invoice['invoice_type'] == 20 ) {
+			$args['invoice_type'] = 40;
 		}
 	} else {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2034', 'msg'=>'No action specified'));
