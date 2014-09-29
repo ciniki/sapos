@@ -184,6 +184,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		return $rc;
 	}
 	$invoice_id = $rc['id'];
+	error_log("Added: " . $invoice_id);
 
 	//
 	// Add the items to the invoice
