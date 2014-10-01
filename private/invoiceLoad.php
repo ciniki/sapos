@@ -301,7 +301,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				$intl_currency_fmt, $item['item']['total_amount'], $intl_currency);
 		}
 	}
-	if( $invoice['shipping_status'] > 0 ) {
+	if( $invoice['shipping_status'] > 0 && isset($objects) ) {
 		// 
 		// Get the inventory levels for each object, and upload inventory_quantity
 		//

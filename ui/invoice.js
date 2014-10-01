@@ -371,11 +371,11 @@ function ciniki_sapos_invoice() {
 		//
 		this.edit = new M.panel('Invoice',
 			'ciniki_sapos_invoice', 'edit',
-			'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.edit');
+			'mc', 'medium mediumaside', 'sectioned', 'ciniki.sapos.invoice.edit');
 		this.edit.invoice_id = 0;
 		this.edit.data = {};
 		this.edit.sections = {
-			'details':{'label':'', 'fields':{
+			'details':{'label':'', 'aside':'yes', 'fields':{
 				'invoice_type':{'label':'Type', 'active':'yes', 'type':'toggle', 'default':'invoice', 'toggles':M.ciniki_sapos_invoice.invoiceTypes},
 				'invoice_number':{'label':'Invoice #', 'type':'text', 'size':'small'},
 				'po_number':{'label':'PO #', 'autofocus':'yes', 'type':'text', 'size':'medium'},
@@ -389,6 +389,9 @@ function ciniki_sapos_invoice() {
 				'flags':{'label':'Options', 'type':'flags', 'flags':this.invoiceFlags},
 				'tax_location_id':{'label':'Tax Location', 'active':'no', 'type':'select', 'options':{}},
 				'pricepoint_id':{'label':'Pricepoint', 'active':'no', 'type':'select', 'options':{}},
+				}},
+			'notes':{'label':'Notes', 'aside':'yes', 'fields':{
+				'customer_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
 				}},
 			'billing':{'label':'Billing Address', 'fields':{
 				'billing_name':{'label':'Name', 'type':'text'},
@@ -407,9 +410,6 @@ function ciniki_sapos_invoice() {
 				'shipping_province':{'label':'Province/State', 'type':'text'},
 				'shipping_postal':{'label':'Postal/Zip', 'type':'text'},
 				'shipping_country':{'label':'Country', 'type':'text'},
-				}},
-			'notes':{'label':'Notes', 'fields':{
-				'customer_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
 				}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_invoice.saveInvoice();'},
@@ -583,6 +583,21 @@ function ciniki_sapos_invoice() {
 			return false;
 		}
 
+		//
+		// Setup editable fields for owners/employees
+		//
+		if( M.curBusiness.permissions.owners != null
+			|| M.curBusiness.permissions.employees != null
+			|| (M.userPerms&0x01) > 0 
+			) {
+			for(i in this.edit.sections.details.fields) {
+				this.edit.sections.details.fields[i].active = 'yes';
+			}
+			this.edit.sections.billing.active = 'yes';
+			this.edit.sections.shipping.active = 'yes';
+			this.edit.sections.notes.active = 'yes';
+		}
+
 		// Change also in shipment.js
 		this.colours = {
 			'invoice-item-available':'#C0FFC0',
@@ -685,9 +700,13 @@ function ciniki_sapos_invoice() {
 				}
 				this.edit.sections.details.fields.tax_location_id.active = 'yes';
 				this.edit.sections.details.fields.tax_location_id.options = locations;
+			} else {
+				this.edit.sections.details.fields.tax_location_id.options = {};
+				this.edit.sections.details.fields.tax_location_id.active = 'no';
 			}
 		} else {
 			this.edit.sections.details.fields.tax_location_id.active = 'no';
+			this.edit.sections.details.fields.tax_location_id.options = {};
 			this.item.sections.details.fields.taxtype_id.active = 'no';
 			this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
 		}
@@ -732,22 +751,13 @@ function ciniki_sapos_invoice() {
 			this.edit.sections.details.fields.pricepoint_id.options = pricepoints;
 		} else {
 			this.edit.sections.details.fields.pricepoint_id.active = 'no';
+			this.edit.sections.details.fields.pricepoint_id.options = {};
 		}
 
-		//
-		// Setup editable fields for salesrep
-		//
-		if( M.curBusiness.permissions.owners != null
-			|| M.curBusiness.permissions.employees != null
-			|| (M.userPerms&0x01) > 0 
+		if( M.curBusiness.permissions.owners == null
+			&& M.curBusiness.permissions.employees == null 
+			&& M.curBusiness.permissions.salesreps != null 
 			) {
-			for(i in this.edit.sections.details.fields) {
-				this.edit.sections.details.fields[i].active = 'yes';
-			}
-			this.edit.sections.billing.active = 'yes';
-			this.edit.sections.shipping.active = 'yes';
-			this.edit.sections.notes.active = 'yes';
-		} else if( M.curBusiness.permissions.salesreps != null ) {
 			var edit = 'no';
 			for(i in this.edit.sections.details.fields) {
 				if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-' + i] != null
@@ -1102,6 +1112,7 @@ function ciniki_sapos_invoice() {
 			}
 			p.sections.shipments.visible = (rsp.invoice.status>15?'yes':'no');
 			if( p.data.shipments != null ) {
+				p.sections.shipments.visible = 'yes';
 				var max_num = 0;
 				for(i in p.data.shipments) {
 					if( p.data.shipments[i].shipment.shipment_number != null && parseInt(p.data.shipments[i].shipment.shipment_number) > max_num ) {
@@ -1110,11 +1121,17 @@ function ciniki_sapos_invoice() {
 				}
 				p.nextShipmentNumber = max_num+1;
 			} else {
+//				p.sections.shipments.visible = 'no';
 				p.nextShipmentNumber = 1;
 			}
 		} else {
 //			p.sections._buttons.buttons.picklist.visible = 'no';
-			p.sections.shipments.visible = 'no';
+			if( p.data.shipments != null && p.data.shipments.length > 0 ) {
+				p.sections.shipments.addTxt = '';
+				p.sections.shipments.visible = 'yes';
+			} else {
+				p.sections.shipments.visible = 'no';
+			}
 		}
 		p.sections._buttons.buttons.submitorder.visible = ((rsp.invoice.invoice_type=='40'||rsp.invoice.invoice_type=='20')&&rsp.invoice.items.length>0&&rsp.invoice.status==10?'yes':'no');
 //		p.sections._buttons.buttons.print.visible = (rsp.invoice.status>10?'yes':'no');
@@ -1190,7 +1207,7 @@ function ciniki_sapos_invoice() {
 					// Sales Reps
 					if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
 						if( rsp.salesreps != null ) {
-//							p.sections.details.fields.salesrep_id.active = 'yes';
+							p.sections.details.fields.salesrep_id.active = 'yes';
 							var reps = {'0':'None'};
 							for(i in rsp.salesreps) {
 								reps[rsp.salesreps[i].user.id] = rsp.salesreps[i].user.name;
@@ -1199,8 +1216,8 @@ function ciniki_sapos_invoice() {
 						} else {
 							p.sections.details.fields.salesrep_id.options = {'0':'None'};
 						}
-//					} else {
-//						p.sections.details.fields.salesrep_id.active = 'no';
+					} else {
+						p.sections.details.fields.salesrep_id.active = 'no';
 					}
 					if( p.sections.details.fields.payment_status.active == 'yes' ) {
 						p.sections.details.fields.payment_status.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0||rsp.invoice.payment_status>0)?'yes':'no';

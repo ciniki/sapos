@@ -100,13 +100,50 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		}
 	}
 
-
 	//
 	// Format elements
 	//
 	$shipment['weight'] = (float)$shipment['weight'];
 	$shipment['freight_amount'] = numfmt_format_currency(
 		$intl_currency_fmt, $shipment['freight_amount'], $intl_currency);
+
+	//
+	// Get a few details about the invoice
+	//
+	$strsql = "SELECT ciniki_sapos_invoices.id, "
+		. "ciniki_sapos_invoices.invoice_number, "
+		. "ciniki_sapos_invoices.po_number, "
+		. "ciniki_sapos_invoices.status, "
+		. "ciniki_sapos_invoices.status AS status_text, "
+		. "ciniki_customers.display_name "
+		. "FROM ciniki_sapos_invoices "
+		. "LEFT JOIN ciniki_customers ON ("
+			. "ciniki_sapos_invoices.customer_id = ciniki_customers.id "
+			. "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. ") "
+		. "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
+		. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
+			'fields'=>array('id', 'invoice_number', 'po_number',
+				'status', 'status_text', 'customer_name'=>'display_name'),
+			'maps'=>array('status_text'=>$maps['invoice']['status'])),
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( isset($rc['invoices'][0]['invoice']) ) {
+		$invoice = $rc['invoices'][0]['invoice'];
+		$shipment['invoice_number'] = $invoice['invoice_number'];
+		$shipment['invoice_po_number'] = $invoice['po_number'];
+		$shipment['invoice_status_text'] = $invoice['status_text'];
+		if( isset($invoice['customer_name']) ) {
+			$shipment['customer_name'] = $invoice['customer_name'];
+		} else {
+			$shipment['customer_name'] = '';
+		}
+	}
 
 	//
 	// Get the items in the invoice

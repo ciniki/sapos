@@ -99,6 +99,8 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
 				}
 			}
 		}
+	} else {
+		$remaining_quantity = 'noitems';
 	}
 
 	$new_status = $shipment['status'];

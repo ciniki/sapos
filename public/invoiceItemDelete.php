@@ -72,6 +72,22 @@ function ciniki_sapos_invoiceItemDelete(&$ciniki) {
 	}
 
 	//
+	// Check to make sure the item isn't part of a shipment
+	//
+	$strsql = "SELECT id "
+		. "FROM ciniki_sapos_shipment_items "
+		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "AND item_id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( $rc['num_rows'] > 0 ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2057', 'msg'=>'Item is part of a shipment and cannot be removed.'));
+	}
+
+	//
 	// Start the transaction
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
