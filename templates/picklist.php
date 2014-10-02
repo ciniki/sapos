@@ -23,6 +23,24 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 	$invoice = $rc['invoice'];
 
 	//
+	// Get next shipment number
+	//
+	$strsql = "SELECT MAX(shipment_number) AS shipment_number "
+		. "FROM ciniki_sapos_shipments "
+		. "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+		. "";
+	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	if( isset($rc['shipment']['shipment_number']) ) {
+		$shipment_number = $rc['shipment']['shipment_number'] + 1;
+	} else {
+		$shipment_number = 1;
+	}
+
+	//
 	// Get the inventory
 	//
 	$objects = array();
@@ -333,7 +351,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 	// Determine the header details
 	//
 	$pdf->header_details = array(
-		array('label'=>'Invoice Number', 'value'=>$invoice['invoice_number']),
+		array('label'=>'Invoice Number', 'value'=>$invoice['invoice_number'] . '-' . $shipment_number),
 		array('label'=>'Invoice Date', 'value'=>$invoice['invoice_date']),
 		);
 	if( isset($invoice['po_number']) && $invoice['po_number'] != '' ) {
@@ -342,7 +360,11 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 	if( isset($invoice['due_date']) && $invoice['due_date'] != '' ) {
 		$pdf->header_details[] = array('label'=>'Due Date', 'value'=>$invoice['due_date']);
 	}
-	$pdf->header_details[] = array('label'=>'Status', 'value'=>$invoice['status_text']);
+//	$pdf->header_details[] = array('label'=>'Status', 'value'=>$invoice['status_text']);
+	if( isset($invoice['salesrep_id_text']) ) {
+		$pdf->header_details[] = array('label'=>'Rep', 'value'=>$invoice['salesrep_id_text']);
+	}
+//	$pdf->header_details[] = array('label'=>'Status', 'value'=>$invoice['status_text']);
 //	$pdf->header_details[] = array('label'=>'Balance', 'value'=>$invoice['balance_amount_display']);
 
 	//
@@ -405,7 +427,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 	// Determine the shipping information
 	//
 	$saddr = array();
-	if( ($invoice['flags']&0x03) > 1 ) {
+	if( $invoice['shipping_status'] > 0 ) {
 		if( isset($invoice['shipping_name']) && $invoice['shipping_name'] != '' ) {
 			$saddr[] = $invoice['shipping_name'];
 		}
@@ -442,19 +464,33 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 		$w = array(100, 80);
 	}
 	$lh = 6;
-	$pdf->setCellPaddings(2, 1, 2, 1);
+	$pdf->SetFillColor(224);
+	$pdf->setCellPadding(2);
 	if( count($baddr) > 0 || count($saddr) > 0 ) {
 		$pdf->SetFont('', 'B');
-		$pdf->Cell($w[0], $lh, 'Bill To:', 'B', 0, 'L', 1);
+		$pdf->Cell($w[0], $lh, 'Bill To:', 1, 0, 'L', 1);
 		$border = 1;
-		if( ($invoice['flags']&0x03) > 1 ) {
-			$pdf->Cell($w[1], $lh, 'Ship To:', 'B', 0, 'L', 1);
+		$diff_lines = (count($baddr) - count($saddr));
+		// Add padding so the boxes line up
+		if( $diff_lines > 0 ) {
+			for($i=0;$i<$diff_lines;$i++) {
+				$saddr[] = " ";
+			}
+		} elseif( $diff_lines < 0 ) {
+			for($i=0;$i<abs($diff_lines);$i++) {
+				$baddr[] = " ";
+			}
+		}
+		if( $invoice['shipping_status'] > 0 ) {
+			$pdf->Cell($w[1], $lh, 'Ship To:', 1, 0, 'L', 1);
 			$border = 1;
 		}
 		$pdf->Ln($lh);	
 		$pdf->SetFont('');
+		$pdf->setCellPaddings(2, 4, 2, 2);
 		$pdf->MultiCell($w[0], $lh, implode("\n", $baddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
-		if( ($invoice['flags']&0x03) > 1 ) {
+//		if( ($invoice['flags']&0x03) > 1 ) {
+		if( $invoice['shipping_status'] > 0 ) {
 			$pdf->MultiCell($w[1], $lh, implode("\n", $saddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
 		}
 		$pdf->Ln($lh);
@@ -477,7 +513,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 	$pdf->SetCellPadding(2);
 	$pdf->Cell($w[0], 6, 'Item', 1, 0, 'C', 1);
 	$pdf->Cell($w[1], 6, 'Quantity', 1, 0, 'C', 1);
-	$pdf->Cell($w[1], 6, 'Inventory', 1, 0, 'C', 1);
+	$pdf->Cell($w[1], 6, 'B/O', 1, 0, 'C', 1);
 //	$pdf->Cell($w[2], 6, 'Total', 1, 0, 'C', 1);
 	$pdf->Ln();
 	$pdf->SetFillColor(236);
@@ -497,7 +533,13 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 		} else {
 			$quantity = $item['item']['quantity'] - $item['item']['shipped_quantity'];
 		}
-
+		
+		$inventory_quantity = $item['item']['inventory_quantity'];
+		$bo_quantity = 0;
+		if( $quantity > 0 && $quantity > $inventory_quantity ) {
+			$bo_quantity = $quantity - $inventory_quantity;
+			$quantity = $inventory_quantity;
+		}
 //		if( $item['item']['inventory_quantity'] >= $item['item']['quantity'] ) {
 //			$inventory_quantity = '0';
 //		} else {
@@ -536,7 +578,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 			$pdf->SetFont('', 'B');
 			$pdf->Cell($w[0], 6, 'Item', 1, 0, 'C', 1);
 			$pdf->Cell($w[1], 6, 'Quantity', 1, 0, 'C', 1);
-			$pdf->Cell($w[1], 6, 'Inventory', 1, 0, 'C', 1);
+			$pdf->Cell($w[1], 6, 'B/O', 1, 0, 'C', 1);
 //			$pdf->Cell($w[2], 6, 'Total', 1, 0, 'C', 1);
 			$pdf->Ln();
 			$pdf->SetFillColor(236);
@@ -546,7 +588,8 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 		$pdf->MultiCell($w[0], $lh, $item['item']['description'], 1, 'L', $fill, 
 			0, '', '', true, 0, false, true, 0, 'T', false);
 		$pdf->MultiCell($w[1], $lh, $quantity, 1, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
-		$pdf->MultiCell($w[1], $lh, $item['item']['inventory_quantity'], 1, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
+//		$pdf->MultiCell($w[1], $lh, $item['item']['inventory_quantity'], 1, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
+		$pdf->MultiCell($w[1], $lh, $bo_quantity, 1, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
 //		$pdf->Cell($w[2], $lh, $item['item']['total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
 //		$pdf->MultiCell($w[2], $lh, $item['item']['total_amount_display'], 1, 'R', $fill, 
 //			0, '', '', true, 0, false, true, 0, 'T', false);

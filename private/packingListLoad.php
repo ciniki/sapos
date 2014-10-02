@@ -87,6 +87,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 		. "invoice_number, "
 		. "po_number, "
 		. "customer_id, "
+		. "salesrep_id, "
 		. "invoice_type, "
 		. "invoice_type AS invoice_type_text, "
 		. "status, "
@@ -138,7 +139,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'po_number', 'customer_id', 
-				'invoice_type', 'invoice_type_text', 'status', 'status_text',
+				'invoice_type', 'invoice_type_text', 'status', 'status_text', 'salesrep_id',
 				'payment_status', 'payment_status_text',
 				'shipping_status', 'shipping_status_text',
 				'manufacturing_status', 'manufacturing_status_text',
@@ -174,9 +175,25 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 	$shipment['invoice'] = $rc['invoices'][0]['invoice'];
 
 	//
-	// FIXME: Add sales rep info
+	// Add sales rep info
 	//
-	$shipment['salesrep_display_name'] = '';
+	if( $shipment['invoice']['salesrep_id'] > 0 ) {
+		$strsql = "SELECT display_name "
+			. "FROM ciniki_business_users, ciniki_users "
+			. "WHERE ciniki_business_users.user_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice']['salesrep_id']) . "' "
+			. "AND ciniki_business_users.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND ciniki_business_users.package = 'ciniki' "
+			. "AND ciniki_business_users.permission_group = 'salesreps' "
+			. "AND ciniki_business_users.user_id = ciniki_users.id "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'user');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['user']) ) {
+			$shipment['salesrep_id_text'] = $rc['user']['display_name'];
+		}
+	}
 
 	//
 	// Get the customer information
@@ -247,10 +264,10 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 		foreach($shipment['invoice']['items'] as $iid => $item) {
 			if( isset($shipment['items'][$item['item']['id']]) ) {
 				$shipment['invoice']['items'][$iid]['item']['shipment_quantity'] = (float)$shipment['items'][$item['item']['id']]['quantity'];
+				$shipment['invoice']['items'][$iid]['item']['shipment_notes'] = $shipment['items'][($item['item']['id'])]['notes'];
 			} else {
 				$shipment['invoice']['items'][$iid]['item']['shipment_quantity'] = 0;
 			}
-			$shipment['invoice']['items'][$iid]['item']['shipment_notes'] = $shipment['items'][$item['item']['id']]['notes'];
 			$shipment['invoice']['items'][$iid]['item']['backordered_quantity'] = (float)$item['item']['backordered_quantity'];
 		}
 	}
