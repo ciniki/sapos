@@ -67,7 +67,7 @@ function ciniki_sapos_hooks_inventoryUpdated($ciniki, $business_id, $args) {
 				// Check if shipped, inventory and backorderable item and currently backordered
 				if( ($item['flags']&0x0146) == 0x0146 ) {
 					$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
-						$item['id'], array('flags'=>($item['flags']&~0x0100)), 0x04);
+						$item['id'], array('flags'=>(((int)$item['flags'])&~0x0100)), 0x04);
 					if( $rc['stat'] != 'ok' ) {
 						return $rc;
 					}
