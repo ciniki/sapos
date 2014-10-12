@@ -174,10 +174,11 @@ create table ciniki_sapos_invoices (
 	customer_notes varchar(6000) not null,
 	invoice_notes varchar(6000) not null,
 	internal_notes varchar(6000) not null,
+	submitted_by varchar(200) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),
 	index (customer_id, status, invoice_date),
 	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.06';
+) ENGINE='InnoDB', COMMENT='v1.07';

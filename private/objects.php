@@ -58,6 +58,7 @@ function ciniki_sapos_objects($ciniki) {
 			'customer_notes'=>array(),
 			'invoice_notes'=>array(),
 			'internal_notes'=>array(),
+			'submitted_by'=>array(),
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);

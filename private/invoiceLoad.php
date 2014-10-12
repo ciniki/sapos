@@ -101,7 +101,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		. "balance_amount, "
 		. "customer_notes, "
 		. "invoice_notes, "
-		. "internal_notes "
+		. "internal_notes, "
+		. "submitted_by "
 		. "FROM ciniki_sapos_invoices "
 		. "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
 		. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -126,7 +127,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 				'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
 				'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
 				'paid_amount', 'balance_amount',
-				'customer_notes', 'invoice_notes', 'internal_notes'),
+				'customer_notes', 'invoice_notes', 'internal_notes', 'submitted_by'),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
 				'invoice_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
 				'invoice_datetime'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),

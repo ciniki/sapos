@@ -50,6 +50,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Customer Notes'),
 		'invoice_notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Notes'),
 		'internal_notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Internal Notes'),
+		'submitted_by'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Submitted By'),
 		'objects'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'objectlist', 'name'=>'Items'),
 		'items'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'json', 'name'=>'Items'),
         )); 

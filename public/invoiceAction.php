@@ -56,7 +56,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
 	if( isset($args['action']) && $args['action'] == 'submit' ) {
-		$strsql = "SELECT po_number, invoice_type, status, shipping_status "
+		$strsql = "SELECT po_number, invoice_type, status, shipping_status, submitted_by "
 			. "FROM ciniki_sapos_invoices "
 			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
 			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -84,9 +84,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2042', 'msg'=>'The order must have a PO Number before it can be submitted.'));
 			}
 			$args['status'] = 30;
-		}
-		if( $invoice['invoice_type'] == 20 ) {
-			$args['invoice_type'] = 40;
+			$args['submitted_by'] = $ciniki['session']['user']['display_name'];
 		}
 	} else {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2034', 'msg'=>'No action specified'));

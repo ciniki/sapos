@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table ciniki_sapos_invoices to version 1.07.
+#
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN submitted_by varchar(200) not null AFTER internal_notes;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.07';

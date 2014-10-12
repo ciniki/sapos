@@ -66,6 +66,11 @@ function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id, $cart) {
 	if( $rc['invoice']['status'] == 10 ) {
 		$args['status'] = 30;
 	}
+	if( isset($ciniki['session']['customer']['display_name']) ) {
+		$args['submitted_by'] = $ciniki['session']['customer']['display_name'];
+	} else {
+		$args['submitted_by'] = '';
+	}
 //	if( $rc['invoice']['payment_status'] < 10 ) {
 //		$args['payment_status'] = 10;
 //	}

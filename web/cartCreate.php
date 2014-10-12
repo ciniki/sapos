@@ -58,6 +58,7 @@ function ciniki_sapos_web_cartCreate($ciniki, $settings, $business_id) {
 			'paid_amount'=>0,
 			'balance_amount'=>0,
 			'user_id'=>'-2',
+			'submitted_by'=>'',
 			);
 		if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0200) > 0 ) {
 			$cart_args['payment_status'] = '10';

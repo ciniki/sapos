@@ -90,6 +90,7 @@ function ciniki_sapos_invoice() {
 				'due_date':{'label':'Due Date'},
 				'flags_text':{'label':'Options', 'visible':'no'},
 				'pricepoint_id_text':{'label':'Pricepoint', 'visible':'no'},
+				'submitted_by':{'label':'Submitted By', 'visible':'no'},
 				}},
 			'customer_notes':{'label':'', 'aside':'yes', 'visible':'no', 'type':'html'},
 			'customer_details':{'label':'', 'aside':'yes', 'type':'simplegrid', 'num_cols':2,
@@ -919,6 +920,7 @@ function ciniki_sapos_invoice() {
 				this.invoice.sections.details.list.invoice_number.label = 'Invoice #';
 				this.invoice.sections.details.list.invoice_date.label = 'Invoice Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Invoice';
+				this.invoice.sections.details.list.submitted_by.visible = 'no';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
 				break;
 			case '20': 
@@ -926,6 +928,7 @@ function ciniki_sapos_invoice() {
 				this.invoice.sections.details.list.invoice_number.label = 'Cart #';
 				this.invoice.sections.details.list.invoice_date.label = 'Cart Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Cart';
+				this.invoice.sections.details.list.submitted_by.visible = 'no';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.orderStatuses;
 				break;
 			case '30': 
@@ -933,6 +936,7 @@ function ciniki_sapos_invoice() {
 				this.invoice.sections.details.list.invoice_number.label = 'POS #';
 				this.invoice.sections.details.list.invoice_date.label = 'POS Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Sale';
+				this.invoice.sections.details.list.submitted_by.visible = 'no';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.orderStatuses;
 				break;
 			case '40': 
@@ -940,12 +944,14 @@ function ciniki_sapos_invoice() {
 				this.invoice.sections.details.list.invoice_number.label = 'Order #';
 				this.invoice.sections.details.list.invoice_date.label = 'Order Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Order';
+				this.invoice.sections.details.list.submitted_by.visible = 'yes';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.orderStatuses;
 				break;
 		}
 		p.sections.details.list.due_date.visible=(rsp.invoice.due_date!='')?'yes':'no';
 		p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
 		p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
+		p.sections.details.list.submitted_by.visible=(rsp.invoice.submitted_by!='')?'yes':'no';
 		if( M.curBusiness.sapos.settings['rules-invoice-submit-require-po_number']
 			&& M.curBusiness.sapos.settings['rules-invoice-submit-require-po_number'] == 'yes' ) {
 			// Force visible if required field
