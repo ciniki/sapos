@@ -30,6 +30,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 		'pack_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Date Packed'),
 		'ship_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Date Shipped'),
 		'freight_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Freight Amount'),
+		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -152,6 +153,20 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
+	}
+
+	//
+	// Update the invoice notes
+	//
+	if( isset($args['customer_notes']) ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+		$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice', 
+			$shipment['invoice_id'], array('customer_notes'=>$args['customer_notes']), 0x04);
+		if( $rc['stat'] != 'ok' ) {
+			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+			return $rc;
+		}
+		
 	}
 
 	//

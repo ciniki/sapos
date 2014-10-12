@@ -150,7 +150,7 @@ function ciniki_sapos_invoice() {
 			};
 		this.invoice.sectionData = function(s) {
 			if( s == 'shipitems' ) { return this.data['items']; }
-			if( s == 'invoice_notes' || s == 'internal_notes' ) { return this.data[s].replace(/\n/g, '<br/>'); }
+			if( s == 'invoice_notes' || s == 'internal_notes' || s == 'customer_notes' ) { return this.data[s].replace(/\n/g, '<br/>'); }
 			if( s == 'details' || s == 'billing' || s == 'shipping' ) { return this.sections[s].list; }
 			return this.data[s];
 		};

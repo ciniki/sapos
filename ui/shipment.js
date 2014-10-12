@@ -97,6 +97,9 @@ function ciniki_sapos_shipment() {
 				'ship_date':{'label':'Ship Date', 'type':'date', 'size':'medium'},
 				'freight_amount':{'label':'Freight Amount', 'type':'text', 'size':'small'},
 				}},
+			'_customer_notes':{'label':'Notes', 'aside':'yes', 'fields':{
+				'customer_notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
+				}},
 			'invoice_items':{'label':'Unshipped Items', 'type':'simplegrid', 'num_cols':4,
 				'headerValues':['Item', 'Qty', 'Inv', ''],
 				'cellClasses':['multiline','','',''],
@@ -368,6 +371,7 @@ function ciniki_sapos_shipment() {
 						'invoice_items':[],
 						'freight_amount':'',
 						'items':[],
+						'customer_notes':(rsp.invoice.customer_notes!=null?rsp.invoice.customer_notes:''),
 						};
 					if( rsp.invoice.po_number != null && rsp.invoice.po_number != '' ) {
 						p.sections.invoice.list.invoice_po_number.visible = 'yes';
