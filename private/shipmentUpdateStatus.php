@@ -92,32 +92,32 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
 					if( $item['object'] == $object 
 						&& isset($quantities[$item['object_id']]) 
 						) {
-						// Check if there is backorder ability on product
-						if( ($item['flags']&0x04) == 0x04 ) {
-							if( $quantities[$item['object_id']]['inventory_quantity'] > 0 ) {
-								$backordered = 'some';
-								if( ($item['flags']&0x0100) == 0x0100 ) {
-									// Update to set backordered flag on invoice item
-									$item['flags'] = ((int)$item['flags']) &~ 0x0100;
-									$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
-										$item['id'], array('flags'=>$item['flags']), 0x04);
-									if( $rc['stat'] != 'ok' ) {
-										return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2061', 'msg'=>'Unable to remove backorder flag on invoice item', 'err'=>$rc['err']));
-									}
-								}
-							}
-							// Check if no inventory available
-							if( $item['remaining_quantity'] > 0 
-								&& $quantities[$item['object_id']]['inventory_quantity'] <= 0 
-								&& ($item['flags']&0x0100) == 0 
-								) {
+						if( $quantities[$item['object_id']]['inventory_quantity'] > 0 ) {
+							$backordered = 'some';
+							// Check if there is backorder ability on product
+							if( ($item['flags']&0x04) == 0x04 && ($item['flags']&0x0100) == 0x0100 ) {
 								// Update to set backordered flag on invoice item
-								$item['flags'] = ((int)$item['flags']|0x0100);
+								$item['flags'] = ((int)$item['flags']) &~ 0x0100;
 								$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
 									$item['id'], array('flags'=>$item['flags']), 0x04);
 								if( $rc['stat'] != 'ok' ) {
-									return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2060', 'msg'=>'Unable to update backorder flag on invoice item', 'err'=>$rc['err']));
+									return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2061', 'msg'=>'Unable to remove backorder flag on invoice item', 'err'=>$rc['err']));
 								}
+							}
+						}
+						// Check if there is backorder ability on product
+						// Check if no inventory available
+						if( ($item['flags']&0x04) == 0x04 
+							&& $item['remaining_quantity'] > 0 
+							&& $quantities[$item['object_id']]['inventory_quantity'] <= 0 
+							&& ($item['flags']&0x0100) == 0 
+							) {
+							// Update to set backordered flag on invoice item
+							$item['flags'] = ((int)$item['flags']|0x0100);
+							$rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
+								$item['id'], array('flags'=>$item['flags']), 0x04);
+							if( $rc['stat'] != 'ok' ) {
+								return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2060', 'msg'=>'Unable to update backorder flag on invoice item', 'err'=>$rc['err']));
 							}
 						}
 					}
@@ -125,7 +125,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
 			}
 		}
 	} else {
-		$remaining_quantity = 'noitems';
+		$remaining_quantity = 'none';
 	}
 
 	$new_status = $shipment['status'];
