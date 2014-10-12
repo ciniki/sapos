@@ -181,13 +181,13 @@ function ciniki_sapos_shipment() {
 		this.edit.rowStyle = function(s, i, d) {
 			if( s == 'invoice_items' ) {
 				if( d.item.required_quantity != null && d.item.required_quantity == 0 ) {
-					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-fulfilled'] + ';';
+					return 'background: ' + M.ciniki_sapos_shipment.colours['invoice-item-fulfilled'] + ';';
 				} else if( d.item.required_quantity > 0 && d.item.inventory_quantity > 0 && d.item.inventory_quantity < d.item.required_quantity) {
-					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-partial'] + ';';
+					return 'background: ' + M.ciniki_sapos_shipment.colours['invoice-item-partial'] + ';';
 				} else if( d.item.required_quantity > 0 && d.item.inventory_quantity > 0 ) {
-					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-available'] + ';';
+					return 'background: ' + M.ciniki_sapos_shipment.colours['invoice-item-available'] + ';';
 				} else if( d.item.required_quantity > 0 && d.item.inventory_quantity == 0 ) {
-					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-backordered'] + ';';
+					return 'background: ' + M.ciniki_sapos_shipment.colours['invoice-item-backordered'] + ';';
 				}
 			}
 			return '';
