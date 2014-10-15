@@ -175,6 +175,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	$strsql = "SELECT ciniki_sapos_shipments.id, "
 		. "ciniki_sapos_shipments.invoice_id, "
 		. "ciniki_sapos_invoices.invoice_number, "
+		. "ciniki_sapos_invoices.po_number, "
 		. "ciniki_sapos_shipments.shipment_number, "
 		. "ciniki_customers.eid AS customer_eid, "
 		. "ciniki_customers.display_name AS customer_display_name, "
@@ -242,7 +243,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	//
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
-			'fields'=>array('id', 'invoice_id', 'invoice_number', 'shipment_number', 'status_text', 
+			'fields'=>array('id', 'invoice_id', 'invoice_number', 'po_number', 'shipment_number', 'status_text', 
 				'customer_eid', 'customer_display_name', 'status', 'shipment_status_text',
 				'salesrep_id', 'customer_notes', 
 				'shipping_company', 'tracking_number', 'td_number', 'freight_amount', 
@@ -358,6 +359,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		//
 		$i = 0;
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Number', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'PO Number', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment Number', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Order Date', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Ship Date', false);
@@ -390,6 +392,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$item = $item['item'];
 			$i = 0;
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_number'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['po_number'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_number'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_date'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['ship_date'], false);

@@ -651,9 +651,9 @@ function ciniki_sapos_invoice() {
 			if( this.default_invoice_type == '' ) { this.default_invoice_type = '10'; }
 			ct++;
 		}
-		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
-			this.invoiceTypes['20'] = 'Cart';
-			if( this.default_invoice_type == '' ) { this.default_invoice_type = '20'; }
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 ) {
+			this.invoiceTypes['40'] = 'Order';
+			if( this.default_invoice_type == '' ) { this.default_invoice_type = '40'; }
 			ct++;
 		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
@@ -661,9 +661,9 @@ function ciniki_sapos_invoice() {
 			if( this.default_invoice_type == '' ) { this.default_invoice_type = '30'; }
 			ct++;
 		}
-		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 ) {
-			this.invoiceTypes['40'] = 'Order';
-			if( this.default_invoice_type == '' ) { this.default_invoice_type = '40'; }
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
+			this.invoiceTypes['20'] = 'Cart';
+			if( this.default_invoice_type == '' ) { this.default_invoice_type = '20'; }
 			ct++;
 		}
 		if( ct == 1 ) {
