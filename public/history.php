@@ -135,11 +135,11 @@ function ciniki_sapos_history($ciniki) {
 			$args['business_id'], 'ciniki_sapos_transactions', $args['object_id'], $args['field']);
 	}
 	elseif( $args['object'] == 'ciniki.sapos.shipment' ) {
-		if( $args['field'] == 'ship_date' ) {
+		if( $args['field'] == 'ship_date' || $args['field'] == 'pack_date' ) {
 			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
 			return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
 				$args['business_id'], 'ciniki_sapos_shipments', $args['object_id'], $args['field'], 
-				'utcdatetime');
+				'utcdate');
 		} 
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
 		return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
