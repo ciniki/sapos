@@ -49,6 +49,8 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		'tax_location_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Tax Location'),
 		'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Pricepoint'),
 		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Notes'),
+		'invoice_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Notes'),
+		'internal_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -123,9 +125,13 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		}
 		if( isset($settings['rules-salesreps-invoice-notes']) 
 			&& $settings['rules-salesreps-invoice-notes'] == 'edit' 
-			&& isset($args['customer_notes'])
 			) {
-			$update_args['customer_notes'] = $args['customer_notes'];
+			if( isset($args['customer_notes']) ) {
+				$update_args['customer_notes'] = $args['customer_notes'];
+			}
+			if( isset($args['internal_notes']) ) {
+				$update_args['internal_notes'] = $args['internal_notes'];
+			}
 		}
 		$address_args = array('name', 'address1', 'address2', 'city', 'province', 'postal', 'country');
 		if( isset($settings['rules-salesreps-invoice-billing']) 

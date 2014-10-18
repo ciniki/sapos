@@ -92,7 +92,8 @@ function ciniki_sapos_invoice() {
 				'pricepoint_id_text':{'label':'Pricepoint', 'visible':'no'},
 				'submitted_by':{'label':'Submitted By', 'visible':'no'},
 				}},
-			'customer_notes':{'label':'', 'aside':'yes', 'visible':'no', 'type':'html'},
+			'customer_notes':{'label':'Customer Notes', 'aside':'yes', 'visible':'no', 'type':'html'},
+			'internal_notes':{'label':'Internal Notes', 'aside':'yes', 'visible':'no', 'type':'html'},
 			'customer_details':{'label':'', 'aside':'yes', 'type':'simplegrid', 'num_cols':2,
 				'cellClasses':['label',''],
 				'addTxt':'Edit',
@@ -146,8 +147,8 @@ function ciniki_sapos_invoice() {
 				'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'printenv':{'label':'Print Envelope', 'fn':'M.ciniki_sapos_invoice.printEnvelope(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				}},
-			'invoice_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
-			'internal_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
+//			'invoice_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
+//			'internal_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
 			};
 		this.invoice.sectionData = function(s) {
 			if( s == 'shipitems' ) { return this.data['items']; }
@@ -391,8 +392,11 @@ function ciniki_sapos_invoice() {
 				'tax_location_id':{'label':'Tax Location', 'active':'no', 'type':'select', 'options':{}},
 				'pricepoint_id':{'label':'Pricepoint', 'active':'no', 'type':'select', 'options':{}},
 				}},
-			'notes':{'label':'Notes', 'aside':'yes', 'fields':{
+			'_customer_notes':{'label':'Customer Notes', 'aside':'yes', 'fields':{
 				'customer_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
+				}},
+			'_internal_notes':{'label':'Internal Notes', 'aside':'yes', 'fields':{
+				'internal_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
 				}},
 			'shipping':{'label':'Shipping Address', 'active':'no', 'fields':{
 				'shipping_name':{'label':'Name', 'type':'text'},
@@ -596,7 +600,8 @@ function ciniki_sapos_invoice() {
 			}
 			this.edit.sections.billing.active = 'yes';
 			this.edit.sections.shipping.active = 'yes';
-			this.edit.sections.notes.active = 'yes';
+			this.edit.sections._customer_notes.active = 'yes';
+			this.edit.sections._internal_notes.active = 'yes';
 		}
 
 		// Change also in shipment.js
@@ -785,10 +790,12 @@ function ciniki_sapos_invoice() {
 			}
 			if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-notes'] != null
 				&& M.curBusiness.sapos.settings['rules-salesreps-invoice-notes'] == 'edit') ) {
-				this.edit.sections.notes.active = 'yes';
+				this.edit.sections._customer_notes.active = 'yes';
+				this.edit.sections._internal_notes.active = 'yes';
 				edit = 'yes';
 			} else {
-				this.edit.sections.notes.active = 'no';
+				this.edit.sections._customer_notes.active = 'no';
+				this.edit.sections._internal_notes.active = 'no';
 			}
 		}
 
@@ -958,6 +965,7 @@ function ciniki_sapos_invoice() {
 			p.sections.details.list.po_number.visible = 'yes';
 		}
 		p.sections.customer_notes.visible=(rsp.invoice.customer_notes!='')?'yes':'no';
+		p.sections.internal_notes.visible=(rsp.invoice.internal_notes!='')?'yes':'no';
 		p.sections.details.list.salesrep_id_text.visible=(rsp.invoice.salesrep_id_text!=null&&rsp.invoice.salesrep_id_text!='')?'yes':'no';
 		// Decide if pricepoint should be shown
 		if( M.curBusiness.modules['ciniki.customers'] != null 
@@ -1166,8 +1174,8 @@ function ciniki_sapos_invoice() {
 		} else {
 			p.sections._buttons.buttons.printenv.visible = 'no';
 		}
-		p.sections.invoice_notes.visible=(rsp.invoice.invoice_notes!='')?'yes':'no';
-		p.sections.internal_notes.visible=(rsp.invoice.internal_notes!='')?'yes':'no';
+//		p.sections.customer_notes.visible=(rsp.invoice.invoice_notes!='')?'yes':'no';
+//		p.sections.internal_notes.visible=(rsp.invoice.internal_notes!='')?'yes':'no';
 		p.refresh();
 		p.show(cb);
 	};
