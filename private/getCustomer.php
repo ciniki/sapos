@@ -14,6 +14,7 @@
 function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
 		$strsql = "SELECT ciniki_customers.id, type, display_name, "
+			. "ciniki_customers.status, "
 			. "ciniki_customers.salesrep_id, "
 			. "ciniki_customers.tax_location_id, "
 			. "ciniki_customers.pricepoint_id, "
@@ -36,7 +37,8 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(
 			array('container'=>'customers', 'fname'=>'id', 
-				'fields'=>array('id', 'display_name', 'company', 'salesrep_id', 'tax_location_id', 'pricepoint_id')),
+				'fields'=>array('id', 'display_name', 'company', 
+					'status', 'salesrep_id', 'tax_location_id', 'pricepoint_id')),
 			array('container'=>'addresses', 'fname'=>'address_id',
 				'fields'=>array('id'=>'address_id', 'flags', 'address1', 'address2', 'city', 'province', 'postal', 'country')),
 			));

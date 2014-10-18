@@ -100,13 +100,13 @@ function ciniki_sapos_invoice() {
 				'changeTxt':'Change customer',
 				'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'customer_id\':0});',
 				},
-			'billing':{'label':'', 'aside':'yes', 'visible':'no', 'list':{
-//				'billing_name':{'label':'Bill To'},
-				'billing_address':{'label':'Bill To'},
-				}},
 			'shipping':{'label':'', 'aside':'yes', 'visible':'no', 'list':{
 //				'shipping_name':{'label':'Ship To'},
 				'shipping_address':{'label':'Ship To'},
+				}},
+			'billing':{'label':'', 'aside':'yes', 'visible':'no', 'list':{
+//				'billing_name':{'label':'Bill To'},
+				'billing_address':{'label':'Bill To'},
 				}},
 			'shipitems':{'label':'', 'type':'simplegrid', 'num_cols':7,
 				'headerValues':['Description', 'Qty', 'Inv', 'B/O', 'Shp', 'Price', 'Total'],
@@ -394,15 +394,6 @@ function ciniki_sapos_invoice() {
 			'notes':{'label':'Notes', 'aside':'yes', 'fields':{
 				'customer_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
 				}},
-			'billing':{'label':'Billing Address', 'fields':{
-				'billing_name':{'label':'Name', 'type':'text'},
-				'billing_address1':{'label':'Street', 'type':'text'},
-				'billing_address2':{'label':'', 'type':'text'},
-				'billing_city':{'label':'City', 'type':'text'},
-				'billing_province':{'label':'Province/State', 'type':'text'},
-				'billing_postal':{'label':'Postal/Zip', 'type':'text'},
-				'billing_country':{'label':'Country', 'type':'text'},
-				}},
 			'shipping':{'label':'Shipping Address', 'active':'no', 'fields':{
 				'shipping_name':{'label':'Name', 'type':'text'},
 				'shipping_address1':{'label':'Street', 'type':'text'},
@@ -411,6 +402,15 @@ function ciniki_sapos_invoice() {
 				'shipping_province':{'label':'Province/State', 'type':'text'},
 				'shipping_postal':{'label':'Postal/Zip', 'type':'text'},
 				'shipping_country':{'label':'Country', 'type':'text'},
+				}},
+			'billing':{'label':'Billing Address', 'fields':{
+				'billing_name':{'label':'Name', 'type':'text'},
+				'billing_address1':{'label':'Street', 'type':'text'},
+				'billing_address2':{'label':'', 'type':'text'},
+				'billing_city':{'label':'City', 'type':'text'},
+				'billing_province':{'label':'Province/State', 'type':'text'},
+				'billing_postal':{'label':'Postal/Zip', 'type':'text'},
+				'billing_country':{'label':'Country', 'type':'text'},
 				}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_sapos_invoice.saveInvoice();'},

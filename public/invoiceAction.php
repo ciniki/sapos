@@ -56,7 +56,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
 	if( isset($args['action']) && $args['action'] == 'submit' ) {
-		$strsql = "SELECT po_number, invoice_type, status, shipping_status, submitted_by "
+		$strsql = "SELECT po_number, customer_id, invoice_type, status, shipping_status, submitted_by "
 			. "FROM ciniki_sapos_invoices "
 			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
 			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -83,7 +83,24 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 				) {
 				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2042', 'msg'=>'The order must have a PO Number before it can be submitted.'));
 			}
-			$args['status'] = 30;
+			//
+			// Check if customer is on hold
+			//
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'customerStatus');
+			$rc = ciniki_customers_hooks_customerStatus($ciniki, $args['business_id'],
+			array('customer_id'=>$invoice['customer_id']));
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+			if( !isset($rc['customer']) ) {
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2046', 'msg'=>'Customer does exist for this invoice'));
+			}
+			$customer = $rc['customer'];
+			if( $customer['status'] > 10 ) {
+				$args['status'] = 15;	// On hold
+			} else {
+				$args['status'] = 30;	// Pending shipping
+			}
 			$args['submitted_by'] = $ciniki['session']['user']['display_name'];
 		}
 	} else {

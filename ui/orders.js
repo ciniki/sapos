@@ -33,6 +33,8 @@ function ciniki_sapos_orders() {
 				}},
 			'invoices':{'label':'Recent Orders', 'type':'simplegrid', 'num_cols':5,
 				'headerValues':['Order #','Date','Customer','Amount','Status'],
+				'sortable':'yes',
+				'sortTypes':['number','date','text','number','text'],
 				'noData':'No orders',
 //				'addTxt':'More',
 //				'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'invoice_type\':\'40\'});',
@@ -136,7 +138,7 @@ function ciniki_sapos_orders() {
 		//
 		this.invoices = new M.panel('Orders',
 			'ciniki_sapos_orders', 'invoices',
-			'mc', 'medium', 'sectioned', 'ciniki.sapos.orders.invoices');
+			'mc', 'medium mediumflex', 'sectioned', 'ciniki.sapos.orders.invoices');
 		this.invoices.data = {};
 		this.invoices.sections = {
 			'invoices':{'label':'', 'type':'simplegrid', 'num_cols':4,
@@ -211,7 +213,7 @@ function ciniki_sapos_orders() {
 	//
 	this.showMenu = function(cb) {
 		M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID,
-			'limit':'10', 'sort':'latest', 'type':'40', 'stats':'yes'}, function(rsp) {
+			'limit':'25', 'sort':'latest', 'type':'40', 'stats':'yes'}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
