@@ -68,6 +68,11 @@ function ciniki_sapos_smartborder() {
 				case 6: return d.shipment.total_amount_display;
 			}
 		};
+		this.shipments.rowFn = function(s, i, d) {
+			if( s == 'shipments' ) {
+				return 'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_smartborder.showShipments();\',\'mc\',{\'shipment_id\':\'' + d.shipment.id + '\'});';
+			}
+		};
 		this.shipments.addClose('Back');
 	}
 
