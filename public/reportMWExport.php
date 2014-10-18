@@ -182,6 +182,13 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.salesrep_id, "
 		. "ciniki_sapos_invoices.customer_notes, "
+		. "ciniki_sapos_invoices.shipping_name, "
+		. "ciniki_sapos_invoices.shipping_address1, "
+		. "ciniki_sapos_invoices.shipping_address2, "
+		. "ciniki_sapos_invoices.shipping_city, "
+		. "ciniki_sapos_invoices.shipping_province, "
+		. "ciniki_sapos_invoices.shipping_postal, "
+		. "ciniki_sapos_invoices.shipping_country, "
 		. "ciniki_sapos_shipments.shipping_company, "
 		. "ciniki_sapos_shipments.tracking_number, "
 		. "ciniki_sapos_shipments.td_number, "
@@ -244,6 +251,8 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
 			'fields'=>array('id', 'invoice_id', 'invoice_number', 'po_number', 'shipment_number', 'status_text', 
+				'shipping_name', 'shipping_address1', 'shipping_address2',
+				'shipping_city', 'shipping_province', 'shipping_postal', 'shipping_country',
 				'customer_eid', 'customer_display_name', 'status', 'shipment_status_text',
 				'salesrep_id', 'customer_notes', 
 				'shipping_company', 'tracking_number', 'td_number', 'freight_amount', 
@@ -381,6 +390,13 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tax Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Name', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Address 1', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Address 2', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping City', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Province', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Postal', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Country', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Notes', false);
 		$sheet->getStyle('A1:H1')->getFont()->setBold(true);
 
@@ -414,6 +430,13 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tax_location_code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_total_amount'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_name'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_address1'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_address2'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_city'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_province'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_postal'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_country'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['customer_notes'], false);
 			$row++;
 		}
@@ -440,6 +463,13 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->getColumnDimension('U')->setAutoSize(true);
 		$sheet->getColumnDimension('V')->setAutoSize(true);
 		$sheet->getColumnDimension('W')->setAutoSize(true);
+		$sheet->getColumnDimension('X')->setAutoSize(true);
+		$sheet->getColumnDimension('Y')->setAutoSize(true);
+		$sheet->getColumnDimension('Z')->setAutoSize(true);
+		$sheet->getColumnDimension('AA')->setAutoSize(true);
+		$sheet->getColumnDimension('AB')->setAutoSize(true);
+		$sheet->getColumnDimension('AC')->setAutoSize(true);
+		$sheet->getColumnDimension('AD')->setAutoSize(true);
 
 		//
 		// Output the excel

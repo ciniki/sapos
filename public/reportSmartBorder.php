@@ -105,7 +105,8 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 			. "ciniki_sapos_shipments.invoice_id = ciniki_sapos_invoices.id "
 			. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") "
-		. "LEFT JOIN ciniki_customers ON (ciniki_sapos_invoices.customer_id = ciniki_customers.id "
+		. "LEFT JOIN ciniki_customers ON ("
+			. "ciniki_sapos_invoices.customer_id = ciniki_customers.id "
 			. "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") "
 		. "LEFT JOIN ciniki_sapos_shipment_items ON ( "
@@ -117,7 +118,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 			. "AND ciniki_sapos_shipment_items.item_id = ciniki_sapos_invoice_items.id "
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") "
-		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "WHERE ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND ciniki_sapos_shipments.status > 20 "
 		. "AND ciniki_sapos_shipments.td_number <> '' "
 		. "";
@@ -131,7 +132,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 			. ") "
 		. "";
 	}
-	$strsql .= "ORDER BY ciniki_sapos_shipments.ship_date DESC "
+	$strsql .= "ORDER BY ciniki_sapos_shipments.ship_date DESC, ciniki_sapos_shipments.id "
 		. "";
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
