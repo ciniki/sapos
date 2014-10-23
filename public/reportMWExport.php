@@ -389,10 +389,10 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Weight', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Description', false);
-		$sheet->setCellValueByColumnAndRow($i++, 1, 'Quantity', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Ordered', false);
-		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipped', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Backordered', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total Shipped', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Price Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Unit Amount', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
@@ -432,10 +432,10 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['weight'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['description'], false);
-			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_quantity'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['ordered_quantity'], false);
-			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipped_quantity'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_quantity'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, ($item['ordered_quantity']-$item['shipped_quantity']), false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipped_quantity'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['pricepoint_code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['unit_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['total_amount'], false);

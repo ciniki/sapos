@@ -37,7 +37,7 @@ function ciniki_sapos_mwexport() {
 				'headerValues':['INV #', 'PO #', 'Ship #', 'Order Date', 'Ship Date', 'Invoice Status', 
 					'ID', 'Customer', 'Rep', 
 					'Shipper', 'Tracking #', 'Freight Amount', '# Boxes', '# Pieces', 'Weight',
-					'Code', 'Description', 'Quantity', 'Ordered', 'Shipped', 'B/O',
+					'Code', 'Description', 'Ordered', 'Shipment', 'B/O', 'Shipped',
 					'Price Code', 'Unit Amount', 'Total', 'Tax Code', 'Invoice Total'],
 				'sortable':'yes',
 //				'sortTypes':['number','number','date','date','text','text','text','number'],
@@ -76,10 +76,10 @@ function ciniki_sapos_mwexport() {
 				case 14: return d.item.weight;
 				case 15: return d.item.code;
 				case 16: return d.item.description;
-				case 17: return d.item.shipment_quantity;
-				case 18: return d.item.ordered_quantity;
-				case 19: return d.item.shipped_quantity;
-				case 20: return (d.item.ordered_quantity-d.item.shipped_quantity);
+				case 17: return d.item.ordered_quantity;
+				case 18: return d.item.shipment_quantity;
+				case 19: return (d.item.ordered_quantity-d.item.shipped_quantity);
+				case 20: return d.item.shipped_quantity;
 				case 21: return d.item.pricepoint_code;
 				case 22: return d.item.unit_amount_display;
 				case 23: return d.item.total_amount_display;
