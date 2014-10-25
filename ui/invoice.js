@@ -1067,7 +1067,8 @@ function ciniki_sapos_invoice() {
 		} else {
 			p.sections.billing.visible = 'no';
 		}
-		p.sections.shipping.visible=(rsp.invoice.shipping_status>0&&(rsp.invoice.shipping_name!=''||rsp.invoice.shipping_address1!=''))?'yes':'no';
+//		p.sections.shipping.visible=(rsp.invoice.shipping_status>0&&(rsp.invoice.shipping_name!=''||rsp.invoice.shipping_address1!=''))?'yes':'no';
+		p.sections.shipping.visible=(rsp.invoice.shipping_status>0||rsp.invoice.invoice_type==40)?'yes':'no';
 		p.sections.tallies.visible='yes';
 		p.data.tallies = {};
 		p.data.tallies['subtotal'] = {'tally':{'description':'Sub Total', 'amount':(rsp.invoice.subtotal_amount!=null)?rsp.invoice.subtotal_amount_display:'0.00'}};
@@ -1219,7 +1220,12 @@ function ciniki_sapos_invoice() {
 					var p = M.ciniki_sapos_invoice.edit;
 					p.data = rsp.invoice;
 					// Sales Reps
-					if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
+					if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 
+						&& (M.curBusiness.permissions.owners != null
+							|| M.curBusiness.permissions.employees != null
+							|| (M.userPerms&0x01) > 0
+							)
+						) {
 						if( rsp.salesreps != null ) {
 							p.sections.details.fields.salesrep_id.active = 'yes';
 							var reps = {'0':'None'};
