@@ -194,6 +194,20 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		}
 	}
 
+	//
+	// Get the reserved quantities for objects
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'getReservedQuantities');
+	$reserved_quantities = array();
+	foreach($objects as $object => $object_ids) {
+		$rc = ciniki_sapos_getReservedQuantities($ciniki, $business_id,
+			$object, $object_ids, $shipment['invoice_id']);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$reserved_quantities[$object] = $rc['quantities'];
+	}
+
 	// 
 	// Get the inventory levels for each object
 	//
@@ -218,6 +232,9 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 					&& isset($quantities[$item['item']['object_id']]) 
 					) {
 					$shipment['invoice_items'][$iid]['item']['inventory_quantity'] = $quantities[$item['item']['object_id']]['inventory_quantity'];
+					if( isset($reserved_quantities[$object][$item['item']['object_id']]['quantity_reserved']) ) {
+						$shipment['invoice_items'][$iid]['item']['inventory_reserved'] = (float)$reserved_quantities[$object][$item['item']['object_id']]['quantity_reserved'];
+					}
 				}
 			}
 		}

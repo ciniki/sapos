@@ -230,7 +230,18 @@ function ciniki_sapos_invoice() {
 					return d.item.quantity;
 				}
 				if( j == 2 ) {
-					return d.item.inventory_quantity + (d.item.inventory_reserved!=null?' [' + d.item.inventory_reserved + ']':'');
+					if( M.curBusiness.permissions.owners == null
+						&& M.curBusiness.permissions.employees == null 
+						&& M.curBusiness.permissions.salesreps != null 
+						) {
+						if( d.item.inventory_reserved != null ) {
+							return (d.item.inventory_quantity - d.item.inventory_reserved);
+						} 
+						return d.item.inventory_quantity;
+					} else {
+						return d.item.inventory_quantity + (d.item.inventory_reserved!=null?' [' + d.item.inventory_reserved + ']':'');
+					}
+
 				}
 				if( j == 3 ) {
 					return d.item.required_quantity;
@@ -722,9 +733,9 @@ function ciniki_sapos_invoice() {
 		if( M.curBusiness.modules['ciniki.products'] != null 
 			&& (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0 ) {
 			this.item.sections.details.fields.code.livesearchcols=3;
-			this.item.sections.details.fields.code.headerValues = ['Item', 'Inventory', 'Price'];
+			this.item.sections.details.fields.code.headerValues = ['Item', 'Available', 'Price'];
 			this.item.sections.details.fields.description.livesearchcols=3;
-			this.item.sections.details.fields.description.headerValues = ['Item', 'Inventory', 'Price'];
+			this.item.sections.details.fields.description.headerValues = ['Item', 'Available', 'Price'];
 		} else {
 			this.item.sections.details.fields.code.livesearchcols=2;
 			this.item.sections.details.fields.code.headerValues = ['Item', 'Price'];

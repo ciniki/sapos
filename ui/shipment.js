@@ -102,7 +102,7 @@ function ciniki_sapos_shipment() {
 				}},
 			'invoice_items':{'label':'Unshipped Items', 'type':'simplegrid', 'num_cols':4,
 				'headerValues':['Item', 'Qty', 'Inv', ''],
-				'cellClasses':['multiline','','',''],
+				'cellClasses':['multiline','','','',''],
 				'noData':'All items shipped',
 				},
 			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':2,
@@ -151,7 +151,7 @@ function ciniki_sapos_shipment() {
 						}
 						return d.item.description;
 					case 1: return d.item.required_quantity;
-					case 2: return d.item.inventory_quantity;
+					case 2: return d.item.inventory_quantity + (d.item.inventory_reserved!=null?' ['+d.item.inventory_reserved+']':'');
 					case 3: 
 						var s = '';
 						if( d.item.inventory_quantity > 0 && this.data['status'] < 30 ) {
