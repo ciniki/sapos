@@ -89,6 +89,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "ciniki_sapos_shipments.ship_date, "
 		. "ciniki_sapos_shipments.boxes, "
+		. "ciniki_sapos_shipments.dimensions, "
 		. "ciniki_sapos_shipments.weight, "
 		. "ciniki_sapos_shipments.weight_units, "
 		. "ciniki_sapos_shipments.weight_units AS weight_units_text, "
@@ -120,7 +121,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 			. ") "
 		. "WHERE ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND ciniki_sapos_shipments.status > 20 "
-		. "AND ciniki_sapos_shipments.td_number <> '' "
+		. "AND (ciniki_sapos_shipments.td_number <> '' OR (ciniki_sapos_shipments.flags&0x01) = 0x01) "
 		. "";
 	if( isset($args['start_date']) ) {
 		$strsql .= "AND ciniki_sapos_shipments.ship_date >= '" . ciniki_core_dbQuote($ciniki, $args['start_date']) . "' "
@@ -139,7 +140,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 		array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
 			'fields'=>array('id', 'invoice_id', 'invoice_number', 'shipment_number', 'td_number', 
 				'status_text', 'customer_display_name', 'status',
-				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'ship_date'),
+				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'dimensions', 'ship_date'),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
 				'weight_units_text'=>$maps['shipment']['weight_units']),
 			'utctotz'=>array('ship_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 

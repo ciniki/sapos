@@ -1,0 +1,6 @@
+#
+# This file will upgrade the database table ciniki_sapos_shipments to version 1.02.
+#
+ALTER TABLE ciniki_sapos_shipments ADD COLUMN flags tinyint unsigned not null AFTER status;
+ALTER TABLE ciniki_sapos_shipments ADD COLUMN dimensions varchar(150) not null AFTER boxes;
+ALTER TABLE ciniki_sapos_shipments COMMENT='v1.02';

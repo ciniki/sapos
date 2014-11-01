@@ -23,6 +23,13 @@
 #						30 - sent
 #						40 - received
 #
+# flags:				The flags for the shipment options.
+#
+#						0x01 - TD/SmartBorder Shipment.
+#						0x02 -
+#						0x04 - 
+#						0x08 - 
+#
 # weight:				The weight of the shipment, the sum of all boxes.
 #
 # weight_units:			The weight units for the shipment.
@@ -37,6 +44,8 @@
 #						cross border shipments between Canada/US.
 #
 # boxes:				The number of boxes used in the shipment.
+#
+# dimensions:			The dimensions of one or more boxes.  Should be comma delimited.
 #
 # pack_date:			The UTC date and time the shipment was started to be packed.
 # ship_date:			The UTC date and time the package was picked up/dropped off at shipping company.
@@ -54,12 +63,14 @@ create table ciniki_sapos_shipments (
 	invoice_id int not null,
 	shipment_number varchar(20) not null,
 	status tinyint unsigned not null,
+	flags tinyint unsigned not null,
 	weight decimal(10,4) not null,
 	weight_units tinyint unsigned not null,
 	shipping_company varchar(150) not null,
 	tracking_number varchar(255) not null,
 	td_number varchar(255) not null,
 	boxes int not null,
+	dimensions varchar(150) not null,
 	pack_date datetime not null,
 	ship_date datetime not null,
 	freight_amount decimal(19,4) not null,
@@ -68,4 +79,4 @@ create table ciniki_sapos_shipments (
 	primary key (id),
 	index (invoice_id, status, ship_date),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';

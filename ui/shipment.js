@@ -8,6 +8,9 @@ function ciniki_sapos_shipment() {
 		'30':'Shipped',
 		'40':'Received',
 		};
+	this.shipmentFlags = {
+		'1':{'name':'TD'},
+		};
 	this.weightUnits = {
 		'10':'lb',
 		'20':'kg',
@@ -28,8 +31,9 @@ function ciniki_sapos_shipment() {
 				'status':{'label':'Status'},
 				'shipping_company':{'label':'Shipper'},
 				'tracking_number':{'label':'Tracking #'},
-				'td_number':{'label':'TD #'},
+//				'td_number':{'label':'TD #'},
 				'boxes':{'label':'Boxes'},
+				'dimensions':{'label':'Dimensions'},
 				'pack_date':{'label':'Pack Date'},
 				'ship_date':{'label':'Ship Date'},
 				}},
@@ -58,7 +62,7 @@ function ciniki_sapos_shipment() {
 		this.shipment.addClose('Back');
 		
 		//
-		// The edit invoice panel
+		// The edit shipment panel
 		//
 		this.edit = new M.panel('Shipment',
 			'ciniki_sapos_shipment', 'edit',
@@ -75,11 +79,13 @@ function ciniki_sapos_shipment() {
 			'info':{'label':'', 'aside':'yes', 'active':'no', 'list':{
 				'shipment_number':{'label':'Number'},
 				'status_text':{'label':'Status'},
+				'flags_text':{'label':'Options'},
 				'weight':{'label':'Weight'},
 				'shipping_company':{'label':'Shipper'},
 				'tracking_number':{'label':'Tracking #'},
-				'td_number':{'label':'TD #'},
+//				'td_number':{'label':'TD #'},
 				'boxes':{'label':'Boxes'},
+				'dimensions':{'label':'Boxes'},
 				'pack_date':{'label':'Pack Date'},
 				'ship_date':{'label':'Ship Date'},
 				'freight_amount':{'label':'Freight Amount'},
@@ -87,12 +93,14 @@ function ciniki_sapos_shipment() {
 			'details':{'label':'', 'aside':'yes', 'active':'yes', 'fields':{
 				'shipment_number':{'label':'Number', 'type':'text', 'size':'small'},
 				'status':{'label':'Status', 'type':'toggle', 'toggles':M.ciniki_sapos_shipment.shipmentStatus},
+				'flags':{'label':'Options', 'type':'flags', 'flags':M.ciniki_sapos_shipment.shipmentFlags},
 				'weight':{'label':'Weight', 'active':'yes', 'type':'text', 'size':'small'},
 				'weight_units':{'label':'Units', 'type':'toggle', 'default':'10', 'toggles':this.weightUnits},
 				'shipping_company':{'label':'Shipper', 'type':'text', 'size':'medium'},
 				'tracking_number':{'label':'Tracking #', 'type':'text'},
 				'td_number':{'label':'TD #', 'type':'text'},
 				'boxes':{'label':'Boxes', 'type':'text', 'size':'small'},
+				'dimensions':{'label':'Dimensions', 'type':'text'},
 				'pack_date':{'label':'Pack Date', 'type':'date', 'size':'medium'},
 				'ship_date':{'label':'Ship Date', 'type':'date', 'size':'medium'},
 				'freight_amount':{'label':'Freight Amount', 'type':'text', 'size':'small'},
@@ -198,6 +206,11 @@ function ciniki_sapos_shipment() {
 				}
 			}
 			return '';
+		};
+		this.edit.noData = function(s) {
+			if( this.sections[s].noData != null ) {
+				return this.sections[s].noData;
+			}
 		};
 		this.edit.addClose('Cancel');
 

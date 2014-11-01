@@ -171,6 +171,91 @@ function ciniki_sapos_orders() {
 		};
 		this.invoices.addClose('Back');
 
+		//
+		// The panel to show all the orders
+		//
+		this.orders = new M.panel('Orders',
+			'ciniki_sapos_orders', 'orders',
+			'mc', 'large', 'sectioned', 'ciniki.sapos.orders.orders');
+		this.orders.year = null;
+		this.orders.month = 0;
+		this.orders.invoice_type = 0;
+		this.orders.payment_status = 0;
+		this.orders.data = {};
+		this.orders.sections = {
+			'years':{'label':'', 'type':'paneltabs', 'selected':'', 'tabs':{}},
+			'months':{'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'0', 'tabs':{
+				'0':{'label':'All', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,0);'},
+				'1':{'label':'Jan', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,1);'},
+				'2':{'label':'Feb', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,2);'},
+				'3':{'label':'Mar', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,3);'},
+				'4':{'label':'Apr', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,4);'},
+				'5':{'label':'May', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,5);'},
+				'6':{'label':'Jun', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,6);'},
+				'7':{'label':'Jul', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,7);'},
+				'8':{'label':'Aug', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,8);'},
+				'9':{'label':'Sep', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,9);'},
+				'10':{'label':'Oct', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,10);'},
+				'11':{'label':'Nov', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,11);'},
+				'12':{'label':'Dec', 'fn':'M.ciniki_sapos_orders.showInvoices(null,null,12);'},
+				}},
+			'orders':{'label':'', 'type':'simplegrid', 'num_cols':6,
+				'sortable':'yes',
+				'headerValues':['Invoice #', 'Ordered', 'Shipped', 'Customer', 'Amount', 'Status'],
+				'sortTypes':['number', 'date', 'date', 'text', 'number', 'text'],
+				'noData':'No Orders Found',
+				},
+			'_buttons':{'label':'', 'buttons':{
+				'excel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_orders.downloadExcel();'},
+				}},
+		};
+		this.orders.footerValue = function(s, i, d) {
+			if( this.data.totals != null ) {
+				switch(i) {
+					case 0: return this.data.totals.num_orders;
+					case 1: return '';
+					case 2: return '';
+					case 3: return this.data.totals.total_amount;
+					case 4: return '';
+				}
+			}
+		};
+		this.orders.footerClass = function(s, i, d) {
+			if( i == 4 ) { return 'alignright'; }
+			return '';
+		};
+		this.orders.sectionData = function(s) {
+//			if( s == 'totals' ) { return this.sections[s].list; }
+			return this.data[s];
+		};
+		this.orders.noData = function(s) {
+			return this.sections[s].noData;
+		};
+		this.orders.listLabel = function(s, i, d) {
+			return d.label;
+		};
+		this.orders.listValue = function(s, i, d) {
+			return this.data.totals[i];
+		};
+		this.orders.cellValue = function(s, i, j, d) {
+			if( s == 'orders' ) {
+				switch(j) {
+					case 0: return d.invoice.invoice_number;
+					case 1: return d.invoice.invoice_date;
+					case 2: return d.invoice.shipment_date;
+					case 3: return d.invoice.customer_display_name;
+					case 4: return d.invoice.total_amount_display;
+					case 5: return d.invoice.status_text;
+				}
+			}
+		};
+		
+		this.orders.rowFn = function(s, i, d) {
+			if( s == 'orders' ) {
+				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showOrders();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
+			}
+		};
+		this.orders.addClose('Back');
 	};
 
 	//

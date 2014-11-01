@@ -45,6 +45,8 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_shipments.shipment_number, "
 		. "ciniki_sapos_shipments.status, "
 		. "ciniki_sapos_shipments.status AS status_text, "
+		. "ciniki_sapos_shipments.flags, "
+		. "ciniki_sapos_shipments.flags AS flags_text, "
 		. "ciniki_sapos_shipments.weight, "
 		. "ciniki_sapos_shipments.weight_units, "
 		. "ciniki_sapos_shipments.weight_units AS weight_units_text, "
@@ -52,6 +54,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_shipments.tracking_number, "
 		. "ciniki_sapos_shipments.td_number, "
 		. "ciniki_sapos_shipments.boxes, "
+		. "ciniki_sapos_shipments.dimensions, "
 		. "ciniki_sapos_shipments.pack_date, "
 		. "ciniki_sapos_shipments.ship_date, "
 		. "ciniki_sapos_shipments.freight_amount "
@@ -63,11 +66,13 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
 			'fields'=>array('id', 'invoice_id', 'shipment_number', 'status', 'status_text', 
+				'flags', 'flags_text', 
 				'weight', 'weight_units', 'weight_units_text', 
-				'shipping_company', 'tracking_number', 'td_number', 'boxes', 
+				'shipping_company', 'tracking_number', 'td_number', 'boxes', 'dimensions', 
 				'pack_date', 'ship_date', 'freight_amount'),
 			'maps'=>array('status_text'=>$maps['shipment']['status'],
 				'weight_units_text'=>$maps['shipment']['weight_units']),
+			'flags'=>array('flags_text'=>array('1'=>'TD')),
 			'utctotz'=>array('pack_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
 				'ship_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
 			),

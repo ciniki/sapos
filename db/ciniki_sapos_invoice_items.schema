@@ -30,7 +30,7 @@
 #					0x10 - Downloaded Item
 #					0x20 - Registration Item
 #					0x40 - Shipped Item
-#					0x80 -
+#					0x80 - Surcharge (should be displayed at end of invoice)
 #					0x0100 - Backordered, the item is out of stock and currently backordered
 #
 # object:			The object for the item in the invoice.  This is the reference to
