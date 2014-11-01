@@ -120,6 +120,41 @@ function ciniki_sapos_latest(&$ciniki) {
 			return $rc;
 		}
 		$stats['invoices'] = array('typestatus'=>$rc['stats']);
+
+		//
+		// Build the query to get the list of invoices
+		//
+		$strsql = "SELECT "
+			. "MIN(invoice_date) AS min_invoice_date, "
+			. "MIN(invoice_date) AS min_invoice_date_year, "
+			. "MAX(invoice_date) AS max_invoice_date, "
+			. "MAX(invoice_date) AS max_invoice_date_year "
+			. "FROM ciniki_sapos_invoices "
+			. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND invoice_date <> '0000-00-00 00:00:00' "
+			. "";
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+			array('container'=>'stats', 'fname'=>'min_invoice_date', 'name'=>'stats',
+				'fields'=>array('min_invoice_date', 'min_invoice_date_year', 'max_invoice_date', 
+					'max_invoice_date_year'),
+				'utctotz'=>array(
+					'min_invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$php_date_format),
+					'min_invoice_date_year'=>array('timezone'=>$intl_timezone, 'format'=>'Y'),
+					'max_invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$php_date_format),
+					'max_invoice_date_year'=>array('timezone'=>$intl_timezone, 'format'=>'Y'),
+					), 
+				),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['stats'][0]['stats']['min_invoice_date_year']) ) {
+			$stats['min_invoice_date'] = $rc['stats'][0]['stats']['min_invoice_date'];
+			$stats['min_invoice_date_year'] = $rc['stats'][0]['stats']['min_invoice_date_year'];
+			$stats['max_invoice_date'] = $rc['stats'][0]['stats']['max_invoice_date'];
+			$stats['max_invoice_date_year'] = $rc['stats'][0]['stats']['max_invoice_date_year'];
+		}
 	}
 
 	//
@@ -320,6 +355,7 @@ function ciniki_sapos_latest(&$ciniki) {
 		}
 		$invoices = $rc['invoices'];
 	}
+
 
 	return array('stat'=>'ok', 'invoices'=>$invoices, 'stats'=>$stats);
 }

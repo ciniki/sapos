@@ -29,6 +29,8 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
         'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
         'customer'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Details'), 
+        'shipments'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipments'), 
+        'stats'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Stats'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -78,7 +80,19 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
 		}
-		$customer = $rc['details'];
+		$rsp['customer'] = $rc['details'];
+	}
+
+	if( isset($args['stats']) && $args['stats'] == 'yes' ) {
+		$rsp['stats'] = array();
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStats');
+		$rc = ciniki_sapos__invoiceStats($ciniki, $args['business_id']);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['stats']) ) {
+			$rsp['stats'] = $rc['stats'];
+		}
 	}
 
 	//
@@ -92,6 +106,13 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		. "ciniki_customers.type AS customer_type, "
 		. "ciniki_customers.display_name AS customer_display_name, "
 		. "";
+	if( isset($args['shipments']) && $args['shipments'] == 'yes' ) {
+		$strsql .= "ciniki_sapos_shipments.id AS shipment_id, "
+			. "ciniki_sapos_shipments.status AS shipment_status, "
+			. "ciniki_sapos_shipments.pack_date, "
+			. "ciniki_sapos_shipments.ship_date, "
+			. "";
+	}
 	if( isset($args['shipping_status']) 
 		&& ($args['shipping_status'] == 'packlist' || $args['shipping_status'] == 'backordered') ) {
 		$strsql .= "COUNT(ciniki_sapos_invoice_items.id) AS items_to_be_shipped, ";
@@ -114,6 +135,13 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") ";
 	}
+	if( isset($args['shipments']) && $args['shipments'] == 'yes' ) {
+		$strsql .= "LEFT JOIN ciniki_sapos_shipments ON ("
+			. "ciniki_sapos_invoices.id = ciniki_sapos_shipments.invoice_id "
+			. "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. ") ";
+	}
+
 	$strsql .= "LEFT JOIN ciniki_customers ON (ciniki_sapos_invoices.customer_id = ciniki_customers.id "
 			. "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") "
@@ -167,6 +195,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		}
 	}
 	$strsql .= "GROUP BY ciniki_sapos_invoices.id ";
+	if( isset($args['shipments']) && $args['shipments'] == 'yes' ) {
+		$strsql .= ", ciniki_sapos_shipments.id ";
+	}
 	if( isset($args['shipping_status']) 
 		&& ($args['shipping_status'] == 'packlist' || $args['shipping_status'] == 'backordered') ) {
 		$strsql .= "HAVING items_to_be_shipped > 0 ";
@@ -184,34 +215,51 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		$strsql .= "LIMIT " . intval($args['limit']) . " ";
 	}
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+	$container = array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
 				'customer_type', 'customer_display_name', 'total_amount'),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
-			),
-		));
+			));
+	if( isset($args['shipments']) && $args['shipments'] == 'yes' ) {
+		$container[] = array('container'=>'shipments', 'fname'=>'shipment_id', 'name'=>'shipment',
+			'fields'=>array('id'=>'shipment_id', 'status'=>'shipment_status', 'pack_date', 'ship_date'),
+			'utctotz'=>array('pack_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+				'ship_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
+			);
+	}
+	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', $container);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
 	if( !isset($rc['invoices']) ) {
-		$invoices = array();
+		$rsp['invoices'] = array();
 	} else {
-		$invoices = $rc['invoices'];
+		$rsp['invoices'] = $rc['invoices'];
 	}
-	$totals = array(
+	$rsp['totals'] = array(
 		'total_amount'=>0,
 		);
-	foreach($invoices as $iid => $invoice) {
-		$invoices[$iid]['invoice']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+	foreach($rsp['invoices'] as $iid => $invoice) {
+		$rsp['invoices'][$iid]['invoice']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
 			$invoice['invoice']['total_amount'], $intl_currency);
-		$totals['total_amount'] = bcadd($totals['total_amount'], $invoice['invoice']['total_amount'], 2);
+		$rsp['totals']['total_amount'] = bcadd($rsp['totals']['total_amount'], $invoice['invoice']['total_amount'], 2);
+		if( isset($args['shipments']) && $args['shipments'] == 'yes' ) {
+			$rsp['invoices'][$iid]['invoice']['shipment_dates'] = '';
+			if( isset($invoice['invoice']['shipments']) ) {
+				foreach($invoice['invoice']['shipments'] as $sid => $shipment) {
+					if( $shipment['shipment']['ship_date'] != '' ) {
+						$rsp['invoices'][$iid]['invoice']['shipment_dates'] .= ($rsp['invoices'][$iid]['invoice']['shipment_dates']!=''?', ':'') . $shipment['shipment']['ship_date'];
+					}
+				}
+			}
+		}
 	}
 
-	$totals['total_amount'] = numfmt_format_currency($intl_currency_fmt,
-		$totals['total_amount'], $intl_currency);
-	$totals['num_invoices'] = count($invoices);
+	$rsp['totals']['total_amount'] = numfmt_format_currency($intl_currency_fmt,
+		$rsp['totals']['total_amount'], $intl_currency);
+	$rsp['totals']['num_invoices'] = count($rsp['invoices']);
 
 	
 	//
@@ -253,7 +301,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		// Output the invoice list
 		//
 		$row = 2;
-		foreach($invoices as $iid => $invoice) {
+		foreach($rsp['invoices'] as $iid => $invoice) {
 			$invoice = $invoice['invoice'];
 			$i = 0;
 			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
@@ -264,7 +312,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 			$row++;
 		}
 		if( $row > 2 ) {
-			$sheet->setCellValueByColumnAndRow(0, $row, $totals['num_invoices'], false);
+			$sheet->setCellValueByColumnAndRow(0, $row, $rsp['totals']['num_invoices'], false);
 			$sheet->setCellValueByColumnAndRow(3, $row, "=SUM(D2:D" . ($row-1) . ")", false);
 			$sheet->getStyle('D2:D' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
 			$sheet->getStyle('A' . $row)->getFont()->setBold(true);
@@ -290,10 +338,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		return array('stat'=>'exit');
 	}
 
-	if( isset($customer) ) {
-		return array('stat'=>'ok', 'customer'=>$customer, 'totals'=>$totals, 'invoices'=>$invoices);
-	}
-
-	return array('stat'=>'ok', 'totals'=>$totals, 'invoices'=>$invoices);
+	$rsp['stat'] = 'ok';
+	return $rsp;
 }
 ?>

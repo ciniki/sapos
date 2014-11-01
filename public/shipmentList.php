@@ -29,6 +29,7 @@ function ciniki_sapos_shipmentList(&$ciniki) {
         'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
         'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
         'customer'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Details'), 
+        'stats'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Stats'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -80,6 +81,19 @@ function ciniki_sapos_shipmentList(&$ciniki) {
 //		}
 //		$customer = $rc['details'];
 //	}
+
+	$rsp = array('stat'=>'ok');
+	if( isset($args['stats']) && $args['stats'] == 'yes' ) {
+		$rsp['stats'] = array();
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStats');
+		$rc = ciniki_sapos__invoiceStats($ciniki, $args['business_id']);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['stats']) ) {
+			$rsp['stats'] = $rc['stats'];
+		}
+	}
 
 	//
 	// Build the query to get the list of invoices
@@ -175,9 +189,9 @@ function ciniki_sapos_shipmentList(&$ciniki) {
 		return $rc;
 	}
 	if( !isset($rc['shipments']) ) {
-		$shipments = array();
+		$rsp['shipments'] = array();
 	} else {
-		$shipments = $rc['shipments'];
+		$rsp['shipments'] = $rc['shipments'];
 	}
 	
 	//
@@ -219,7 +233,7 @@ function ciniki_sapos_shipmentList(&$ciniki) {
 		// Output the invoice list
 		//
 		$row = 2;
-		foreach($shipments as $iid => $shipment) {
+		foreach($rsp['shipments'] as $iid => $shipment) {
 			$invoice = $invoice['invoice'];
 			$i = 0;
 			$sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
@@ -256,10 +270,6 @@ function ciniki_sapos_shipmentList(&$ciniki) {
 		return array('stat'=>'exit');
 	}
 
-	if( isset($customer) ) {
-		return array('stat'=>'ok', 'customer'=>$customer, 'shipments'=>$shipments);
-	}
-
-	return array('stat'=>'ok', 'shipments'=>$shipments);
+	return $rsp;
 }
 ?>
