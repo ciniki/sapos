@@ -45,7 +45,7 @@ function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id, $cart) {
 			return $rc;
 		}
 		if( !isset($rc['customer']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2046', 'msg'=>'Customer does not exist for this invoice'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2050', 'msg'=>'Customer does not exist for this invoice'));
 		}
 		$customer = $rc['customer'];
 	}
