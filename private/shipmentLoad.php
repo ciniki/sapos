@@ -121,6 +121,13 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_invoices.status, "
 		. "ciniki_sapos_invoices.status AS status_text, "
 		. "ciniki_sapos_invoices.customer_notes, "
+		. "ciniki_sapos_invoices.shipping_name, "
+		. "ciniki_sapos_invoices.shipping_address1, "
+		. "ciniki_sapos_invoices.shipping_address2, "
+		. "ciniki_sapos_invoices.shipping_city, "
+		. "ciniki_sapos_invoices.shipping_province, "
+		. "ciniki_sapos_invoices.shipping_postal, "
+		. "ciniki_sapos_invoices.shipping_country, "
 		. "ciniki_customers.display_name "
 		. "FROM ciniki_sapos_invoices "
 		. "LEFT JOIN ciniki_customers ON ("
@@ -133,7 +140,9 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
 			'fields'=>array('id', 'invoice_number', 'po_number',
-				'status', 'status_text', 'customer_name'=>'display_name', 'customer_notes'),
+				'status', 'status_text', 'customer_name'=>'display_name', 'customer_notes',
+				'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city',
+				'shipping_province', 'shipping_postal', 'shipping_country'),
 			'maps'=>array('status_text'=>$maps['invoice']['status'])),
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -150,6 +159,43 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 			$shipment['customer_name'] = '';
 		}
 		$shipment['customer_notes'] = $invoice['customer_notes'];
+		$shipment['shipping_name'] = $invoice['shipping_name'];
+		$shipment['shipping_address1'] = $invoice['shipping_address1'];
+		$shipment['shipping_address2'] = $invoice['shipping_address2'];
+		$shipment['shipping_city'] = $invoice['shipping_city'];
+		$shipment['shipping_province'] = $invoice['shipping_province'];
+		$shipment['shipping_postal'] = $invoice['shipping_postal'];
+		$shipment['shipping_country'] = $invoice['shipping_country'];
+		$shipment['shipping_address'] = '';
+		if( $shipment['shipping_name'] != '' && $shipment['shipping_name'] != $shipment['customer_name'] ) {
+			$shipment['shipping_address'] .= 
+				($shipment['shipping_address']!=''?"\n":'') . $shipment['shipping_name'];
+		}
+		if( $shipment['shipping_address1'] != '' ) {
+			$shipment['shipping_address'] .= 
+				($shipment['shipping_address']!=''?"\n":'') . $shipment['shipping_address1'];
+		}
+		if( $shipment['shipping_address2'] != '' ) {
+			$shipment['shipping_address'] .= 
+				($shipment['shipping_address']!=''?"\n":'') . $shipment['shipping_address2'];
+		}
+		$city = '';
+		if( $shipment['shipping_city'] != '' ) {
+			$city .= ($city!=''?"":'') . $shipment['shipping_city'];
+		}
+		if( $shipment['shipping_province'] != '' ) {
+			$city .= ($city!=''?", ":'') . $shipment['shipping_province'];
+		}
+		if( $shipment['shipping_postal'] != '' ) {
+			$city .= ($city!=''?"  ":'') . $shipment['shipping_postal'];
+		}
+		if( $city != '' ) { 
+			$shipment['shipping_address'] .= ($shipment['shipping_address']!=''?"\n":'') . $city;
+		}
+		if( $shipment['shipping_country'] != '' ) {
+			$shipment['shipping_address'] .= 
+				($shipment['shipping_address']!=''?"\n":'') . $shipment['shipping_country'];
+		}
 	}
 
 	//

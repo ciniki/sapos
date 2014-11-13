@@ -190,6 +190,43 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 	}
 
 	//
+	// Build the shipping address
+	//
+	$invoice['shipping_address'] = '';
+	if( $invoice['shipping_name'] != '' 
+		&& (!isset($invoice['customer']['display_name']) 
+			|| $invoice['customer']['display_name'] != $invoice['shipping_name']) 
+		) {
+		$invoice['shipping_address'] .= 
+			($invoice['shipping_address']!=''?"\n":'') . $invoice['shipping_name'];
+	}
+	if( $invoice['shipping_address1'] != '' ) {
+		$invoice['shipping_address'] .= 
+			($invoice['shipping_address']!=''?"\n":'') . $invoice['shipping_address1'];
+	}
+	if( $invoice['shipping_address2'] != '' ) {
+		$invoice['shipping_address'] .= 
+			($invoice['shipping_address']!=''?"\n":'') . $invoice['shipping_address2'];
+	}
+	$city = '';
+	if( $invoice['shipping_city'] != '' ) {
+		$city .= ($city!=''?"":'') . $invoice['shipping_city'];
+	}
+	if( $invoice['shipping_province'] != '' ) {
+		$city .= ($city!=''?", ":'') . $invoice['shipping_province'];
+	}
+	if( $invoice['shipping_postal'] != '' ) {
+		$city .= ($city!=''?"  ":'') . $invoice['shipping_postal'];
+	}
+	if( $city != '' ) { 
+		$invoice['shipping_address'] .= ($invoice['shipping_address']!=''?"\n":'') . $city;
+	}
+	if( $invoice['shipping_country'] != '' ) {
+		$invoice['shipping_address'] .= 
+			($invoice['shipping_address']!=''?"\n":'') . $invoice['shipping_country'];
+	}
+
+	//
 	// Check if salesrep specified
 	//
 	if( $invoice['salesrep_id'] > 0 ) {

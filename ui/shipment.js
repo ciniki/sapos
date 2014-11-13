@@ -75,6 +75,7 @@ function ciniki_sapos_shipment() {
 				'invoice_number':{'label':'Invoice #'},
 				'invoice_po_number':{'label':'PO #', 'visible':'no'},
 				'customer_name':{'label':'Customer'},
+				'shipping_address':{'label':'Ship To', 'visible':'no'},
 				}},
 			'info':{'label':'', 'aside':'yes', 'active':'no', 'list':{
 				'shipment_number':{'label':'Number'},
@@ -143,6 +144,7 @@ function ciniki_sapos_shipment() {
 			return d.label;
 		};
 		this.edit.listValue = function(s, i, d) {
+			if( i == 'shipping_address' ) { return this.data[i].replace(/\n/g, '<br/>'); }
 			if( i == 'invoice_number' ) { return this.data[i] + ' <span class="subdue">[' + this.data['invoice_status_text'] + ']</span>'; }
 			if( i == 'weight' ) { return this.data[i] + ' ' + this.data['weight_units_text']; }
 			return this.data[i];
@@ -327,6 +329,9 @@ function ciniki_sapos_shipment() {
 					if( rsp.shipment.invoice_po_number != null && rsp.shipment.invoice_po_number != '' ) {
 						p.sections.invoice.list.invoice_po_number.visible = 'yes';
 					}
+					if( rsp.shipment.shipping_address != null && rsp.shipment.shipping_address != '' ) {
+						p.sections.invoice.list.shipping_address.visible = 'yes';
+					}
 					p.invoice_id = rsp.shipment.invoice_id;
 					p.leftbuttons = {};
 					p.rightbuttons = {};
@@ -378,6 +383,7 @@ function ciniki_sapos_shipment() {
 						'invoice_status_text':(rsp.invoice.status_text!=null?rsp.invoice.status_text:''),
 						'invoice_po_number':(rsp.invoice.po_number!=null?rsp.invoice.po_number:''),
 						'customer_name':(rsp.invoice.customer.display_name!=null?rsp.invoice.customer.display_name:''),
+						'shipping_address':(rsp.invoice.shipping_address!=null?rsp.invoice.shipping_address:''),
 						'shipment_number':(snum!=null?snum:'1'),
 						'weight':'',
 						'weight_units':'10',
@@ -393,6 +399,9 @@ function ciniki_sapos_shipment() {
 						};
 					if( rsp.invoice.po_number != null && rsp.invoice.po_number != '' ) {
 						p.sections.invoice.list.invoice_po_number.visible = 'yes';
+					}
+					if( rsp.invoice.shipping_address != null && rsp.invoice.shipping_address != '' ) {
+						p.sections.invoice.list.shipping_address.visible = 'yes';
 					}
 					if( M.curBusiness.sapos.settings['shipments-default-shipper'] != null ) {
 						p.data['shipping_company'] = M.curBusiness.sapos.settings['shipments-default-shipper'];
