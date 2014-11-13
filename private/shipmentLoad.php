@@ -128,6 +128,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_invoices.shipping_province, "
 		. "ciniki_sapos_invoices.shipping_postal, "
 		. "ciniki_sapos_invoices.shipping_country, "
+		. "ciniki_sapos_invoices.shipping_phone, "
 		. "ciniki_customers.display_name "
 		. "FROM ciniki_sapos_invoices "
 		. "LEFT JOIN ciniki_customers ON ("
@@ -142,7 +143,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 			'fields'=>array('id', 'invoice_number', 'po_number',
 				'status', 'status_text', 'customer_name'=>'display_name', 'customer_notes',
 				'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city',
-				'shipping_province', 'shipping_postal', 'shipping_country'),
+				'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_phone'),
 			'maps'=>array('status_text'=>$maps['invoice']['status'])),
 		));
 	if( $rc['stat'] != 'ok' ) {
@@ -166,6 +167,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		$shipment['shipping_province'] = $invoice['shipping_province'];
 		$shipment['shipping_postal'] = $invoice['shipping_postal'];
 		$shipment['shipping_country'] = $invoice['shipping_country'];
+		$shipment['shipping_phone'] = $invoice['shipping_phone'];
 		$shipment['shipping_address'] = '';
 		if( $shipment['shipping_name'] != '' && $shipment['shipping_name'] != $shipment['customer_name'] ) {
 			$shipment['shipping_address'] .= 

@@ -144,7 +144,7 @@ function ciniki_sapos_shipment() {
 			return d.label;
 		};
 		this.edit.listValue = function(s, i, d) {
-			if( i == 'shipping_address' ) { return this.data[i].replace(/\n/g, '<br/>'); }
+			if( i == 'shipping_address' ) { return this.data[i].replace(/\n/g, '<br/>') + (this.data.shipping_phone!=null&&this.data.shipping_phone!=''?'<br/> Phone: ' + this.data.shipping_phone:''); }
 			if( i == 'invoice_number' ) { return this.data[i] + ' <span class="subdue">[' + this.data['invoice_status_text'] + ']</span>'; }
 			if( i == 'weight' ) { return this.data[i] + ' ' + this.data['weight_units_text']; }
 			return this.data[i];

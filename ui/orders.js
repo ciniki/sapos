@@ -149,6 +149,11 @@ function ciniki_sapos_orders() {
 				}
 			}
 		};
+		this.menu.cellFn = function(s, i, j, d) {
+			if( s == 'shipments' && j == 0 ) {
+				return 'event.stopPropagation(); M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'invoice_id\':\'' + d.shipment.invoice_id + '\'});';
+			}
+		};
 		this.menu.rowFn = function(s, i, d) {
 			if( s == 'invoices' ) {
 				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';

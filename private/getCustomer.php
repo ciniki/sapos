@@ -26,7 +26,8 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 			. "ciniki_customer_addresses.city, "
 			. "ciniki_customer_addresses.province, "
 			. "ciniki_customer_addresses.postal, "
-			. "ciniki_customer_addresses.country "
+			. "ciniki_customer_addresses.country, "
+			. "ciniki_customer_addresses.phone "
 			. "FROM ciniki_customers "
 			. "LEFT JOIN ciniki_customer_addresses ON (ciniki_customers.id = ciniki_customer_addresses.customer_id "
 				. "AND ciniki_customer_addresses.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -40,7 +41,8 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 				'fields'=>array('id', 'display_name', 'company', 
 					'status', 'salesrep_id', 'tax_location_id', 'pricepoint_id')),
 			array('container'=>'addresses', 'fname'=>'address_id',
-				'fields'=>array('id'=>'address_id', 'flags', 'address1', 'address2', 'city', 'province', 'postal', 'country')),
+				'fields'=>array('id'=>'address_id', 'flags', 'address1', 'address2', 
+					'city', 'province', 'postal', 'country', 'phone')),
 			));
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
@@ -71,6 +73,7 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 						$args['shipping_province'] = $address['province'];
 						$args['shipping_postal'] = $address['postal'];
 						$args['shipping_country'] = $address['country'];
+						$args['shipping_phone'] = $address['phone'];
 					}
 					if( ($address['flags']&0x02) == 0x02 && $args['billing_address1'] == '' ) {
 						$args['billing_address1'] = $address['address1'];

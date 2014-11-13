@@ -43,6 +43,7 @@ function ciniki_sapos_objects($ciniki) {
 			'shipping_province'=>array(),
 			'shipping_postal'=>array(),
 			'shipping_country'=>array(),
+			'shipping_phone'=>array(),
 			'tax_location_id'=>array('ref'=>'ciniki.taxes.location'),
 			'pricepoint_id'=>array('ref'=>'ciniki.customers.pricepoint'),
 			'subtotal_amount'=>array(),

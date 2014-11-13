@@ -46,6 +46,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		'shipping_province'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Province'),
 		'shipping_postal'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Postal'),
 		'shipping_country'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Country'),
+		'shipping_phone'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Phone'),
 		'tax_location_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Tax Location'),
 		'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Pricepoint'),
 		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Notes'),
@@ -133,7 +134,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 				$update_args['internal_notes'] = $args['internal_notes'];
 			}
 		}
-		$address_args = array('name', 'address1', 'address2', 'city', 'province', 'postal', 'country');
+		$address_args = array('name', 'address1', 'address2', 'city', 'province', 'postal', 'country', 'phone');
 		if( isset($settings['rules-salesreps-invoice-billing']) 
 			&& $settings['rules-salesreps-invoice-billing'] == 'edit' 
 			) {
@@ -175,7 +176,8 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 			. "ciniki_customer_addresses.city, "
 			. "ciniki_customer_addresses.province, "
 			. "ciniki_customer_addresses.postal, "
-			. "ciniki_customer_addresses.country "
+			. "ciniki_customer_addresses.country, "
+			. "ciniki_customer_addresses.phone "
 			. "FROM ciniki_customers "
 			. "LEFT JOIN ciniki_customer_addresses ON (ciniki_customers.id = ciniki_customer_addresses.customer_id "
 				. "AND ciniki_customer_addresses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -188,7 +190,8 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 				'fields'=>array('id', 'type', 'display_name', 'company', 
 					'salesrep_id', 'tax_location_id', 'pricepoint_id')),
 			array('container'=>'addresses', 'fname'=>'address_id',
-				'fields'=>array('id'=>'address_id', 'flags', 'address1', 'address2', 'city', 'province', 'postal', 'country')),
+				'fields'=>array('id'=>'address_id', 'flags', 'address1', 'address2', 
+					'city', 'province', 'postal', 'country', 'phone')),
 			));
 		if( $rc['stat'] != 'ok' ) {
 			return $rc;
@@ -238,6 +241,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 						$update_args['shipping_province'] = $address['province'];
 						$update_args['shipping_postal'] = $address['postal'];
 						$update_args['shipping_country'] = $address['country'];
+						$update_args['shipping_phone'] = $address['phone'];
 					}
 					if( ($address['flags']&0x02) == 0x02 
 						&& ((isset($args['billing_address1']) && $args['billing_address1'] == '' )

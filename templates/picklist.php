@@ -453,6 +453,9 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 		if( isset($invoice['shipping_country']) && $invoice['shipping_country'] != '' ) {
 			$saddr[] = $invoice['shipping_country'];
 		}
+		if( isset($invoice['shipping_phone']) && $invoice['shipping_phone'] != '' ) {
+			$saddr[] = 'Phone: ' . $invoice['shipping_phone'];
+		}
 	}
 
 	//

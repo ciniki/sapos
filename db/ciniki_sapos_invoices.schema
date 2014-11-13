@@ -98,6 +98,7 @@
 # shipping_province:	The shipping province/state.
 # shipping_postal:		The shipping postal/zip code.
 # shipping_country:		The shipping country.
+# shipping_phone:		The shipping phone to assist in deliveries.
 # shipping_notes:		The shipping notes.
 #
 # tax_location_id:		The ID of the tax location for the invoice.  If set to 0, then
@@ -158,6 +159,7 @@ create table ciniki_sapos_invoices (
 	shipping_province varchar(100) not null,
 	shipping_postal varchar(10) not null,
 	shipping_country varchar(50) not null,
+	shipping_phone varchar(50) not null,
 	shipping_notes varchar(5000) not null,
 	tax_location_id int not null,
 	pricepoint_id int not null,
@@ -181,4 +183,4 @@ create table ciniki_sapos_invoices (
 	index (customer_id, status, invoice_date),
 	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.07';
+) ENGINE='InnoDB', COMMENT='v1.08';

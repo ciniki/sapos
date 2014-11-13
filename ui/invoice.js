@@ -419,6 +419,7 @@ function ciniki_sapos_invoice() {
 				'shipping_province':{'label':'Province/State', 'type':'text'},
 				'shipping_postal':{'label':'Postal/Zip', 'type':'text'},
 				'shipping_country':{'label':'Country', 'type':'text'},
+				'shipping_phone':{'label':'Phone', 'type':'text', 'hint':'Helpful for deliveries'},
 				}},
 			'billing':{'label':'Billing Address', 'fields':{
 				'billing_name':{'label':'Name', 'type':'text'},
@@ -1076,6 +1077,7 @@ function ciniki_sapos_invoice() {
 				'province':p.data.shipping_province,
 				'postal':p.data.shipping_postal,
 				'country':p.data.shipping_country,
+				'phone':p.data.shipping_phone,
 				});
 		} else {
 			p.sections.billing.visible = 'no';

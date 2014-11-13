@@ -389,6 +389,9 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
 		if( isset($shipment['invoice']['shipping_country']) && $shipment['invoice']['shipping_country'] != '' ) {
 			$saddr[] = $shipment['invoice']['shipping_country'];
 		}
+		if( isset($shipment['invoice']['shipping_phone']) && $shipment['invoice']['shipping_phone'] != '' ) {
+			$saddr[] = 'Phone: ' . $shipment['invoice']['shipping_phone'];
+		}
 	}
 
 	//

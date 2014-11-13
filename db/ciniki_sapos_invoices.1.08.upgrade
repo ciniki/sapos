@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table ciniki_sapos_invoices to version 1.08.
+#
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN shipping_phone varchar(50) not null AFTER shipping_country;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.08';

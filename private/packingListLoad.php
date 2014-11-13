@@ -119,6 +119,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 		. "shipping_province, "
 		. "shipping_postal, "
 		. "shipping_country, "
+		. "shipping_phone, "
 		. "shipping_notes, "
 		. "shipping_amount, "
 		. "subtotal_amount, "
@@ -147,7 +148,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
 				'billing_name', 'billing_address1', 'billing_address2', 'billing_city', 
 				'billing_province', 'billing_postal', 'billing_country',
 				'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
-				'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_notes',
+				'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_phone', 'shipping_notes',
 				'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
 				'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
 				'paid_amount', 'balance_amount',
