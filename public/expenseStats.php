@@ -2,14 +2,12 @@
 //
 // Description
 // ===========
-// This method will return a list of invoices.
 //
 // Arguments
 // ---------
 // 
 // Returns
 // -------
-// <rsp stat='ok' id='34' />
 //
 function ciniki_sapos_expenseStats(&$ciniki) {
     //  

@@ -8,7 +8,6 @@
 // 
 // Returns
 // -------
-// <rsp stat='ok' />
 //
 function ciniki_sapos_expenseImageDelete(&$ciniki) {
     //  

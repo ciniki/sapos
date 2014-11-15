@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will search the mileage entries for matching names/addresses.  This method is used
+// This method searches the mileage entries for matching names/addresses.  This method is used
 // to return distinctive entries regardless of travel_date.  If searching for a specific entry
 // the method ciniki.sapos.mileageSearch should be used.
 //

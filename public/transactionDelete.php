@@ -10,7 +10,6 @@
 // 
 // Returns
 // -------
-// <rsp stat='ok' id='34' />
 //
 function ciniki_sapos_transactionDelete(&$ciniki) {
     //  

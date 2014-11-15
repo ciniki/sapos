@@ -4,17 +4,12 @@
 // -----------
 // This method will update one or more settings for the sapos module.
 //
-// Info
-// ----
-// Status: 			defined
-//
 // Arguments
 // ---------
 // user_id: 		The user making the request
 // 
 // Returns
 // -------
-// <rsp stat='ok' id='34' />
 //
 function ciniki_sapos_settingsUpdate(&$ciniki) {
     //  

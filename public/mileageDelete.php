@@ -9,7 +9,6 @@
 // 
 // Returns
 // -------
-// <rsp stat='ok' />
 //
 function ciniki_sapos_mileageDelete(&$ciniki) {
     //  

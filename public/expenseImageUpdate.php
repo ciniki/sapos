@@ -5,14 +5,9 @@
 //
 // Arguments
 // ---------
-// api_key:
-// auth_token:
-// business_id:			The ID of the business to add the expense to.
-// name:				The name of the expense.  
 //
 // Returns
 // -------
-// <rsp stat='ok' />
 //
 function ciniki_sapos_expenseImageUpdate(&$ciniki) {
     //  

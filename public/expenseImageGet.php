@@ -2,6 +2,7 @@
 //
 // Description
 // -----------
+// This method returns the details about an image for an expense.
 //
 // Arguments
 // ---------
