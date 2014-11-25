@@ -20,6 +20,7 @@ function ciniki_sapos_settings() {
 			'invoice':{'label':'Invoices', 'list':{
 				'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.editInvoice(\'M.ciniki_sapos_settings.showMenu();\');'},
 				'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showQI(\'M.ciniki_sapos_settings.showMenu();\');'},
+				'rules':{'label':'Rules', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showRules(\'M.ciniki_sapos_settings.showMenu();\',\'invoice\');'},
 				}},
 			'shipments':{'label':'Shipments', 'visible':'no', 'list':{
 				'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.editShipment(\'M.ciniki_sapos_settings.showMenu();\');'},

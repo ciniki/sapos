@@ -109,6 +109,13 @@ function ciniki_sapos_maps($ciniki) {
 			'20'=>array('field'=>'weight', 's'=>'kg', 'p'=>'kgs'),
 			),
 		);
+	$maps['rule'] = array(
+		'status'=>array(
+			'10'=>'Active',
+			'50'=>'Inactive',
+			'60'=>'Deleted',
+			),
+		);
 	
 	return array('stat'=>'ok', 'maps'=>$maps);
 }

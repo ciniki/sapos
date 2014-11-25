@@ -20,6 +20,11 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
 
 	//
+	// Apply any rules to the invoice
+	//
+
+
+	//
 	// Get the invoice details
 	//
 	$strsql = "SELECT customer_id, invoice_type, status, "

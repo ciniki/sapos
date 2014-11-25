@@ -45,6 +45,7 @@ function ciniki_sapos_web_cartCreate($ciniki, $settings, $business_id) {
 			'shipping_province'=>'',
 			'shipping_postal'=>'',
 			'shipping_country'=>'',
+			'shipping_phone'=>'',
 			'customer_notes'=>'',
 			'invoice_notes'=>'',
 			'internal_notes'=>'',
