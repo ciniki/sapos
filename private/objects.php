@@ -253,24 +253,24 @@ function ciniki_sapos_objects($ciniki) {
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);
-	$objects['rule'] = array(
-		'name'=>'Rules',
-		'sync'=>'yes',
-		'table'=>'ciniki_sapos_rules',
-		'fields'=>array(
-			'status'=>array(),
-			'flags'=>array(),
-			'sequence'=>array(),
-			'formulas'=>array(),
-			'code'=>array(),
-			'description'=>array(),
-			'quantity'=>array(),
-			'unit_amount'=>array(),
-			'taxtype_id'=>array(),
-			'notes'=>array(),
-			),
-		'history_table'=>'ciniki_sapos_history',
-		);
+//	$objects['rule'] = array(
+//		'name'=>'Rules',
+//		'sync'=>'yes',
+//		'table'=>'ciniki_sapos_rules',
+//		'fields'=>array(
+//			'status'=>array(),
+//			'flags'=>array(),
+//			'sequence'=>array(),
+//			'formulas'=>array(),
+//			'code'=>array(),
+//			'description'=>array(),
+//			'quantity'=>array(),
+//			'unit_amount'=>array(),
+//			'taxtype_id'=>array(),
+//			'notes'=>array(),
+//			),
+//		'history_table'=>'ciniki_sapos_history',
+//		);
 	
 	return array('stat'=>'ok', 'objects'=>$objects);
 }

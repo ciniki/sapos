@@ -27,7 +27,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
 		array('flag'=>array('bit'=>'10', 'name'=>'Payments')),  // If the business is handling payments elsewhere turn this off
 		array('flag'=>array('bit'=>'11', 'name'=>'Item Codes')), // Should be enabled along with product codes in ciniki.products
 		// 0x1000
-		array('flag'=>array('bit'=>'12', 'name'=>'Rules')),
+//		array('flag'=>array('bit'=>'12', 'name'=>'Rules')),
 //		array('flag'=>array('bit'=>'13', 'name'=>'')),
 //		array('flag'=>array('bit'=>'14', 'name'=>'')),
 //		array('flag'=>array('bit'=>'15', 'name'=>'')),
