@@ -60,7 +60,7 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
 	// Check if business amount not specified, then set the same as customer_amount
 	//
 	if( !isset($args['business_amount']) || $args['business_amount'] == '' || $args['business_amount'] == '0' ) {
-		$args['business_amount'] = bcsub($args['customer_amount'], $args['transaction_fees']);
+		$args['business_amount'] = bcsub($args['customer_amount'], $args['transaction_fees'], 4);
 	}
 
 	$args['gateway'] = '';

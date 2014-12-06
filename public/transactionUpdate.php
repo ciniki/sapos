@@ -65,13 +65,13 @@ function ciniki_sapos_transactionUpdate(&$ciniki) {
 	if( (isset($args['customer_amount']) || isset($args['transaction_fees'])) 
 		&& (!isset($args['business_amount']) || $args['business_amount'] == '') ) {
 		if( isset($args['customer_amount']) && isset($args['transaction_fees']) ) {
-			$args['business_amount'] = bcsub($args['customer_amount'], $args['transaction_fees']);
+			$args['business_amount'] = bcsub($args['customer_amount'], $args['transaction_fees'], 4);
 		} 
 		elseif( isset($args['customer_amount']) ) {
-			$args['business_amount'] = bcsub($args['customer_amount'], $transaction['transaction_fees']);
+			$args['business_amount'] = bcsub($args['customer_amount'], $transaction['transaction_fees'], 4);
 		}
 		elseif( isset($args['transaction_fees']) ) {
-			$args['business_amount'] = bcsub($transaction['customer_amount'], $args['transaction_fees']);
+			$args['business_amount'] = bcsub($transaction['customer_amount'], $args['transaction_fees'], 4);
 		}
 	}
 
