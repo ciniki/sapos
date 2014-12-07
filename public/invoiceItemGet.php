@@ -58,6 +58,7 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
 	//
 	$strsql = "SELECT id, line_number, "
 		. "status, "
+		. "flags, "
 		. "invoice_id, "
 		. "object, "
 		. "object_id, "

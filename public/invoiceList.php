@@ -122,14 +122,15 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 	if( isset($args['shipping_status']) && $args['shipping_status'] == 'packlist' ) {
 		$strsql .= "LEFT JOIN ciniki_sapos_invoice_items ON ("
 			. "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
-			. "AND (ciniki_sapos_invoice_items.flags&0x0140) = 0x0040 " // Shipped item, available item
+			. "AND (ciniki_sapos_invoice_items.flags&0x0340) = 0x0040 " // Shipped item, available item
 			. "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") ";
 	} elseif( isset($args['shipping_status']) && $args['shipping_status'] == 'backordered' ) {
 		$strsql .= "LEFT JOIN ciniki_sapos_invoice_items ON ("
 			. "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
-			. "AND (ciniki_sapos_invoice_items.flags&0x0140) = 0x0140 " // Shipped and backordered item
+			. "AND (ciniki_sapos_invoice_items.flags&0x0040) = 0x0040 " // Shipped 
+			. "AND (ciniki_sapos_invoice_items.flags&0x0300) > 0 " // backordered item
 			. "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. ") ";

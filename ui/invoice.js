@@ -189,7 +189,9 @@ function ciniki_sapos_invoice() {
 		this.invoice.rowStyle = function(s, i, d) {
 			// if shipping enabled
 			if( s == 'shipitems' && (M.curBusiness.modules['ciniki.sapos'].flags&0x40) > 0 ) {
-				if( d.item.required_quantity != null && d.item.required_quantity == 0 ) {
+				if( (d.item.flags&0x0300) > 0 ) {
+					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-forced-backordered'] + ';';
+				} else if( d.item.required_quantity != null && d.item.required_quantity == 0 ) {
 					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-fulfilled'] + ';';
 				} else if( d.item.required_quantity > 0 && d.item.inventory_quantity > 0 && d.item.inventory_quantity < d.item.required_quantity) {
 					return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-partial'] + ';';
@@ -470,6 +472,7 @@ function ciniki_sapos_invoice() {
 				'unit_discount_amount':{'label':'Discount Amount', 'type':'text', 'size':'small'},
 				'unit_discount_percentage':{'label':'Discount %', 'type':'text', 'size':'small'},
 				'taxtype_id':{'label':'Taxes', 'type':'select', 'options':{}},
+				'force_backorder':{'label':'Backorder', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
 				}},
 			'_notes':{'label':'Notes', 'fields':{
 				'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -623,6 +626,7 @@ function ciniki_sapos_invoice() {
 			'invoice-item-available':'#C0FFC0',
 			'invoice-item-partial':'#FFFFC0',
 			'invoice-item-backordered':'#FFC6C6',
+			'invoice-item-forced-backordered':'#FFC6C6',
 			'invoice-item-fulfilled':'#E6E6E6',
 		};
 		for(i in this.colours) {
@@ -1399,6 +1403,12 @@ function ciniki_sapos_invoice() {
 					p.price_id = rsp.item.price_id;
 					p.object = rsp.item.object;
 					p.object_id = rsp.item.object_id;
+					if( (rsp.item.flags&0x40) > 0 ) {
+						p.sections.details.fields.force_backorder.active = 'yes';
+						p.data.force_backorder = ((rsp.item.flags&0x0200)>0?'yes':'no');
+					} else {
+						p.sections.details.fields.force_backorder.active = 'no';
+					}
 //					if( rsp.taxtypes != null ) {
 //						p.sections.details.fields.taxtype_id.active = 'yes';
 //						p.sections.details.fields.taxtype_id.type=((rsp.taxtypes.length>4)?'select':'toggle');
@@ -1420,6 +1430,7 @@ function ciniki_sapos_invoice() {
 			p.object_id = 0;
 			p.price_id = 0;
 			p.sections._buttons.buttons.delete.visible = 'no';
+			p.sections.details.fields.force_backorder.active = 'no';
 //			if( M.curBusiness.modules['ciniki.taxes'] != null ) {
 //				M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
 //					if( rsp.stat != 'ok' ) {
@@ -1435,7 +1446,7 @@ function ciniki_sapos_invoice() {
 //					p.show(cb);
 //				});
 //			} else {
-				p.data = {};
+				p.data = {'force_backorder':'no'};
 //				p.sections.details.fields.taxtype_id.active = 'no';
 				p.refresh();
 				p.show(cb);
@@ -1454,6 +1465,14 @@ function ciniki_sapos_invoice() {
 			}
 			if( this.item.price_id != this.item.data.price_id ) {
 				c += 'price_id=' + this.item.price_id + '&';
+			}
+			var fb = this.item.formFieldValue(this.item.sections.details.fields.force_backorder, 'force_backorder');
+			if( fb != this.item.data.force_backorder ) {
+				if( fb == 'yes' ) {
+					c += 'flags=' + (this.item.data.flags|0x0200) + '&';
+				} else {
+					c += 'flags=' + (this.item.data.flags^0x0200) + '&';
+				}
 			}
 			if( c != '' ) {
 				M.api.postJSONCb('ciniki.sapos.invoiceItemUpdate', {'business_id':M.curBusinessID,
