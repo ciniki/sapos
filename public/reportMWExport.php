@@ -252,7 +252,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	//
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
-			'fields'=>array('id', 'invoice_id', 'invoice_number', 'po_number', 'shipment_number', 'status_text', 
+			'fields'=>array('shipment_id'=>'id', 'invoice_id', 'invoice_number', 'po_number', 'shipment_number', 'status_text', 
 				'shipping_name', 'shipping_address1', 'shipping_address2',
 				'shipping_city', 'shipping_province', 'shipping_postal', 'shipping_country',
 				'customer_eid', 'customer_display_name', 'status', 'shipment_status_text',
@@ -285,9 +285,15 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
 	$prev_invoice_id = 0;
 	$invoices = array();	// The array of invoice totals
+	$shipments = array();
 	foreach($items as $iid => $item) {
+		// Create the array to store the invoice totals by invoice_id
 		if( !isset($invoices[$item['item']['invoice_id']]) ) {
 			$invoices[$item['item']['invoice_id']] = array('total_amount'=>0, 'num_pieces'=>0);
+		}
+		// Create the array to store the invoice totals by shipment_id
+		if( !isset($shipments[$item['item']['shipment_id']]) ) {
+			$shipments[$item['item']['shipment_id']] = array('total_amount'=>0, 'num_pieces'=>0);
 		}
 		if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0800) > 0 ) {
 			if( isset($salesreps[$item['item']['salesrep_id']]) ) {
@@ -331,6 +337,8 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$item['item']['freight_amount'], $intl_currency);
 		$invoices[$item['item']['invoice_id']]['total_amount'] += $rc['total'];
 		$invoices[$item['item']['invoice_id']]['num_pieces'] += $item['item']['shipment_quantity'];
+		$shipments[$item['item']['shipment_id']]['total_amount'] += $rc['total'];
+		$shipments[$item['item']['shipment_id']]['num_pieces'] += $item['item']['shipment_quantity'];
 	}
 
 	//
@@ -341,6 +349,9 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$items[$iid]['item']['invoice_total_amount'] = $invoices[$item['item']['invoice_id']]['total_amount'];
 		$items[$iid]['item']['invoice_total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
 			$invoices[$item['item']['invoice_id']]['total_amount'], $intl_currency);
+		$items[$iid]['item']['shipment_total_amount'] = $shipments[$item['item']['shipment_id']]['total_amount'];
+		$items[$iid]['item']['shipment_total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
+			$shipments[$item['item']['shipment_id']]['total_amount'], $intl_currency);
 	}
 //		$num_pieces = 0;
 //		$total_amount = 0;
@@ -398,6 +409,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tax Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Name', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Address 1', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Address 2', false);
@@ -441,6 +453,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tax_location_code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_total_amount'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_name'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_address1'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_address2'], false);
@@ -484,6 +497,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->getColumnDimension('AE')->setAutoSize(true);
 		$sheet->getColumnDimension('AF')->setAutoSize(true);
 		$sheet->getColumnDimension('AG')->setAutoSize(true);
+		$sheet->getColumnDimension('AH')->setAutoSize(true);
 
 		//
 		// Output the excel
