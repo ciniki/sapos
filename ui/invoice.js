@@ -215,7 +215,7 @@ function ciniki_sapos_invoice() {
 			if( s == 'customer_details' ) {
 				switch (j) {
 					case 0: return d.detail.label;
-					case 1: return d.detail.value;
+					case 1: return (d.detail.label == 'Email'?M.linkEmail(d.detail.value):d.detail.value);
 				}
 			}
 			if( s == 'shipitems' ) {
