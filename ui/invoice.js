@@ -161,6 +161,11 @@ function ciniki_sapos_invoice() {
 		};
 		this.invoice.listValue = function(s, i, d) {
 			if( i == 'invoice_number' ) {
+				if( this.data.invoice_type == 11 ) {
+					return 'Monthly <span class="subdue">[' + this.data['status_text'] + ']</span>';
+				} else if( this.data.invoice_type == 12 ) {
+					return 'Yearly <span class="subdue">[' + this.data['status_text'] + ']</span>';
+				} 
 				return this.data[i] + ' <span class="subdue">[' + this.data['status_text'] + ']</span>';
 			}
 //			if( i == 'po_number' && this.data.status < 50 ) {
@@ -472,7 +477,7 @@ function ciniki_sapos_invoice() {
 				'unit_discount_amount':{'label':'Discount Amount', 'type':'text', 'size':'small'},
 				'unit_discount_percentage':{'label':'Discount %', 'type':'text', 'size':'small'},
 				'taxtype_id':{'label':'Taxes', 'type':'select', 'options':{}},
-				'force_backorder':{'label':'Backorder', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
+				'force_backorder':{'label':'Backorder', 'active':'no', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
 				}},
 			'_notes':{'label':'Notes', 'fields':{
 				'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -673,6 +678,12 @@ function ciniki_sapos_invoice() {
 			this.invoiceTypes['10'] = 'Invoice';
 			if( this.default_invoice_type == '' ) { this.default_invoice_type = '10'; }
 			ct++;
+			if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
+				this.invoiceTypes['11'] = 'Monthly';
+				ct++;
+				this.invoiceTypes['12'] = 'Yearly';
+				ct++;
+			}
 		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 ) {
 			this.invoiceTypes['40'] = 'Order';
@@ -856,6 +867,8 @@ function ciniki_sapos_invoice() {
 		if( type != null ) {
 			if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 && type == 10) {
 				c += 'invoice_type=10&';
+			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 && type == 11) {
+				c += 'invoice_type=11&';
 			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 && type == 20) {
 				c += 'invoice_type=20&';
 			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 && type == 30) {
@@ -932,7 +945,14 @@ function ciniki_sapos_invoice() {
 		} else if( rsp.invoice.customer != null && rsp.invoice.customer.pricepoint_id > 0 ) {
 			p.pricepoint_id = rsp.invoice.customer.pricepoint_id;
 		}
-		p.sections._buttons.buttons.record.visible=(rsp.invoice.status<50&&(M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0)?'yes':'no';
+		if( rsp.invoice.status < 50 
+			&& (M.curBusiness.modules['ciniki.sapos'].flags&0x0200) > 0
+			&& (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 
+			) {
+			p.sections._buttons.buttons.record.visible='yes';
+		} else {
+			p.sections._buttons.buttons.record.visible='no';
+		}
 		p.data.flags_text = '';
 		for(i in this.invoiceFlags) {
 			if( (rsp.invoice.flags&Math.pow(2,i-1)) > 0 ) {
@@ -945,6 +965,22 @@ function ciniki_sapos_invoice() {
 				this.invoice.sections.details.list.invoice_number.label = 'Invoice #';
 				this.invoice.sections.details.list.invoice_date.label = 'Invoice Date';
 				this.invoice.sections._buttons.buttons.delete.label = 'Delete Invoice';
+				this.invoice.sections.details.list.submitted_by.visible = 'no';
+				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
+				break;
+			case '11': 
+				this.invoice.title = 'Monthly Invoice';
+				this.invoice.sections.details.list.invoice_number.label = 'Recurring';
+				this.invoice.sections.details.list.invoice_date.label = 'Next Invoice Date';
+				this.invoice.sections._buttons.buttons.delete.label = 'Delete Recurring Invoice';
+				this.invoice.sections.details.list.submitted_by.visible = 'no';
+				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
+				break;
+			case '12': 
+				this.invoice.title = 'Yearly Invoice';
+				this.invoice.sections.details.list.invoice_number.label = 'Recurring';
+				this.invoice.sections.details.list.invoice_date.label = 'Next Invoice Date';
+				this.invoice.sections._buttons.buttons.delete.label = 'Delete Recurring Invoice';
 				this.invoice.sections.details.list.submitted_by.visible = 'no';
 				this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
 				break;
@@ -1466,12 +1502,14 @@ function ciniki_sapos_invoice() {
 			if( this.item.price_id != this.item.data.price_id ) {
 				c += 'price_id=' + this.item.price_id + '&';
 			}
-			var fb = this.item.formFieldValue(this.item.sections.details.fields.force_backorder, 'force_backorder');
-			if( fb != this.item.data.force_backorder ) {
-				if( fb == 'yes' ) {
-					c += 'flags=' + (this.item.data.flags|0x0200) + '&';
-				} else {
-					c += 'flags=' + (this.item.data.flags^0x0200) + '&';
+			if( this.item.sections.details.fields.force_backorder.active == 'yes' ) {
+				var fb = this.item.formFieldValue(this.item.sections.details.fields.force_backorder, 'force_backorder');
+				if( fb != this.item.data.force_backorder ) {
+					if( fb == 'yes' ) {
+						c += 'flags=' + (this.item.data.flags|0x0200) + '&';
+					} else {
+						c += 'flags=' + (this.item.data.flags^0x0200) + '&';
+					}
 				}
 			}
 			if( c != '' ) {

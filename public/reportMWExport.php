@@ -179,6 +179,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		. "ciniki_sapos_shipments.shipment_number, "
 		. "ciniki_customers.eid AS customer_eid, "
 		. "ciniki_customers.display_name AS customer_display_name, "
+		. "ciniki_customers.reward_level, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.salesrep_id, "
 		. "ciniki_sapos_invoices.customer_notes, "
@@ -255,7 +256,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			'fields'=>array('shipment_id'=>'id', 'invoice_id', 'invoice_number', 'po_number', 'shipment_number', 'status_text', 
 				'shipping_name', 'shipping_address1', 'shipping_address2',
 				'shipping_city', 'shipping_province', 'shipping_postal', 'shipping_country',
-				'customer_eid', 'customer_display_name', 'status', 'shipment_status_text',
+				'customer_eid', 'customer_display_name', 'reward_level', 'status', 'shipment_status_text',
 				'salesrep_id', 'customer_notes', 
 				'shipping_company', 'tracking_number', 'td_number', 'freight_amount', 
 				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'invoice_date', 'ship_date',
@@ -391,6 +392,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Status', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Customer ID', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Reward Level', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Rep', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipper', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tracking Number', false);
@@ -435,6 +437,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['status_text'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['customer_eid'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['customer_display_name'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['reward_level'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['salesrep_display_name'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_company'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tracking_number'], false);
@@ -498,6 +501,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->getColumnDimension('AF')->setAutoSize(true);
 		$sheet->getColumnDimension('AG')->setAutoSize(true);
 		$sheet->getColumnDimension('AH')->setAutoSize(true);
+		$sheet->getColumnDimension('AI')->setAutoSize(true);
 
 		//
 		// Output the excel

@@ -28,6 +28,8 @@ function ciniki_sapos_invoices() {
 			'types':{'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'0', 'tabs':{
 				'0':{'label':'All', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,0);'},
 				'10':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,10);'},
+				'11':{'label':'Monthly Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,11);'},
+				'12':{'label':'Yearly Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,12);'},
 				'20':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,20);'},
 				'30':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,30);'},
 				'40':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,40);'},
@@ -136,6 +138,12 @@ function ciniki_sapos_invoices() {
 			this.invoices.sections.types.tabs['10'].visible = 'yes';
 			if( default_type != '' ) { default_type = 10; }
 			ct++;
+			if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
+				this.invoices.sections.types.tabs['11'].visible = 'yes';
+				ct++;
+				this.invoices.sections.types.tabs['12'].visible = 'yes';
+				ct++;
+			}
 		} else {
 			this.invoices.sections.types.tabs['10'].visible = 'no';
 		}
@@ -214,6 +222,12 @@ function ciniki_sapos_invoices() {
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 ) {
 			this.invoices.sections.types.tabs['10'] = {'label':'Invoices', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,10);'};
 			tc++;
+			if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
+				this.invoices.sections.types.tabs['11'] = {'label':'Monthly', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,11);'};
+				tc++;
+				this.invoices.sections.types.tabs['12'] = {'label':'Yearly', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,12);'};
+				tc++;
+			}
 		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
 			this.invoices.sections.types.tabs['20'] = {'label':'Carts', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,20);'};

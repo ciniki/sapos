@@ -12,6 +12,8 @@ function ciniki_sapos_main() {
 		this.menu.formtab = 'invoices';
 		this.menu.formtabs = {'label':'', 'visible':'no', 'tabs':{
 			'invoices':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"invoices");'},
+			'monthlyinvoices':{'label':'Monthly', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"monthlyinvoices");'},
+			'yearlyinvoices':{'label':'Yearly', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"yearlyinvoices");'},
 			'pos':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"pos");'},
 			'orders':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"orders");'},
 			'carts':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"carts");'},
@@ -23,7 +25,7 @@ function ciniki_sapos_main() {
 			'_quickadd':{'label':'', 'visible':'no', 'buttons':{
 				'quickadd':{'label':'Quick Invoice', 'fn':'M.startApp(\'ciniki.sapos.qi\',null,\'M.ciniki_sapos_main.showMenu();\');'},
 				}},
-			'invoice_search':{'label':'Invoices', 'type':'livesearchgrid', 'livesearchcols':5, 
+			'invoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
 				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
 				'hint':'Search invoice # or customer name', 
 				'noData':'No Invoices Found',
@@ -33,6 +35,32 @@ function ciniki_sapos_main() {
 				'noData':'No Invoices',
 				'addTxt':'More',
 				'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'10\'});',
+				},
+			};
+		this.menu.forms.monthlyinvoices = {
+			'monthlyinvoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
+				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
+				'hint':'Search invoice # or customer name', 
+				'noData':'No Invoices Found',
+				},
+			'invoices':{'label':'Monthly Recurring Invoices', 'type':'simplegrid', 'num_cols':5,
+				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
+				'noData':'No Invoices',
+				'addTxt':'More',
+				'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'11\'});',
+				},
+			};
+		this.menu.forms.yearlyinvoices = {
+			'yearlyinvoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
+				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
+				'hint':'Search invoice # or customer name', 
+				'noData':'No Invoices Found',
+				},
+			'invoices':{'label':'Yearly Recurring Invoices', 'type':'simplegrid', 'num_cols':5,
+				'headerValues':['Invoice #','Date','Customer','Amount','Status'],
+				'noData':'No Invoices',
+				'addTxt':'More',
+				'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'12\'});',
 				},
 			};
 		this.menu.forms.carts = {
@@ -117,6 +145,18 @@ function ciniki_sapos_main() {
 						M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
 					});
 			}
+			if( s == 'monthlyinvoice_search' && v != '' ) {
+				M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+					'start_needle':v, 'invoice_type':'11', 'sort':'reverse', 'limit':'10'}, function(rsp) {
+						M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
+					});
+			}
+			if( s == 'yearlyinvoice_search' && v != '' ) {
+				M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+					'start_needle':v, 'invoice_type':'12', 'sort':'reverse', 'limit':'10'}, function(rsp) {
+						M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
+					});
+			}
 			else if( s == 'order_search' && v != '' ) {
 				M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
 					'start_needle':v, 'invoice_type':'40', 'sort':'reverse', 'limit':'10'}, function(rsp) {
@@ -137,7 +177,7 @@ function ciniki_sapos_main() {
 			}
 		};
 		this.menu.liveSearchResultValue = function(s, f, i, j, d) {
-			if( s == 'invoice_search' || s == 'order_search' ) { 
+			if( s == 'invoice_search' || s == 'monthlyinvoice_search' || s == 'yearlyinvoice_search' || s == 'order_search' ) { 
 				switch (j) {
 					case 0: return d.invoice.invoice_number;
 					case 1: return d.invoice.invoice_date;
@@ -164,7 +204,7 @@ function ciniki_sapos_main() {
 			return '';
 		};
 		this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
-			if( s == 'invoice_search' || s == 'order_search' ) {
+			if( s == 'invoice_search' || s == 'monthly_search' || s == 'yearly_search' || s == 'order_search' ) {
 				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
 			}
 			if( s == 'expense_search' ) {
@@ -257,6 +297,12 @@ function ciniki_sapos_main() {
 			this.menu.formtabs.tabs.invoices.visible = 'yes';
 			if( sp == '' ) { sp = 'invoices'; }
 			ct++;
+			if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
+				this.menu.formtabs.tabs.monthlyinvoices.visible = 'yes';
+				ct++;
+				this.menu.formtabs.tabs.yearlyinvoices.visible = 'yes';
+				ct++;
+			}
 		} else {
 			this.menu.formtabs.tabs.invoices.visible = 'no';
 		}
@@ -323,12 +369,16 @@ function ciniki_sapos_main() {
 		if( type != null ) { this.menu.formtab = type; }
 		
 		if( this.menu.formtab == 'invoices' 
+			|| this.menu.formtab == 'monthlyinvoices'
+			|| this.menu.formtab == 'yearlyinvoices'
 			|| this.menu.formtab == 'carts'
 			|| this.menu.formtab == 'pos'
 			|| this.menu.formtab == 'orders'
 			) {
 			switch(this.menu.formtab) {
 				case 'invoices': this.menu.invoice_type = 10; break;
+				case 'monthlyinvoices': this.menu.invoice_type = 11; break;
+				case 'yearlyinvoices': this.menu.invoice_type = 12; break;
 				case 'carts': this.menu.invoice_type = 20; break;
 				case 'pos': this.menu.invoice_type = 30; break;
 				case 'orders': this.menu.invoice_type = 40; break;

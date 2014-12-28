@@ -28,6 +28,8 @@
 #
 #						0 - Unknown
 #						10 - Invoice/Services
+#						11 - Monthly Recurring Invoice/Services
+#						12 - Yearly Recurring Invoice/Services
 #						20 - Shopping Cart
 #						30 - POS
 #						40 - Purchase Order

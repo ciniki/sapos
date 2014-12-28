@@ -33,9 +33,9 @@ function ciniki_sapos_mwexport() {
 //				'downloadtab':{'label':'Download Tab Delimited', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'tab\');'},
 				'downloadexcel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'excel\');'},
 				}},
-			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':27,
+			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':28,
 				'headerValues':['INV #', 'PO #', 'Ship #', 'Order Date', 'Ship Date', 'Invoice Status', 
-					'ID', 'Customer', 'Rep', 
+					'ID', 'Customer', 'Reward', 'Rep', 
 					'Shipper', 'Tracking #', 'Freight Amount', '# Boxes', '# Pieces', 'Weight',
 					'Code', 'Description', 'Ordered', 'Shipment', 'B/O', 'Shipped',
 					'Price Code', 'Unit Amount', 'Total', 'Tax Code', 'Invoice Total', 'Shipment Total'],
@@ -67,25 +67,26 @@ function ciniki_sapos_mwexport() {
 				case 5: return d.item.status_text;
 				case 6: return d.item.customer_eid;
 				case 7: return d.item.customer_display_name;
-				case 8: return d.item.salesrep_display_name;
-				case 9: return d.item.shipping_company;
-				case 10: return d.item.tracking_number;
-				case 11: return d.item.freight_amount_display;
-				case 12: return d.item.num_boxes;
-				case 13: return d.item.num_pieces;
-				case 14: return d.item.weight;
-				case 15: return d.item.code;
-				case 16: return d.item.description;
-				case 17: return d.item.ordered_quantity;
-				case 18: return d.item.shipment_quantity;
-				case 19: return (d.item.ordered_quantity-d.item.shipped_quantity);
-				case 20: return d.item.shipped_quantity;
-				case 21: return d.item.pricepoint_code;
-				case 22: return d.item.unit_amount_display;
-				case 23: return d.item.total_amount_display;
-				case 24: return d.item.tax_location_code;
-				case 25: return d.item.invoice_total_amount_display;
-				case 26: return d.item.shipment_total_amount_display;
+				case 8: return d.item.reward_level;
+				case 9: return d.item.salesrep_display_name;
+				case 10: return d.item.shipping_company;
+				case 11: return d.item.tracking_number;
+				case 12: return d.item.freight_amount_display;
+				case 13: return d.item.num_boxes;
+				case 14: return d.item.num_pieces;
+				case 15: return d.item.weight;
+				case 16: return d.item.code;
+				case 17: return d.item.description;
+				case 18: return d.item.ordered_quantity;
+				case 19: return d.item.shipment_quantity;
+				case 20: return (d.item.ordered_quantity-d.item.shipped_quantity);
+				case 21: return d.item.shipped_quantity;
+				case 22: return d.item.pricepoint_code;
+				case 23: return d.item.unit_amount_display;
+				case 24: return d.item.total_amount_display;
+				case 25: return d.item.tax_location_code;
+				case 26: return d.item.invoice_total_amount_display;
+				case 27: return d.item.shipment_total_amount_display;
 			}
 		};
 		this.shipments.rowFn = function(s, i, d) {
