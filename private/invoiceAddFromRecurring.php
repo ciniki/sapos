@@ -225,10 +225,15 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
 		//
 		// Setup lastmonth and lastyear dates
 		//
-		$lastmonth = clone $invoice_date;
-		$lastmonth->sub(new DateInterval('P1M'));
-		$lastyear = clone $invoice_date;
-		$lastyear->sub(new DateInterval('P1Y'));
+		$dates['lastmonth'] = clone $invoice_date;
+		$dates['lastmonth']->sub(new DateInterval('P1M'));
+		$dates['lastyear'] = clone $invoice_date;
+		$dates['lastyear']->sub(new DateInterval('P1Y'));
+		$dates['thismonth'] = clone $invoice_date;
+		$dates['nextmonth'] = clone $invoice_date;
+		$dates['nextmonth']->add(new DateInterval('P1M'));
+		$dates['nextyear'] = clone $invoice_date;
+		$dates['nextyear']->add(new DateInterval('P1Y'));
 
 		//
 		// Create the invoice
@@ -282,24 +287,30 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
 			//
 			$new_item['notes'] = preg_replace_callback(
 				'/({{([^}]+)\[([^\]]*)\]}})/',
-				function ($matches) use ($lastmonth, $lastyear) {
+				function ($matches) use ($dates) {
 					$args = preg_replace("/\'/", '', $matches[3]);
-					if( $matches[2] == 'lastmonth' ) {
-						return $lastmonth->format($args);
-					} elseif( $matches[2] == 'lastyear' ) {
-						return $lastyear->format($args);
+					if( isset($dates[$matches[2]]) ) {
+						return $dates[$matches[2]]->format($args);
 					}
+//					if( $matches[2] == 'lastmonth' ) { return $lastmonth->format($args); }
+//					elseif( $matches[2] == 'lastyear' ) { return $lastyear->format($args); }
+//					elseif( $matches[2] == 'thismonth' ) { return $thismonth->format($args); }
+//					elseif( $matches[2] == 'nextmonth' ) { return $nextmonth->format($args); }
+//					elseif( $matches[2] == 'nextyear' ) { return $nextyear->format($args); }
 				}, $item['notes']);
 
 			$new_item['description'] = preg_replace_callback(
 				'/({{([^}]+)\[([^\]]*)\]}})/',
-				function ($matches) use ($lastmonth, $lastyear) {
+				function ($matches) use ($dates) {
 					$args = preg_replace("/\'/", '', $matches[3]);
-					if( $matches[2] == 'lastmonth' ) {
-						return date_format($lastmonth, $args);
-					} elseif( $matches[2] == 'lastyear' ) {
-						return date_format($lastyear, $args);
+					if( isset($dates[$matches[2]]) ) {
+						return $dates[$matches[2]]->format($args);
 					}
+//					if( $matches[2] == 'lastmonth' ) { return $lastmonth->format($args); }
+//					elseif( $matches[2] == 'lastyear' ) { return $lastyear->format($args); }
+//					elseif( $matches[2] == 'thismonth' ) { return $thismonth->format($args); }
+//					elseif( $matches[2] == 'nextmonth' ) { return $nextmonth->format($args); }
+//					elseif( $matches[2] == 'nextyear' ) { return $nextyear->format($args); }
 				}, $item['description']);
 			
 			//
