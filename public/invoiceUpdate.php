@@ -46,6 +46,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 		'shipping_postal'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Postal'),
 		'shipping_country'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Country'),
 		'shipping_phone'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Phone'),
+		'shipping_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Notes'),
 		'tax_location_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Tax Location'),
 		'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Pricepoint'),
 		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Notes'),

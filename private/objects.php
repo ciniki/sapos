@@ -17,6 +17,7 @@ function ciniki_sapos_objects($ciniki) {
 		'sync'=>'yes',
 		'table'=>'ciniki_sapos_invoices',
 		'fields'=>array(
+			'source_id'=>array('ref'=>'ciniki.sapos.invoice'),
 			'invoice_number'=>array(),
 			'invoice_type'=>array(),
 			'po_number'=>array(),
@@ -44,6 +45,7 @@ function ciniki_sapos_objects($ciniki) {
 			'shipping_postal'=>array(),
 			'shipping_country'=>array(),
 			'shipping_phone'=>array(),
+			'shipping_notes'=>array(),
 			'tax_location_id'=>array('ref'=>'ciniki.taxes.location'),
 			'pricepoint_id'=>array('ref'=>'ciniki.customers.pricepoint'),
 			'subtotal_amount'=>array(),
