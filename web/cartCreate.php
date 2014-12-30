@@ -20,6 +20,7 @@ function ciniki_sapos_web_cartCreate($ciniki, $settings, $business_id) {
 		// Default args for new invoice
 		//
 		$cart_args = array(
+			'source_id'=>'0',
 			'invoice_number'=>'',
 			'invoice_type'=>'20',
 			'flags'=>0,
@@ -46,6 +47,7 @@ function ciniki_sapos_web_cartCreate($ciniki, $settings, $business_id) {
 			'shipping_postal'=>'',
 			'shipping_country'=>'',
 			'shipping_phone'=>'',
+			'shipping_notes'=>'',
 			'customer_notes'=>'',
 			'invoice_notes'=>'',
 			'internal_notes'=>'',
