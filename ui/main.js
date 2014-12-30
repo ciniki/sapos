@@ -6,7 +6,7 @@ function ciniki_sapos_main() {
 		//
 		this.menu = new M.panel('Accounting',
 			'ciniki_sapos_main', 'menu',
-			'mc', 'medium', 'sectioned', 'ciniki.sapos.main.menu');
+			'mc', 'medium mediumflex', 'sectioned', 'ciniki.sapos.main.menu');
 		this.menu.data = {'invoice_type':'invoices'};
 		this.menu.invoice_type = 10;
 		this.menu.formtab = 'invoices';
