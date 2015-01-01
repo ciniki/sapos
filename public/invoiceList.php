@@ -257,6 +257,15 @@ function ciniki_sapos_invoiceList(&$ciniki) {
 		}
 	}
 
+	if( $args['type'] == '11' && $rsp['totals']['total_amount'] > 0 ) {
+		$rsp['totals']['yearly_amount'] = numfmt_format_currency($intl_currency_fmt,
+			bcmul($rsp['totals']['total_amount'], 12, 4), $intl_currency);
+	}
+	if( $args['type'] == '12' && $rsp['totals']['total_amount'] > 0 ) {
+		$rsp['totals']['monthly_amount'] = numfmt_format_currency($intl_currency_fmt,
+			bcdiv($rsp['totals']['total_amount'], 12, 4), $intl_currency);
+	}
+
 	$rsp['totals']['total_amount'] = numfmt_format_currency($intl_currency_fmt,
 		$rsp['totals']['total_amount'], $intl_currency);
 	$rsp['totals']['num_invoices'] = count($rsp['invoices']);
