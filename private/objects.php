@@ -273,6 +273,12 @@ function ciniki_sapos_objects($ciniki) {
 //			),
 //		'history_table'=>'ciniki_sapos_history',
 //		);
+	$objects['setting'] = array(
+		'type'=>'settings',
+		'name'=>'SAPOS Settings',
+		'table'=>'ciniki_sapos_settings',
+		'history_table'=>'ciniki_sapos_history',
+		);
 	
 	return array('stat'=>'ok', 'objects'=>$objects);
 }
