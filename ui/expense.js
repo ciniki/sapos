@@ -55,21 +55,6 @@ function ciniki_sapos_expense() {
 				return this.data[i].replace(/\n/g, '<br/>');
 			}
 		};
-		this.expense.thumbSrc = function(s, i, d) {
-			if( d.image.image_data != null && d.image.image_data != '' ) {
-				return d.image.image_data;
-			} else {
-				return '/ciniki-mods/core/ui/themes/default/img/noimage_75.jpg';
-			}
-		};
-		this.expense.thumbTitle = function(s, i, d) {
-			if( d.image.name != null ) { return d.image.name; }
-			return '';
-		};
-		this.expense.thumbID = function(s, i, d) {
-			if( d.image.id != null ) { return d.image.id; }
-			return 0;
-		};
 		this.expense.thumbFn = function(s, i, d) {
 			return 'M.startApp(\'ciniki.sapos.expenseimages\',null,\'M.ciniki_sapos_expense.showExpense();\',\'mc\',{\'expense_image_id\':\'' + d.image.id + '\'});';
 		};
