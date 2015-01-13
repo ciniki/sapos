@@ -1,0 +1,10 @@
+#
+# This file will upgrade the database table ciniki_sapos_invoices to version 1.10.
+#
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN work_address1 varchar(250) not null AFTER shipping_notes;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN work_address2 varchar(250) not null AFTER work_address1;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN work_city varchar(100) not null AFTER work_address2;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN work_province varchar(100) not null AFTER work_city;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN work_postal varchar(10) not null AFTER work_province;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN work_country varchar(50) not null AFTER work_postal;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.10';

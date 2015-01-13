@@ -19,6 +19,7 @@ function ciniki_sapos_main() {
 			'carts':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"carts");'},
 			'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"expenses");'},
 			'mileage':{'label':'Mileage', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"mileage");'},
+			'quotes':{'label':'Quotes', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"quotes");'},
 			}};
 		this.menu.forms = {};
 		this.menu.forms.invoices = {
@@ -142,6 +143,21 @@ function ciniki_sapos_main() {
 				'settings':{'label':'Setup Mileage', 'visible':'no', 'fn':'M.startApp(\'ciniki.sapos.settings\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'mrates\':\'yes\'});'},
 				}},
 			};
+		this.menu.forms.quotes = {
+			'quote_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':4, 
+				'headerValues':['Quote #','Date','Customer','Amount'],
+				'hint':'Search quote # or customer name', 
+				'noData':'No Quotes Found',
+				},
+			'invoices':{'label':'Recent Quotes', 'type':'simplegrid', 'num_cols':4,
+				'headerValues':['Quote #','Date','Customer','Amount'],
+				'noData':'No Quotes',
+				'addTxt':'Add',
+				'addFn':'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'90\'});',
+				'changeTxt':'More',
+				'changeFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'90\'});',
+				},
+			};
 		this.menu.liveSearchCb = function(s, i, v) {
 			if( s == 'invoice_search' && v != '' ) {
 				M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
@@ -179,6 +195,12 @@ function ciniki_sapos_main() {
 						M.ciniki_sapos_main.menu.liveSearchShow('mileage_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.mileages);
 					});
 			}
+			else if( s == 'quote_search' && v != '' ) {
+				M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+					'start_needle':v, 'sort':'reverse', 'invoice_type':'90', 'limit':'10'}, function(rsp) {
+						M.ciniki_sapos_main.menu.liveSearchShow('quote_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
+					});
+			}
 		};
 		this.menu.liveSearchResultValue = function(s, f, i, j, d) {
 			if( s == 'invoice_search' || s == 'monthlyinvoice_search' || s == 'yearlyinvoice_search' || s == 'order_search' ) { 
@@ -205,10 +227,18 @@ function ciniki_sapos_main() {
 					case 3: return d.mileage.amount_display;
 				}
 			}
+			else if( s == 'quote_search' ) { 
+				switch (j) {
+					case 0: return d.invoice.invoice_number;
+					case 1: return d.invoice.invoice_date;
+					case 2: return d.invoice.customer_display_name;
+					case 3: return d.invoice.total_amount_display;
+				}
+			}
 			return '';
 		};
 		this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
-			if( s == 'invoice_search' || s == 'monthly_search' || s == 'yearly_search' || s == 'order_search' ) {
+			if( s == 'invoice_search' || s == 'monthly_search' || s == 'yearly_search' || s == 'order_search' || s == 'quote_search' ) {
 				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
 			}
 			if( s == 'expense_search' ) {
@@ -318,6 +348,8 @@ function ciniki_sapos_main() {
 		if( this.menu.rightbuttons['add_e'] != null ) { delete this.menu.rightbuttons['add_e']; }
 		if( this.menu.rightbuttons['add_m'] != null ) { delete this.menu.rightbuttons['add_m']; }
 		if( this.menu.leftbuttons['add_m'] != null ) { delete this.menu.leftbuttons['add_m']; }
+		if( this.menu.rightbuttons['add_q'] != null ) { delete this.menu.rightbuttons['add_q']; }
+		if( this.menu.leftbuttons['add_q'] != null ) { delete this.menu.leftbuttons['add_q']; }
 		// Setup the panel tabs
 		var ct = 0;
 		var sp = '';
@@ -355,15 +387,16 @@ function ciniki_sapos_main() {
 		} else {
 			this.menu.formtabs.tabs.carts.visible = 'no';
 		}
-		var bts = 0;
+		var rbts = 0;
+		var lbts = 0;
 		if( ct > 0 ) {
 			this.menu.addButton('add_i', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
-			bts++;
+			rbts++;
 		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x02) > 0 ) {
 			this.menu.formtabs.tabs.expenses.visible = 'yes';
 			this.menu.addButton('add_e', 'Expense', 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
-			bts++;
+			rbts++;
 			if( sp == '' ) { sp = 'expenses'; }
 			ct++;
 		} else {
@@ -371,15 +404,31 @@ function ciniki_sapos_main() {
 		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x100) > 0 ) {
 			this.menu.formtabs.tabs.mileage.visible = 'yes';
-			if( bts >= 2 ) {
+			if( rbts >= 2 ) {
 				this.menu.addLeftButton('add_m', 'Mileage', 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
+				lbts++;
 			} else {
 				this.menu.addButton('add_m', 'Mileage', 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{});', 'add');
+				rbts++;
 			}
 			if( sp == '' ) { sp = 'mileage'; }
 			ct++;
 		} else {
 			this.menu.formtabs.tabs.mileage.visible = 'no';
+		}
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
+			this.menu.formtabs.tabs.quotes.visible = 'yes';
+			if( rbts >= 2 && lbts < 1 ) {
+				this.menu.addLeftButton('add_q', 'Quote', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'90\'});', 'add');
+				lbts++;
+			} else {
+				this.menu.addButton('add_q', 'Quote', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'90\'});', 'add');
+				rbts++;
+			}
+			if( sp == '' ) { sp = 'quotes'; }
+			ct++;
+		} else {
+			this.menu.formtabs.tabs.quotes.visible = 'no';
 		}
 		if( ct > 1 ) {
 			this.menu.formtabs.visible = 'yes';
@@ -400,6 +449,7 @@ function ciniki_sapos_main() {
 			|| this.menu.formtab == 'carts'
 			|| this.menu.formtab == 'pos'
 			|| this.menu.formtab == 'orders'
+			|| this.menu.formtab == 'quotes'
 			) {
 			switch(this.menu.formtab) {
 				case 'invoices': this.menu.invoice_type = 10; break;
@@ -408,6 +458,7 @@ function ciniki_sapos_main() {
 				case 'carts': this.menu.invoice_type = 20; break;
 				case 'pos': this.menu.invoice_type = 30; break;
 				case 'orders': this.menu.invoice_type = 40; break;
+				case 'quotes': this.menu.invoice_type = 90; break;
 			}
 			M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID,
 				'limit':'10', 'sort':'latest', 'type':this.menu.invoice_type}, function(rsp) {

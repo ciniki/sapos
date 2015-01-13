@@ -99,6 +99,8 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'rules-salesreps-invoice-billing',
 		'rules-salesreps-invoice-shipping',
 		'rules-salesreps-invoice-notes',
+		'quote-bottom-message',
+		'quote-footer-message',
 		);
 	//
 	// Check each valid setting and see if a new value was passed in the arguments for it.

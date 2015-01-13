@@ -35,6 +35,7 @@
 #						20 - Shopping Cart
 #						30 - POS
 #						40 - Purchase Order
+#						90 - Quote
 #
 # status:				The current status for the invoice.
 #
@@ -105,6 +106,13 @@
 # shipping_phone:		The shipping phone to assist in deliveries.
 # shipping_notes:		The shipping notes.
 #
+# work_address1:		The work address, first line. This is where the work was completed at.
+# work_address2:		The work address, line two.
+# work_city:			The work address city.
+# work_province:		The work address province/state.
+# work_postal:			The work address postal/zip code.
+# work_country:			The work address country.
+#
 # tax_location_id:		The ID of the tax location for the invoice.  If set to 0, then
 #						use the customers tax location if specified.
 # 
@@ -166,6 +174,12 @@ create table ciniki_sapos_invoices (
 	shipping_country varchar(50) not null,
 	shipping_phone varchar(50) not null,
 	shipping_notes varchar(5000) not null,
+	work_address1 varchar(250) not null,
+	work_address2 varchar(250) not null,
+	work_city varchar(100) not null,
+	work_province varchar(100) not null,
+	work_postal varchar(10) not null,
+	work_country varchar(50) not null,
 	tax_location_id int not null,
 	pricepoint_id int not null,
 	subtotal_amount decimal(19,4) not null,
@@ -188,4 +202,4 @@ create table ciniki_sapos_invoices (
 	index (customer_id, status, invoice_date),
 	unique index (business_id, invoice_number),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.09';
+) ENGINE='InnoDB', COMMENT='v1.10';

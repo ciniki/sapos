@@ -17,6 +17,9 @@ function ciniki_sapos_settings() {
 			'ciniki_sapos_settings', 'menu',
 			'mc', 'narrow', 'sectioned', 'ciniki.sapos.settings.menu');
 		this.menu.sections = {
+			'quote':{'label':'Quotes', 'list':{
+				'quote':{'label':'Quote Settings', 'fn':'M.ciniki_sapos_settings.editQuote(\'M.ciniki_sapos_settings.showMenu();\');'},
+				}},
 			'invoice':{'label':'Invoices', 'list':{
 				'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.editInvoice(\'M.ciniki_sapos_settings.showMenu();\');'},
 				'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showQI(\'M.ciniki_sapos_settings.showMenu();\');'},
@@ -36,6 +39,42 @@ function ciniki_sapos_settings() {
 				}},
 		};
 		this.menu.addClose('Back');
+
+		//
+		// The invoice settings panel
+		//
+		this.quote = new M.panel('Quote Settings',
+			'ciniki_sapos_settings', 'quote',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.quote');
+		this.quote.sections = {
+			'_bottom_msg':{'label':'Quote Message', 'fields':{
+				'quote-bottom-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+				}},
+			'_footer_msg':{'label':'Footer Message', 'fields':{
+				'quote-footer-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveQuote();'},
+				}},
+		};
+		this.quote.fieldHistoryArgs = function(s, i) {
+			return {'method':'ciniki.sapos.settingsHistory', 
+				'args':{'business_id':M.curBusinessID, 'setting':i}};
+		}
+		this.quote.fieldValue = function(s, i, d) {
+			if( this.data[i] == null && d.default != null ) { return d.default; }
+			return this.data[i];
+		};
+		this.quote.addDropImage = function(iid) {
+			M.ciniki_sapos_settings.invoice.setFieldValue('invoice-header-image', iid);
+			return true;
+		};
+		this.quote.deleteImage = function(fid) {
+			this.setFieldValue(fid, 0);
+			return true;
+		};
+		this.quote.addButton('save', 'Save', 'M.ciniki_sapos_settings.saveQuote();');
+		this.quote.addClose('Cancel');
 
 		//
 		// The invoice settings panel
@@ -406,6 +445,41 @@ function ciniki_sapos_settings() {
 				});
 		} else {
 			this.paypal.close();
+		}
+	};
+
+	//
+	// show the quote settings
+	//
+	this.editQuote = function(cb) {
+		M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			var p = M.ciniki_sapos_settings.quote;
+			p.data = rsp.settings;
+			p.refresh();
+			p.show(cb);
+		});
+	};
+
+	//
+	// Save the Quote settings
+	//
+	this.saveQuote = function() {
+		var c = this.quote.serializeForm('no');
+		if( c != '' ) {
+			M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+				c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.quote.close();
+				});
+		} else {
+			this.quote.close();
 		}
 	};
 

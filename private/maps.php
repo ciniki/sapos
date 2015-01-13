@@ -20,6 +20,7 @@ function ciniki_sapos_maps($ciniki) {
 			'20'=>'Cart',
 			'30'=>'POS',
 			'40'=>'Order',
+			'90'=>'Quote',
 			),
 		'status'=>array(
 			'10'=>'Entered',
@@ -77,6 +78,7 @@ function ciniki_sapos_maps($ciniki) {
 			'40.50'=>'Fulfilled',
 			'40.55'=>'Refunded',
 			'40.60'=>'Void',
+			'90.10'=>'Entered',
 			),
 		'payment_status'=>array(
 			'10'=>'Payment Required',

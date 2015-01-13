@@ -33,6 +33,7 @@ function ciniki_sapos_invoices() {
 				'20':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,20);'},
 				'30':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,30);'},
 				'40':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,40);'},
+				'90':{'label':'Quotes', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,90);'},
 				}},
 			'payment_statuses':{'label':'', 'visible':'yes', 'type':'paneltabs', 'selected':'0', 'tabs':{
 				'0':{'label':'All', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,null,0);'},
@@ -134,6 +135,20 @@ function ciniki_sapos_invoices() {
 		//
 		var ct = 0;
 		var default_type = 0;
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
+			this.invoices.sections.types.tabs['90'].visible = 'yes';
+			if( default_type != '' ) { default_type = 90; }
+			ct++;
+		} else {
+			this.invoices.sections.types.tabs['90'].visible = 'no';
+		}
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
+			this.invoices.sections.types.tabs['90'].visible = 'yes';
+			if( default_type != '' ) { default_type = 90; }
+			ct++;
+		} else {
+			this.invoices.sections.types.tabs['90'].visible = 'no';
+		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 ) {
 			this.invoices.sections.types.tabs['10'].visible = 'yes';
 			if( default_type != '' ) { default_type = 10; }
@@ -219,6 +234,10 @@ function ciniki_sapos_invoices() {
 		this.invoices.sections.types.visible = 'no';
 		var tc = 0;
 		this.invoices.sections.types.tabs['0'] = {'label':'All', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,0);'};
+		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
+			this.invoices.sections.types.tabs['90'] = {'label':'Quotes', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,90);'};
+			tc++;
+		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 ) {
 			this.invoices.sections.types.tabs['10'] = {'label':'Invoices', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,10);'};
 			tc++;
