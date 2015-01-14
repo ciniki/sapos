@@ -59,19 +59,12 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 	$settings = isset($rc['settings'])?$rc['settings']:array();
 
 	//
-	// Get the invoice of the shipment
+	// Get the shipment
 	//
-	$strsql = "SELECT invoice_id, ship_date, status, boxes, tracking_number, weight "
-		. "FROM ciniki_sapos_shipments "
-		. "WHERE ciniki_sapos_shipments.id = '" . ciniki_core_dbQuote($ciniki, $args['shipment_id']) . "' "
-		. "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "";
-	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
-    if( $rc['stat'] != 'ok' ) { 
-        return $rc;
-    }
-	if( !isset($rc['shipment']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2041', 'msg'=>'Shipment does not exist'));
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentLoad');
+	$rc = ciniki_sapos_shipmentLoad($ciniki, $args['business_id'], $args['shipment_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2041', 'msg'=>'Shipment does not exist', 'err'=>$rc['err']));
 	}
 	$shipment = $rc['shipment'];
 
@@ -111,6 +104,13 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 			&& (!isset($args['boxes']) || $args['boxes'] == '' || $args['boxes'] <= 0)
 			) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2044', 'msg'=>'The number of boxes in a shipment must be specified.'));
+		}
+		// Make there are items in the shipment
+		if( (!isset($settings['rules-shipment-shipped-require-items'])
+			|| $settings['rules-shipment-shipped-require-items'] == 'yes')
+			&& count($shipment['items']) < 1
+			) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2162', 'msg'=>'No items added to the shipment.'));
 		}
 	}
 

@@ -17,7 +17,8 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
-		'shipment_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Shipment'),
+		'shipment_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Shipment'),
+		'invoice_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Invoice'),
 		'item_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Item'),
 		'quantity'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Quantity'),
 		'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'),
@@ -45,6 +46,55 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 	}
 
 	//
+	// If no shipment or invoice id specified
+	//
+	if( !isset($args['shipment_id']) && !isset($args['invoice_id']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2163', 'msg'=>'An existing shipment or invoice must be provided to add an item.'));
+	}
+
+	//
+	// If shipment does not exist, then add it
+	//
+	if( !isset($args['shipment_id']) || $args['shipment_id'] == '0' ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'public', 'shipmentAdd');
+		$rc = ciniki_sapos_shipmentAdd($ciniki);
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		$shipment = $rc['shipment'];
+		$args['shipment_id'] = $shipment['id'];
+
+		//
+		// If is something other than packing, it should be set to packing
+		//
+		if( isset($shipment['status']) && $shipment['status'] > 10 ) {
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'public', 'shipmentAdd');
+			$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.shipment', $shipment['id'], 
+				array('status'=>'10'), 0x04);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+		}
+	} else {
+		//
+		// Get the details of the shipment
+		//
+		$strsql = "SELECT id, invoice_id, status "
+			. "FROM ciniki_sapos_shipments "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['shipment_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( !isset($rc['shipment']) ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1930', 'msg'=>'Shipment does not exist.'));
+		}
+		$shipment = $rc['shipment'];
+	}
+
+	//
 	// Check if item already exists in the shipment, don't allow updates through Add
 	//
 	$strsql = "SELECT id "
@@ -62,22 +112,6 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1928', 'msg'=>'Item already exists in the shipment.'));
 	}
 
-	//
-	// Get the details of the shipment
-	//
-	$strsql = "SELECT id, invoice_id, status "
-		. "FROM ciniki_sapos_shipments "
-		. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['shipment_id']) . "' "
-		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "";
-	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	if( !isset($rc['shipment']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1930', 'msg'=>'Shipment does not exist.'));
-	}
-	$shipment = $rc['shipment'];
 
 	//
 	// Reject if shipment is already shipped
@@ -209,6 +243,15 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
 	ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
 
-	return array('stat'=>'ok', 'id'=>$item_id);
+	//
+	// Load the shipment and return full record
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentLoad');
+    $rc = ciniki_sapos_shipmentLoad($ciniki, $args['business_id'], $args['shipment_id']); 
+    if( $rc['stat'] != 'ok' ) { 
+        return $rc;
+    }
+
+	return array('stat'=>'ok', 'id'=>$item_id, 'shipment'=>$rc['shipment']);
 }
 ?>

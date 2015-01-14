@@ -462,27 +462,38 @@ function ciniki_sapos_shipment() {
 						M.api.err(rsp);
 						return false;
 					}
-					M.ciniki_sapos_shipment.showEdit();
+//					M.ciniki_sapos_shipment.showEdit();
+					var p = M.ciniki_sapos_shipment.edit;
+					p.data.invoice_items = rsp.shipment.invoice_items;
+					p.data.items = rsp.shipment.items;
+					p.refreshSection('invoice_items');
+					p.refreshSection('items');
 				});
 		} else {
 			var c = this.edit.serializeForm('yes');
-			M.api.postJSONCb('ciniki.sapos.shipmentAdd', {'business_id':M.curBusinessID,
+			var old_status = this.edit.formFieldValue(this.edit.sections.details.fields.status, 'status');
+			c += '&status=10';	// Force status
+//			M.api.postJSONCb('ciniki.sapos.shipmentAdd', {'business_id':M.curBusinessID,
+//				'invoice_id':this.edit.invoice_id}, c, function(rsp) {
+//					if( rsp.stat != 'ok' ) {
+//						M.api.err(rsp);
+//						return false;
+//					}
+//					M.ciniki_sapos_shipment.edit.shipment_id = rsp.shipment.id;
+			var c = '&item_id=' + item_id + '&quantity=' + quantity;
+			M.api.postJSONCb('ciniki.sapos.shipmentItemAdd', {'business_id':M.curBusinessID,
 				'invoice_id':this.edit.invoice_id}, c, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
 						return false;
 					}
-					M.ciniki_sapos_shipment.edit.shipment_id = rsp.shipment.id;
-					var c = '&item_id=' + item_id + '&quantity=' + quantity;
-					M.api.postJSONCb('ciniki.sapos.shipmentItemAdd', {'business_id':M.curBusinessID,
-						'shipment_id':rsp.shipment.id}, c, function(rsp) {
-							if( rsp.stat != 'ok' ) {
-								M.api.err(rsp);
-								return false;
-							}
-							M.ciniki_sapos_shipment.showEdit();
-						});
+					var p = M.ciniki_sapos_shipment.edit;
+					p.shipment_id = rsp.shipment.id;
+					p.data = rsp.shipment;
+					p.refreshSection('invoice_items');
+					p.refreshSection('items');
 				});
+//				});
 		}
 	};
 
