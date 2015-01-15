@@ -48,6 +48,7 @@ function ciniki_sapos_hooks_customerInvoices($ciniki, $business_id, $args) {
 		. "ciniki_sapos_invoices.invoice_type, "
 		. "ciniki_customers.display_name AS customer_name, "
 		. "ciniki_sapos_invoices.invoice_number, "
+		. "ciniki_sapos_invoices.po_number, "
 		. "ciniki_sapos_invoices.invoice_date, "
 		. "ciniki_sapos_invoices.status, "
 //		. "ciniki_sapos_invoices.status AS status_text, "
@@ -69,7 +70,7 @@ function ciniki_sapos_hooks_customerInvoices($ciniki, $business_id, $args) {
 		array('container'=>'types', 'fname'=>'invoice_type', 'name'=>'type',
 			'fields'=>array('type'=>'invoice_type')),
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-			'fields'=>array('id', 'customer_name', 'invoice_number', 'invoice_date',
+			'fields'=>array('id', 'customer_name', 'invoice_number', 'po_number', 'invoice_date',
 				'status', 'status_text', 'total_amount'),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
 			'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$php_date_format))), 
