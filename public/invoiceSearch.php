@@ -84,7 +84,6 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 	if( isset($args['customer_id']) && $args['customer_id'] != '' ) {
 		$strsql .= "AND ciniki_sapos_invoices.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
 	}
-	error_log($args['start_needle']);
 	if( is_numeric($args['start_needle']) ) { 
 		$strsql .= "AND (ciniki_sapos_invoices.invoice_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 //			. "OR ciniki_sapos_invoices.invoice_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
@@ -94,9 +93,7 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
 			. ") ";
 	} elseif( preg_match("/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec) /i", $args['start_needle'], $matches) ) {
 		$search_str = str_replace(' ', '%', $args['start_needle']);
-		error_log($search_str);
 		$strsql .= "AND DATE_FORMAT(invoice_date, '%M %d %Y') LIKE '%" . ciniki_core_dbQuote($ciniki, $search_str) . "%' ";
-		error_log("AND DATE_FORMAT(invoice_date, '%M %d %Y') LIKE '%" . ciniki_core_dbQuote($ciniki, $search_str) . "%' ");
 
 	} else {
 		if( isset($args['customer_id']) && $args['customer_id'] != '' ) {
