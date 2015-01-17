@@ -107,7 +107,7 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2154', 'msg'=>'No customer attached to the invoice, we are unable to send the email.'));
 		}
 		if( !isset($invoice['customer']['emails'][0]['email']['address']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2155', 'msg'=>'No customer attached to the invoice, we are unable to send the email.'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2155', 'msg'=>"The customer doesn't have an email address, we are unable to send the email."));
 		}
 
 		if( isset($args['subject']) && isset($args['textmsg']) ) {
