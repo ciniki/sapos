@@ -81,6 +81,10 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'invoice-header-business-website',
 		'invoice-bottom-message',
 		'invoice-footer-message',
+		'invoice-email-message',
+		'cart-email-message',
+		'pos-email-message',
+		'order-email-message',
 		'shipments-default-shipper',
 		'shipments-default-weight-units',
 		'ui-colours-invoice-item-available',
@@ -101,6 +105,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'rules-salesreps-invoice-notes',
 		'quote-bottom-message',
 		'quote-footer-message',
+		'quote-email-message',
 		);
 	//
 	// Check each valid setting and see if a new value was passed in the arguments for it.

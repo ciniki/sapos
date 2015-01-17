@@ -16,7 +16,8 @@ function ciniki_sapos_maps($ciniki) {
 	$maps['invoice'] = array(
 		'invoice_type'=>array(
 			'10'=>'Invoice',
-			'11'=>'Recurring Invoice',
+			'11'=>'Monthly Invoice',
+			'12'=>'Yearly Invoice',
 			'20'=>'Cart',
 			'30'=>'POS',
 			'40'=>'Order',

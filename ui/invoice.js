@@ -150,6 +150,7 @@ function ciniki_sapos_invoice() {
 				'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'printquote':{'label':'Print Quote', 'fn':'M.ciniki_sapos_invoice.printQuote(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'printenv':{'label':'Print Envelope', 'fn':'M.ciniki_sapos_invoice.printEnvelope(M.ciniki_sapos_invoice.invoice.invoice_id);'},
+				'email':{'label':'Email Customer', 'fn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);'},
 				'delete':{'label':'Delete Invoice', 'fn':'M.ciniki_sapos_invoice.deleteInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				}},
 //			'invoice_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
@@ -394,6 +395,31 @@ function ciniki_sapos_invoice() {
 		this.invoice.addButton('next', 'Next');
 		this.invoice.addClose('Back');
 		this.invoice.addLeftButton('prev', 'Prev');
+
+		//
+		// The edit invoice panel
+		//
+		this.email = new M.panel('Email Invoice',
+			'ciniki_sapos_invoice', 'email',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.email');
+		this.email.invoice_id = 0;
+		this.email.data = {};
+		this.email.sections = {
+			'_subject':{'label':'', 'fields':{
+				'subject':{'label':'Subject', 'type':'text', 'history':'no'},
+				}},
+			'_textmsg':{'label':'Message', 'fields':{
+				'textmsg':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large', 'history':'no'},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'send':{'label':'Send', 'fn':'M.ciniki_sapos_invoice.sendEmail();'},
+				}},
+		};
+		this.email.fieldValue = function(s, i, d) {
+			return this.data[i];
+		};
+		this.email.addClose('Cancel');
+
 
 		//
 		// The edit invoice panel
@@ -1349,6 +1375,13 @@ function ciniki_sapos_invoice() {
 		} else {
 			p.sections._buttons.buttons.printquote.visible = 'no';
 		}
+		if( rsp.invoice.customer_id > 0 && rsp.invoice.invoice_type != 11 && rsp.invoice.invoice_type != 12 
+			&& M.curBusiness.modules['ciniki.mail'] != null
+			) {
+			p.sections._buttons.buttons.email.visible = 'yes';
+		} else {
+			p.sections._buttons.buttons.email.visible = 'no';
+		}
 //		p.sections.customer_notes.visible=(rsp.invoice.invoice_notes!='')?'yes':'no';
 //		p.sections.internal_notes.visible=(rsp.invoice.internal_notes!='')?'yes':'no';
 		this.invoice.addButton('next', 'Next');
@@ -1479,6 +1512,52 @@ function ciniki_sapos_invoice() {
 		if( iid <= 0 ) { return false; }
 		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
 			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+	};
+
+	this.emailCustomer = function(cb, invoice) {
+		this.email.invoice_id = invoice.id;
+		this.email.data.subject = 'Invoice #' + invoice.invoice_number;
+		if( M.curBusiness.sapos.settings['invoice-email-message'] != null ) {
+			this.email.data.textmsg = M.curBusiness.sapos.settings['invoice-email-message'];
+		} else {
+			this.email.data.textmsg = 'Please find your invoice attached.';
+		}
+		if( invoice.invoice_type == 20 ) {
+			this.email.data.subject = 'Shopping Cart #' + invoice.invoice_number;
+			if( M.curBusiness.sapos.settings['cart-email-message'] != null ) {
+				this.email.data.textmsg = M.curBusiness.sapos.settings['cart-email-message'];
+			} 
+		} else if( invoice.invoice_type == 30 ) {
+			this.email.data.subject = 'Receipt #' + invoice.invoice_number;
+			if( M.curBusiness.sapos.settings['pos-email-message'] != null ) {
+				this.email.data.textmsg = M.curBusiness.sapos.settings['pos-email-message'];
+			} 
+		} else if( invoice.invoice_type == 40 ) {
+			this.email.data.subject = 'Order #' + invoice.invoice_number;
+			if( M.curBusiness.sapos.settings['order-email-message'] != null ) {
+				this.email.data.textmsg = M.curBusiness.sapos.settings['order-email-message'];
+			} 
+		} else if( invoice.invoice_type == 90 ) {
+			this.email.data.subject = 'Quote #' + invoice.invoice_number;
+			if( M.curBusiness.sapos.settings['quote-email-message'] != null ) {
+				this.email.data.textmsg = M.curBusiness.sapos.settings['quote-email-message'];
+			} 
+		}
+		this.email.refresh();
+		this.email.show(cb);
+	};
+
+	this.sendEmail = function() {
+		var subject = this.email.formFieldValue(this.email.sections._subject.fields.subject, 'subject');
+		var textmsg = this.email.formFieldValue(this.email.sections._textmsg.fields.textmsg, 'textmsg');
+		M.api.getJSONCb('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 
+			'invoice_id':this.email.invoice_id, 'subject':subject, 'textmsg':textmsg, 'output':'pdf', 'email':'yes'}, function(rsp) {
+				if( rsp.stat != 'ok' ) {
+					M.api.err(rsp);
+					return false;
+				}
+				M.ciniki_sapos_invoice.email.close();
+			});
 	};
 
 	this.printQuote = function(iid) {
