@@ -12,7 +12,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_uiSettings($ciniki, $modules, $business_id) {
+function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
 
 	$settings = array();
 
