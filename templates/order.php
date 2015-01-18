@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_templates_order(&$ciniki, $business_id, $invoice_id, $business_details, $sapos_settings) {
+function ciniki_sapos_templates_order(&$ciniki, $business_id, $invoice_id, $business_details, $sapos_settings, $output='download') {
 	//
 	// Get the invoice record
 	//
@@ -641,8 +641,12 @@ function ciniki_sapos_templates_order(&$ciniki, $business_id, $invoice_id, $busi
 
 	// ---------------------------------------------------------
 
-	//Close and output PDF document
-	$pdf->Output('invoice_' . $invoice['invoice_number'] . '.pdf', 'D');
+	if( $output == 'email' ) {
+		return array('stat'=>'ok', 'filename'=>'invoice_' . $invoice['invoice_number'] . '.pdf', 'pdf'=>$pdf, 'invoice'=>$invoice);
+	} else {
+		//Close and output PDF document
+		$pdf->Output('invoice_' . $invoice['invoice_number'] . '.pdf', 'D');
+	}
 
 	return array('stat'=>'exit');
 }
