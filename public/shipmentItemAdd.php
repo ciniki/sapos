@@ -53,6 +53,21 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 	}
 
 	//
+	// Start transaction
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentUpdateStatus');
+	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.sapos');
+	if( $rc['stat'] != 'ok' ) { 
+		return $rc;
+	}   
+
+	//
 	// If shipment does not exist, then add it
 	//
 	if( !isset($args['shipment_id']) || $args['shipment_id'] == '0' ) {
@@ -152,21 +167,6 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
 	}
 
 	//
-	// Start transaction
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentUpdateStatus');
-	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.sapos');
-	if( $rc['stat'] != 'ok' ) { 
-		return $rc;
-	}   
-
-	//
 	// Check for a callback to the object
 	//
 	if( $invoice_item['object'] != '' && $invoice_item['object_id'] != '' ) {
@@ -251,6 +251,8 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
+
+	error_log(print_r($rc['shipment']['invoice_items'], true));
 
 	return array('stat'=>'ok', 'id'=>$item_id, 'shipment'=>$rc['shipment']);
 }

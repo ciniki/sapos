@@ -462,9 +462,19 @@ function ciniki_sapos_shipment() {
 						M.api.err(rsp);
 						return false;
 					}
+					console.log(rsp);
 //					M.ciniki_sapos_shipment.showEdit();
 					var p = M.ciniki_sapos_shipment.edit;
-					p.data.invoice_items = rsp.shipment.invoice_items;
+					p.setFieldValue('status', rsp.shipment.status);
+					p.data.status = rsp.shipment.status;
+					p.data.invoice_items = [];
+					if( rsp.shipment.invoice_items != null ) {
+						for(i in rsp.shipment.invoice_items) {
+							if( rsp.shipment.invoice_items[i].item.shipped_quantity < rsp.shipment.invoice_items[i].item.quantity ) {
+								p.data.invoice_items.push(rsp.shipment.invoice_items[i]);
+							}
+						}
+					}
 					p.data.items = rsp.shipment.items;
 					p.refreshSection('invoice_items');
 					p.refreshSection('items');
@@ -488,10 +498,21 @@ function ciniki_sapos_shipment() {
 						return false;
 					}
 					var p = M.ciniki_sapos_shipment.edit;
+					p.sections._buttons.buttons.print.visible = 'yes';
 					p.shipment_id = rsp.shipment.id;
 					p.data = rsp.shipment;
+					invoice_items = rsp.shipment.invoice_items;
+					p.data.invoice_items = [];
+					if( invoice_items != null ) {
+						for(i in invoice_items) {
+							if( invoice_items[i].item.shipped_quantity < invoice_items[i].item.quantity ) {
+								p.data.invoice_items.push(invoice_items[i]);
+							}
+						}
+					}
 					p.refreshSection('invoice_items');
 					p.refreshSection('items');
+					p.refreshSection('_buttons');
 				});
 //				});
 		}
