@@ -164,6 +164,6 @@ function ciniki_sapos_expenses() {
 		if( this.expenses.year != null ) { args.year = this.expenses.year; }
 		if( this.expenses.month != null ) { args.month = this.expenses.month; }
 //		window.open(M.api.getUploadURL('ciniki.sapos.expenseGrid', args));
-		M.api.openPDF('ciniki.sapos.expenseGrid', args);
+		M.api.openFile('ciniki.sapos.expenseGrid', args);
 	};
 }
