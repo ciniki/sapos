@@ -286,6 +286,6 @@ function ciniki_sapos_invoices() {
 		if( this.invoices.year != null ) { args.year = this.invoices.year; }
 		if( this.invoices.month != null ) { args.month = this.invoices.month; }
 		if( this.invoices.payment_status != null ) { args.payment_status = this.invoices.payment_status; }
-		window.open(M.api.getUploadURL('ciniki.sapos.invoiceList', args));
+		M.api.openFile('ciniki.sapos.invoiceList', args);
 	};
 }

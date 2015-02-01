@@ -133,7 +133,7 @@ function ciniki_sapos_mileages() {
 		var args = {'business_id':M.curBusinessID, 'output':'excel'};
 		if( this.mileages.year != null ) { args.year = this.mileages.year; }
 		if( this.mileages.month != null ) { args.month = this.mileages.month; }
-		// window.open(M.api.getUploadURL('ciniki.sapos.mileageList', args));
+//		window.open(M.api.getUploadURL('ciniki.sapos.mileageList', args));
 		M.api.openFile('ciniki.sapos.mileageList', args);
 	};
 }
