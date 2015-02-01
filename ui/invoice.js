@@ -1510,8 +1510,9 @@ function ciniki_sapos_invoice() {
 
 	this.printInvoice = function(iid) {
 		if( iid <= 0 ) { return false; }
-		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
-			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+//		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
+//			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+		M.api.openPDF('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 'invoice_id':iid});
 	};
 
 	this.emailCustomer = function(cb, invoice) {
@@ -1562,20 +1563,25 @@ function ciniki_sapos_invoice() {
 
 	this.printQuote = function(iid) {
 		if( iid <= 0 ) { return false; }
-		window.open(M.api.getUploadURL('ciniki.sapos.quotePDF',
-			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+//		window.open(M.api.getUploadURL('ciniki.sapos.quotePDF',
+//			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+		M.api.openPDF('ciniki.sapos.quotePDF', {'business_id':M.curBusinessID, 'invoice_id':iid});
 	};
 
 	this.printPickList = function(iid) {
 		if( iid <= 0 ) { return false; }
-		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
-			{'business_id':M.curBusinessID, 'invoice_id':iid, 'type':'picklist'}));
+//		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
+//			{'business_id':M.curBusinessID, 'invoice_id':iid, 'type':'picklist'}));
+		M.api.openPDF('ciniki.sapos.invoicePDF',
+			{'business_id':M.curBusinessID, 'invoice_id':iid, 'type':'picklist'});
 	};
 
 	this.printEnvelope = function(iid) {
 		if( iid <= 0 ) { return false; }
-		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDFEnv',
-			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+//		window.open(M.api.getUploadURL('ciniki.sapos.invoicePDFEnv',
+//			{'business_id':M.curBusinessID, 'invoice_id':iid}));
+		M.api.openPDF('ciniki.sapos.invoicePDFEnv',
+			{'business_id':M.curBusinessID, 'invoice_id':iid});
 	};
 
 	this.submitOrder = function(iid) {

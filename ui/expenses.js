@@ -163,6 +163,7 @@ function ciniki_sapos_expenses() {
 		var args = {'business_id':M.curBusinessID, 'output':'excel'};
 		if( this.expenses.year != null ) { args.year = this.expenses.year; }
 		if( this.expenses.month != null ) { args.month = this.expenses.month; }
-		window.open(M.api.getUploadURL('ciniki.sapos.expenseGrid', args));
+//		window.open(M.api.getUploadURL('ciniki.sapos.expenseGrid', args));
+		M.api.openPDF('ciniki.sapos.expenseGrid', args);
 	};
 }

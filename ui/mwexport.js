@@ -136,7 +136,8 @@ function ciniki_sapos_mwexport() {
 			};
 		if( format != null ) {
 			args['output'] = format;
-			window.open(M.api.getUploadURL('ciniki.sapos.reportMWExport', args));
+//			window.open(M.api.getUploadURL('ciniki.sapos.reportMWExport', args));
+			M.api.openFile('ciniki.sapos.reportMWExport', args);
 			delete(args['output']);
 		} else {
 			M.api.getJSONCb('ciniki.sapos.reportMWExport', args, function(rsp) {

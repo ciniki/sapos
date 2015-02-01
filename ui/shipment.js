@@ -543,12 +543,16 @@ function ciniki_sapos_shipment() {
 							return false;
 						}
 						M.ciniki_sapos_shipment.showEdit();
-						window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
-							{'business_id':M.curBusinessID, 'shipment_id':sid}));
+//						window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
+//							{'business_id':M.curBusinessID, 'shipment_id':sid}));
+						window.open(M.api.openPDF('ciniki.sapos.packingSlipPDF',
+							{'business_id':M.curBusinessID, 'shipment_id':sid});
 					});	
 			} else {
-				window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
-					{'business_id':M.curBusinessID, 'shipment_id':sid}));
+//				window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
+//					{'business_id':M.curBusinessID, 'shipment_id':sid}));
+				M.api.openPDF('ciniki.sapos.packingSlipPDF',
+					{'business_id':M.curBusinessID, 'shipment_id':sid});
 			}
 		}
 	};

@@ -509,6 +509,7 @@ function ciniki_sapos_orders() {
 		if( this.orders.year != null ) { args.year = this.orders.year; }
 		if( this.orders.month != null ) { args.month = this.orders.month; }
 		if( this.orders.order_status != null ) { args.status = this.orders.status; }
-		window.open(M.api.getUploadURL('ciniki.sapos.invoiceList', args));
+//		window.open(M.api.getUploadURL('ciniki.sapos.invoiceList', args));
+		M.api.openFile('ciniki.sapos.invoiceList', args);
 	};
 }
