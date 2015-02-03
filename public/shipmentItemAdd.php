@@ -252,8 +252,6 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
         return $rc;
     }
 
-	error_log(print_r($rc['shipment']['invoice_items'], true));
-
 	return array('stat'=>'ok', 'id'=>$item_id, 'shipment'=>$rc['shipment']);
 }
 ?>
