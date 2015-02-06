@@ -62,6 +62,7 @@ function ciniki_sapos_backorderedItems(&$ciniki) {
 		. "ciniki_sapos_invoice_items.description, "
 		. "ciniki_sapos_invoice_items.object, "
 		. "ciniki_sapos_invoice_items.object_id, "
+		. "ciniki_sapos_invoice_items.flags, "
 		. "SUM(ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) AS reserved_quantity "
 		. "FROM ciniki_sapos_invoice_items, ciniki_sapos_invoices "
 		. "WHERE ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -69,7 +70,9 @@ function ciniki_sapos_backorderedItems(&$ciniki) {
 //		. "AND (ciniki_sapos_invoice_items.flags&0x0300) = 0x0300 " // backordered item
 		. "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "
 		. "AND ciniki_sapos_invoice_items.invoice_id = ciniki_sapos_invoices.id "
+		. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND ciniki_sapos_invoices.status < 50 "
+		. "GROUP BY code, object, object_id "
 		. "ORDER BY ciniki_sapos_invoice_items.code, "
 			. "ciniki_sapos_invoice_items.object, ciniki_sapos_invoice_items.object_id "
 		. "";
@@ -86,9 +89,9 @@ function ciniki_sapos_backorderedItems(&$ciniki) {
 	}
 	$items = $rc['items'];
 
-	$object_ids = array();
+	$objects = array();
 	foreach($items as $iid => $item) {
-		if( !isset($object_ids[$item['item']['object']]) ) {
+		if( !isset($objects[$item['item']['object']]) ) {
 			$objects[$item['item']['object']] = array();
 		}
 		$objects[$item['item']['object']][] = $item['item']['object_id'];
@@ -112,22 +115,23 @@ function ciniki_sapos_backorderedItems(&$ciniki) {
 			$objects[$object]['quantities'] = $rc['quantities'];
 		}
 	}
+
+	$rsp = array('stat'=>'ok', 'items'=>array());
 	foreach($items as $iid => $item) {
+		$item['item']['reserved_quantity'] = (float)$item['item']['reserved_quantity'];
 		if( isset($objects[$item['item']['object']]['quantities'][$item['item']['object_id']]['inventory_quantity']) ) {
-			$items[$iid]['item']['inventory_current_num'] = (float)$objects[$item['item']['object']]['quantities'][$item['item']['object_id']]['inventory_quantity'];
-			$items[$iid]['item']['backordered_quantity'] = $items[$iid]['item']['reserved_quantity'] - $items[$iid]['item']['inventory_current_num'];
-			if( $items[$iid]['item']['backordered_quantity'] <= 0 ) {
-				$items[$iid]['item']['backordered_quantity'] = '';
+			$item['item']['inventory_current_num'] = (float)$objects[$item['item']['object']]['quantities'][$item['item']['object_id']]['inventory_quantity'];
+			$item['item']['backordered_quantity'] = $item['item']['reserved_quantity'] - $item['item']['inventory_current_num'];
+			if( $item['item']['backordered_quantity'] > 0 ) {
+				$rsp['items'][] = $item;
 			}
-		} else {
-			$items[$iid]['item']['inventory_current_num'] = '';
-			$items[$iid]['item']['backordered_quantity'] = '';
+		} elseif( ($item['item']['flags']&0x0300) > 0 ) {
+			$item['item']['inventory_current_num'] = '';
+			$item['item']['backordered_quantity'] = '';
+			$rsp['items'][] = $item;
 		}
-		$items[$iid]['item']['reserved_quantity'] = (float)$items[$iid]['item']['reserved_quantity'];
 	}
 
-	$rsp['items'] = $items;
-	
 	//
 	// Check if output should be excel
 	//
