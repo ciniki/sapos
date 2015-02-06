@@ -300,14 +300,15 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		$invoice['items'] = array();
 	} else {
 		$invoice['items'] = $rc['items'];
-		$object_ids = array();
+//		$object_ids = array();
 		foreach($invoice['items'] as $iid => $item) {
 			if( $invoice['shipping_status'] > 0 ) {
 				// Build array of items by id to use in setting up shipment item descriptions below
 				$invoice_items[$item['item']['id']] = $item['item'];
 				if( $item['item']['object'] != '' ) {
 					if( !isset($object_ids[$item['item']['object']]) ) {
-						$object_ids[$item['item']['object']] = array();
+//						$object_ids[$item['item']['object']] = array();
+						$objects[$item['item']['object']] = array();
 					}
 					$objects[$item['item']['object']][] = $item['item']['object_id'];
 				}

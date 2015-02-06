@@ -76,6 +76,7 @@ function ciniki_sapos_shipment() {
 				'invoice_po_number':{'label':'PO #', 'visible':'no'},
 				'customer_name':{'label':'Customer'},
 				'shipping_address':{'label':'Ship To', 'visible':'no'},
+				'submitted_by':{'label':'Submitted By', 'visible':'no'},
 				}},
 			'info':{'label':'', 'aside':'yes', 'active':'no', 'list':{
 				'shipment_number':{'label':'Number'},
@@ -334,6 +335,13 @@ function ciniki_sapos_shipment() {
 					}
 					if( rsp.shipment.shipping_address != null && rsp.shipment.shipping_address != '' ) {
 						p.sections.invoice.list.shipping_address.visible = 'yes';
+					} else {
+						p.sections.invoice.list.shipping_address.visible = 'no';
+					}
+					if( rsp.shipment.submitted_by != null && rsp.shipment.submitted_by != '' ) {
+						p.sections.invoice.list.submitted_by.visible = 'yes';
+					} else {
+						p.sections.invoice.list.submitted_by.visible = 'no';
 					}
 					p.invoice_id = rsp.shipment.invoice_id;
 					p.leftbuttons = {};

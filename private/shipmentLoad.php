@@ -129,6 +129,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_invoices.shipping_postal, "
 		. "ciniki_sapos_invoices.shipping_country, "
 		. "ciniki_sapos_invoices.shipping_phone, "
+		. "ciniki_sapos_invoices.submitted_by, "
 		. "ciniki_customers.display_name "
 		. "FROM ciniki_sapos_invoices "
 		. "LEFT JOIN ciniki_customers ON ("
@@ -140,7 +141,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "";
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 		array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-			'fields'=>array('id', 'invoice_number', 'po_number',
+			'fields'=>array('id', 'invoice_number', 'submitted_by', 'po_number',
 				'status', 'status_text', 'customer_name'=>'display_name', 'customer_notes',
 				'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city',
 				'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_phone'),
@@ -152,6 +153,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 	if( isset($rc['invoices'][0]['invoice']) ) {
 		$invoice = $rc['invoices'][0]['invoice'];
 		$shipment['invoice_number'] = $invoice['invoice_number'];
+		$shipment['submitted_by'] = $invoice['submitted_by'];
 		$shipment['invoice_po_number'] = $invoice['po_number'];
 		$shipment['invoice_status_text'] = $invoice['status_text'];
 		if( isset($invoice['customer_name']) ) {

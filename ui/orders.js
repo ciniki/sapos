@@ -33,6 +33,7 @@ function ciniki_sapos_orders() {
 			'reports':{'label':'', 'aside':'yes', 'list':{
 				'smartborder':{'label':'Smart Border', 'fn':'M.startApp(\'ciniki.sapos.smartborder\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
 				'mwexport':{'label':'Moneyworks Export', 'fn':'M.startApp(\'ciniki.sapos.mwexport\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
+				'backordereditems':{'label':'Backordered Items', 'fn':'M.startApp(\'ciniki.sapos.backordereditems\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
 				'more':{'label':'All Orders', 'fn':'M.ciniki_sapos_orders.showOrders(\'M.ciniki_sapos_orders.showMenu();\');'},
 				}},
 			'order_search':{'label':'', 'hidelabel':'yes', 'type':'livesearchgrid', 'livesearchcols':4, 

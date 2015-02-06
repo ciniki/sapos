@@ -446,10 +446,10 @@ function ciniki_sapos_invoice() {
 				'pricepoint_id':{'label':'Pricepoint', 'active':'no', 'type':'select', 'options':{}},
 				}},
 			'_customer_notes':{'label':'Customer Notes', 'aside':'yes', 'fields':{
-				'customer_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
+				'customer_notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
 				}},
 			'_internal_notes':{'label':'Internal Notes', 'aside':'yes', 'fields':{
-				'internal_notes':{'label':'', 'hidelabel':'', 'type':'textarea', 'size':'small'},
+				'internal_notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
 				}},
 			'shipping':{'label':'Shipping Address', 'active':'no', 'fields':{
 				'shipping_name':{'label':'Name', 'type':'text'},
