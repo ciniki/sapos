@@ -58,15 +58,15 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 			if( isset($customer['pricepoint_id']) && (!isset($args['pricepoint_id']) || $args['pricepoint_id'] == 0 || $args['pricepoint_id'] == '') ) {
 				$args['pricepoint_id'] = $customer['pricepoint_id'];
 			}
-			if( $args['billing_name'] == '' ) {
+			if( !isset($args['billing_name']) || $args['billing_name'] == '' ) {
 				$args['billing_name'] = $customer['display_name'];
 			}
-			if( $args['shipping_name'] == '' ) {
+			if( !isset($args['shipping_name']) || $args['shipping_name'] == '' ) {
 				$args['shipping_name'] = $customer['display_name'];
 			}
 			if( isset($customer['addresses']) ) {
 				foreach($customer['addresses'] as $aid => $address) {
-					if( ($address['flags']&0x01) == 0x01 && $args['shipping_address1'] == '' ) {
+					if( ($address['flags']&0x01) == 0x01 && (!isset($args['shipping_address1']) || $args['shipping_address1'] == '') ) {
 						$args['shipping_address1'] = $address['address1'];
 						$args['shipping_address2'] = $address['address2'];
 						$args['shipping_city'] = $address['city'];
@@ -75,7 +75,7 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 						$args['shipping_country'] = $address['country'];
 						$args['shipping_phone'] = $address['phone'];
 					}
-					if( ($address['flags']&0x02) == 0x02 && $args['billing_address1'] == '' ) {
+					if( ($address['flags']&0x02) == 0x02 && (!isset($args['billing_address1']) || $args['billing_address1'] == '') ) {
 						$args['billing_address1'] = $address['address1'];
 						$args['billing_address2'] = $address['address2'];
 						$args['billing_city'] = $address['city'];
