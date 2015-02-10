@@ -72,7 +72,7 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
 	//
 	// Check if the inventory should be added
 	//
-	if( isset($args['inventory']) && $args['inventory'] == 'yes' ) {
+/*	if( isset($args['inventory']) && $args['inventory'] == 'yes' ) {
 		$objects = array();
 		foreach($invoice['items'] as $iid => $item) {
 			$item = $item['item'];
@@ -110,7 +110,7 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
 			}
 		}
 	}
-
+*/
 	$rsp = array('stat'=>'ok', 'invoice'=>$invoice);
 
 	//
