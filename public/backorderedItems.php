@@ -107,7 +107,7 @@ function ciniki_sapos_backorderedItems(&$ciniki) {
 				'object_ids'=>$object_ids,
 				));
 			if( $rc['stat'] != 'ok' ) {
-				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1993', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+				return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2237', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
 			}
 			//
 			// Update the inventory levels for the invoice items
