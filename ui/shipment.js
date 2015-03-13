@@ -470,7 +470,6 @@ function ciniki_sapos_shipment() {
 						M.api.err(rsp);
 						return false;
 					}
-					console.log(rsp);
 //					M.ciniki_sapos_shipment.showEdit();
 					var p = M.ciniki_sapos_shipment.edit;
 					p.setFieldValue('status', rsp.shipment.status);
