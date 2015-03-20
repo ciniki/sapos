@@ -33,11 +33,11 @@ function ciniki_sapos_mwexport() {
 //				'downloadtab':{'label':'Download Tab Delimited', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'tab\');'},
 				'downloadexcel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_mwexport.showShipments(null,null,\'excel\');'},
 				}},
-			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':28,
+			'items':{'label':'Shipment Items', 'type':'simplegrid', 'num_cols':29,
 				'headerValues':['INV #', 'PO #', 'Ship #', 'Order Date', 'Ship Date', 'Invoice Status', 
 					'ID', 'Customer', 'Reward', 'Rep', 
 					'Shipper', 'Tracking #', 'Freight Amount', '# Boxes', '# Pieces', 'Weight',
-					'Code', 'Description', 'Ordered', 'Shipment', 'B/O', 'Shipped',
+					'Code', 'Description', 'Notes', 'Ordered', 'Shipment', 'B/O', 'Shipped',
 					'Price Code', 'Unit Amount', 'Total', 'Tax Code', 'Invoice Total', 'Shipment Total'],
 				'sortable':'yes',
 //				'sortTypes':['number','number','date','date','text','text','text','number'],
@@ -77,16 +77,17 @@ function ciniki_sapos_mwexport() {
 				case 15: return d.item.weight;
 				case 16: return d.item.code;
 				case 17: return d.item.description;
-				case 18: return d.item.ordered_quantity;
-				case 19: return d.item.shipment_quantity;
-				case 20: return (d.item.ordered_quantity-d.item.shipped_quantity);
-				case 21: return d.item.shipped_quantity;
-				case 22: return d.item.pricepoint_code;
-				case 23: return d.item.unit_amount_display;
-				case 24: return d.item.total_amount_display;
-				case 25: return d.item.tax_location_code;
-				case 26: return d.item.invoice_total_amount_display;
-				case 27: return d.item.shipment_total_amount_display;
+				case 18: return d.item.notes;
+				case 19: return d.item.ordered_quantity;
+				case 20: return d.item.shipment_quantity;
+				case 21: return (d.item.ordered_quantity-d.item.shipped_quantity);
+				case 22: return d.item.shipped_quantity;
+				case 23: return d.item.pricepoint_code;
+				case 24: return d.item.unit_amount_display;
+				case 25: return d.item.total_amount_display;
+				case 26: return d.item.tax_location_code;
+				case 27: return d.item.invoice_total_amount_display;
+				case 28: return d.item.shipment_total_amount_display;
 			}
 		};
 		this.shipments.rowFn = function(s, i, d) {

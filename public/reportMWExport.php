@@ -207,6 +207,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		. "ciniki_sapos_shipment_items.quantity, "
 		. "ciniki_sapos_invoice_items.code, "
 		. "ciniki_sapos_invoice_items.description, "
+		. "ciniki_sapos_invoice_items.notes, "
 		. "ciniki_sapos_invoice_items.quantity AS ordered_quantity, "
 		. "ciniki_sapos_invoice_items.shipped_quantity, "
 		. "ciniki_sapos_invoice_items.unit_amount, "
@@ -261,7 +262,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 				'salesrep_id', 'customer_notes', 'internal_notes', 
 				'shipping_company', 'tracking_number', 'td_number', 'freight_amount', 
 				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'invoice_date', 'ship_date',
-				'item_id', 'code', 'description', 'shipment_quantity'=>'quantity', 
+				'item_id', 'code', 'description', 'notes', 'shipment_quantity'=>'quantity', 
 				'ordered_quantity', 'shipped_quantity',
 				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
 				'tax_location_id', 'pricepoint_id', 'taxtype_id'
@@ -403,6 +404,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Weight', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Description', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Notes', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Ordered', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Backordered', false);
@@ -449,6 +451,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['weight'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['description'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['notes'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['ordered_quantity'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_quantity'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, ($item['ordered_quantity']-$item['shipped_quantity']), false);
@@ -506,6 +509,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->getColumnDimension('AH')->setAutoSize(true);
 		$sheet->getColumnDimension('AI')->setAutoSize(true);
 		$sheet->getColumnDimension('AJ')->setAutoSize(true);
+		$sheet->getColumnDimension('AK')->setAutoSize(true);
 
 		//
 		// Output the excel
