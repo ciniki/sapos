@@ -6,7 +6,7 @@ function ciniki_sapos_orders() {
 		//
 		this.menu = new M.panel('Orders',
 			'ciniki_sapos_orders', 'menu',
-			'mc', 'medium mediumaside', 'sectioned', 'ciniki.sapos.main.menu');
+			'mc', 'medium narrowaside', 'sectioned', 'ciniki.sapos.main.menu');
 		this.menu.data = {};
 		this.menu.sections = {
 			'orders':{'label':'', 'aside':'yes', 'list':{
@@ -34,6 +34,7 @@ function ciniki_sapos_orders() {
 				'smartborder':{'label':'Smart Border', 'fn':'M.startApp(\'ciniki.sapos.smartborder\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
 				'mwexport':{'label':'Moneyworks Export', 'fn':'M.startApp(\'ciniki.sapos.mwexport\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
 				'backordereditems':{'label':'Backordered Items', 'fn':'M.startApp(\'ciniki.sapos.backordereditems\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
+				'customerbackorders':{'label':'Customer Backorders', 'fn':'M.startApp(\'ciniki.sapos.customerbackorders\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
 				'more':{'label':'All Orders', 'fn':'M.ciniki_sapos_orders.showOrders(\'M.ciniki_sapos_orders.showMenu();\');'},
 				}},
 			'order_search':{'label':'', 'hidelabel':'yes', 'type':'livesearchgrid', 'livesearchcols':4, 
