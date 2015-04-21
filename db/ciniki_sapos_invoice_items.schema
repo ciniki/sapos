@@ -26,7 +26,7 @@
 #					0x01 - Manufactured Item
 #					0x02 - Inventoried Item
 #					0x04 - Backorder Available
-#					0x08 - 
+#					0x08 - No quantity (disable the quantity field, must always be 1)
 #					0x10 - Downloaded Item
 #					0x20 - Registration Item
 #					0x40 - Shipped Item

@@ -590,17 +590,24 @@ function ciniki_sapos_invoice() {
 				&& this.sections[s].fields[f].livesearchcols-j == 1 ) {
 				return 'multiline';
 			}
+			return 'multiline';
 		};
 		this.item.liveSearchResultValue = function(s,f,i,j,d) {
 			if( j == 0 ) {
+				var mt = d.item.description;
 				if( (f == 'code' || f == 'description') && d.item != null ) { 
 					if( d.item.code != null && d.item.code != '' ) {
-						return d.item.code + ' - ' + d.item.description;
+						mt = d.item.code + ' - ' + d.item.description;
 					}
-					return d.item.description; 
 				}
+				if( d.item.notes != '' ) {
+					return '<span class="maintext">' + mt + '</span><span class="subtext">' + d.item.notes + '</span>';
+				}
+				return mt;
 			}
 			if( j == 1 && this.sections[s].fields[f].livesearchcols == 3 ) {
+				if( d.item.available_display != null && d.item.available_display != '' ) { return d.item.available_display; }
+				if( d.item.registrations_available != null ) { return d.item.registrations_available; }
 				if( d.item.inventory_available != null ) { return d.item.inventory_available; }
 			}
 			if( this.sections[s].fields[f].livesearchcols-j == 1 ) {
@@ -619,11 +626,11 @@ function ciniki_sapos_invoice() {
 		};
 		this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
 			if( (f == 'code' || f == 'description') && d.item != null ) {
-				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\');';
+				return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\',\'' + escape(d.item.notes) + '\');';
 			}
 		};
 
-		this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, t, pid) {
+		this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, t, pid, n) {
 			this.object = o;
 			this.object_id = oid;
 			if( this.sections.details.fields.code.active == 'yes' ) {
@@ -641,6 +648,7 @@ function ciniki_sapos_invoice() {
 				this.setFieldValue('taxtype_id', t);
 			}
 			this.price_id = pid;
+			this.setFieldValue('notes', unescape(n));
 			this.removeLiveSearch(s, fid);
 		};
 		this.item.fieldValue = function(s, i, d) {
@@ -842,9 +850,13 @@ function ciniki_sapos_invoice() {
 			this.item.sections.details.fields.taxtype_id.active = 'no';
 			this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
 		}
-
-		if( M.curBusiness.modules['ciniki.products'] != null 
-			&& (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0 ) {
+		
+		//
+		// If products or first aid, show available field
+		//
+		if( (M.curBusiness.modules['ciniki.products'] != null && (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0)
+			|| (M.curBusiness.modules['ciniki.fatt'] != null && (M.curBusiness.modules['ciniki.fatt'].flags&0x01) > 0)
+			) {
 			this.item.sections.details.fields.code.livesearchcols=3;
 			this.item.sections.details.fields.code.headerValues = ['Item', 'Available', 'Price'];
 			this.item.sections.details.fields.description.livesearchcols=3;
