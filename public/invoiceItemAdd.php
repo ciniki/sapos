@@ -86,23 +86,6 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	}
 
 	//
-	// Calculate the final amount for each item in the invoice
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
-	$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
-		'quantity'=>$args['quantity'],
-		'unit_amount'=>$args['unit_amount'],
-		'unit_discount_amount'=>$args['unit_discount_amount'],
-		'unit_discount_percentage'=>$args['unit_discount_percentage'],
-		));
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$args['subtotal_amount'] = $rc['subtotal'];
-	$args['discount_amount'] = $rc['discount'];
-	$args['total_amount'] = $rc['total'];
-
-	//
 	// Get the max line_number for this invoice
 	//
 	if( !isset($args['line_number']) || $args['line_number'] == '' || $args['line_number'] == 0 ) {
@@ -149,6 +132,53 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	}
 
 	//
+	// Get any information available on the object, required to decide if should be split to 1 per line
+	//
+	$num_lines = 1;
+	if( $args['object'] != '' && $args['object_id'] != '' ) {
+		list($pkg,$mod,$obj) = explode('.', $args['object']);
+		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
+		if( $rc['stat'] == 'ok' ) {
+			$fn = $rc['function_call'];
+			$rc = $fn($ciniki, $args['business_id'], $args);
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+			if( isset($rc['item']) ) {
+				// 
+				// Check if the item must only be one per line
+				//
+				if( ($rc['item']['flags']&0x08) > 0 ) {
+					// Each line must only contain one item
+					$num_lines = $args['quantity'];
+					$args['quantity'] = 1;		
+					// Force each on it's own invoice line
+					$existing_id = 0; 			
+					$args['flags'] |= $rc['item']['flags'];
+				}
+			}
+		}
+	}
+
+	//
+	// Calculate the final amount for each item in the invoice
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+	$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
+		'quantity'=>$args['quantity'],
+		'unit_amount'=>$args['unit_amount'],
+		'unit_discount_amount'=>$args['unit_discount_amount'],
+		'unit_discount_percentage'=>$args['unit_discount_percentage'],
+		));
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$args['subtotal_amount'] = $rc['subtotal'];
+	$args['discount_amount'] = $rc['discount'];
+	$args['total_amount'] = $rc['total'];
+
+
+	//
 	// Start transaction
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
@@ -162,99 +192,103 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 		return $rc;
 	}   
 
-	if( $existing_id == 0 ) {
-		//
-		// Add the item
-		//
-		$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $args, 0x04);
-		if( $rc['stat'] != 'ok' ) {
-			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-			return $rc;
-		}
-		$item_id = $rc['id'];
+	$item_id = 0;
+	for($line_num = 1; $line_num<=$num_lines; $line_num++) {
+		if( $existing_id == 0 ) {
+			//
+			// Add the item
+			//
+			$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $args, 0x04);
+			if( $rc['stat'] != 'ok' ) {
+				ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+				return $rc;
+			}
+			$item_id = $rc['id'];
 
-		//
-		// Check for a callback to the object
-		//
-		if( $args['object'] != '' && $args['object_id'] != '' ) {
-			list($pkg,$mod,$obj) = explode('.', $args['object']);
-			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemAdd');
-			if( $rc['stat'] == 'ok' ) {
-				$fn = $rc['function_call'];
-				$rc = $fn($ciniki, $args['business_id'], $args['invoice_id'], $args);
-				if( $rc['stat'] != 'ok' ) {
-					return $rc;
+			//
+			// Check for a callback to the object
+			//
+			if( $args['object'] != '' && $args['object_id'] != '' ) {
+				list($pkg,$mod,$obj) = explode('.', $args['object']);
+				$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemAdd');
+				if( $rc['stat'] == 'ok' ) {
+					$fn = $rc['function_call'];
+					$rc = $fn($ciniki, $args['business_id'], $args['invoice_id'], $args);
+					if( $rc['stat'] != 'ok' ) {
+						return $rc;
+					}
+					// Update the invoice item with the new object and object_id
+					if( (isset($rc['object']) && $rc['object'] != $args['object'])
+						|| (isset($rc['flags']) && $rc['flags'] != $args['flags'])
+						) {
+						$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
+							$item_id, $rc, 0x04);
+						if( $rc['stat'] != 'ok' ) {
+							return $rc;
+						}
+					}
 				}
-				// Update the invoice item with the new object and object_id
-				if( (isset($rc['object']) && $rc['object'] != $args['object'])
-					|| (isset($rc['flags']) && $rc['flags'] != $args['flags'])
-					) {
-					$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
-						$item_id, $rc, 0x04);
+			}
+		} else {
+			//
+			// If item object already exists in invoice, then add
+			//
+
+			//
+			// Calculate the final amount for the item in the invoice
+			//
+			$item['old_quantity'] = $item['quantity'];
+			$new_args = array('quantity'=>($item['quantity'] + $args['quantity']));
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+			$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
+				'quantity'=>$new_args['quantity'],
+				'unit_amount'=>(isset($args['unit_amount'])?$args['unit_amount']:$item['unit_amount']),
+				'unit_discount_amount'=>(isset($args['unit_discount_amount'])?$args['unit_discount_amount']:$item['unit_discount_amount']),
+				'unit_discount_percentage'=>(isset($args['unit_discount_percentage'])?$args['unit_discount_percentage']:$item['unit_discount_percentage']),
+				));
+			if( $rc['stat'] != 'ok' ) {
+				return $rc;
+			}
+			$new_args['subtotal_amount'] = $rc['subtotal'];
+			$new_args['discount_amount'] = $rc['discount'];
+			$new_args['total_amount'] = $rc['total'];
+
+			//
+			// Update the item
+			//
+			ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+			$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
+				$item['id'], $new_args, 0x04);
+			if( $rc['stat'] != 'ok' ) {
+				ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+				return $rc;
+			}
+			
+			//
+			// Update the item values for callbacks
+			//
+			if( isset($args['quantity']) && $args['quantity'] != $item['quantity'] ) {
+				$item['old_quantity'] = $item['quantity'];
+				$item['quantity'] = $args['quantity'];
+			}
+
+			//
+			// Check for a callback to the object
+			//
+			if( $item['object'] != '' && $item['object_id'] != '' ) {
+				list($pkg,$mod,$obj) = explode('.', $item['object']);
+				$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemUpdate');
+				if( $rc['stat'] == 'ok' ) {
+					$fn = $rc['function_call'];
+					$rc = $fn($ciniki, $args['business_id'], $item['invoice_id'], $item);
 					if( $rc['stat'] != 'ok' ) {
 						return $rc;
 					}
 				}
 			}
+			$item_id = $item['id'];
 		}
-	} else {
-		//
-		// If item object already exists in invoice, then add
-		//
-
-		//
-		// Calculate the final amount for the item in the invoice
-		//
-		$item['old_quantity'] = $item['quantity'];
-		$new_args = array('quantity'=>($item['quantity'] + $args['quantity']));
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
-		$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
-			'quantity'=>$new_args['quantity'],
-			'unit_amount'=>(isset($args['unit_amount'])?$args['unit_amount']:$item['unit_amount']),
-			'unit_discount_amount'=>(isset($args['unit_discount_amount'])?$args['unit_discount_amount']:$item['unit_discount_amount']),
-			'unit_discount_percentage'=>(isset($args['unit_discount_percentage'])?$args['unit_discount_percentage']:$item['unit_discount_percentage']),
-			));
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
-		}
-		$new_args['subtotal_amount'] = $rc['subtotal'];
-		$new_args['discount_amount'] = $rc['discount'];
-		$new_args['total_amount'] = $rc['total'];
-
-		//
-		// Update the item
-		//
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-		$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
-			$item['id'], $new_args, 0x04);
-		if( $rc['stat'] != 'ok' ) {
-			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-			return $rc;
-		}
-		
-		//
-		// Update the item values for callbacks
-		//
-		if( isset($args['quantity']) && $args['quantity'] != $item['quantity'] ) {
-			$item['old_quantity'] = $item['quantity'];
-			$item['quantity'] = $args['quantity'];
-		}
-
-		//
-		// Check for a callback to the object
-		//
-		if( $item['object'] != '' && $item['object_id'] != '' ) {
-			list($pkg,$mod,$obj) = explode('.', $item['object']);
-			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemUpdate');
-			if( $rc['stat'] == 'ok' ) {
-				$fn = $rc['function_call'];
-				$rc = $fn($ciniki, $args['business_id'], $item['invoice_id'], $item);
-				if( $rc['stat'] != 'ok' ) {
-					return $rc;
-				}
-			}
-		}
-		$item_id = $item['id'];
+		$args['line_number']++;
 	}
 
 	//

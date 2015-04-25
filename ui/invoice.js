@@ -363,6 +363,9 @@ function ciniki_sapos_invoice() {
 				return 'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
 			}
 			if( s == 'items' && M.ciniki_sapos_invoice.invoice.data.status < 50 ) {
+				if( d.item.object == 'ciniki.fatt.offeringregistration' ) {
+					return 'M.startApp(\'ciniki.fatt.sapos\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
+				}
 				return 'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
 			}
 			if( s == 'tallies' ) {
