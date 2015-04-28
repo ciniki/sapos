@@ -137,6 +137,10 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	$num_lines = 1;
 	if( $args['object'] != '' && $args['object_id'] != '' ) {
 		list($pkg,$mod,$obj) = explode('.', $args['object']);
+		if( !isset($args['pricepoint_id']) ) {
+			$args['pricepoint_id'] = 0;
+		}
+		error_log(print_r($args, true));
 		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
 		if( $rc['stat'] == 'ok' ) {
 			$fn = $rc['function_call'];
