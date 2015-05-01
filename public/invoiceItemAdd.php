@@ -140,7 +140,6 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 		if( !isset($args['pricepoint_id']) ) {
 			$args['pricepoint_id'] = 0;
 		}
-		error_log(print_r($args, true));
 		$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
 		if( $rc['stat'] == 'ok' ) {
 			$fn = $rc['function_call'];
