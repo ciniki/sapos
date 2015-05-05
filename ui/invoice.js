@@ -1071,7 +1071,6 @@ function ciniki_sapos_invoice() {
 		}
 		if( rsp.invoice.status < 50 
 			&& (M.curBusiness.modules['ciniki.sapos'].flags&0x0200) > 0
-			&& (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 
 			) {
 			p.sections._buttons.buttons.record.visible='yes';
 		} else {

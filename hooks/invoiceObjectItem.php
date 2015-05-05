@@ -15,10 +15,13 @@
 // <rsp stat='ok' />
 //
 function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id, $object, $object_id) {
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+
 	//
 	// Get the time information for business and user
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
 	$rc = ciniki_businesses_intlSettings($ciniki, $business_id);
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -28,10 +31,10 @@ function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id
 	$intl_currency = $rc['settings']['intl-default-currency'];
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'timeFormat');
-	$time_format = ciniki_users_timeFormat($ciniki, 'php');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-	$date_format = ciniki_users_dateFormat($ciniki, 'php');
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
+	$time_format = ciniki_users_timeFormat($ciniki, 'php');
+	$date_format = ciniki_users_dateFormat($ciniki, 'php');
 	$datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
 	
 	//
@@ -43,8 +46,6 @@ function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id
 		return $rc;
 	}
 	$maps = $rc['maps'];
-
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 
 	$rsp = array('stat'=>'ok');
 
@@ -154,7 +155,7 @@ function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id
 		return $rc;
 	}
 	if( !isset($rc['invoices']) || !isset($rc['invoices'][0]['invoice']) ) {
-		return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'1083', 'msg'=>'Invoice does not exist'));
+		return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'2371', 'msg'=>'Invoice does not exist'));
 	}
 	$rsp['invoice'] = $rc['invoices'][0]['invoice'];
 	$rsp['invoice']['subtotal_discount_percentage'] = (float)$rsp['invoice']['subtotal_discount_percentage'];

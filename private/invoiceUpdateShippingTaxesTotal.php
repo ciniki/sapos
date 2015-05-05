@@ -188,7 +188,9 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 		$tax_amount = bcadd($tax['calculated_items_amount'], $tax['calculated_invoice_amount'], 4);
 		if( isset($old_taxes[$tid]) ) {
 			$args = array();
-			$args['amount'] = $tax_amount;
+			if( $tax_amount != $old_taxes[$tid]['amount'] ) {
+				$args['amount'] = $tax_amount;
+			}
 			// Check if the name is different, perhaps it was updated
 			if( $tax['name'] != $old_taxes[$tid]['description'] ) {
 				$args['description'] = $tax['name'];

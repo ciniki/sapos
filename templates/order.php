@@ -185,7 +185,7 @@ function ciniki_sapos_templates_order(&$ciniki, $business_id, $invoice_id, $busi
 	//
 	// Start a new document
 	//
-	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+	$pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
 
 	//
 	// Figure out the header business name and address information
