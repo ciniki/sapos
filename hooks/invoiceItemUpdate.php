@@ -96,7 +96,7 @@ function ciniki_sapos_hooks_invoiceItemUpdate($ciniki, $business_id, $args) {
 	}
 
 //
-// Callbacks may can loop, don't do them
+// Callbacks may loop, don't do them
 //
 
 	//
