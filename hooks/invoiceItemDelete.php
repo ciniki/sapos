@@ -98,7 +98,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 		return $rc;
 	}
 	if( $rc['num_rows'] > 0 ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2382', 'msg'=>'Item is part of a shipment and cannot be removed.'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2386', 'msg'=>'Item is part of a shipment and cannot be removed.'));
 	}
 
 	//
