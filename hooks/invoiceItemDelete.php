@@ -38,7 +38,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 		return $rc;
 	}
 	if( !isset($rc['item']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2380', 'msg'=>'Unable to find invoice item'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2401', 'msg'=>'Unable to find invoice item'));
 	}
 	$item = $rc['item'];
 
@@ -74,7 +74,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 		return $rc;
 	}
 	if( !isset($rc['invoice']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2382', 'msg'=>'Invoice does not exist'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2402', 'msg'=>'Invoice does not exist'));
 	}
 	$invoice = $rc['invoice'];
 
@@ -82,7 +82,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 	// Invoice has already been paid, we don't want to remove this item
 	//
 	if( $invoice['status'] >= 50 ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2383', 'msg'=>'Invoice has been paid, unable to remove item'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2403', 'msg'=>'Invoice has been paid, unable to remove item'));
 	}
 
 	//

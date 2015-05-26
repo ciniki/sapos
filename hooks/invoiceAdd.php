@@ -77,12 +77,12 @@ function ciniki_sapos_hooks_invoiceAdd($ciniki, $business_id, $args) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'lookupObjects');
 		$rc = ciniki_sapos_lookupObjects($ciniki, $business_id, $args['objects']);
 		if( $rc['stat'] != 'ok' ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1524', 'msg'=>'Unable to lookup invoice item reference', 'err'=>$rc['err']));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2400', 'msg'=>'Unable to lookup invoice item reference', 'err'=>$rc['err']));
 		}
 		if( isset($rc['items']) ) {
 			$invoice_items = $rc['items'];
 		} else {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1101', 'msg'=>'Unable to find specified items.'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2399', 'msg'=>'Unable to find specified items.'));
 		}
 	}
 
