@@ -82,7 +82,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 	// Invoice has already been paid, we don't want to remove this item
 	//
 	if( $invoice['status'] >= 50 ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2403', 'msg'=>'Invoice has been paid, unable to remove item'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2405', 'msg'=>'Invoice has been paid, unable to remove item'));
 	}
 
 	//
