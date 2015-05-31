@@ -116,6 +116,48 @@ function ciniki_sapos_hooks_checkObjectUsed($ciniki, $business_id, $args) {
 		}
 	}
 
+	elseif( $args['object'] == 'ciniki.artcatalog.item' ) {
+		//
+		// Check for artcatalog products on an invoice
+		//
+		$strsql = "SELECT 'items', COUNT(*) "
+			. "FROM ciniki_sapos_invoice_items "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
+			. "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['num']['items']) && $rc['num']['items'] > 0 ) {
+			$used = 'yes';
+			$count = $rc['num']['items'];
+			$msg = "There " . ($count==1?'is':'are') . " $count invoice" . ($count==1?'':'s') . " still using this item.";
+		}
+	}
+
+	elseif( $args['object'] == 'ciniki.artcatalog.product' ) {
+		//
+		// Check for artcatalog products on an invoice
+		//
+		$strsql = "SELECT 'items', COUNT(*) "
+			. "FROM ciniki_sapos_invoice_items "
+			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "AND object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
+			. "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+			. "";
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['num']['items']) && $rc['num']['items'] > 0 ) {
+			$used = 'yes';
+			$count = $rc['num']['items'];
+			$msg = "There " . ($count==1?'is':'are') . " $count invoice item" . ($count==1?'':'s') . " still using this product.";
+		}
+	}
+
 	return array('stat'=>'ok', 'used'=>$used, 'count'=>$count, 'msg'=>$msg);
 }
 ?>
