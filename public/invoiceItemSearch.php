@@ -89,6 +89,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 	//
 	// Check existing items in invoices, but only if owner/employee
 	//
+	error_log(print_r($ciniki['business']['user']['perms'], true));
 	if( count($items) == 0 
 		&& (!isset($ciniki['business']['user']['perms'])
 			|| ($ciniki['business']['user']['perms']&0x03) > 0
@@ -102,7 +103,8 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 			. "ciniki_sapos_invoice_items.unit_amount, "
 			. "ciniki_sapos_invoice_items.unit_discount_amount, "
 			. "ciniki_sapos_invoice_items.unit_discount_percentage, "
-			. "ciniki_sapos_invoice_items.taxtype_id "
+			. "ciniki_sapos_invoice_items.taxtype_id, "
+			. "ciniki_sapos_invoice_items.notes "
 			. "FROM ciniki_sapos_invoice_items "
 			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "AND object = '' "
@@ -119,7 +121,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
 			array('container'=>'items', 'fname'=>'description', 'name'=>'item',
 				'fields'=>array('object', 'object_id', 'description', 'quantity',
-					'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'taxtype_id')),
+					'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'taxtype_id', 'notes')),
 			));
 		if( $rc['stat'] != 'ok' ) {	
 			return $rc;

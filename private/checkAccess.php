@@ -30,13 +30,6 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
 	}
 
 	//
-	// Sysadmins are allowed full access
-	//
-	if( ($ciniki['session']['user']['perms'] & 0x01) == 0x01 ) {
-		return array('stat'=>'ok', 'modules'=>$modules);
-	}
-
-	//
 	// Get the list of permission_groups the user is a part of
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
@@ -52,6 +45,13 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
 		return $rc;
 	}
 	if( !isset($rc['groups']) ) {
+		//
+		// Sysadmins are allowed full access
+		//
+		if( ($ciniki['session']['user']['perms'] & 0x01) == 0x01 ) {
+			return array('stat'=>'ok', 'modules'=>$modules);
+		}
+
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2023', 'msg'=>'Access denied'));
 	}
 	$groups = $rc['groups'];
@@ -67,6 +67,13 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
 	//
 	if( ($perms&0x01) == 0x01 ) {
 		return array('stat'=>'ok', 'modules'=>$modules, 'perms'=>$perms);
+	}
+
+	//
+	// Sysadmins are allowed full access
+	//
+	if( ($ciniki['session']['user']['perms'] & 0x01) == 0x01 ) {
+		return array('stat'=>'ok', 'modules'=>$modules);
 	}
 
 	//
