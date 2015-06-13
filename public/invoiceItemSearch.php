@@ -95,6 +95,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 			)
 		) {
 		$strsql = "SELECT DISTINCT "	
+			. "CONCAT_WS('-', ciniki_sapos_invoice_items.description, ciniki_sapos_invoice_items.unit_amount) AS id, "
 			. "ciniki_sapos_invoice_items.object, "
 			. "ciniki_sapos_invoice_items.object_id, "
 			. "ciniki_sapos_invoice_items.description, "
@@ -118,7 +119,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 		}
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 		$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-			array('container'=>'items', 'fname'=>'description', 'name'=>'item',
+			array('container'=>'items', 'fname'=>'id', 'name'=>'item',
 				'fields'=>array('object', 'object_id', 'description', 'quantity',
 					'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'taxtype_id', 'notes')),
 			));
