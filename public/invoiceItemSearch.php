@@ -89,7 +89,6 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 	//
 	// Check existing items in invoices, but only if owner/employee
 	//
-	error_log(print_r($ciniki['business']['user']['perms'], true));
 	if( count($items) == 0 
 		&& (!isset($ciniki['business']['user']['perms'])
 			|| ($ciniki['business']['user']['perms']&0x03) > 0
