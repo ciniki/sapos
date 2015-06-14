@@ -275,6 +275,14 @@ function ciniki_sapos_shipment() {
 			}
 		}
 		//
+		// Check if weight units should be hidden
+		//
+		if( M.curBusiness.sapos.settings['shipments-hide-weight-units'] != null && M.curBusiness.sapos.settings['shipments-hide-weight-units'] == 'yes' ) {
+			this.edit.sections.details.fields.weight_units.visible = 'no';
+		} else {
+			this.edit.sections.details.fields.weight_units.visible = 'yes';
+		}
+		//
 		// Check what the user should see
 		//
 		if( M.curBusiness.permissions.owners == null 

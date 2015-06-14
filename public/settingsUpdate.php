@@ -87,6 +87,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'order-email-message',
 		'shipments-default-shipper',
 		'shipments-default-weight-units',
+		'shipments-hide-weight-units',
 		'ui-colours-invoice-item-available',
 		'ui-colours-invoice-item-backordered',
 		'ui-colours-invoice-item-fulfilled',

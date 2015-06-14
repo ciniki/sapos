@@ -167,6 +167,7 @@ function ciniki_sapos_settings() {
 			'_defaults':{'label':'Defaults', 'fields':{
 				'shipments-default-shipper':{'label':'Shipper', 'type':'text'},
 				'shipments-default-weight-units':{'label':'Units', 'type':'toggle', 'default':'10', 'toggles':this.weightUnits},
+				'shipments-hide-weight-units':{'label':'Hide Units', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
 				}},
 			'_rules':{'label':'Shipment Rules', 'fields':{
 				'rules-shipment-shipped-require-weight':{'label':'Require Weight', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},

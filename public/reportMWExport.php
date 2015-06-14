@@ -243,7 +243,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			. "AND ciniki_product_prices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			
 			. ") "
-		. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "WHERE ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "AND ciniki_sapos_shipments.status > 20 "
 		. "AND ciniki_sapos_shipments.ship_date >= '" . ciniki_core_dbQuote($ciniki, $args['start_date']) . "' "
 		. "AND ciniki_sapos_shipments.ship_date < '" . ciniki_core_dbQuote($ciniki, $args['end_date']) . "' "

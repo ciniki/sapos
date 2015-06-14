@@ -33,7 +33,7 @@ function ciniki_sapos_smartborder() {
 				'noData':'No orders found',
 				},
 			'shipments':{'label':'Shipments', 'type':'simplegrid', 'num_cols':7,
-				'headerValues':['Ship Date', 'Customer', '# Boxes', '# Pieces', 'Weight', 'Dimensions', 'Total'],
+				'headerValues':['Ship Date', 'Customer', '# Boxes', 'Weight', '# Pieces', 'Dimensions', 'Total'],
 				'headerClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
 				'sortable':'yes',
 				'sortTypes':['date','text','number','number','number','text','number'],
@@ -63,8 +63,8 @@ function ciniki_sapos_smartborder() {
 				case 1: return d.shipment.customer_display_name;
 //				case 2: return d.shipment.td_number;
 				case 2: return d.shipment.num_boxes;
-				case 3: return d.shipment.num_pieces;
-				case 4: return d.shipment.weight + ' ' + d.shipment.weight_units_text;
+				case 3: return d.shipment.weight + ' ' + d.shipment.weight_units_text;
+				case 4: return d.shipment.num_pieces;
 				case 5: return d.shipment.dimensions;
 				case 6: return d.shipment.total_amount_display;
 			}
