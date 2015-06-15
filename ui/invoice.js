@@ -1287,7 +1287,7 @@ function ciniki_sapos_invoice() {
 		p.sections.tallies.visible='yes';
 		p.data.tallies = {};
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
-			p.data.tallies['total_quantity'] = {'tally':{'description':'Number of Items', 'amount':rsp.invoice.total_quantity}};
+			p.data.tallies['total_nopromo_quantity'] = {'tally':{'description':'Number of Items', 'amount':rsp.invoice.total_nopromo_quantity}};
 		}
 		p.data.tallies['subtotal'] = {'tally':{'description':'Sub Total', 'amount':(rsp.invoice.subtotal_amount!=null)?rsp.invoice.subtotal_amount_display:'0.00'}};
 		if( rsp.invoice.discount_amount > 0 ) {

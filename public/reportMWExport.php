@@ -216,6 +216,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		. "ciniki_sapos_invoice_items.object, "
 		. "ciniki_sapos_invoice_items.object_id, "
 		. "ciniki_sapos_invoice_items.price_id, "
+		. "ciniki_sapos_invoice_items.flags, "
 		. "IFNULL(ciniki_product_prices.pricepoint_id, 0) AS pricepoint_id, "
 		. "ciniki_sapos_invoices.tax_location_id, "
 		. "ciniki_sapos_invoice_items.taxtype_id "
@@ -264,7 +265,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'invoice_date', 'ship_date',
 				'item_id', 'code', 'description', 'notes', 'shipment_quantity'=>'quantity', 
 				'ordered_quantity', 'shipped_quantity',
-				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
+				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'flags',
 				'tax_location_id', 'pricepoint_id', 'taxtype_id'
 				),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
@@ -292,11 +293,11 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	foreach($items as $iid => $item) {
 		// Create the array to store the invoice totals by invoice_id
 		if( !isset($invoices[$item['item']['invoice_id']]) ) {
-			$invoices[$item['item']['invoice_id']] = array('total_amount'=>0, 'num_pieces'=>0);
+			$invoices[$item['item']['invoice_id']] = array('total_amount'=>0, 'num_pieces'=>0, 'num_nopromo_pieces'=>0);
 		}
 		// Create the array to store the invoice totals by shipment_id
 		if( !isset($shipments[$item['item']['shipment_id']]) ) {
-			$shipments[$item['item']['shipment_id']] = array('total_amount'=>0, 'num_pieces'=>0);
+			$shipments[$item['item']['shipment_id']] = array('total_amount'=>0, 'num_pieces'=>0, 'num_nopromo_pieces'=>0);
 		}
 		if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0800) > 0 ) {
 			if( isset($salesreps[$item['item']['salesrep_id']]) ) {
@@ -340,8 +341,15 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$item['item']['freight_amount'], $intl_currency);
 		$invoices[$item['item']['invoice_id']]['total_amount'] += $rc['total'];
 		$invoices[$item['item']['invoice_id']]['num_pieces'] += $item['item']['shipment_quantity'];
+		// Check for promotional items
+		if( ($item['item']['flags']&0x4000) == 0 ) {
+			$invoices[$item['item']['invoice_id']]['num_nopromo_pieces'] += $item['item']['shipment_quantity'];
+		}
 		$shipments[$item['item']['shipment_id']]['total_amount'] += $rc['total'];
 		$shipments[$item['item']['shipment_id']]['num_pieces'] += $item['item']['shipment_quantity'];
+		if( ($item['item']['flags']&0x4000) == 0 ) {
+			$shipments[$item['item']['shipment_id']]['num_nopromo_pieces'] += $item['item']['shipment_quantity'];
+		}
 	}
 
 	//
@@ -349,6 +357,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 	//
 	foreach($items as $iid => $item) {
 		$items[$iid]['item']['num_pieces'] = $invoices[$item['item']['invoice_id']]['num_pieces'];
+		$items[$iid]['item']['num_nopromo_pieces'] = $invoices[$item['item']['invoice_id']]['num_nopromo_pieces'];
 		$items[$iid]['item']['invoice_total_amount'] = $invoices[$item['item']['invoice_id']]['total_amount'];
 		$items[$iid]['item']['invoice_total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
 			$invoices[$item['item']['invoice_id']]['total_amount'], $intl_currency);
@@ -401,6 +410,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Freight Amount', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Num Boxes', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Num Pieces', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Non Promo Pieces', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Weight', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Description', false);
@@ -424,7 +434,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Country', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Customer Notes', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Internal Notes', false);
-		$sheet->getStyle('A1:I1')->getFont()->setBold(true);
+		$sheet->getStyle('A1:J1')->getFont()->setBold(true);
 
 		//
 		// Output the invoice list
@@ -448,6 +458,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['freight_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_boxes'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_pieces'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_nopromo_pieces'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['weight'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['description'], false);
@@ -510,6 +521,7 @@ function ciniki_sapos_reportMWExport(&$ciniki) {
 		$sheet->getColumnDimension('AI')->setAutoSize(true);
 		$sheet->getColumnDimension('AJ')->setAutoSize(true);
 		$sheet->getColumnDimension('AK')->setAutoSize(true);
+		$sheet->getColumnDimension('AL')->setAutoSize(true);
 
 		//
 		// Output the excel

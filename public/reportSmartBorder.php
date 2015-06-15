@@ -100,6 +100,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 		. "ciniki_sapos_invoice_items.unit_amount, "
 		. "ciniki_sapos_invoice_items.unit_discount_amount, "
 		. "ciniki_sapos_invoice_items.unit_discount_percentage, "
+		. "ciniki_sapos_invoice_items.flags, "
 		. "ciniki_sapos_invoice_items.taxtype_id "
 		. "FROM ciniki_sapos_shipments "
 		. "LEFT JOIN ciniki_sapos_invoices ON ("
@@ -147,7 +148,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 			),
 		array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
 			'fields'=>array('id'=>'item_id', 'quantity', 
-				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'taxtype_id')),
+				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'flags', 'taxtype_id')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -164,7 +165,9 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 		$total_amount = 0;
 		if( isset($shipment['shipment']['items']) ) {
 			foreach($shipment['shipment']['items'] as $iid => $item) {
-				$num_pieces += $item['item']['quantity'];
+				if( ($item['item']['flags']&0x4000) == 0 ) {
+					$num_pieces += $item['item']['quantity'];
+				}
 				$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
 					'quantity'=>$item['item']['quantity'],
 					'unit_amount'=>$item['item']['unit_amount'],

@@ -297,6 +297,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		return $rc;
 	}
 	$invoice['total_quantity'] = 0;
+	$invoice['total_nopromo_quantity'] = 0;
 	$invoice['total_required_quantity'] = 0;
 	$invoice['total_shipped_quantity'] = 0;
 	if( !isset($rc['items']) ) {
@@ -306,6 +307,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
 		$objects = array();
 		foreach($invoice['items'] as $iid => $item) {
 			$invoice['total_quantity'] += $item['item']['quantity'];
+			if( ($item['item']['flags']&0x4000) == 0 ) {
+				$invoice['total_nopromo_quantity'] += $item['item']['quantity'];
+			}
 			$invoice['total_required_quantity'] += $item['item']['required_quantity'];
 			$invoice['total_shipped_quantity'] += $item['item']['shipped_quantity'];
 			if( $invoice['shipping_status'] > 0 ) {

@@ -37,7 +37,7 @@
 #					0x0800 -
 #					0x1000 - Surcharge, display at bottom of invoice.
 #					0x2000 - Message, display description only, do not display quantity/amount.
-#					0x4000 - 
+#					0x4000 - Promotional Item, do not include in item counts and MW/Smart Border Reports
 #					0x8000 - 
 #
 # object:			The object for the item in the invoice.  This is the reference to

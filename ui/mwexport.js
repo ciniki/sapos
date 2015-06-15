@@ -73,7 +73,7 @@ function ciniki_sapos_mwexport() {
 				case 11: return d.item.tracking_number;
 				case 12: return d.item.freight_amount_display;
 				case 13: return d.item.num_boxes;
-				case 14: return d.item.num_pieces;
+				case 14: return d.item.num_nopromo_pieces;
 				case 15: return d.item.weight;
 				case 16: return d.item.code;
 				case 17: return d.item.description;
