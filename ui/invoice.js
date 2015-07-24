@@ -123,12 +123,12 @@ function ciniki_sapos_invoice() {
 				'addFn':'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id);',
 				'noData':'No shipments',
 				},
-			'items':{'label':'', 'type':'simplegrid', 'num_cols':3,
-				'headerValues':['Description', 'Quantity/Price', 'Total'],
-				'headerClasses':['', 'alignright', 'alignright'],
-				'cellClasses':['multiline', 'multiline alignright', 'multiline alignright'],
+			'items':{'label':'', 'type':'simplegrid', 'num_cols':4,
+				'headerValues':['#', 'Description', 'Quantity/Price', 'Total'],
+				'headerClasses':['', '', 'alignright', 'alignright'],
+				'cellClasses':['alignright','multiline', 'multiline alignright', 'multiline alignright'],
 				'sortable':'yes',
-				'sortTypes':['text','number','number'],
+				'sortTypes':['number', 'text','number','number'],
 				'addTxt':'Add',
 				'addFn':'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id);',
 				},
@@ -300,6 +300,9 @@ function ciniki_sapos_invoice() {
 			}
 			if( s == 'items' ) {
 				if( j == 0 ) {
+					return '<span class="subdue">' + (parseInt(i) + 1) + '</span>';
+				}
+				else if( j == 1 ) {
 					if( d.item.code != null && d.item.code != '' ) {
 						return '<span class="maintext">' + d.item.code + '</span><span class="subtext">' + d.item.description + '</span>' + (d.item.notes!=null&&d.item.notes!=''?'<span class="subsubtext">'+d.item.notes+'</span>':'');
 					}
@@ -308,7 +311,7 @@ function ciniki_sapos_invoice() {
 					}
 					return d.item.description;
 				}
-				if( j == 1 ) {
+				else if( j == 2 ) {
 					var discount = '';
 					if( d.item.discount_amount != 0) {
 						if( d.item.unit_discount_amount > 0 ) {
@@ -327,7 +330,7 @@ function ciniki_sapos_invoice() {
 						return ((d.item.quantity>0&&d.item.quantity!=1)?(d.item.quantity+' @ '):'') + d.item.unit_amount_display;
 					}
 				}
-				if( j == 2 ) {
+				else if( j == 3 ) {
 					return '<span class="maintext">' + d.item.total_amount_display + '</span><span class="subtext">' + ((d.item.taxtype_name!=null)?d.item.taxtype_name:'') + '</span>';
 				}
 			}
