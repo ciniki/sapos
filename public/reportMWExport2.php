@@ -501,7 +501,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tax Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
-		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipped Total', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Name', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Address 1', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Address 2', false);
