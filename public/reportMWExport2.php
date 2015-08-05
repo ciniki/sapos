@@ -459,7 +459,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Unit Amount', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tax Code', false);
-//		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Name', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Address 1', false);
@@ -507,7 +507,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['unit_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tax_location_code'], false);
-//			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_total_amount'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_name'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_address1'], false);
@@ -557,7 +557,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$sheet->getColumnDimension('AI')->setAutoSize(true);
 		$sheet->getColumnDimension('AJ')->setAutoSize(true);
 		$sheet->getColumnDimension('AK')->setAutoSize(true);
-//		$sheet->getColumnDimension('AL')->setAutoSize(true);
+		$sheet->getColumnDimension('AL')->setAutoSize(true);
 
 		//
 		// Output the excel
