@@ -192,6 +192,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		. "ciniki_sapos_invoices.shipping_postal, "
 		. "ciniki_sapos_invoices.shipping_country, "
 		. "ciniki_sapos_invoices.total_amount AS invoice_total_amount, "
+		. "ciniki_sapos_invoices.submitted_by, "
 		. "ciniki_sapos_shipments.shipping_company, "
 		. "ciniki_sapos_shipments.tracking_number, "
 		. "ciniki_sapos_shipments.td_number, "
@@ -288,7 +289,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 				'item_id'=>'invoice_item_id', 'code', 'description', 'notes', 'shipment_quantity'=>'quantity', 
 				'ordered_quantity', 'shipped_quantity',
 				'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'flags',
-				'tax_location_id', 'pricepoint_id', 'taxtype_id'
+				'tax_location_id', 'pricepoint_id', 'taxtype_id', 'submitted_by'
 				),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
 				'shipment_status_text'=>$maps['shipment']['status'],
@@ -470,7 +471,8 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipping Country', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Customer Notes', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Internal Notes', false);
-		$sheet->getStyle('A1:J1')->getFont()->setBold(true);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Submitted By', false);
+		$sheet->getStyle('A1:K1')->getFont()->setBold(true);
 
 		//
 		// Output the invoice list
@@ -518,6 +520,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipping_country'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['customer_notes'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['internal_notes'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['submitted_by'], false);
 			$row++;
 		}
 		$sheet->getColumnDimension('A')->setAutoSize(true);
