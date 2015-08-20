@@ -99,6 +99,12 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 				$args['status'] = 15;	// On hold
 			} else {
 				$args['status'] = 30;	// Pending shipping
+				//
+				// Check if cart should be turned into order
+				//
+				if( $invoice['invoice_type'] == 20 ) {
+					$args['invoice_type'] = 40;
+				}
 			}
 			$args['submitted_by'] = $ciniki['session']['user']['display_name'];
 		}
@@ -115,7 +121,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
 	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.sapos');
 	if( $rc['stat'] != 'ok' ) { 
 		return $rc;
-	}   
+	}
 
 	//
 	// Update the invoice
