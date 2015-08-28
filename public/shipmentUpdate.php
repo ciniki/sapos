@@ -31,7 +31,8 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
 		'pack_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Date Packed'),
 		'ship_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Date Shipped'),
 		'freight_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Freight Amount'),
-		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
+		'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
+		'customer_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;

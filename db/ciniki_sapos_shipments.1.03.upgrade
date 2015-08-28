@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table ciniki_sapos_shipments to version 1.02.
+#
+ALTER TABLE ciniki_sapos_shipments ADD COLUMN notes varchar(150) not null AFTER freight_amount;
+ALTER TABLE ciniki_sapos_shipments COMMENT='v1.03';

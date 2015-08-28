@@ -169,6 +169,7 @@ function ciniki_sapos_objects($ciniki) {
 			'pack_date'=>array(),
 			'ship_date'=>array(),
 			'freight_amount'=>array(),
+			'notes'=>array('default'=>''),
 			),
 		'history_table'=>'ciniki_sapos_history',
 		);

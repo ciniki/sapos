@@ -84,13 +84,14 @@ function ciniki_sapos_latest(&$ciniki) {
 		//
 		// Get the number of orders that have items left to be shipped
 		//
-		$strsql = "SELECT IF((ciniki_sapos_invoice_items.flags&0x0300)=0,'available','backordered') AS bo_status, "
+		$strsql = "SELECT IF((ciniki_sapos_invoice_items.flags&0x0340)=0x0040,'available','backordered') AS bo_status, "
 			. "COUNT(DISTINCT ciniki_sapos_invoices.id) "
 			. "FROM ciniki_sapos_invoices, ciniki_sapos_invoice_items "
 			. "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "AND ciniki_sapos_invoices.status >= 20 "
 			. "AND ciniki_sapos_invoices.shipping_status > 0 "
 			. "AND ciniki_sapos_invoices.shipping_status < 50 "
+			. "AND ciniki_sapos_invoices.invoice_type = 40 "
 			. "AND ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
 			. "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 			. "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "

@@ -27,13 +27,13 @@ function ciniki_sapos_smartborder() {
 				'livesearchempty':'no', 'livesearchcols':7, 
 				'fn':'M.ciniki_sapos_smartborder.showSelectedDay',
 				'hint':'Search',
-				'headerValues':['Ship Date', 'Customer', '# Boxes', '# Pieces', 'Weight', 'Dimensions', 'Total'],
+				'headerValues':['Ship Date', 'Customer', '# Boxes', '# Pieces', 'Weight', 'Notes', 'Total'],
 				'headerClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
 				'cellClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
 				'noData':'No orders found',
 				},
 			'shipments':{'label':'Shipments', 'type':'simplegrid', 'num_cols':7,
-				'headerValues':['Ship Date', 'Customer', '# Boxes', 'Weight', '# Pieces', 'Dimensions', 'Total'],
+				'headerValues':['Ship Date', 'Customer', '# Boxes', 'Weight', '# Pieces', 'Notes', 'Total'],
 				'headerClasses':['', '', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
 				'sortable':'yes',
 				'sortTypes':['date','text','number','number','number','text','number'],
@@ -65,13 +65,13 @@ function ciniki_sapos_smartborder() {
 				case 2: return d.shipment.num_boxes;
 				case 3: return d.shipment.weight + ' ' + d.shipment.weight_units_text;
 				case 4: return d.shipment.num_pieces;
-				case 5: return d.shipment.dimensions;
+				case 5: return d.shipment.notes;
 				case 6: return d.shipment.total_amount_display;
 			}
 		};
 		this.shipments.rowFn = function(s, i, d) {
 			if( s == 'shipments' ) {
-				return 'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_smartborder.showShipments();\',\'mc\',{\'shipment_id\':\'' + d.shipment.id + '\'});';
+				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_smartborder.showShipments();\',\'mc\',{\'invoice_id\':\'' + d.shipment.invoice_id + '\'});';
 			}
 		};
 		this.shipments.addClose('Back');

@@ -965,7 +965,9 @@ function ciniki_sapos_invoice() {
 
 		this.item.pricepoint_id = 0;
 
-		if( args.items != null && args.customer_id != null ) {
+		if( args.item_id != null && args.item_id != '' ) {
+			this.editItem(cb,args.item_id);
+		} else if( args.items != null && args.customer_id != null ) {
 			// Create new invoice with item
 			this.createInvoice(cb, args.customer_id, null, args.items, args.invoice_type);
 		} else if( args.objects != null && args.customer_id != null ) {

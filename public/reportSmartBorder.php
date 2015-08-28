@@ -94,6 +94,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 		. "ciniki_sapos_shipments.weight_units, "
 		. "ciniki_sapos_shipments.weight_units AS weight_units_text, "
 		. "ciniki_sapos_shipments.status, "
+		. "ciniki_sapos_shipments.notes, "
 		. "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
 		. "ciniki_sapos_shipment_items.id AS item_id, "
 		. "ciniki_sapos_shipment_items.quantity, "
@@ -141,7 +142,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
 		array('container'=>'shipments', 'fname'=>'id', 'name'=>'shipment',
 			'fields'=>array('id', 'invoice_id', 'invoice_number', 'shipment_number', 'td_number', 
 				'status_text', 'customer_display_name', 'status',
-				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'dimensions', 'ship_date'),
+				'weight', 'weight_units', 'weight_units_text', 'num_boxes'=>'boxes', 'dimensions', 'ship_date', 'notes'),
 			'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
 				'weight_units_text'=>$maps['shipment']['weight_units']),
 			'utctotz'=>array('ship_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 

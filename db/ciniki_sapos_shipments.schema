@@ -53,6 +53,8 @@
 # freight_amount:		The cost billed to the company by the shipping company.  This may be different
 #						than the shipping billed to the customer.
 #
+# notes:				The notes for the shipment.
+#
 # date_added:			The UTC date and time the shipment was added.
 # last_updated:			The UTC date and time the shipment was last updated.
 #
@@ -74,9 +76,10 @@ create table ciniki_sapos_shipments (
 	pack_date datetime not null,
 	ship_date datetime not null,
 	freight_amount decimal(19,4) not null,
+	notes varchar(250) not null,
 	date_added datetime not null,
 	last_updated datetime not null,
 	primary key (id),
 	index (invoice_id, status, ship_date),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.02';
+) ENGINE='InnoDB', COMMENT='v1.03';

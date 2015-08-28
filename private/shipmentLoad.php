@@ -57,7 +57,8 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 		. "ciniki_sapos_shipments.dimensions, "
 		. "ciniki_sapos_shipments.pack_date, "
 		. "ciniki_sapos_shipments.ship_date, "
-		. "ciniki_sapos_shipments.freight_amount "
+		. "ciniki_sapos_shipments.freight_amount, "
+		. "ciniki_sapos_shipments.notes "
 		. "FROM ciniki_sapos_shipments "
 		. "WHERE ciniki_sapos_shipments.id = '" . ciniki_core_dbQuote($ciniki, $shipment_id) . "' "
 		. "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -69,7 +70,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
 				'flags', 'flags_text', 
 				'weight', 'weight_units', 'weight_units_text', 
 				'shipping_company', 'tracking_number', 'td_number', 'boxes', 'dimensions', 
-				'pack_date', 'ship_date', 'freight_amount'),
+				'pack_date', 'ship_date', 'freight_amount', 'notes'),
 			'maps'=>array('status_text'=>$maps['shipment']['status'],
 				'weight_units_text'=>$maps['shipment']['weight_units']),
 			'flags'=>array('flags_text'=>array('1'=>'TD')),
