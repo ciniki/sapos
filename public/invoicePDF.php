@@ -147,13 +147,54 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
 			}
 		}
 
-		$ciniki['emailqueue'][] = array('to'=>$invoice['customer']['emails'][0]['email']['address'],
-			'to_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
-			'business_id'=>$args['business_id'],
+		//
+		// Start transaction
+		//
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
+		$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.mail');
+		if( $rc['stat'] != 'ok' ) { 
+			return $rc;
+		}   
+
+		//
+		// Add to the mail module
+		//
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
+		$rc = ciniki_mail_hooks_addMessage($ciniki, $args['business_id'], array(
+			'object'=>'ciniki.sapos.invoice',
+			'object_id'=>$args['invoice_id'],
+			'customer_id'=>$invoice['customer_id'],
+			'customer_email'=>$invoice['customer']['emails'][0]['email']['address'],
+			'customer_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
 			'subject'=>$subject,
-			'textmsg'=>$textmsg,
-			'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
-			);
+			'html_content'=>$textmsg,
+			'text_content'=>$textmsg,
+			'attachments'=>array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
+			));
+		if( $rc['stat'] != 'ok' ) {
+			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2464', 'msg'=>'Unable to create mail message.', 'err'=>$rc['err']));
+		}
+		$ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$args['business_id']);
+
+		//
+		// Commit the transaction
+		//
+		$rc = ciniki_core_dbTransactionCommit($ciniki, 'ciniki.mail');
+		if( $rc['stat'] != 'ok' ) {
+			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
+			return $rc;
+		}
+
+//		$ciniki['emailqueue'][] = array('to'=>$invoice['customer']['emails'][0]['email']['address'],
+//			'to_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
+//			'business_id'=>$args['business_id'],
+//			'subject'=>$subject,
+//			'textmsg'=>$textmsg,
+//			'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
+//			);
 		return array('stat'=>'ok');
 	}
 
