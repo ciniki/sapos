@@ -146,6 +146,11 @@ function ciniki_sapos_invoice() {
 				'addTxt':'Add Shipment',
 				'addFn':'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'shipment_id\':0, \'invoice_id\':M.ciniki_sapos_invoice.invoice.invoice_id,\'shipment_number\':M.ciniki_sapos_invoice.invoice.nextShipmentNumber});',
 				},
+			'messages':{'label':'Messages', 'visible':'yes', 'type':'simplegrid', 'num_cols':2,
+				'cellClasses':['multiline', 'multiline'],
+				'addTxt':'Email Customer',
+				'addFn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);',
+				},
 			'_buttons':{'label':'', 'buttons':{
 				'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
 				'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
@@ -154,7 +159,7 @@ function ciniki_sapos_invoice() {
 				'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'printquote':{'label':'Print Quote', 'fn':'M.ciniki_sapos_invoice.printQuote(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				'printenv':{'label':'Print Envelope', 'fn':'M.ciniki_sapos_invoice.printEnvelope(M.ciniki_sapos_invoice.invoice.invoice_id);'},
-				'email':{'label':'Email Customer', 'fn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);'},
+//				'email':{'label':'Email Customer', 'fn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);'},
 				'delete':{'label':'Delete Invoice', 'fn':'M.ciniki_sapos_invoice.deleteInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
 				}},
 //			'invoice_notes':{'label':'Notes', 'aside':'left', 'type':'htmlcontent'},
@@ -355,6 +360,12 @@ function ciniki_sapos_invoice() {
 					case 1: return d.shipment.pack_date;
 					case 2: return d.shipment.ship_date;
 					case 3: return d.shipment.status_text;
+				}
+			}
+			if( s == 'messages' ) {
+				switch(j) {
+					case 0: return '<span class="maintext">' + d.message.status_text + '</span><span class="subtext">' + d.message.date_sent + '</span>';
+					case 1: return '<span class="maintext">' + d.message.customer_email + '</span><span class="subtext">' + d.message.subject + '</span>';
 				}
 			}
 		};
@@ -1416,9 +1427,11 @@ function ciniki_sapos_invoice() {
 		if( rsp.invoice.customer_id > 0 && rsp.invoice.invoice_type != 11 && rsp.invoice.invoice_type != 12 
 			&& M.curBusiness.modules['ciniki.mail'] != null
 			) {
-			p.sections._buttons.buttons.email.visible = 'yes';
+			p.sections.messages.visible = 'yes';
+//			p.sections._buttons.buttons.email.visible = 'yes';
 		} else {
-			p.sections._buttons.buttons.email.visible = 'no';
+			p.sections.messages.visible = 'no';
+//			p.sections._buttons.buttons.email.visible = 'no';
 		}
 //		p.sections.customer_notes.visible=(rsp.invoice.invoice_notes!='')?'yes':'no';
 //		p.sections.internal_notes.visible=(rsp.invoice.internal_notes!='')?'yes':'no';

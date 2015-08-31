@@ -70,6 +70,21 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
 	$invoice = $rc['invoice'];
 
 	//
+	// Check if there are any messages for this invoice
+	//
+	if( isset($ciniki['business']['modules']['ciniki.mail']) ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'objectMessages');
+		$rc = ciniki_mail_hooks_objectMessages($ciniki, $args['business_id'], 
+			array('object'=>'ciniki.sapos.invoice', 'object_id'=>$invoice['id']));
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['messages']) ) {
+			$invoice['messages'] = $rc['messages'];
+		}
+	} 
+
+	//
 	// Check if the inventory should be added
 	//
 /*	if( isset($args['inventory']) && $args['inventory'] == 'yes' ) {
