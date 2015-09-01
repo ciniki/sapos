@@ -170,8 +170,8 @@ function ciniki_sapos_shipment() {
 						var s = '';
 						if( d.item.inventory_quantity > 0 && this.data['status'] < 30 ) {
 							s = "<button onclick=\"event.stopPropagation(); M.ciniki_sapos_shipment.addShipmentItem(\'" + d.item.id + "\',\'" + (d.item.required_quantity<=d.item.inventory_quantity?d.item.required_quantity:d.item.inventory_quantity) + "\'); return false;\">Add</button>";
-							s += " <button onclick=\"event.stopPropagation(); M.startApp(\'ciniki.products.inventory\',null,\'M.ciniki_sapos_shipment.updateEditItems();\',\'mc\',{\'product_id\':\'" + d.item.object_id + "\'}); return false;\">Inv</button>";
 						}
+						s += "&nbsp;<button onclick=\"event.stopPropagation(); M.startApp(\'ciniki.products.inventory\',null,\'M.ciniki_sapos_shipment.updateEditItems();\',\'mc\',{\'product_id\':\'" + d.item.object_id + "\'}); return false;\">Inv</button>";
 						return s;
 				}
 			}
