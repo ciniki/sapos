@@ -95,6 +95,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
 		'ui-options-print-invoice',
 		'ui-options-print-envelope',
 		'rules-invoice-duplicate-items',
+		'rules-invoice-paid-change-items',
 		'rules-invoice-submit-require-po_number',
 		'rules-shipment-shipped-require-weight',
 		'rules-shipment-shipped-require-tracking_number',

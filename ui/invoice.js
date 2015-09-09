@@ -380,7 +380,9 @@ function ciniki_sapos_invoice() {
 			if( s == 'shipitems' && M.ciniki_sapos_invoice.invoice.data.status < 50 ) {
 				return 'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
 			}
-			if( s == 'items' && M.ciniki_sapos_invoice.invoice.data.status < 50 ) {
+			if( s == 'items' && (M.ciniki_sapos_invoice.invoice.data.status < 50 
+				|| (M.curBusiness.sapos.settings['rules-invoice-paid-change-items'] != null && M.curBusiness.sapos.settings['rules-invoice-paid-change-items'] == 'yes'))
+				) {
 				if( d.item.object == 'ciniki.fatt.offeringregistration' ) {
 					return 'M.startApp(\'ciniki.fatt.sapos\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
 				}
@@ -1262,7 +1264,7 @@ function ciniki_sapos_invoice() {
 			}
 			p.sections._buttons.buttons.delete.visible=(rsp.invoice.status<40&&(rsp.invoice.transactions==null||rsp.invoice.transactions.length==0)&&(rsp.invoice.shipments==null||rsp.invoice.shipments.length==0))?'yes':'no';
 			p.sections.shipitems.addTxt = (rsp.invoice.status < 50)?'Add':'';
-			p.sections.items.addTxt = (rsp.invoice.status < 50)?'Add':'';
+			p.sections.items.addTxt = (rsp.invoice.status < 50||(M.curBusiness.sapos.settings['rules-invoice-paid-change-items'] != null && M.curBusiness.sapos.settings['rules-invoice-paid-change-items'] == 'yes'))?'Add':'';
 		}
 		if( rsp.invoice.billing_name != '' || rsp.invoice.billing_address1 != '' ) {
 			p.sections.billing.visible = 'yes';

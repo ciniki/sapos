@@ -111,7 +111,8 @@ function ciniki_sapos_settings() {
 				'ui-options-print-envelope':{'label':'Print Envelope Button', 'default':'yes', 'type':'toggle', 'toggles':this.toggleOptions},
 				}},
 			'_rules':{'label':'Invoice Rules', 'fields':{
-				'rules-invoice-duplicate-items':{'label':'Allow duplicate items', 'default':'yes', 'type':'toggle', 'toggles':this.yesNoOptions},
+				'rules-invoice-duplicate-items':{'label':'Allow Duplicate Items', 'default':'yes', 'type':'toggle', 'toggles':this.yesNoOptions},
+				'rules-invoice-paid-change-items':{'label':'Change Paid Invoice Items', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
 				'rules-invoice-submit-require-po_number':{'label':'Require PO Number', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
 				}},
 			'_salesreps':{'label':'Sales Rep Rules', 'active':'no', 'fields':{

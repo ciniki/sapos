@@ -24,6 +24,15 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 	}
 
 	//
+	// Load the settings
+	//
+	$rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', '');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$settings = isset($rc['settings'])?$rc['settings']:array();
+
+	//
 	// Get the details of the item
 	//
 	$strsql = "SELECT id, uuid, invoice_id, object, object_id, quantity "
@@ -81,7 +90,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 	//
 	// Invoice has already been paid, we don't want to remove this item
 	//
-	if( $invoice['status'] >= 50 ) {
+	if( $invoice['status'] >= 50 && (!isset($settings['rules-invoice-paid-change-items']) || $settings['rules-invoice-paid-change-items'] == 'no')) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2405', 'msg'=>'Invoice has been paid, unable to remove item'));
 	}
 
