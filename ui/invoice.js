@@ -9,8 +9,9 @@ function ciniki_sapos_invoice() {
 		'30':'Pending Shipping',
 		'40':'Payment Required',
 		'50':'Paid',
-		'55':'Refunded',
-		'60':'Void',
+		'55':'Refund Required',
+		'60':'Refunded',
+		'65':'Void',
 		};
 	this.orderStatuses = {
 		'10':'Incomplete',
@@ -19,15 +20,17 @@ function ciniki_sapos_invoice() {
 		'30':'Pending Shipping',
 		'40':'Payment Required',
 		'50':'Fulfilled',
-		'55':'Refunded',
-		'60':'Void',
+		'55':'Refund Required',
+		'60':'Refunded',
+		'65':'Void',
 		};
 	this.paymentStatuses = {
 		'0':'None Required',
 		'10':'Required',
 		'40':'Deposit',
 		'50':'Paid',
-		'55':'Refunded',
+		'55':'Refund Required',
+		'60':'Refunded',
 		};
 	this.shippingStatuses = {
 		'0':'None',
@@ -790,11 +793,13 @@ function ciniki_sapos_invoice() {
 			this.orderStatuses['40'] = 'Payment Required';
 		}
 		this.invoiceStatuses['50'] = 'Paid';
-		this.invoiceStatuses['55'] = 'Refunded';
-		this.invoiceStatuses['60'] = 'Void';
+		this.invoiceStatuses['55'] = 'Refund Required';
+		this.invoiceStatuses['60'] = 'Refunded';
+		this.invoiceStatuses['65'] = 'Void';
 		this.orderStatuses['50'] = 'Fulfilled';
-		this.orderStatuses['55'] = 'Refunded';
-		this.orderStatuses['60'] = 'Void';
+		this.orderStatuses['55'] = 'Refund Required';
+		this.orderStatuses['60'] = 'Refunded';
+		this.orderStatuses['65'] = 'Void';
 
 		this.edit.sections.details.fields.status.options = this.invoiceStatuses;
 		this.edit.sections.shipping.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0)?'yes':'no';

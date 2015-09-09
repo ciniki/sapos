@@ -172,12 +172,16 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 	//
 	if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0200) > 0 ) {
 		if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
-			if( $invoice['payment_status'] == 10 ) {
+			if( $invoice['payment_status'] == 10 || $invoice['payment_status'] == 50 ) {
 				$new_payment_status = 40;
 			}
-		} elseif( $amount_paid > 0 && $amount_paid >= $invoice['total_amount'] ) {
+		} elseif( $amount_paid > 0 && $amount_paid == $invoice['total_amount'] ) {
 			if( $invoice['payment_status'] < 50 ) {
 				$new_payment_status = 50;
+			}
+		} elseif( $amount_paid > 0 && $amount_paid > $invoice['total_amount'] ) {
+			if( $invoice['payment_status'] < 55 ) {
+				$new_payment_status = 55;
 			}
 		} elseif( $amount_paid == 0 ) {
 			$new_payment_status = 10;
@@ -192,8 +196,10 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
 		if( $new_payment_status != $invoice['payment_status'] ) {
 			if( $new_payment_status > 0 && $new_payment_status < 50 ) {
 				$new_status = 40;
-			} elseif( $new_payment_status >= 50 ) {
+			} elseif( $new_payment_status == 50 ) {
 				$new_status = 50;
+			} elseif( $new_payment_status == 55 ) {
+				$new_status = 55;
 			}
 		}
 	}

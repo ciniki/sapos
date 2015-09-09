@@ -40,7 +40,8 @@ function ciniki_sapos_invoices() {
 				'10':{'label':'Payment Required', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,null,10);'},
 				'40':{'label':'Partial Payment', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,null,40);'},
 				'50':{'label':'Paid', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,null,50);'},
-				'55':{'label':'Refunded', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,null,55);'},
+				'55':{'label':'Refund Required', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,null,55);'},
+				'60':{'label':'Refunded', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,null,60);'},
 				}},
 //			'statuses':{'label':'', 'visible':'yes', 'type':'paneltabs', 'selected':'0', 'tabs':{
 //				'0':{'label':'All', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,null,0);'},
