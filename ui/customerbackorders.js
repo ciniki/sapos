@@ -39,7 +39,7 @@ function ciniki_sapos_customerbackorders() {
 					'Code', 'Description', 'Notes', 'Ordered', 'B/O', 'Shipped',
 					'Price Code', 'Unit Amount', 'Total', 'Tax Code'],
 				'sortable':'yes',
-//				'sortTypes':['number','number','date','date','text','text','text','number'],
+				'sortTypes':['number','text','date','text','text','text','number','text','text','text','text','number','number','number','text','altnumber','altnumber','text'],
 				'noData':'No shipments',
 				},
 			};
@@ -56,6 +56,30 @@ function ciniki_sapos_customerbackorders() {
 //		};
 		this.items.sectionData = function(s) { return this.data[s]; }
 		this.items.fieldValue = function(s, i, d) { return this.data[i]; }
+		this.items.cellSortValue = function(s, i, j, d) {
+			if( s == 'items' ) {
+				switch(j) {
+					case 0: return d.item.invoice_number;
+					case 1: return d.item.po_number;
+					case 2: return d.item.invoice_date;
+					case 3: return d.item.status_text;
+					case 4: return d.item.customer_eid;
+					case 5: return d.item.customer_display_name;
+					case 6: return d.item.reward_level;
+					case 7: return d.item.salesrep_display_name;
+					case 8: return d.item.code;
+					case 9: return d.item.description;
+					case 10: return d.item.notes;
+					case 11: return d.item.ordered_quantity;
+					case 12: return (d.item.ordered_quantity-d.item.shipped_quantity);
+					case 13: return d.item.shipped_quantity;
+					case 14: return d.item.pricepoint_code;
+					case 15: return d.item.unit_amount;
+					case 16: return d.item.total_amount;
+					case 17: return d.item.tax_location_code;
+				}
+			}
+		}
 		this.items.cellValue = function(s, i, j, d) {
 			switch(j) {
 				case 0: return d.item.invoice_number;
