@@ -15,7 +15,7 @@ function ciniki_sapos_mwexportb() {
 		//
 		this.shipments = new M.panel('Export',
 			'ciniki_sapos_mwexportb', 'shipments',
-			'mc', 'xlarge', 'sectioned', 'ciniki.sapos.mwexportb.shipments');
+			'mc', 'fullwidth', 'sectioned', 'ciniki.sapos.mwexportb.shipments');
 		this.shipments.data = {};
 		this.shipments.appointments = null;
 		var dt = new Date();

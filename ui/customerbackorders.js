@@ -15,7 +15,7 @@ function ciniki_sapos_customerbackorders() {
 		//
 		this.items = new M.panel('Customer Backordered Items',
 			'ciniki_sapos_customerbackorders', 'items',
-			'mc', 'xlarge', 'sectioned', 'ciniki.sapos.customerbackorders.items');
+			'mc', 'fullwidth', 'sectioned', 'ciniki.sapos.customerbackorders.items');
 		this.items.data = {};
 		this.items.appointments = null;
 		var dt = new Date();
