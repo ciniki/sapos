@@ -434,7 +434,6 @@ function ciniki_sapos_shipment() {
 						p.data['weight_units'] = M.curBusiness.sapos.settings['shipments-default-weight-units'];
 					}
 					if( rsp.invoice.items != null ) {
-						console.log(rsp.invoice.items);
 						for(i in rsp.invoice.items) {
 							if( rsp.invoice.items[i].item.required_quantity > 0 ) {
 //							if( rsp.invoice.items[i].item.shipped_quantity < rsp.invoice.items[i].item.quantity ) {
@@ -522,7 +521,6 @@ function ciniki_sapos_shipment() {
 						}
 					}
 					p.data.items = rsp.shipment.items;
-					console.log(rsp);
 					p.refreshSection('invoice_items');
 					p.refreshSection('items');
 				});
