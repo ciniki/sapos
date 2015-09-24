@@ -434,8 +434,10 @@ function ciniki_sapos_shipment() {
 						p.data['weight_units'] = M.curBusiness.sapos.settings['shipments-default-weight-units'];
 					}
 					if( rsp.invoice.items != null ) {
+						console.log(rsp.invoice.items);
 						for(i in rsp.invoice.items) {
-							if( rsp.invoice.items[i].item.shipped_quantity < rsp.invoice.items[i].item.quantity ) {
+							if( rsp.invoice.items[i].item.required_quantity > 0 ) {
+//							if( rsp.invoice.items[i].item.shipped_quantity < rsp.invoice.items[i].item.quantity ) {
 								p.data.invoice_items.push(rsp.invoice.items[i]);
 							}
 						}
@@ -457,7 +459,8 @@ function ciniki_sapos_shipment() {
 				p.data.invoice_items = [];
 				if( rsp.invoice.items != null ) {
 					for(i in rsp.invoice.items) {
-						if( rsp.invoice.items[i].item.shipped_quantity < rsp.invoice.items[i].item.quantity ) {
+						if( rsp.invoice.items[i].item.required_quantity > 0 ) {
+//						if( rsp.invoice.items[i].item.shipped_quantity < rsp.invoice.items[i].item.quantity ) {
 							p.data.invoice_items.push(rsp.invoice.items[i]);
 						}
 					}
@@ -509,14 +512,17 @@ function ciniki_sapos_shipment() {
 					p.setFieldValue('status', rsp.shipment.status);
 					p.data.status = rsp.shipment.status;
 					p.data.invoice_items = [];
-					if( rsp.shipment.invoice_items != null ) {
-						for(i in rsp.shipment.invoice_items) {
-							if( rsp.shipment.invoice_items[i].item.shipped_quantity < rsp.shipment.invoice_items[i].item.quantity ) {
-								p.data.invoice_items.push(rsp.shipment.invoice_items[i]);
+					var invoice_items = rsp.shipment.invoice_items;
+					if( invoice_items != null ) {
+						for(i in invoice_items) {
+							if( invoice_items[i].item.required_quantity > 0 ) {
+//							if( invoice_items[i].item.shipped_quantity < invoice_items[i].item.quantity ) {
+								p.data.invoice_items.push(invoice_items[i]);
 							}
 						}
 					}
 					p.data.items = rsp.shipment.items;
+					console.log(rsp);
 					p.refreshSection('invoice_items');
 					p.refreshSection('items');
 				});
@@ -542,11 +548,12 @@ function ciniki_sapos_shipment() {
 					p.sections._buttons.buttons.print.visible = 'yes';
 					p.shipment_id = rsp.shipment.id;
 					p.data = rsp.shipment;
-					invoice_items = rsp.shipment.invoice_items;
+					var invoice_items = rsp.shipment.invoice_items;
 					p.data.invoice_items = [];
 					if( invoice_items != null ) {
 						for(i in invoice_items) {
-							if( invoice_items[i].item.shipped_quantity < invoice_items[i].item.quantity ) {
+							if( invoice_items[i].item.required_quantity > 0 ) {
+//							if( invoice_items[i].item.shipped_quantity < invoice_items[i].item.quantity ) {
 								p.data.invoice_items.push(invoice_items[i]);
 							}
 						}
