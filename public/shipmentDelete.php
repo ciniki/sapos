@@ -127,7 +127,7 @@ function ciniki_sapos_shipmentDelete(&$ciniki) {
 		//
 		if( $item['object'] != '' && $item['object_id'] != '' ) {
 			list($pkg,$mod,$obj) = explode('.', $item['object']);
-			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryRemove');
+			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryReplace');
 			if( $rc['stat'] == 'ok' ) {
 				$fn = $rc['function_call'];
 				$rc = $fn($ciniki, $args['business_id'], array(
