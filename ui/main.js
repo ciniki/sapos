@@ -362,9 +362,14 @@ function ciniki_sapos_main() {
 				ct++;
 				this.menu.formtabs.tabs.yearlyinvoices.visible = 'yes';
 				ct++;
+			} else {
+				this.menu.formtabs.tabs.monthlyinvoices.visible = 'no';
+				this.menu.formtabs.tabs.yearlyinvoices.visible = 'no';
 			}
 		} else {
 			this.menu.formtabs.tabs.invoices.visible = 'no';
+			this.menu.formtabs.tabs.monthlyinvoices.visible = 'no';
+			this.menu.formtabs.tabs.yearlyinvoices.visible = 'no';
 		}
 		if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
 			this.menu.formtabs.tabs.pos.visible = 'yes';
