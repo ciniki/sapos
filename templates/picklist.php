@@ -568,6 +568,9 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
 		if( isset($item['item']['code']) && $item['item']['code'] != '' ) {
 			$item['item']['description'] = $item['item']['code'] . ' - ' . $item['item']['description'];
 		}
+		if( isset($item['item']['notes']) && $item['item']['notes'] != '' ) {
+			$item['item']['description'] .= "\n    " . $item['item']['notes'];
+		}
 		$nlines = $pdf->getNumLines($item['item']['description'], $w[0]);
 		if( $nlines == 2 ) {
 			$lh = 3+($nlines*5);
