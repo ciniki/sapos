@@ -318,7 +318,12 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 //		print_r($item);
 		// Create the array to store the invoice totals by invoice_id
 		if( !isset($invoices[$item['item']['invoice_id']]) ) {
-			$invoices[$item['item']['invoice_id']] = array('total_amount'=>$item['item']['invoice_total_amount'], 'num_pieces'=>0, 'num_nopromo_pieces'=>0);
+			$invoices[$item['item']['invoice_id']] = array(
+                'total_amount'=>$item['item']['invoice_total_amount'], 
+                'num_pieces'=>0, 
+                'num_nopromo_pieces'=>0, 
+                'nopromo_total_amount'=>0,
+                );
 		}
 		// Create the array to store the invoice totals by shipment_id
 		if( !isset($shipments[$item['item']['shipment_id']]) ) {
@@ -373,12 +378,13 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 			// Check for promotional items
 			if( ($item['item']['flags']&0x4000) == 0 ) {
 				$invoices[$item['item']['invoice_id']]['num_nopromo_pieces'] += $item['item']['shipment_quantity'];
+				$invoices[$item['item']['invoice_id']]['nopromo_total_amount'] = bcadd($invoices[$item['item']['invoice_id']]['nopromo_total_amount'], $rc['total'], 4);
+				$shipments[$item['item']['shipment_id']]['num_nopromo_pieces'] += $item['item']['shipment_quantity'];
 			}
 			$shipments[$item['item']['shipment_id']]['total_amount'] += $rc['total'];
 			$shipments[$item['item']['shipment_id']]['num_pieces'] += $item['item']['shipment_quantity'];
-			if( ($item['item']['flags']&0x4000) == 0 ) {
-				$shipments[$item['item']['shipment_id']]['num_nopromo_pieces'] += $item['item']['shipment_quantity'];
-			}
+//			if( ($item['item']['flags']&0x4000) == 0 ) {
+//			}
 		} else {
 			$items[$iid]['item']['total_amount'] = '';
 		}
@@ -394,6 +400,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$items[$iid]['item']['num_pieces'] = $shipments[$item['item']['shipment_id']]['num_pieces'];
 		$items[$iid]['item']['num_nopromo_pieces'] = $shipments[$item['item']['shipment_id']]['num_nopromo_pieces'];
 		$items[$iid]['item']['invoice_total_amount'] = $invoices[$item['item']['invoice_id']]['total_amount'];
+		$items[$iid]['item']['nopromo_total_amount'] = $invoices[$item['item']['invoice_id']]['nopromo_total_amount'];
 		$items[$iid]['item']['invoice_total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
 			$invoices[$item['item']['invoice_id']]['total_amount'], $intl_currency);
 		if( $item['item']['ship_date'] != '' ) {
@@ -459,6 +466,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Price Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Unit Amount', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Non Promo Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tax Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment Total', false);
@@ -508,6 +516,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['pricepoint_code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['unit_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['total_amount'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['nopromo_total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tax_location_code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_total_amount'], false);
@@ -561,6 +570,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$sheet->getColumnDimension('AJ')->setAutoSize(true);
 		$sheet->getColumnDimension('AK')->setAutoSize(true);
 		$sheet->getColumnDimension('AL')->setAutoSize(true);
+		$sheet->getColumnDimension('AM')->setAutoSize(true);
 
 		//
 		// Output the excel
