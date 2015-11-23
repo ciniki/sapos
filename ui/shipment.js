@@ -340,7 +340,7 @@ function ciniki_sapos_shipment() {
 					p.data = rsp.shipment;
 					// Only show the delete button when the shipment is still in packing.  If not 
 					// the status must be reset to packing before it can be deleted.
-					if( rsp.shipment.status >= 20 ) {
+					if( rsp.shipment.status >= 20 && rsp.shipment.items.length > 0 ) {
 						p.sections._buttons.buttons.delete.visible = 'no';
 					}
 					if( rsp.shipment.invoice_po_number != null && rsp.shipment.invoice_po_number != '' ) {
