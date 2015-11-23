@@ -32,7 +32,7 @@ function ciniki_sapos_orders() {
 				}},
 			'reports':{'label':'', 'aside':'yes', 'list':{
 				'smartborder':{'label':'Smart Border', 'fn':'M.startApp(\'ciniki.sapos.smartborder\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
-				'mwexport':{'label':'Moneyworks Export', 'fn':'M.startApp(\'ciniki.sapos.mwexport\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
+//				'mwexport':{'label':'Moneyworks Export', 'fn':'M.startApp(\'ciniki.sapos.mwexport\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
 				'mwexportb':{'label':'Moneyworks Export 2', 'fn':'M.startApp(\'ciniki.sapos.mwexportb\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
 				'backordereditems':{'label':'Backordered Items', 'fn':'M.startApp(\'ciniki.sapos.backordereditems\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
 				'customerbackorders':{'label':'Customer Backorders', 'fn':'M.startApp(\'ciniki.sapos.customerbackorders\',null,\'M.ciniki_sapos_orders.showMenu();\');'},
