@@ -322,6 +322,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
                 'total_amount'=>$item['item']['invoice_total_amount'], 
                 'num_pieces'=>0, 
                 'num_nopromo_pieces'=>0, 
+                'num_nopromo_pieces_ordered'=>0, 
                 'nopromo_total_amount'=>0,
                 );
 		}
@@ -383,10 +384,11 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 			}
 			$shipments[$item['item']['shipment_id']]['total_amount'] += $rc['total'];
 			$shipments[$item['item']['shipment_id']]['num_pieces'] += $item['item']['shipment_quantity'];
-//			if( ($item['item']['flags']&0x4000) == 0 ) {
-//			}
 		} else {
 			$items[$iid]['item']['total_amount'] = '';
+		}
+		if( ($item['item']['flags']&0x4000) == 0 ) {
+            $invoices[$item['item']['invoice_id']]['num_nopromo_pieces_ordered'] += $item['item']['ordered_quantity'];
 		}
 	}
 
@@ -399,6 +401,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 //		$items[$iid]['item']['num_nopromo_pieces'] = $invoices[$item['item']['invoice_id']]['num_nopromo_pieces'];
 		$items[$iid]['item']['num_pieces'] = $shipments[$item['item']['shipment_id']]['num_pieces'];
 		$items[$iid]['item']['num_nopromo_pieces'] = $shipments[$item['item']['shipment_id']]['num_nopromo_pieces'];
+		$items[$iid]['item']['num_nopromo_pieces_ordered'] = $invoices[$item['item']['invoice_id']]['num_nopromo_pieces_ordered'];
 		$items[$iid]['item']['invoice_total_amount'] = $invoices[$item['item']['invoice_id']]['total_amount'];
 		$items[$iid]['item']['nopromo_total_amount'] = $invoices[$item['item']['invoice_id']]['nopromo_total_amount'];
 		$items[$iid]['item']['invoice_total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
@@ -455,6 +458,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Num Boxes', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Num Pieces', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Non Promo Pieces', false);
+		$sheet->setCellValueByColumnAndRow($i++, 1, 'Non Promo Ordered', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Weight', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Description', false);
@@ -466,7 +470,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Price Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Unit Amount', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
-		$sheet->setCellValueByColumnAndRow($i++, 1, 'Non Promo Total', false);
+//		$sheet->setCellValueByColumnAndRow($i++, 1, 'Non Promo Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Tax Code', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice Total', false);
 		$sheet->setCellValueByColumnAndRow($i++, 1, 'Shipment Total', false);
@@ -505,6 +509,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_boxes'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_pieces'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_nopromo_pieces'], false);
+			$sheet->setCellValueByColumnAndRow($i++, $row, $item['num_nopromo_pieces_ordered'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['weight'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['description'], false);
@@ -516,7 +521,7 @@ function ciniki_sapos_reportMWExport2(&$ciniki) {
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['pricepoint_code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['unit_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['total_amount'], false);
-			$sheet->setCellValueByColumnAndRow($i++, $row, $item['nopromo_total_amount'], false);
+//			$sheet->setCellValueByColumnAndRow($i++, $row, $item['nopromo_total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['tax_location_code'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['invoice_total_amount'], false);
 			$sheet->setCellValueByColumnAndRow($i++, $row, $item['shipment_total_amount'], false);
