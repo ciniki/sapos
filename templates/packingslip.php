@@ -517,7 +517,9 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
 			$lh = 3+($nlines*5);
 		} elseif( $nlines > 2 ) {
 			$lh = 2+($nlines*5);
-		}
+		} else {
+            $lh = 6;
+        }
 		// Check if we need a page break
 		if( $pdf->getY() > ($pdf->getPageHeight() - 30) ) {
 			$pdf->AddPage();
