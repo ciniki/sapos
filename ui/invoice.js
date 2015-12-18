@@ -389,6 +389,9 @@ function ciniki_sapos_invoice() {
 				if( d.item.object == 'ciniki.fatt.offeringregistration' ) {
 					return 'M.startApp(\'ciniki.fatt.sapos\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
 				}
+				if( d.item.object == 'ciniki.courses.offering_registration' ) {
+					return 'M.startApp(\'ciniki.courses.sapos\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
+				}
 				return 'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
 			}
 			if( s == 'tallies' ) {
