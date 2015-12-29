@@ -14,9 +14,6 @@ function ciniki_sapos_web_accountSubMenuItems($ciniki, $settings, $business_id) 
 
     $submenu = array();
 
-    error_log('testing');
-    error_log($ciniki['session']['customer']['id']);
-
 	$strsql = "SELECT "
 		. "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS typestatus, "
 		. "COUNT(id) "
