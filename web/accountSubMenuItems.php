@@ -33,7 +33,7 @@ function ciniki_sapos_web_accountSubMenuItems($ciniki, $settings, $business_id) 
     // If there are orders, add the orders submenu
     //
     if( isset($rc['stats']['40.15']) || isset($rc['stats']['40.30']) || isset($rc['stats']['40.50']) ) {
-        $submenu[] = array('name'=>'Orders', 'priority'=>250, 'package'=>'ciniki', 'module'=>'sapos', 'url'=>$ciniki['request']['base_url'] . '/account/orders');
+        $submenu[] = array('name'=>'Orders', 'priority'=>350, 'package'=>'ciniki', 'module'=>'sapos', 'url'=>$ciniki['request']['base_url'] . '/account/orders');
     }
 
 	return array('stat'=>'ok', 'submenu'=>$submenu);
