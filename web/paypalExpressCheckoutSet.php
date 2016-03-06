@@ -30,11 +30,11 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
 	$paypal_settings = $rc['settings'];
 
     if( isset($paypal_settings['paypal-ec-site']) && $paypal_settings['paypal-ec-site'] == 'live' ) {
-		$paypal_endpoint = "https://api-3t.sandbox.paypal.com/nvp";
-        $paypal_redirect_url = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
-    } elseif( isset($paypal_settings['paypal-ec-site']) && $paypal_settings['paypal-ec-site'] == 'sandbox' ) {
 		$paypal_endpoint = "https://api-3t.paypal.com/nvp";
         $paypal_redirect_url = "https://www.paypal.com/webscr?cmd=_express-checkout";
+    } elseif( isset($paypal_settings['paypal-ec-site']) && $paypal_settings['paypal-ec-site'] == 'sandbox' ) {
+		$paypal_endpoint = "https://api-3t.sandbox.paypal.com/nvp";
+        $paypal_redirect_url = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
     } else {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3173', 'msg'=>'Paypal processing not configured'));
 	}
@@ -91,7 +91,7 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
         . "&PWD=" . $paypal_password 
         . "&USER=" . $paypal_clientid
         . "&SIGNATURE=" . $paypal_signature
-        . "&PAYMENTREQUEST_0_AMT=" . urlencode($args['amount'])
+        . "&PAYMENTREQUEST_0_AMT=" . urlencode(sprintf("%.02f", $args['amount']))
         . "&PAYMENTREQUEST_0_PAYMENTACTION=" . urlencode($args['type'])
         . "&RETURNURL=" . urlencode($args['returnurl'])
         . "&CANCELURL=" . urlencode($args['cancelurl'])
