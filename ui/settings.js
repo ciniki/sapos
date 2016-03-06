@@ -34,8 +34,14 @@ function ciniki_sapos_settings() {
 			'mileage':{'label':'Mileage', 'visible':'no', 'list':{
 				'mileagerates':{'label':'Rates', 'fn':'M.ciniki_sapos_settings.showMileageRates(\'M.ciniki_sapos_settings.showMenu();\');'},
 				}},
-			'paypal':{'label':'Paypal', 'list':{
-				'paypal':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.editPaypal(\'M.ciniki_sapos_settings.showMenu();\');'},
+			'paypalapi':{'label':'Paypal API', 'list':{
+				'paypalapi':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.editPaypalAPI(\'M.ciniki_sapos_settings.showMenu();\');'},
+				}},
+			'paypalec':{'label':'Paypal Express Checkout', 'list':{
+				'paypalec':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.editPaypalEC(\'M.ciniki_sapos_settings.showMenu();\');'},
+				}},
+			'paypalpayments':{'label':'Paypal Checkout', 'list':{
+				'paypalpayments':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.editPaypalPayments(\'M.ciniki_sapos_settings.showMenu();\');'},
 				}},
 		};
 		this.menu.addClose('Back');
@@ -353,15 +359,15 @@ function ciniki_sapos_settings() {
 		this.mrateedit.addClose('Cancel');
 
 		//
-		// The paypal settings panel
+		// The paypal API settings panel
 		//
-		this.paypal = new M.panel('Paypal Settings',
-			'ciniki_sapos_settings', 'paypal',
-			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.paypal');
-		this.paypal.sections = {
-			'paypal':{'label':'Paypal', 'fields':{
-				'paypal-api-processing':{'label':'Virtual Terminal', 'type':'toggle', 'default':'no', 'toggles':this.toggleOptions},
-				}},
+		this.paypalapi = new M.panel('Paypal API',
+			'ciniki_sapos_settings', 'paypalapi',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.paypalapi');
+		this.paypalapi.sections = {
+//			'paypal':{'label':'Paypal', 'fields':{
+//				'paypal-api-processing':{'label':'Virtual Terminal', 'type':'toggle', 'default':'no', 'toggles':this.toggleOptions},
+//				}},
 			'test':{'label':'Test Credentials', 'fields':{
 				'paypal-test-account':{'label':'Account', 'type':'text'},
 				'paypal-test-endpoint':{'label':'Endpoint', 'type':'text'},
@@ -374,18 +380,74 @@ function ciniki_sapos_settings() {
 				'paypal-live-secret':{'label':'Secret', 'type':'text'},
 				}},
 			'_buttons':{'label':'', 'buttons':{
-				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.savePaypal();'},
+				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.savePaypalAPI();'},
 				}},
 		};
-		this.paypal.fieldHistoryArgs = function(s, i) {
+		this.paypalapi.fieldHistoryArgs = function(s, i) {
 			return {'method':'ciniki.sapos.settingsHistory', 
 				'args':{'business_id':M.curBusinessID, 'setting':i}};
 		}
-		this.paypal.fieldValue = function(s, i, d) {
+		this.paypalapi.fieldValue = function(s, i, d) {
 			return this.data[i];
 		};
-		this.paypal.addButton('save', 'Save', 'M.ciniki_sapos_settings.savePaypal();');
-		this.paypal.addClose('Cancel');
+		this.paypalapi.addButton('save', 'Save', 'M.ciniki_sapos_settings.savePaypalAPI();');
+		this.paypalapi.addClose('Cancel');
+
+		//
+		// The paypal Express Checkout settings panel
+		//
+		this.paypalec = new M.panel('Paypal EC',
+			'ciniki_sapos_settings', 'paypalec',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.paypalec');
+		this.paypalec.sections = {
+			'paypal':{'label':'Paypal', 'fields':{
+                'paypal-ec-site':{'label':'Site', 'type':'toggle', 'default':'sandbox', 'toggles':{'sandbox':'Sandbox', 'live':'Live'}},
+				}},
+			'credentials':{'label':'Credentials', 'fields':{
+//				'paypal-live-endpoint':{'label':'Endpoint', 'type':'text'},
+				'paypal-ec-clientid':{'label':'Client ID', 'type':'text'},
+				'paypal-ec-password':{'label':'Password', 'type':'text'},
+				'paypal-ec-signature':{'label':'Signature', 'type':'text'},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.savePaypalEC();'},
+				}},
+		};
+		this.paypalec.fieldHistoryArgs = function(s, i) {
+			return {'method':'ciniki.sapos.settingsHistory', 
+				'args':{'business_id':M.curBusinessID, 'setting':i}};
+		}
+		this.paypalec.fieldValue = function(s, i, d) {
+			return this.data[i];
+		};
+		this.paypalec.addButton('save', 'Save', 'M.ciniki_sapos_settings.savePaypalEC();');
+		this.paypalec.addClose('Cancel');
+
+		//
+		// The paypal checkout settings panel
+		//
+		this.paypalpayments = new M.panel('Paypal Payments',
+			'ciniki_sapos_settings', 'paypalpayments',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.paypalpayments');
+		this.paypalpayments.sections = {
+			'paypal':{'label':'Paypal', 'fields':{
+                'paypal-site':{'label':'Site', 'type':'toggle', 'default':'test', 'toggles':{'test':'Sandbox', 'live':'Live'}},
+				'paypal-business':{'label':'Account Email', 'type':'text'},
+				'paypal-prefix':{'label':'Prefix', 'type':'text'},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.savePaypalPayments();'},
+				}},
+		};
+		this.paypalpayments.fieldHistoryArgs = function(s, i) {
+			return {'method':'ciniki.sapos.settingsHistory', 
+				'args':{'business_id':M.curBusinessID, 'setting':i}};
+		}
+		this.paypalpayments.fieldValue = function(s, i, d) {
+			return this.data[i];
+		};
+		this.paypalpayments.addButton('save', 'Save', 'M.ciniki_sapos_settings.savePaypalPayments();');
+		this.paypalpayments.addClose('Cancel');
 	}
 
 	//
@@ -433,21 +495,23 @@ function ciniki_sapos_settings() {
 		this.menu.sections.shipments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0?'yes':'no';
 		this.menu.sections.expenses.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x02)>0?'yes':'no';
 		this.menu.sections.mileage.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100)>0?'yes':'no';
-		this.menu.sections.paypal.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0?'yes':'no';
+		this.menu.sections.paypalapi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0?'yes':'no';
+		this.menu.sections.paypalec.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x200000)>0?'yes':'no';
+		this.menu.sections.paypalpayments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100000)>0?'yes':'no';
 		this.menu.refresh();
 		this.menu.show(cb);
 	}
 
 	//
-	// show the paypal settings
+	// show the paypal Express Checkout settings
 	//
-	this.editPaypal = function(cb) {
+	this.editPaypalEC = function(cb) {
 		M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
 			if( rsp.stat != 'ok' ) {
 				M.api.err(rsp);
 				return false;
 			}
-			var p = M.ciniki_sapos_settings.paypal;
+			var p = M.ciniki_sapos_settings.paypalec;
 			p.data = rsp.settings;
 			p.refresh();
 			p.show(cb);
@@ -455,10 +519,10 @@ function ciniki_sapos_settings() {
 	};
 
 	//
-	// Save the Paypal settings
+	// Save the Paypal Express Check settings
 	//
-	this.savePaypal = function() {
-		var c = this.paypal.serializeForm('no');
+	this.savePaypalEC = function() {
+		var c = this.paypalec.serializeForm('no');
 		if( c != '' ) {
 			M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
 				c, function(rsp) {
@@ -466,10 +530,80 @@ function ciniki_sapos_settings() {
 						M.api.err(rsp);
 						return false;
 					}
-					M.ciniki_sapos_settings.paypal.close();
+					M.ciniki_sapos_settings.paypalec.close();
 				});
 		} else {
-			this.paypal.close();
+			this.paypalec.close();
+		}
+	};
+
+	//
+	// show the paypal api settings
+	//
+	this.editPaypalAPI = function(cb) {
+		M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			var p = M.ciniki_sapos_settings.paypalapi;
+			p.data = rsp.settings;
+			p.refresh();
+			p.show(cb);
+		});
+	};
+
+	//
+	// Save the Paypal api settings
+	//
+	this.savePaypalAPI = function() {
+		var c = this.paypalapi.serializeForm('no');
+		if( c != '' ) {
+			M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+				c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.paypalapi.close();
+				});
+		} else {
+			this.paypalapi.close();
+		}
+	};
+
+	//
+	// show the paypal payments settings
+	//
+	this.editPaypalPayments = function(cb) {
+		M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			var p = M.ciniki_sapos_settings.paypalpayments;
+			p.data = rsp.settings;
+			p.refresh();
+			p.show(cb);
+		});
+	};
+
+	//
+	// Save the Paypal payments settings
+	//
+	this.savePaypalPayments = function() {
+		var c = this.paypalpayments.serializeForm('no');
+		if( c != '' ) {
+			M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+				c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.paypalpayments.close();
+				});
+		} else {
+			this.paypalpayments.close();
 		}
 	};
 

@@ -84,7 +84,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
 					if( $args['quantity'] > $object_item['units_available'] ) {
 						// Check if there's enough units available, otherwise use the maximum available
 						if( $object_item['units_available'] > 0 ) {
-							$args['quantity'] = $item['units_available'];
+							$args['quantity'] = $object_item['units_available'];
 						} else {
 							return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1700', 'msg'=>'No more available'));
 						}

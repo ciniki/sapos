@@ -44,7 +44,9 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1817', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
 				}
 				$item = $rc['item'];
-			}
+			} else {
+                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3159', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
+            }
 		}
 		if( isset($item['object']) ) { $args['object'] = $item['object']; }
 		if( isset($item['object_id']) ) { $args['object_id'] = $item['object_id']; }

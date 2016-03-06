@@ -24,7 +24,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
 		array('flag'=>array('bit'=>'8', 'name'=>'Manufacturing')),
 		// 0x0100
 		array('flag'=>array('bit'=>'9', 'name'=>'Mileage')),
-		array('flag'=>array('bit'=>'10', 'name'=>'Payments')),  // If the business is handling payments elsewhere turn this off
+		array('flag'=>array('bit'=>'10', 'name'=>'Paypal API')),  // If the business is handling payments elsewhere turn this off
 		array('flag'=>array('bit'=>'11', 'name'=>'Item Codes')), // Should be enabled along with product codes in ciniki.products
 		array('flag'=>array('bit'=>'12', 'name'=>'Quantity Totals')),
 		// 0x1000
@@ -37,6 +37,11 @@ function ciniki_sapos_flags($ciniki, $modules) {
 		array('flag'=>array('bit'=>'18', 'name'=>'Work Location')), 	// Address where the work was done
 //		array('flag'=>array('bit'=>'19', 'name'=>'')), 
 //		array('flag'=>array('bit'=>'20', 'name'=>'')),
+		// 0x100000
+		array('flag'=>array('bit'=>'21', 'name'=>'Paypal Payments')), 
+		array('flag'=>array('bit'=>'22', 'name'=>'Paypal Express Checkout')),
+//		array('flag'=>array('bit'=>'23', 'name'=>'')), 
+//		array('flag'=>array('bit'=>'24', 'name'=>'')),
 
 		);
 
