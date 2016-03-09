@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This function is called at the start of a Paypal Express Checkout. When paypal returns the user to the set paypalExpressCheckoutGet should be called.
+// This function is the final call in express checkout to collect the payment.
 //
 // Arguments
 // ---------
@@ -10,10 +10,13 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args) {
+function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $business_id, $args) {
 
-    if( !isset($args['amount']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3172', 'msg'=>'No amount specified.'));
+    if( !isset($_SESSION['paypal_token']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3199', 'msg'=>'Internal Error'));
+    }
+    if( !isset($_SESSION['paypal_payer_id']) ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3198', 'msg'=>'Internal Error'));
     }
 
 	//
@@ -25,7 +28,7 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
 		return $rc;
 	}
 	if( !isset($rc['settings']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3180', 'msg'=>'Paypal processing not configured'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3200', 'msg'=>'Paypal processing not configured'));
 	}
 	$paypal_settings = $rc['settings'];
 
@@ -36,41 +39,22 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
 		$paypal_endpoint = "https://api-3t.sandbox.paypal.com/nvp";
         $paypal_redirect_url = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
     } else {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3173', 'msg'=>'Paypal processing not configured'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3201', 'msg'=>'Paypal processing not configured'));
 	}
 
     if( !isset($paypal_settings['paypal-ec-clientid']) || $paypal_settings['paypal-ec-clientid'] == '' ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3182', 'msg'=>'Paypal processing not configured'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3202', 'msg'=>'Paypal processing not configured'));
     }
     if( !isset($paypal_settings['paypal-ec-password']) || $paypal_settings['paypal-ec-password'] == '' ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3183', 'msg'=>'Paypal processing not configured'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3203', 'msg'=>'Paypal processing not configured'));
     }
     if( !isset($paypal_settings['paypal-ec-signature']) || $paypal_settings['paypal-ec-signature'] == '' ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3184', 'msg'=>'Paypal processing not configured'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3204', 'msg'=>'Paypal processing not configured'));
     }
 
     $paypal_clientid = $paypal_settings['paypal-ec-clientid'];
     $paypal_password = $paypal_settings['paypal-ec-password'];
     $paypal_signature = $paypal_settings['paypal-ec-signature'];
-
-
-	// If an address is supplied, fill it in
-/*	if( $args['address1'] != '' 
-		&& $args['city'] != '' 
-		&& $args['state'] != '' 
-		&& $args['postal_code'] != '' 
-		&& $args['country_code'] != '' 
-		) {
-		$paypal_transaction['payer']['funding_instruments'][0]['credit_card']['billing_address'] = array(
-			'line1'=>$args['address1'],
-			'line2'=>(isset($args['address2'])?$args['address2']:''),
-			'city'=>$args['city'],
-			'state'=>$args['state'],
-			'postal_code'=>$args['postal_code'],
-			'country_code'=>$args['country_code'],
-			'phone'=>(isset($args['phone'])?$args['phone']:''),
-		);
-	} */
 
     //
     // Submit the Express checkout start
@@ -86,17 +70,17 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
     curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
     curl_setopt($ch, CURLOPT_POST, 1);
 
-    $nvpreq="METHOD=SetExpressCheckout"
+    $nvpreq="METHOD=DoExpressCheckoutPayment"
         . "&VERSION=93"
         . "&PWD=" . $paypal_password 
         . "&USER=" . $paypal_clientid
         . "&SIGNATURE=" . $paypal_signature
-        . "&PAYMENTREQUEST_0_AMT=" . urlencode(sprintf("%.02f", $args['amount']))
+        . "&TOKEN=" . urlencode($_SESSION['paypal_token'])
+        . "&PAYERID=" . urlencode($_SESSION['paypal_payer_id'])
         . "&PAYMENTREQUEST_0_PAYMENTACTION=" . urlencode($args['type'])
-        . "&RETURNURL=" . urlencode($args['returnurl'])
-        . "&CANCELURL=" . urlencode($args['cancelurl'])
+        . "&PAYMENTREQUEST_0_AMT=" . urlencode(sprintf("%.02f", $args['amount']))
         . "&PAYMENTREQUEST_0_CURRENCYCODE=" . urlencode($args['currency'])
-        . "&NOSHIPPING=1" // All shipping information is handled in Ciniki
+        . "&IPADDRESS=" . urlencode($_SERVER['SERVER_NAME'])
         . "";
 
     curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
@@ -117,20 +101,8 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
     } else {
         curl_close($ch);
     }
-
-    if( !isset($nvpResArray['ACK']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3164', 'msg'=>"There is a problem currently with Paypal, please try again later."));
-    }
-
     if( strtolower($nvpResArray['ACK']) == 'success' || strtolower($nvpResArray['ACK']) == 'successwithwarning' ) {
-        $paypal_token = urldecode($nvpResArray['TOKEN']);
-        $_SESSION['paypal_token'] = $paypal_token;
-
-        //
-        // Redirect user to paypal
-        //
-        header("Location: " . $paypal_redirect_url . '&token=' . $paypal_token);
-        exit;
+        return array('stat'=>'ok');
     } 
 
     error_log("PAYPAL-ACK: " . urldecode($nvpResArray['ACK']));

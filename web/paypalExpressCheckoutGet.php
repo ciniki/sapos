@@ -21,43 +21,33 @@ function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args
 		return $rc;
 	}
 	if( !isset($rc['settings']) ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3180', 'msg'=>'Paypal processing not configured'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3192', 'msg'=>'Paypal processing not configured'));
 	}
 	$paypal_settings = $rc['settings'];
 
-	if( $args['sandbox'] == 'yes' ) {
-		if( !isset($paypal_settings['paypal-test-endpoint']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3179', 'msg'=>'Paypal processing not configured'));
-		}
-		if( !isset($paypal_settings['paypal-test-clientid']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3178', 'msg'=>'Paypal processing not configured'));
-		}
-		if( !isset($paypal_settings['paypal-test-secret']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3177', 'msg'=>'Paypal processing not configured'));
-		}
-		$paypal_endpoint = "https://api-3t.sandbox.paypal.com/nvp";
-        $paypal_redirect_url = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
-		$paypal_clientid = $paypal_settings['paypal-test-clientid'];
-		$paypal_secret = $paypal_settings['paypal-test-secret'];
-	}
-	elseif( $args['system'] == 'live' ) {
-		if( !isset($paypal_settings['paypal-live-endpoint']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3176', 'msg'=>'Paypal processing not configured'));
-		}
-		if( !isset($paypal_settings['paypal-live-clientid']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3175', 'msg'=>'Paypal processing not configured'));
-		}
-		if( !isset($paypal_settings['paypal-live-secret']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3174', 'msg'=>'Paypal processing not configured'));
-		}
+    if( isset($paypal_settings['paypal-ec-site']) && $paypal_settings['paypal-ec-site'] == 'live' ) {
 		$paypal_endpoint = "https://api-3t.paypal.com/nvp";
         $paypal_redirect_url = "https://www.paypal.com/webscr?cmd=_express-checkout";
-		$paypal_clientid = $paypal_settings['paypal-live-clientid'];
-		$paypal_secret = $paypal_settings['paypal-live-secret'];
+    } elseif( isset($paypal_settings['paypal-ec-site']) && $paypal_settings['paypal-ec-site'] == 'sandbox' ) {
+		$paypal_endpoint = "https://api-3t.sandbox.paypal.com/nvp";
+        $paypal_redirect_url = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
+    } else {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3193', 'msg'=>'Paypal processing not configured'));
 	}
-	else {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3173', 'msg'=>'Paypal processing not configured'));
-	}
+
+    if( !isset($paypal_settings['paypal-ec-clientid']) || $paypal_settings['paypal-ec-clientid'] == '' ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3194', 'msg'=>'Paypal processing not configured'));
+    }
+    if( !isset($paypal_settings['paypal-ec-password']) || $paypal_settings['paypal-ec-password'] == '' ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3195', 'msg'=>'Paypal processing not configured'));
+    }
+    if( !isset($paypal_settings['paypal-ec-signature']) || $paypal_settings['paypal-ec-signature'] == '' ) {
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3196', 'msg'=>'Paypal processing not configured'));
+    }
+
+    $paypal_clientid = $paypal_settings['paypal-ec-clientid'];
+    $paypal_password = $paypal_settings['paypal-ec-password'];
+    $paypal_signature = $paypal_settings['paypal-ec-signature'];
 
     //
     // Get the paypal token to start the express checkout process
@@ -73,16 +63,12 @@ function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args
     curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
     curl_setopt($ch, CURLOPT_POST, 1);
 
-    $nvpreq="METHOD=SetExpressCheckout"
+    $nvpreq="METHOD=GetExpressCheckoutDetails"
         . "&VERSION=93"
-        . "&PWD=" . $paypal_secret 
+        . "&PWD=" . $paypal_password 
         . "&USER=" . $paypal_clientid
-        . "&SIGNATURE=" . $paypal_secret
-        . "&PAYMENTREQUEST_0_AMT=" . urlencode($args['amount']),
-        . "&PAYMENTREQUEST_0_PAYMENTACTION=" . urlencode($args['type']),
-        . "&RETURNURL=" . urlencode($args['returnurl']),
-        . "&CANCELURL=" . urlencode($args['cancelurl']),
-        . "&PAYMENTREQUEST_0_CURRENCYCODE=" . urlencode($args['currency']),
+        . "&SIGNATURE=" . $paypal_signature
+        . "&TOKEN=" . urlencode($args['token'])
         . "";
    
     curl_setopt($ch, CURLOPT_POSTFIELDS, $nvpreq);
@@ -92,31 +78,25 @@ function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args
 
     // Parse response
     $nvpResArray = array();
-    while(strlen($response)) {
-        $kvs = explode('&', $response);
-        foreach($kvs as $kv) {
-            list($key, $value) = explode('=', $kv);
-            $nvpResArray[urldecode[$key]] = urldecode[$value];
-        }
+    $kvs = explode('&', $response);
+    foreach($kvs as $kv) {
+        list($key, $value) = explode('=', $kv);
+        $nvpResArray[urldecode($key)] = urldecode($value);
     }
 
     if( curl_errno($ch)) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3171', 'msg'=>'Error processing request: ' . curl_error($ch)));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3193', 'msg'=>'Error processing request: ' . curl_error($ch)));
     } else {
         curl_close($ch);
     }
-    if( $nvpResArray['ACK'] == 'SUCCESS' || $nvpResArray['ACK'] == 'SUCCESSWITHWARNING' ) {
-        $paypal_token = $urldecode($nvpResArray['TOKEN']);
-        $_SESSION['paypal_token'] = $paypal_token;
-        //
-        // Redirect user to paypal
-        //
-        header("Location: " . $paypal_redirect_url . '&token=' . $paypal_token);
-        exit;
+    if( strtolower($nvpResArray['ACK']) == 'success' || strtolower($nvpResArray['ACK']) == 'successwithwarning' ) {
+        $paypal_payer_id = urldecode($nvpResArray['PAYERID']);
+        $_SESSION['paypal_payer_id'] = $paypal_payer_id;
+        return array('stat'=>'ok');
     } 
 
     error_log("PAYPAL-ERR: " . urldecode($nvpResArray['L_ERROCODE0']) . '-' . urldecode($nvpResArray['L_SHORTMESSAGE0']));
 
-	return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3181', 'msg'=>'Oops, we seem to have an error. Please try again or contact us for help. '));
+	return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3194', 'msg'=>'Oops, we seem to have an error. Please try again or contact us for help. '));
 }
 ?>

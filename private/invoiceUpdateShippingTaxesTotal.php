@@ -140,7 +140,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
 			$invoice_subtotal_amount = bcadd($invoice_subtotal_amount, $item['total_amount'], 4);
 			$invoice_total_savings = bcadd($invoice_total_savings, $item['discount_amount'], 4);
 			// Check if shipping item
-			if( ($item['flags']&0x02) > 0 ) {
+			if( ($item['flags']&0x40) > 0 ) {
 				if( $item['shipped_quantity'] < $item['quantity'] ) {	
 					$shipping_status = 10;
 				}

@@ -91,23 +91,6 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		$args['notes'] = '';
 
 		//
-		// Calculate the final amount for each item in the invoice
-		//
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
-		$rc = ciniki_sapos_itemCalcAmount($ciniki, array(
-			'quantity'=>$args['quantity'],
-			'unit_amount'=>$item['unit_amount'],
-			'unit_discount_amount'=>$item['unit_discount_amount'],
-			'unit_discount_percentage'=>$item['unit_discount_percentage'],
-			));
-		if( $rc['stat'] != 'ok' ) {
-			return $rc;
-		}
-		$args['subtotal_amount'] = $rc['subtotal'];
-		$args['discount_amount'] = $rc['discount'];
-		$args['total_amount'] = $rc['total'];
-
-		//
 		// Get the max line_number for this invoice
 		//
 		if( !isset($args['line_number']) || $args['line_number'] == '' || $args['line_number'] == 0 ) {
@@ -128,24 +111,50 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 		}
 
 		//
-		// Add the item
-		//
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-		$rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
-		if( $rc['stat'] != 'ok' ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1813', 'msg'=>'Internal Error', 'err'=>$rc['err']));
-		}
-		$item_id = $rc['id'];
-
-		//
 		// Check for a callback to the object
 		//
 		if( $args['object'] != '' && $args['object_id'] != '' ) {
 			list($pkg,$mod,$obj) = explode('.', $args['object']);
 			$rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartAdd');
 			if( $rc['stat'] == 'ok' ) {
-				$fn = $rc['function_call'];
-				$rc = $fn($ciniki, $business_id, $invoice_id, $args);
+				$itemAddCBfn = $rc['function_call'];
+
+			}
+		}
+
+		//
+        // Check if the item is a registration which means only a single quantity is allowed.  Multiple quantities
+        // must get added as several lines
+		//
+        if( ($args['flags']&0x08) == 0 || $args['quantity'] == 1 ) {
+            //
+            // Calculate the final amount for each item in the invoice
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+            $rc = ciniki_sapos_itemCalcAmount($ciniki, array(
+                'quantity'=>$args['quantity'],
+                'unit_amount'=>$item['unit_amount'],
+                'unit_discount_amount'=>$item['unit_discount_amount'],
+                'unit_discount_percentage'=>$item['unit_discount_percentage'],
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $args['subtotal_amount'] = $rc['subtotal'];
+            $args['discount_amount'] = $rc['discount'];
+            $args['total_amount'] = $rc['total'];
+
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+            $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1813', 'msg'=>'Internal Error', 'err'=>$rc['err']));
+            }
+            $item_id = $rc['id'];
+            //
+            // Issue a callback to the items module
+            //
+            if( isset($itemAddCBfn) ) {
+				$rc = $itemAddCBfn($ciniki, $business_id, $invoice_id, $args);
 				if( $rc['stat'] != 'ok' ) {
 					return $rc;
 				}
@@ -157,8 +166,56 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 						return $rc;
 					}
 				}
-			}
-		}
+            }
+        } else {
+            $quantity = $args['quantity'];
+            $args['quantity'] = 1;
+            //
+            // Calculate the final amount for an individual item
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+            $rc = ciniki_sapos_itemCalcAmount($ciniki, array(
+                'quantity'=>$args['quantity'],
+                'unit_amount'=>$item['unit_amount'],
+                'unit_discount_amount'=>$item['unit_discount_amount'],
+                'unit_discount_percentage'=>$item['unit_discount_percentage'],
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $args['subtotal_amount'] = $rc['subtotal'];
+            $args['discount_amount'] = $rc['discount'];
+            $args['total_amount'] = $rc['total'];
+
+            for($i = 0; $i < $quantity; $i++) {
+                if( $i > 0 ) {
+                    $args['line_number']++;
+                }
+                ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+                $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
+                if( $rc['stat'] != 'ok' ) {
+                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1813', 'msg'=>'Internal Error', 'err'=>$rc['err']));
+                }
+                $item_id = $rc['id'];
+                //
+                // Issue a callback to the items module
+                //
+                if( isset($itemAddCBfn) ) {
+                    $rc = $itemAddCBfn($ciniki, $business_id, $invoice_id, $args);
+                    if( $rc['stat'] != 'ok' ) {
+                        return $rc;
+                    }
+                    // Update the invoice item with the new object and object_id
+                    if( isset($rc['object']) && $rc['object'] != $args['object'] ) {
+                        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item', 
+                            $item_id, $rc, 0x04);
+                        if( $rc['stat'] != 'ok' ) {
+                            return $rc;
+                        }
+                    }
+                }
+            }
+        }
 
 		//
 		// Update the taxes
