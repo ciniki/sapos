@@ -167,10 +167,11 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
             // Display the shipments
             //
             if( isset($customer_invoice['shipments']) ) {
+                $content = '';
                 foreach($customer_invoice['shipments'] as $shipment) {
 //						$content .= "<pre>" . print_r($shipment, true) . "</pre>";
                     $shipment = $shipment['shipment'];
-                    $content = "<div class='cart'>";
+//                   $content .= "<div class='cart'>";
 
                     $saddr = '';
                     if( isset($shipment['shipping_name']) && $shipment['shipping_name'] != '' ) { $saddr .= ($saddr!=''?'<br/>':'') . $shipment['shipping_name']; }
@@ -183,7 +184,7 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
                     if( $city != '' ) { $saddr .= ($saddr!=''?'<br/>':'') . $city; } 
                     if( isset($shipment['shipping_country']) && $shipment['shipping_country'] != '' ) { $saddr .= ($saddr!=''?'<br/>':'') . $shipment['shipping_country']; }
 
-                    $content .= "<div class='cart-details'><table class='cart-details'><tbody>";
+                    $content .= "<div class='cart cart-details'><table class='cart-details'><tbody>";
                     $count = 1;
                     $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'><th>Status</th><td>" . $shipment['status_text'] . "</td></tr>";
                     $count++;
@@ -197,7 +198,7 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
                     }
                     $content .= "</tbody></table></div>";
                     $content .= "<br/>";
-                    $content .= "<div class='cart-items'>";
+                    $content .= "<div class='cart cart-items'>";
                     $content .= "<table class='cart-items'>";
                     $content .= "<thead><tr>"
                         . "<th class='aligncenter'>Item</th>"
@@ -229,9 +230,9 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
                     $content .= "</tbody>";
                     $content .= "</table>";
                     $content .= "</div>";
-                    $content .= "</div>";
+//                    $content .= "</div>";
 
-                    $page['block'][] = array('type'=>'content', 
+                    $page['blocks'][] = array('type'=>'content', 
                         'title'=>"Shipment" . (count($customer_invoice['shipments'])>1?" #" . $shipment['shipment_number']:''),
                         'html'=>$content);
                 }

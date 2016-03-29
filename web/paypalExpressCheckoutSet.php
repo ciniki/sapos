@@ -113,7 +113,7 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
     }
 
     if( curl_errno($ch)) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3171', 'msg'=>'Error processing request: ' . curl_error($ch)));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3178', 'msg'=>'Error processing request: ' . curl_error($ch)));
     } else {
         curl_close($ch);
     }
@@ -136,6 +136,6 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
     error_log("PAYPAL-ACK: " . urldecode($nvpResArray['ACK']));
     
     error_log("PAYPAL-ERR: " . urldecode($nvpResArray['L_ERRORCODE0']) . '-' . urldecode($nvpResArray['L_LONGMESSAGE0']));
-	return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3181', 'msg'=>'Oops, we seem to have an error. Please try again or contact us for help. '));
+	return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3179', 'msg'=>'Oops, we seem to have an error. Please try again or contact us for help. '));
 }
 ?>

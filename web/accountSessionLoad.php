@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_accountSessionLoad($ciniki, $settings, $business_id) {
+function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $business_id) {
 
 	//
 	// Check if the customer is signed in and look for an open cart
@@ -51,19 +51,22 @@ function ciniki_sapos_web_accountSessionLoad($ciniki, $settings, $business_id) {
 		//
 		// Check to make sure the invoice is still in shopping cart status
 		//
-		if( $rc['invoice']['status'] != '10' || $rc['invoice']['invoice_type'] != '20' ) {
+		if( $rc['invoice']['invoice_type'] != '20' ) {
 			return array('stat'=>'ok');
 		}
 
 		if( !isset($rc['invoice']['items']) ) {
 			$rc['invoice']['items'] = array();
 		}
-
+    
         $_SESSION['cart'] = $rc['invoice'];
         $_SESSION['cart']['sapos_id'] = $rc['invoice']['id'];
         $_SESSION['cart']['num_items'] = count($rc['invoice']['items']);
+        $ciniki['session']['cart'] = $_SESSION['cart'];
+        $ciniki['session']['cart']['sapos_id'] = $_SESSION['cart']['sapos_id'];
+        $ciniki['session']['cart']['num_items'] = $_SESSION['cart']['num_items'];
 
-        if( isset($rc['invoice']['cart']['customer_id']) && $rc['invoice']['cart']['customer_id'] == 0 ) {
+        if( isset($rc['invoice']['customer_id']) && $rc['invoice']['customer_id'] == 0 ) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartCustomerUpdate');
             $rc = ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $business_id);
             if( $rc['stat'] != 'ok' ) {

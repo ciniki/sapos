@@ -147,7 +147,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
             $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1813', 'msg'=>'Internal Error', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1033', 'msg'=>'Internal Error', 'err'=>$rc['err']));
             }
             $item_id = $rc['id'];
             //

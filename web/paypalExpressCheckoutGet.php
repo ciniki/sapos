@@ -32,11 +32,11 @@ function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args
 		$paypal_endpoint = "https://api-3t.sandbox.paypal.com/nvp";
         $paypal_redirect_url = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
     } else {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3193', 'msg'=>'Paypal processing not configured'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3185', 'msg'=>'Paypal processing not configured'));
 	}
 
     if( !isset($paypal_settings['paypal-ec-clientid']) || $paypal_settings['paypal-ec-clientid'] == '' ) {
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3194', 'msg'=>'Paypal processing not configured'));
+		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3186', 'msg'=>'Paypal processing not configured'));
     }
     if( !isset($paypal_settings['paypal-ec-password']) || $paypal_settings['paypal-ec-password'] == '' ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3195', 'msg'=>'Paypal processing not configured'));
