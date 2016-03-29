@@ -38,7 +38,7 @@ function ciniki_sapos_web_customerOrders(&$ciniki, $settings, $business_id, $cus
 		. "FROM ciniki_sapos_invoices "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "AND customer_id = '" . ciniki_core_dbQuote($ciniki, $customer_id) . "' "
-		. "AND invoice_type = 40 "
+		. "AND (invoice_type = 40 OR invoice_type = 10) "
 		. "AND status > 10 "
 		. "ORDER BY invoice_date DESC "
 		. "";

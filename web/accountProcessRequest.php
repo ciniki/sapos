@@ -72,7 +72,11 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
             // Display the customer invoice
             //
             if( isset($customer_invoice) ) {
-                $page['title'] = "Order #" . $customer_invoice['invoice_number'];
+                if( $customer_invoice['invoice_type'] == '10' ) {
+                    $page['title'] = "Invoice #" . $customer_invoice['invoice_number'];
+                } else {
+                    $page['title'] = "Order #" . $customer_invoice['invoice_number'];
+                }
 
                 //
                 // Note: Taken from generatePageCart
@@ -80,10 +84,14 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
                 $content .= "<div class='cart cart-items'>";
                 $content .= "<table class='cart-items'>";
                 $content .= "<thead><tr>"
-                    . "<th class='aligncenter'>Item</th>"
-                    . "<th class='alignright'>Qty Ordered</th>"
-                    . "<th class='alignright'>Qty Shipped</th>"
-                    . "<th class='alignright'>Price</th>"
+                    . "<th class='aligncenter'>Item</th>";
+                if( $customer_invoice['invoice_type'] == '40' ) {
+                    $content .= "<th class='alignright'>Qty Ordered</th>";
+                    $content .= "<th class='alignright'>Qty Shipped</th>";
+                } else {
+                    $content .= "<th class='alignright'>Quantity</th>";
+                }
+                $content .= "<th class='alignright'>Price</th>"
                     . "<th class='alignright'>Total</th>"
                     . "</tr></thead>";
                 $content .= "<tbody>";
@@ -98,7 +106,9 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
                     }
                     $content .= "</td>";
                     $content .= "<td class='alignright'>" . $item['quantity'] . "</td>";
-                    $content .= "<td class='alignright'>" . $item['shipped_quantity'] . "</td>";
+                    if( $customer_invoice['invoice_type'] == '40' ) {
+                        $content .= "<td class='alignright'>" . $item['shipped_quantity'] . "</td>";
+                    }
                     $discount_text = '';
                     if( $item['unit_discount_amount'] > 0 ) {
                         $discount_text .= '-' . $item['unit_discount_amount_display']
@@ -118,8 +128,11 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
                 }
                 $content .= "</tbody>";
                 $content .= "<tfoot>";
-                // cart totals
-                $num_cols = 4;
+                if( $customer_invoice['invoice_type'] == '40' ) {
+                    $num_cols = 4;
+                } else {
+                    $num_cols = 3;
+                }
                 if( $customer_invoice['shipping_amount'] > 0 || (isset($customer_invoice['taxes']) && count($customer_invoice['taxes']) > 0) ) {
                     $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>";
                     $content .= "<td colspan='$num_cols' class='alignright'>Sub-Total:</td>"
