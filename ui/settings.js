@@ -405,7 +405,7 @@ function ciniki_sapos_settings() {
 				}},
 			'credentials':{'label':'Credentials', 'fields':{
 //				'paypal-live-endpoint':{'label':'Endpoint', 'type':'text'},
-				'paypal-ec-clientid':{'label':'Client ID', 'type':'text'},
+				'paypal-ec-clientid':{'label':'Username', 'type':'text'},
 				'paypal-ec-password':{'label':'Password', 'type':'text'},
 				'paypal-ec-signature':{'label':'Signature', 'type':'text'},
 				}},
