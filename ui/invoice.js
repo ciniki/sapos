@@ -1111,9 +1111,7 @@ function ciniki_sapos_invoice() {
 		} else if( rsp.invoice.customer != null && rsp.invoice.customer.pricepoint_id > 0 ) {
 			p.pricepoint_id = rsp.invoice.customer.pricepoint_id;
 		}
-		if( rsp.invoice.status < 50 
-			&& (M.curBusiness.modules['ciniki.sapos'].flags&0x0200) > 0
-			) {
+		if( rsp.invoice.status < 50 ) {
 			p.sections._buttons.buttons.record.visible='yes';
 		} else {
 			p.sections._buttons.buttons.record.visible='no';
