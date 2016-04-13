@@ -19,6 +19,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'customer_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Customer'), 
+        'bill_parent'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Bill Parent'), 
         'salesrep_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Customer'), 
 		'source_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Source Invoice'),
 		'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Number'),
@@ -109,6 +110,25 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 	// based on the customer.  
 	//
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
+        //
+        // If requested, find the parent if any
+        //
+        if( isset($args['bill_parent']) && $args['bill_parent'] == 'yes' ) {
+            $strsql = "SELECT parent_id "
+                . "FROM ciniki_customers "
+                . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
+                . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.customers', 'customer');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['customer']['parent_id']) && $rc['customer']['parent_id'] > 0 ) {
+                $args['student_id'] = $args['customer_id'];
+                $args['customer_id'] = $rc['customer']['parent_id'];
+            }
+        }
+
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'getCustomer');
 		$rc = ciniki_sapos_getCustomer($ciniki, $args['business_id'], $args);
 		if( $rc['stat'] != 'ok' ) {
@@ -116,6 +136,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 		}
 		$args = $rc['args'];
 	}
+
 
 	//
 	// Get the object details and turn them into item details for the invoice
@@ -221,6 +242,11 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
 			return $rc;
 		}
 		$item_id = $rc['id'];
+
+        // If there is a student ID to pass into itemAdd
+        if( isset($args['student_id']) && $args['student_id'] != '' && $args['student_id'] > 0 ) {
+            $item['student_id'] = $args['student_id'];
+        }
 
 		//
 		// Check if there's a callback for the object

@@ -14,6 +14,7 @@
 function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
 		$strsql = "SELECT ciniki_customers.id, type, display_name, "
+			. "ciniki_customers.parent_id, "
 			. "ciniki_customers.status, "
 			. "ciniki_customers.salesrep_id, "
 			. "ciniki_customers.tax_location_id, "

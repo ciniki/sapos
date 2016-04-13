@@ -990,34 +990,34 @@ function ciniki_sapos_invoice() {
 			this.editItem(cb,args.item_id);
 		} else if( args.items != null && args.customer_id != null ) {
 			// Create new invoice with item
-			this.createInvoice(cb, args.customer_id, null, args.items, args.invoice_type);
+			this.createInvoice(cb, args.customer_id, null, args.items, args);
 		} else if( args.objects != null && args.customer_id != null ) {
 			// Create new invoice with this object/object_id
-			this.createInvoice(cb, args.customer_id, args.objects);
+			this.createInvoice(cb, args.customer_id, args.objects, null, args);
 		} else if( args.object != null && args.object_id != null && args.customer_id != null ) {
 			// Create new invoice with this object/object_id
-			this.createInvoice(cb, args.customer_id, [{'object':args.object,'id':args.object_id,'quantity':args.quantity}]);
+			this.createInvoice(cb, args.customer_id, [{'object':args.object,'id':args.object_id,'quantity':args.quantity}], null, args);
 		} else if( args.object != null && args.object_id != null ) {
 			// Create new invoice with this object/object_id
-			this.createInvoice(cb, 0, [{'object':args.object,'id':args.object_id}]);
+			this.createInvoice(cb, 0, [{'object':args.object,'id':args.object_id}], null, args);
 		} else if( args.customer_id != null && args.invoice_type != null ) {
-			this.createInvoice(cb, args.customer_id, null, null, args.invoice_type);
+			this.createInvoice(cb, args.customer_id, null, null, args);
 		} else if( args.customer_id != null ) {
 			// Create new invoice with just customer
-			this.createInvoice(cb, args.customer_id, null, null, null);
+			this.createInvoice(cb, args.customer_id, null, null, args);
 		} else if( args.invoice_type != null ) {
 			// Create new invoice with just customer
-			this.createInvoice(cb, null, null, null, args.invoice_type);
+			this.createInvoice(cb, null, null, null, args);
 		} else if( args.invoice_id != null ) {
 			// Edit an existing invoice
 			this.showInvoice(cb, args.invoice_id, (args.list!=null?args.list:[]));
 		} else {
 			// Add blank invoice
-			this.createInvoice(cb, 0, null);
+			this.createInvoice(cb, 0, null, null, null);
 		}
 	};
 
-	this.createInvoice = function(cb, cid, objects, items, type) {
+	this.createInvoice = function(cb, cid, objects, items, args) {
 		var c = '';
 		var cm = '';
 		// Create the array of items to be added to the new invoice
@@ -1028,18 +1028,18 @@ function ciniki_sapos_invoice() {
 			}
 			c = 'objects=' + c + '&';
 		}
-		if( type != null ) {
-			if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 && type == 10) {
+		if( args != null && args.type != null ) {
+			if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 && args.type == 10) {
 				c += 'invoice_type=10&';
-			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 && type == 11) {
+			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 && args.type == 11) {
 				c += 'invoice_type=11&';
-			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 && type == 20) {
+			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 && args.type == 20) {
 				c += 'invoice_type=20&';
-			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 && type == 30) {
+			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 && args.type == 30) {
 				c += 'invoice_type=30&';
-			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 && type == 40) {
+			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 && args.type == 40) {
 				c += 'invoice_type=40&';
-			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 && type == 90) {
+			} else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 && args.type == 90) {
 				c += 'invoice_type=90&';
 			} else {
 				c += 'invoice_type=' + this.default_invoice_type + '&';
@@ -1047,6 +1047,9 @@ function ciniki_sapos_invoice() {
 		} else {
 			c += 'invoice_type=' + this.default_invoice_type + '&';
 		}
+        if( args != null && args.bill_parent != null && args.bill_parent == 'yes' ) {
+            c += 'bill_parent=yes&';
+        }
 		if( items != null ) {
 			var json = '';
 			cm = '';
