@@ -43,6 +43,7 @@ function ciniki_sapos_hooks_invoiceStatus($ciniki, $business_id, $args) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
 		$rsp = array('stat'=>'ok');
 		$strsql = "SELECT ciniki_sapos_invoices.id, "
+			. "ciniki_sapos_invoices.customer_id, "
 			. "ciniki_sapos_invoices.invoice_number, "
 			. "ciniki_sapos_invoices.invoice_date, "
 			. "ciniki_sapos_invoices.status, "
@@ -55,7 +56,7 @@ function ciniki_sapos_hooks_invoiceStatus($ciniki, $business_id, $args) {
 		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 		$rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
 			array('container'=>'invoices', 'fname'=>'id', 
-				'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 'total_amount'),
+				'fields'=>array('id', 'customer_id', 'invoice_number', 'invoice_date', 'status', 'status_text', 'total_amount'),
 				'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
 				'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format))), 
 			));

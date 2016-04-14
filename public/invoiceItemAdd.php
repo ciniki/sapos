@@ -329,6 +329,15 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
 	ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
 
-	return array('stat'=>'ok', 'id'=>$item_id);
+    //
+    // Load the invoice to return 
+    //
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
+	$rc = ciniki_sapos_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+
+	return array('stat'=>'ok', 'id'=>$item_id, 'invoice'=>$rc['invoice']);
 }
 ?>

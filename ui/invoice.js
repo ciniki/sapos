@@ -1062,17 +1062,31 @@ function ciniki_sapos_invoice() {
 			}
 			c += 'items=' + encodeURIComponent('[' + json + ']');
 		}
-		// Create the new invoice, and then display it
-		M.api.postJSONCb('ciniki.sapos.invoiceAdd', {'business_id':M.curBusinessID,
-			'customer_id':cid}, c, function(rsp) {
-				if( rsp.stat != 'ok' ) {
-					M.api.err(rsp);
-					return false;
-				}
-				var p = M.ciniki_sapos_invoice.invoice;
-				p.invoice_id = rsp.invoice.id;
-				M.ciniki_sapos_invoice.showInvoiceFinish(cb, rsp);
-			});
+        // Check if this should be added to an existing invoice
+        if( args.invoice_id != null && args.invoice_id > 0 && objects != null ) {
+            M.api.postJSONCb('ciniki.sapos.invoiceObjectsAdd', {'business_id':M.curBusinessID,
+                'invoice_id':args.invoice_id, 'customer_id':cid}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    var p = M.ciniki_sapos_invoice.invoice;
+                    p.invoice_id = args.invoice_id;
+                    M.ciniki_sapos_invoice.showInvoiceFinish(cb, rsp);
+                });
+        } else {
+            // Create the new invoice, and then display it
+            M.api.postJSONCb('ciniki.sapos.invoiceAdd', {'business_id':M.curBusinessID,
+                'customer_id':cid}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    var p = M.ciniki_sapos_invoice.invoice;
+                    p.invoice_id = rsp.invoice.id;
+                    M.ciniki_sapos_invoice.showInvoiceFinish(cb, rsp);
+                });
+         }
 	};
 
 	this.showInvoice = function(cb, iid, list) {
