@@ -63,7 +63,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
 	}
 	$invoice = $rc['invoice'];
 
-	if( $invoice['status'] >= 40 ) {
+	if( $invoice['status'] >= 40 && count($invoice['items']) > 0 ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1393', 'msg'=>'This invoice is already recorded in the accounting system, and cannot be removed.'));
 	}
 

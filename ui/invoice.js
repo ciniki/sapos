@@ -1449,6 +1449,9 @@ function ciniki_sapos_invoice() {
 		} else {
 			p.sections._buttons.buttons.printquote.visible = 'no';
 		}
+        if( rsp.invoice.items.length == 0 && rsp.invoice.transactions.length == 0 ) {
+			p.sections._buttons.buttons.delete.visible = 'yes';
+        }
 		if( rsp.invoice.customer_id > 0 && rsp.invoice.invoice_type != 11 && rsp.invoice.invoice_type != 12 
 			&& M.curBusiness.modules['ciniki.mail'] != null
 			) {
@@ -1593,7 +1596,6 @@ function ciniki_sapos_invoice() {
 
 	this.emailCustomer = function(cb, invoice) {
 		this.email.invoice_id = invoice.id;
-		console.log(invoice);
 		this.email.data.subject = 'Invoice #' + invoice.invoice_number;
 		if( M.curBusiness.sapos.settings['invoice-email-message'] != null ) {
 			this.email.data.textmsg = M.curBusiness.sapos.settings['invoice-email-message'];
