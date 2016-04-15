@@ -110,6 +110,7 @@ function ciniki_sapos_invoices() {
 				return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_invoices.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
 			}
 		};
+        this.invoices.addButton('add', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_invoices.showInvoices();\',\'mc\',{});');
 		this.invoices.addClose('Back');
 	};
 

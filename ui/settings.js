@@ -24,6 +24,9 @@ function ciniki_sapos_settings() {
 				'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.editInvoice(\'M.ciniki_sapos_settings.showMenu();\');'},
 				'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showQI(\'M.ciniki_sapos_settings.showMenu();\');'},
 				'rules':{'label':'Rules', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showRules(\'M.ciniki_sapos_settings.showMenu();\',\'invoice\');'},
+				'reports':{'label':'Reports', 
+                    'visible':function() {return ((M.userPerms&0x01)>0?'yes':'no');},
+                    'fn':'M.ciniki_sapos_settings.editInvoiceReports(\'M.ciniki_sapos_settings.showMenu();\',\'invoicereports\');'},
 				}},
 			'shipments':{'label':'Shipments', 'visible':'no', 'list':{
 				'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.editShipment(\'M.ciniki_sapos_settings.showMenu();\');'},
@@ -163,6 +166,30 @@ function ciniki_sapos_settings() {
 		};
 		this.invoice.addButton('save', 'Save', 'M.ciniki_sapos_settings.saveInvoice();');
 		this.invoice.addClose('Cancel');
+
+		//
+		// The invoice settings panel
+		//
+		this.invoicereports = new M.panel('Invoice Settings',
+			'ciniki_sapos_settings', 'invoicereports',
+			'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.invoicereports');
+		this.invoicereports.sections = {
+			'taxes':{'label':'Tax Reports', 'fields':{
+				'invoice-reports-taxes-ontario-hst':{'label':'Ontario HST', 'type':'toggle', 'default':'center', 'toggles':this.yesNoOptions},
+				}},
+			'_buttons':{'label':'', 'buttons':{
+				'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveInvoiceReports();'},
+				}},
+		};
+		this.invoicereports.fieldHistoryArgs = function(s, i) {
+			return {'method':'ciniki.sapos.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
+		}
+		this.invoicereports.fieldValue = function(s, i, d) {
+			if( this.data[i] == null && d.default != null ) { return d.default; }
+			return this.data[i];
+		};
+		this.invoicereports.addButton('save', 'Save', 'M.ciniki_sapos_settings.saveInvoiceReports();');
+		this.invoicereports.addClose('Cancel');
 
 		//
 		// The invoice settings panel
@@ -674,6 +701,41 @@ function ciniki_sapos_settings() {
 				});
 		} else {
 			this.invoice.close();
+		}
+	};
+
+	//
+	// show the invoice settings
+	//
+	this.editInvoiceReports = function(cb) {
+		M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+			if( rsp.stat != 'ok' ) {
+				M.api.err(rsp);
+				return false;
+			}
+			var p = M.ciniki_sapos_settings.invoicereports;
+			p.data = rsp.settings;
+			p.refresh();
+			p.show(cb);
+		});
+	};
+
+	//
+	// Save the Invoice settings
+	//
+	this.saveInvoiceReports = function() {
+		var c = this.invoicereports.serializeForm('no');
+		if( c != '' ) {
+			M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+				c, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_sapos_settings.invoicereports.close();
+				});
+		} else {
+			this.invoicereports.close();
 		}
 	};
 
