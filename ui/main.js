@@ -384,7 +384,8 @@ function ciniki_sapos_main() {
 		} 
 
 		this.menu.forms.invoices._quickadd.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0)?'yes':'no';
-        if( M.curBusiness.modules['ciniki.sapos'].settings['invoice-reports-taxes-ontario-hst'] ) {
+//        if( M.curBusiness.modules['ciniki.sapos'].settings['invoice-reports-taxes-ontario-hst'] ) {
+        if( M.curBusiness.modules['ciniki.taxes'] != null ) {
             this.menu.forms.invoices.invoice_reports.visible = 'yes';     
         } else {
             this.menu.forms.invoices.invoice_reports.visible = 'no';     
