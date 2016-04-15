@@ -121,7 +121,6 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
             'utctodate'=>array('invoice_date'=>$intl_timezone),
             ),
         ));
-        print_r($strsql);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
