@@ -58,6 +58,25 @@ function ciniki_sapos_hooks_invoiceItemUpdate($ciniki, $business_id, $args) {
 		}
 	}
 
+    //
+    // Check if item is to move invoices
+    //
+    if( isset($args['new_invoice_id']) ) {
+        if( $args['new_invoice_id'] == 0 ) {
+            //
+            // FIXME: Create a new invoice based on old invoice information
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAddFromExisting');
+            $rc = ciniki_sapos_invoiceAddFromExisting($ciniki, $business_id, $item['invoice_id']);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $args['new_invoice_id'] = $rc['id'];
+        }
+
+        $args['invoice_id'] = $args['new_invoice_id'];
+    }
+
 	//
 	// Check if quantity or unit_amount has changed, and update the amount
 	//
@@ -141,6 +160,33 @@ function ciniki_sapos_hooks_invoiceItemUpdate($ciniki, $business_id, $args) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
 		return $rc;
 	}
+
+    //
+    // If the item moved invoiced, update the new invoice
+    //
+    if( isset($args['invoice_id']) && $args['invoice_id'] != $item['invoice_id'] ) {
+        //
+        // Update the taxes
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
+        $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $args['invoice_id']);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+
+        //
+        // Update the invoice status
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $args['invoice_id']);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+
+        return array('stat'=>'ok', 'invoice_id'=>$args['invoice_id']);
+    }
 
 	return array('stat'=>'ok');
 }
