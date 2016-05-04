@@ -65,7 +65,7 @@ function ciniki_sapos_mileages() {
 				return 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_mileages.showMileages();\',\'mc\',{\'mileage_id\':\'' + d.mileage.id + '\'});';
 			}
 		};
-		this.mileages.addButton('add', 'Mileage', 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.showMileages();\',\'mc\',{});');
+		this.mileages.addButton('add', 'Mileage', 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_mileages.showMileages();\',\'mc\',{});');
 		this.mileages.addClose('Back');
 	};
 
