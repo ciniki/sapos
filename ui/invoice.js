@@ -1047,6 +1047,9 @@ function ciniki_sapos_invoice() {
 		} else {
 			c += 'invoice_type=' + this.default_invoice_type + '&';
 		}
+        if( args != null && args.invoice_date != null && args.invoice_date != '' ) {
+            c += 'invoice_date=' + encodeURIComponent(args.invoice_date) + '&';
+        }
         if( args != null && args.bill_parent != null && args.bill_parent == 'yes' ) {
             c += 'bill_parent=yes&';
         }

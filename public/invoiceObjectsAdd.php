@@ -45,7 +45,6 @@ function ciniki_sapos_invoiceObjectsAdd(&$ciniki) {
 	// based on the customer.  
 	//
 	if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
-        error_log('find parent');
         //
         // If requested, find the parent if any
         //
@@ -60,7 +59,6 @@ function ciniki_sapos_invoiceObjectsAdd(&$ciniki) {
                 return $rc;
             }
             if( isset($rc['customer']['parent_id']) && $rc['customer']['parent_id'] > 0 ) {
-                error_log('parent found');
                 $args['student_id'] = $args['customer_id'];
                 $args['customer_id'] = $rc['customer']['parent_id'];
             }
@@ -87,7 +85,6 @@ function ciniki_sapos_invoiceObjectsAdd(&$ciniki) {
         return $rc;
     }
     if( isset($rc['invoice']['customer_id']) && (!isset($args['customer_id']) || $rc['invoice']['customer_id'] != $args['customer_id']) ) {
-        error_log('cust found');
         // $args['customer_id'] = $rc['invoice']['customer_id'];
     }
 
