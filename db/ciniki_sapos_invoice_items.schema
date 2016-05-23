@@ -50,6 +50,8 @@
 # price_id:			The ID of the price attached at the object.  Can be used to track which price
 #					was used for this invoice.
 #
+# student_id:       The ID of the student for the registration. This only used if the invoice item is for a registration item.
+#
 # code:				The code for the item, if using codes.
 #
 # description:		The description of the item.
@@ -96,6 +98,7 @@ create table ciniki_sapos_invoice_items (
 	object varchar(100) not null,
 	object_id varchar(100) not null,
 	price_id varchar(100) not null,
+    student_id int not null,
 	code varchar(150) not null,
 	description varchar(250) not null,
 	quantity decimal(19,4) not null,
@@ -113,4 +116,4 @@ create table ciniki_sapos_invoice_items (
 	primary key (id),
 	index (invoice_id, object, object_id, taxtype_id),
 	index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.04';
+) ENGINE='InnoDB', COMMENT='v1.05';

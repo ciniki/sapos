@@ -83,6 +83,7 @@ function ciniki_sapos_objects($ciniki) {
 			'object'=>array(),
 			'object_id'=>array(),
 			'price_id'=>array(),
+			'student_id'=>array('name'=>'Student', 'default'=>'0'),
 			'code'=>array('default'=>''),
 			'description'=>array(),
 			'quantity'=>array(),

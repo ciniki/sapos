@@ -19,6 +19,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
         $rc = ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_id, array(
             'invoice_id'=>$cart['id'],
             'item_id'=>$item['item']['id'],
+            'student_id'=>$item['item']['student_id'],
             ));
         if( $rc['stat'] != 'ok' ) {
             return $rc;

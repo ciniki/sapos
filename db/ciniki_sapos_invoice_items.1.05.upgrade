@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table to version 1.05.
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN student_id int not null AFTER price_id;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.05';
