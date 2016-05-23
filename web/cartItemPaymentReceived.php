@@ -31,7 +31,7 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_
     //
     // Get the existing item details
     //
-    $strsql = "SELECT id, invoice_id, object, object_id, price_id, "
+    $strsql = "SELECT id, invoice_id, object, object_id, price_id, student_id, "
         . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
         . "subtotal_amount, discount_amount, total_amount "
         . "FROM ciniki_sapos_invoice_items "
@@ -60,6 +60,7 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_
                 'object'=>$item['object'],
                 'object_id'=>$item['object_id'],
                 'price_id'=>$item['price_id'],
+                'student_id'=>$item['student_id'],
                 'quantity'=>$item['quantity'],
                 'customer_id'=>$ciniki['session']['customer']['id'],
                 'invoice_id'=>$item['invoice_id'],
