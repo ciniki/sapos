@@ -896,6 +896,7 @@ function ciniki_sapos_invoice() {
 		//
 		if( (M.curBusiness.modules['ciniki.products'] != null && (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0)
 			|| (M.curBusiness.modules['ciniki.fatt'] != null && (M.curBusiness.modules['ciniki.fatt'].flags&0x01) > 0)
+			|| (M.curBusiness.modules['ciniki.herbalist'] != null)
 			) {
 			this.item.sections.details.fields.code.livesearchcols=3;
 			this.item.sections.details.fields.code.headerValues = ['Item', 'Available', 'Price'];
