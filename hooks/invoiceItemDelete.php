@@ -132,7 +132,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice['id']) . "' "
             . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-            . "AND ciniki_sapos_invoice_items.item_id <> '" . ciniki_core_dbQuote($ciniki, $item['id']) . "' "
+            . "AND ciniki_sapos_invoice_items.id <> '" . ciniki_core_dbQuote($ciniki, $item['id']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
         $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.sapos', 'num_items');
@@ -177,7 +177,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
             //
             // Remove the invoice
             //
-            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.invoice', $invoice['id'], $invoice['uuid'], 0x04);
+            $rc = ciniki_core_objectDelete($ciniki, $business_id, 'ciniki.sapos.invoice', $invoice['id'], $invoice['uuid'], 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                 return $rc;
@@ -185,23 +185,25 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
         }
     }
 
-	//
-	// Update the invoice status
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
-	$rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $item['invoice_id']);
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
+    if( !isset($remove) || $remove != 'yes' ) {
+        //
+        // Update the invoice status
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
+        $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $item['invoice_id']);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
 
-	//
-	// Update the invoice status
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-	$rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $item['invoice_id']);
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
+        //
+        // Update the invoice status
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $item['invoice_id']);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+    }
 
 	//
 	// Update the last_change date in the business modules
