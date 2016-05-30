@@ -73,7 +73,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 	//
 	// Check to make sure the invoice hasn't been paid
 	//
-	$strsql = "SELECT id, status "
+	$strsql = "SELECT id, uuid, status "
 		. "FROM ciniki_sapos_invoices "
 		. "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $item['invoice_id']) . "' "
 		. "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -119,6 +119,71 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
+
+    //
+    // Check if invoice should be deleted when nothing in it
+    //
+    if( $invoice['status'] < 50 && isset($args['deleteinvoice']) && $args['deleteinvoice'] == 'yes' ) {
+        $remove = 'yes';
+        //
+        // Check for invoice items
+        //
+        $strsql = "SELECT COUNT(ciniki_sapos_invoice_items.id) "
+            . "FROM ciniki_sapos_invoice_items "
+            . "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice['id']) . "' "
+            . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_sapos_invoice_items.item_id <> '" . ciniki_core_dbQuote($ciniki, $item['id']) . "' "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
+        $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.sapos', 'num_items');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( !isset($rc['num_items']) || $rc['num_items'] != 0 ) {
+            $remove = 'no';
+        }
+        //
+        // Check for invoice shipments
+        //
+        $strsql = "SELECT COUNT(ciniki_sapos_shipments.id) "
+            . "FROM ciniki_sapos_shipments "
+            . "WHERE ciniki_sapos_shipments.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice['id']) . "' "
+            . "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "";
+        $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.sapos', 'num_items');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( !isset($rc['num_items']) || $rc['num_items'] != 0 ) {
+            $remove = 'no';
+        }
+        //
+        // Check for invoice transactions
+        //
+        $strsql = "SELECT COUNT(ciniki_sapos_transactions.id) "
+            . "FROM ciniki_sapos_transactions "
+            . "WHERE ciniki_sapos_transactions.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice['id']) . "' "
+            . "AND ciniki_sapos_transactions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "";
+        $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.sapos', 'num_items');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( !isset($rc['num_items']) || $rc['num_items'] != 0 ) {
+            $remove = 'no';
+        }
+
+        if( $remove == 'yes' ) {
+            //
+            // Remove the invoice
+            //
+            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.invoice', $invoice['id'], $invoice['uuid'], 0x04);
+            if( $rc['stat'] != 'ok' ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                return $rc;
+            }
+        }
+    }
 
 	//
 	// Update the invoice status
