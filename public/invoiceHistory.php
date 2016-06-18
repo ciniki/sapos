@@ -10,9 +10,9 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:			The ID of the business to get the details for.
-// invoice_id:			The ID of the invoice to get the history for.
-// field:				The field to get the history for. 
+// business_id:            The ID of the business to get the details for.
+// invoice_id:            The ID of the invoice to get the history for.
+// field:                The field to get the history for. 
 //
 // Returns
 // -------
@@ -22,39 +22,39 @@
 // </history>
 //
 function ciniki_sapos_invoiceHistory($ciniki) {
-	//
-	// Find all the required and optional arguments
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
-	$rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-		'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
-		'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
-		'field'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'field'), 
-		));
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$args = $rc['args'];
-	
-	//
-	// Check access to business_id as owner, or sys admin
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-	$rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceHistory');
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
+    //
+    // Find all the required and optional arguments
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
+    $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
+        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
+        'field'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'field'), 
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $args = $rc['args'];
+    
+    //
+    // Check access to business_id as owner, or sys admin
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceHistory');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
 
-	if( $args['field'] == 'invoice_date' ) {
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
-		return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field'],'date');
-	}
-	if( $args['field'] == 'due_date' ) {
-		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
-		return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field'], 'date');
-	}
+    if( $args['field'] == 'invoice_date' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+        return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field'],'date');
+    }
+    if( $args['field'] == 'due_date' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
+        return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field'], 'date');
+    }
 
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
-	return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
+    return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field']);
 }
 ?>

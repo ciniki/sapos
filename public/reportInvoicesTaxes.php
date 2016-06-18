@@ -14,7 +14,7 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         )); 
@@ -27,36 +27,36 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
     // Make sure this module is activated, and
     // check permission to run this function for this business
     //  
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
     $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.reportInvoicesTaxes'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
 
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-	$rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$intl_timezone = $rc['settings']['intl-default-timezone'];
-	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
-	$intl_currency = $rc['settings']['intl-default-currency'];
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $intl_timezone = $rc['settings']['intl-default-timezone'];
+    $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+    $intl_currency = $rc['settings']['intl-default-currency'];
 
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-	$date_format = ciniki_users_dateFormat($ciniki, 'php');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
+    $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
-	//
-	// Load the status maps for the text description of each status
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
-	$rc = ciniki_sapos_maps($ciniki);
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$maps = $rc['maps'];
+    //
+    // Load the status maps for the text description of each status
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
+    $rc = ciniki_sapos_maps($ciniki);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $maps = $rc['maps'];
 
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
 
     //
     // FIXME: Get year end from sapos settings
@@ -201,6 +201,6 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
         $r_taxrates[] = $rate;
     }
 
-	return array('stat'=>'ok', 'taxrates'=>$r_taxrates, 'quarters'=>$quarters);
+    return array('stat'=>'ok', 'taxrates'=>$r_taxrates, 'quarters'=>$quarters);
 }
 ?>
