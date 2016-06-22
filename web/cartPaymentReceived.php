@@ -58,7 +58,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
             return $rc;
         }
         $business_details = array();
-        if( isset($rc['details']) && is_array($rc['details']) ) {	
+        if( isset($rc['details']) && is_array($rc['details']) ) {
             $business_details = $rc['details'];
         }
 
@@ -101,7 +101,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
 //                        && $settings['page-cart-dealersubmit-email-textmsg'] != '' 
 //                        ) {
 //                        $textmsg = $settings['page-cart-dealersubmit-email-textmsg'];
-//                    }	
+//                    }
         $ciniki['emailqueue'][] = array('to'=>$invoice['customer']['emails'][0]['email']['address'],
             'to_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
             'business_id'=>$business_id,
