@@ -9,111 +9,111 @@
 #
 # Fields
 # ------
-# id:				The invoice ID.
-# uuid:				The Universal Unique ID for the invoice.
-# business_id:		The business the invoice is for.
+# id:               The invoice ID.
+# uuid:             The Universal Unique ID for the invoice.
+# business_id:      The business the invoice is for.
 #
-# invoice_id:		The ID of the invoice the item is attached to.
+# invoice_id:       The ID of the invoice the item is attached to.
 #
-# line_number:		The line number of the item on the invoice.  Used for sorting.
+# line_number:      The line number of the item on the invoice.  Used for sorting.
 #
-# status:			The current status of the item.  shipped/backordered/delivered, etc.
+# status:           The current status of the item.  shipped/backordered/delivered, etc.
 #
-#					0 - no status **future**
-#					
-# flags:			The flags for the item in the invoice/order.
+#                   0 - no status **future**
+#                   
+# flags:            The flags for the item in the invoice/order.
 #
-#					0x01 - Manufactured Item
-#					0x02 - Inventoried Item
-#					0x04 - Backorder Available
-#					0x08 - No quantity (disable the quantity field, must always be 1)
-#					0x10 - Downloaded Item
-#					0x20 - Registration Item
-#					0x40 - Shipped Item
-#					0x80 - 
-#					0x0100 - Backordered, the item is out of stock and currently backordered
-#					0x0200 - Forced backordered.  The item may be in stock, but business doesn't want to ship the full quantity.
-#					0x0400 -
-#					0x0800 -
-#					0x1000 - Surcharge, display at bottom of invoice.
-#					0x2000 - Message, display description only, do not display quantity/amount.
-#					0x4000 - Promotional Item, do not include in item counts and MW/Smart Border Reports
-#					0x8000 - 
+#                   0x01 - Manufactured Item
+#                   0x02 - Inventoried Item
+#                   0x04 - Backorder Available
+#                   0x08 - No quantity (disable the quantity field, must always be 1)
+#                   0x10 - Downloaded Item
+#                   0x20 - Registration Item
+#                   0x40 - Shipped Item
+#                   0x80 - 
+#                   0x0100 - Backordered, the item is out of stock and currently backordered
+#                   0x0200 - Forced backordered.  The item may be in stock, but business doesn't want to ship the full quantity.
+#                   0x0400 -
+#                   0x0800 -
+#                   0x1000 - Surcharge, display at bottom of invoice.
+#                   0x2000 - Message, display description only, do not display quantity/amount.
+#                   0x4000 - Promotional Item, do not include in item counts and MW/Smart Border Reports
+#                   0x8000 - 
 #
-# object:			The object for the item in the invoice.  This is the reference to
-#					the package.module.object.  When combined with the object_id the refering
-#					module can lookup invoices for an item, or the POS module can reference back
-#					to the other module for the item details if required.
+# object:           The object for the item in the invoice.  This is the reference to
+#                   the package.module.object.  When combined with the object_id the refering
+#                   module can lookup invoices for an item, or the POS module can reference back
+#                   to the other module for the item details if required.
 #
-# object_id:		The ID of the object for the item in the invoice.
+# object_id:        The ID of the object for the item in the invoice.
 #
-# price_id:			The ID of the price attached at the object.  Can be used to track which price
-#					was used for this invoice.
+# price_id:         The ID of the price attached at the object.  Can be used to track which price
+#                   was used for this invoice.
 #
 # student_id:       The ID of the student for the registration. This only used if the invoice item is for a registration item.
 #
-# code:				The code for the item, if using codes.
+# code:             The code for the item, if using codes.
 #
-# description:		The description of the item.
+# description:      The description of the item.
 #
-# quantity:			The number of units of the item.
+# quantity:         The number of units of the item.
 #
-# shipped_quantity:	The number of units that have been shipped/picked and pack for the order.  All 
-#					items should have the quantity = shipped_quantity when they have been removed from
-#					inventory.  This also tracks when the items have been removed from inventory.
+# shipped_quantity: The number of units that have been shipped/picked and pack for the order.  All 
+#                   items should have the quantity = shipped_quantity when they have been removed from
+#                   inventory.  This also tracks when the items have been removed from inventory.
 #
-# unit_amount:		The price of a single item.
+# unit_amount:      The price of a single item.
 #
-# unit_discount_amount:	The amount to deduct as a discount.
+# unit_discount_amount: The amount to deduct as a discount.
 #
-# unit_discount_percentage:	The percentage to apply as a discount.
+# unit_discount_percentage: The percentage to apply as a discount.
 #
-# subtotal_amount:	The amount of the invoice item before discounts.  
-#					This should be the quantity*unit_amount.
+# subtotal_amount:  The amount of the invoice item before discounts.  
+#                   This should be the quantity*unit_amount.
 #
-# discount_amount:	The amount of discount applied to this item.  This is the combination 
-#					of unit_discount_percentage and unit_discount_amount.
+# discount_amount:  The amount of discount applied to this item.  This is the combination 
+#                   of unit_discount_percentage and unit_discount_amount.
 #
-# total_amount:		The total amount for this item after quantity and discounts have been applied.
+# total_amount:     The total amount for this item after quantity and discounts have been applied.
 #
-# taxtype_id:		The tax type to be applied to this item.  The tax types are defined
-#					in the ciniki.taxes module.
-#					If no taxes are to be applied, then taxtype_id should be set to a value of zero,
-#					or to the ID of the tax type that has no tax rates applied.
+# taxtype_id:       The tax type to be applied to this item.  The tax types are defined
+#                   in the ciniki.taxes module.
+#                   If no taxes are to be applied, then taxtype_id should be set to a value of zero,
+#                   or to the ID of the tax type that has no tax rates applied.
 #
-# notes:			Any notes for this item, that will be shown on the invoice/receipt.  This will 
-#					typically be blank but can be used as a second description line if required.
+# notes:            Any notes for this item, that will be shown on the invoice/receipt.  This will 
+#                   typically be blank but can be used as a second description line if required.
 #
-# date_added:		The UTC date and time the invoice item was added.
-# last_updated:		The UTC date and time the invoice item was last updated.
+# date_added:       The UTC date and time the invoice item was added.
+# last_updated:     The UTC date and time the invoice item was last updated.
 #
 create table ciniki_sapos_invoice_items (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	invoice_id int not null,
-	line_number int not null,
-	status tinyint unsigned not null,
-	flags smallint unsigned not null,
-	object varchar(100) not null,
-	object_id varchar(100) not null,
-	price_id varchar(100) not null,
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    invoice_id int not null,
+    line_number int not null,
+    status tinyint unsigned not null,
+    flags smallint unsigned not null,
+    object varchar(100) not null,
+    object_id varchar(100) not null,
+    price_id varchar(100) not null,
     student_id int not null,
-	code varchar(150) not null,
-	description varchar(250) not null,
-	quantity decimal(19,4) not null,
-	shipped_quantity decimal(19,4) not null,
-	unit_amount decimal(19,4) not null,
-	unit_discount_amount decimal(19,4) not null,
-	unit_discount_percentage decimal(19,4) not null,
-	subtotal_amount decimal(19,4) not null,
-	discount_amount decimal(19,4) not null,
-	total_amount decimal(19,4) not null,
-	taxtype_id int not null,
-	notes varchar(6000) not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	index (invoice_id, object, object_id, taxtype_id),
-	index sync (uuid, business_id, last_updated)
+    code varchar(150) not null,
+    description varchar(250) not null,
+    quantity decimal(19,4) not null,
+    shipped_quantity decimal(19,4) not null,
+    unit_amount decimal(19,4) not null,
+    unit_discount_amount decimal(19,4) not null,
+    unit_discount_percentage decimal(19,4) not null,
+    subtotal_amount decimal(19,4) not null,
+    discount_amount decimal(19,4) not null,
+    total_amount decimal(19,4) not null,
+    taxtype_id int not null,
+    notes varchar(6000) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index (invoice_id, object, object_id, taxtype_id),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.05';

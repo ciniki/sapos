@@ -9,31 +9,31 @@
 #
 # Fields
 # ------
-# id:				The invoice ID.
-# uuid:				The Universal Unique ID for the invoice.
-# business_id:		The business the invoice is for.
+# id:               The invoice ID.
+# uuid:             The Universal Unique ID for the invoice.
+# business_id:      The business the invoice is for.
 #
-# expense_id:		The ID of the expense in sapos_expenses.
-# category_id:		The ID of the category in ciniki_sapos_expense_categories.
+# expense_id:       The ID of the expense in sapos_expenses.
+# category_id:      The ID of the category in ciniki_sapos_expense_categories.
 #
-# amount:			The amount of the expense for this category.
-# notes:			Any notes or details about this expense.  
-#					Can be used to store items relavent to this category.
+# amount:           The amount of the expense for this category.
+# notes:            Any notes or details about this expense.  
+#                   Can be used to store items relavent to this category.
 #
-# date_added:		The UTC date and time the invoice was added.
-# last_updated:		The UTC date and time the invoice was last updated.
+# date_added:       The UTC date and time the invoice was added.
+# last_updated:     The UTC date and time the invoice was last updated.
 #
 create table ciniki_sapos_expense_items (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	expense_id int not null,
-	category_id int not null,
-	amount decimal(19,4) not null,
-	notes varchar(1000) not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	unique index (expense_id, category_id),
-	index sync (uuid, business_id, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    expense_id int not null,
+    category_id int not null,
+    amount decimal(19,4) not null,
+    notes varchar(1000) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (expense_id, category_id),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

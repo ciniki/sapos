@@ -9,197 +9,197 @@
 #
 # Fields
 # ------
-# id:					The invoice ID.
-# uuid:					The Universal Unique ID for the invoice.
-# business_id:			The business the invoice is for.
+# id:                   The invoice ID.
+# uuid:                 The Universal Unique ID for the invoice.
+# business_id:          The business the invoice is for.
 #
-# source_id:			The ID of the recurring or parent invoice that created this invoice.
+# source_id:            The ID of the recurring or parent invoice that created this invoice.
 #
-# invoice_number:		The number for the invoice, as entered by the user.  This allows
-#						a smoother transistion from existing invoicing systems.  This number
-#						does not change between SYNC locations.  This number can be alpha-numeric,
-#						but is assumed to be an integer currently.
+# invoice_number:       The number for the invoice, as entered by the user.  This allows
+#                       a smoother transistion from existing invoicing systems.  This number
+#                       does not change between SYNC locations.  This number can be alpha-numeric,
+#                       but is assumed to be an integer currently.
 #
-# po_number:			The Purchase Order number from the company placing the order.
+# po_number:            The Purchase Order number from the company placing the order.
 #
-# customer_id:			The ID of the customer the invoice is for.
+# customer_id:          The ID of the customer the invoice is for.
 #
-# salesrep_id:			The ID of the salesrep for this invoice, 0 if no rep.
+# salesrep_id:          The ID of the salesrep for this invoice, 0 if no rep.
 #
-# invoice_type:			The type of invoice
+# invoice_type:         The type of invoice
 #
-#						0 - Unknown
-#						10 - Invoice/Services
-#						11 - Monthly Recurring Invoice/Services
-#						12 - Yearly Recurring Invoice/Services
-#						20 - Shopping Cart
-#						30 - POS
-#						40 - Purchase Order
-#						90 - Quote
+#                       0 - Unknown
+#                       10 - Invoice/Services
+#                       11 - Monthly Recurring Invoice/Services
+#                       12 - Yearly Recurring Invoice/Services
+#                       20 - Shopping Cart
+#                       30 - POS
+#                       40 - Purchase Order
+#                       90 - Quote
 #
-# status:				The current status for the invoice.
+# status:               The current status for the invoice.
 #
-#						0 - unknown
-#						10 - Entering/Incomplete
-#						15 - On Hold
-#						20 - Pending Manufacturing
-#						30 - Pending Shipping
-#						40 - Pending Payment
-#						50 - Fulfilled/Paid/Shipped/Done
+#                       0 - unknown
+#                       10 - Entering/Incomplete
+#                       15 - On Hold
+#                       20 - Pending Manufacturing
+#                       30 - Pending Shipping
+#                       40 - Pending Payment
+#                       50 - Fulfilled/Paid/Shipped/Done
 #
-#						Old Status
-#						10 - Shopping Cart, the invoice is still a shopping cart for online ecommerce
-#						20 - Creating, the invoice is being created
-#						30 - Entered, the invoice is finished created, now officially active in the system
-#						40 - Partial Payment/Deposit
-#						50 - Paid
-#						55 - Refunded
-#						60 - Voided
+#                       Old Status
+#                       10 - Shopping Cart, the invoice is still a shopping cart for online ecommerce
+#                       20 - Creating, the invoice is being created
+#                       30 - Entered, the invoice is finished created, now officially active in the system
+#                       40 - Partial Payment/Deposit
+#                       50 - Paid
+#                       55 - Refunded
+#                       60 - Voided
 #
-# payment_status:		0 - Unknown
-#						10 - Payment Required
-#						40 - Partial Payment
-#						50 - Paid
-#						55 - Refunded
+# payment_status:       0 - Unknown
+#                       10 - Payment Required
+#                       40 - Partial Payment
+#                       50 - Paid
+#                       55 - Refunded
 # 
-# shipping_status:		0 - no shipping
-#						10 - Required
-#						30 - Partial Shipment
-#						50 - Shipped
+# shipping_status:      0 - no shipping
+#                       10 - Required
+#                       30 - Partial Shipment
+#                       50 - Shipped
 #
-# manufacturing_status:	0 - no manufacturing
-#						10 - Required
-#						30 - In Progress
-#						50 - Completed
+# manufacturing_status: 0 - no manufacturing
+#                       10 - Required
+#                       30 - In Progress
+#                       50 - Completed
 #
-# flags:				The flags for the invoice to control shipping/pickup, etc.
+# flags:                The flags for the invoice to control shipping/pickup, etc.
 #
-#						0x01 - Don't show discounts/savings, only show the final price with quantity.
-#						0x02 - 
-#						0x04 -
-#						0x08 - 
+#                       0x01 - Don't show discounts/savings, only show the final price with quantity.
+#                       0x02 - 
+#                       0x04 -
+#                       0x08 - 
 #
-# invoice_date:			The UTC date and time for the invoice.  When returning to the business,
-#						it should be converted to local timezone.  Most businesses won't care about
-#						the time, just the date.  The time is important for tax purposes, when 
-#						taxes end at midnight.  The default time should be set to 12:00:00 (noon) for
-#						the business timezone.
+# invoice_date:         The UTC date and time for the invoice.  When returning to the business,
+#                       it should be converted to local timezone.  Most businesses won't care about
+#                       the time, just the date.  The time is important for tax purposes, when 
+#                       taxes end at midnight.  The default time should be set to 12:00:00 (noon) for
+#                       the business timezone.
 #
-# due_date:				The UTC date and time the invoice is due, if applicable.  The default time 
-#						should be set to 12:00:00 (noon).
+# due_date:             The UTC date and time the invoice is due, if applicable.  The default time 
+#                       should be set to 12:00:00 (noon).
 #
-# billing_name:			The customer name who is being billed for the item.
-# billing_address1:		The billing address, first line for the customer.
-# billing_address2:		The billing address, second line for the customer.
-# billing_city:			The billing city.
-# billing_province:		The billing province/state.
-# billing_postal:		The billing postal/zip code.
-# billing_country:		The billing country.
+# billing_name:         The customer name who is being billed for the item.
+# billing_address1:     The billing address, first line for the customer.
+# billing_address2:     The billing address, second line for the customer.
+# billing_city:         The billing city.
+# billing_province:     The billing province/state.
+# billing_postal:       The billing postal/zip code.
+# billing_country:      The billing country.
 #
-# shipping_name:		The shipping name of the customer to ship to.
-# shipping_address1:	The shipping address, first line.
-# shipping_address2:	The shipping address, line two.
-# shipping_city:		The shipping city.
-# shipping_province:	The shipping province/state.
-# shipping_postal:		The shipping postal/zip code.
-# shipping_country:		The shipping country.
-# shipping_phone:		The shipping phone to assist in deliveries.
-# shipping_notes:		The shipping notes.
+# shipping_name:        The shipping name of the customer to ship to.
+# shipping_address1:    The shipping address, first line.
+# shipping_address2:    The shipping address, line two.
+# shipping_city:        The shipping city.
+# shipping_province:    The shipping province/state.
+# shipping_postal:      The shipping postal/zip code.
+# shipping_country:     The shipping country.
+# shipping_phone:       The shipping phone to assist in deliveries.
+# shipping_notes:       The shipping notes.
 #
-# work_address1:		The work address, first line. This is where the work was completed at.
-# work_address2:		The work address, line two.
-# work_city:			The work address city.
-# work_province:		The work address province/state.
-# work_postal:			The work address postal/zip code.
-# work_country:			The work address country.
+# work_address1:        The work address, first line. This is where the work was completed at.
+# work_address2:        The work address, line two.
+# work_city:            The work address city.
+# work_province:        The work address province/state.
+# work_postal:          The work address postal/zip code.
+# work_country:         The work address country.
 #
-# tax_location_id:		The ID of the tax location for the invoice.  If set to 0, then
-#						use the customers tax location if specified.
+# tax_location_id:      The ID of the tax location for the invoice.  If set to 0, then
+#                       use the customers tax location if specified.
 # 
-# pricepoint_id:		The ID of the pricepoint for this invoice, from customers.
+# pricepoint_id:        The ID of the pricepoint for this invoice, from customers.
 #
-# subtotal_amount:				The amount before taxes, NOT including shipping amount.
-# subtotal_discount_percentage:	The percent discount to apply to the subtotal amount.
-# subtotal_discount_amount:		The amount to discount the subtotal amount.
-# discount_amount:				The amount of discount on the invoice.  This is the discounts applied
-#								to the invoice, and should not include any discounts on items.
-# shipping_amount:				The amount charged to the customer for shipping.
-# total_amount:					The total amount of all items and taxes billed to the customer.
-# total_savings:				The sum of all discount_amount on the items in the invoice, and 
-#								the discount_amount for the invoice.
+# subtotal_amount:              The amount before taxes, NOT including shipping amount.
+# subtotal_discount_percentage: The percent discount to apply to the subtotal amount.
+# subtotal_discount_amount:     The amount to discount the subtotal amount.
+# discount_amount:              The amount of discount on the invoice.  This is the discounts applied
+#                               to the invoice, and should not include any discounts on items.
+# shipping_amount:              The amount charged to the customer for shipping.
+# total_amount:                 The total amount of all items and taxes billed to the customer.
+# total_savings:                The sum of all discount_amount on the items in the invoice, and 
+#                               the discount_amount for the invoice.
 #
-# paid_amount:					The amount that has been paid.
-# balance_amount:				The amount that remains to be paid on the invoice.
+# paid_amount:                  The amount that has been paid.
+# balance_amount:               The amount that remains to be paid on the invoice.
 #
-# user_id:				The ID of the user who created the invoice.  If the invoice was created
-#						online, it should be set to zero (0).
+# user_id:              The ID of the user who created the invoice.  If the invoice was created
+#                       online, it should be set to zero (0).
 #
-# customer_notes:		Notes that the customer can edit and see on the website shopping cart.
-# invoice_notes:		Notes that will appear on the invoice.
-# internal_notes:		Notes that are for internal use only, and will not be shared with the customer.
+# customer_notes:       Notes that the customer can edit and see on the website shopping cart.
+# invoice_notes:        Notes that will appear on the invoice.
+# internal_notes:       Notes that are for internal use only, and will not be shared with the customer.
 #
-# date_added:			The UTC date and time the invoice was added.
-# last_updated:			The UTC date and time the invoice was last updated.
+# date_added:           The UTC date and time the invoice was added.
+# last_updated:         The UTC date and time the invoice was last updated.
 #
 create table ciniki_sapos_invoices (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	source_id int not null,
-	invoice_number varchar(20) not null,
-	po_number varchar(100) not null,
-	customer_id int not null,
-	salesrep_id int not null,
-	invoice_type tinyint unsigned not null,
-	status tinyint unsigned not null,
-	payment_status tinyint unsigned not null,
-	shipping_status tinyint unsigned not null,
-	manufacturing_status tinyint unsigned not null,
-	flags int unsigned not null,
-	invoice_date datetime not null,
-	due_date datetime not null,
-	billing_name varchar(250) not null,
-	billing_address1 varchar(250) not null,
-	billing_address2 varchar(250) not null,
-	billing_city varchar(100) not null,
-	billing_province varchar(100) not null,
-	billing_postal varchar(10) not null,
-	billing_country varchar(50) not null,
-	shipping_name varchar(250) not null,
-	shipping_address1 varchar(250) not null,
-	shipping_address2 varchar(250) not null,
-	shipping_city varchar(100) not null,
-	shipping_province varchar(100) not null,
-	shipping_postal varchar(10) not null,
-	shipping_country varchar(50) not null,
-	shipping_phone varchar(50) not null,
-	shipping_notes varchar(5000) not null,
-	work_address1 varchar(250) not null,
-	work_address2 varchar(250) not null,
-	work_city varchar(100) not null,
-	work_province varchar(100) not null,
-	work_postal varchar(10) not null,
-	work_country varchar(50) not null,
-	tax_location_id int not null,
-	pricepoint_id int not null,
-	subtotal_amount decimal(19,4) not null,
-	subtotal_discount_amount decimal(19,4) not null,
-	subtotal_discount_percentage decimal(19,4) not null,
-	discount_amount decimal(19,4) not null,
-	shipping_amount decimal(19,4) not null,
-	total_amount decimal(19,4) not null,
-	total_savings decimal(19,4) not null,
-	paid_amount decimal(19,4) not null,
-	balance_amount decimal(19,4) not null,
-	user_id int not null,
-	customer_notes text not null,
-	invoice_notes text not null,
-	internal_notes text not null,
-	submitted_by varchar(200) not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	index (customer_id, status, invoice_date),
-	unique index (business_id, invoice_number),
-	index sync (uuid, business_id, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    source_id int not null,
+    invoice_number varchar(20) not null,
+    po_number varchar(100) not null,
+    customer_id int not null,
+    salesrep_id int not null,
+    invoice_type tinyint unsigned not null,
+    status tinyint unsigned not null,
+    payment_status tinyint unsigned not null,
+    shipping_status tinyint unsigned not null,
+    manufacturing_status tinyint unsigned not null,
+    flags int unsigned not null,
+    invoice_date datetime not null,
+    due_date datetime not null,
+    billing_name varchar(250) not null,
+    billing_address1 varchar(250) not null,
+    billing_address2 varchar(250) not null,
+    billing_city varchar(100) not null,
+    billing_province varchar(100) not null,
+    billing_postal varchar(10) not null,
+    billing_country varchar(50) not null,
+    shipping_name varchar(250) not null,
+    shipping_address1 varchar(250) not null,
+    shipping_address2 varchar(250) not null,
+    shipping_city varchar(100) not null,
+    shipping_province varchar(100) not null,
+    shipping_postal varchar(10) not null,
+    shipping_country varchar(50) not null,
+    shipping_phone varchar(50) not null,
+    shipping_notes varchar(5000) not null,
+    work_address1 varchar(250) not null,
+    work_address2 varchar(250) not null,
+    work_city varchar(100) not null,
+    work_province varchar(100) not null,
+    work_postal varchar(10) not null,
+    work_country varchar(50) not null,
+    tax_location_id int not null,
+    pricepoint_id int not null,
+    subtotal_amount decimal(19,4) not null,
+    subtotal_discount_amount decimal(19,4) not null,
+    subtotal_discount_percentage decimal(19,4) not null,
+    discount_amount decimal(19,4) not null,
+    shipping_amount decimal(19,4) not null,
+    total_amount decimal(19,4) not null,
+    total_savings decimal(19,4) not null,
+    paid_amount decimal(19,4) not null,
+    balance_amount decimal(19,4) not null,
+    user_id int not null,
+    customer_notes text not null,
+    invoice_notes text not null,
+    internal_notes text not null,
+    submitted_by varchar(200) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index (customer_id, status, invoice_date),
+    unique index (business_id, invoice_number),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.10';

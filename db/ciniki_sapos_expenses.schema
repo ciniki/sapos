@@ -9,36 +9,36 @@
 #
 # Fields
 # ------
-# id:				The invoice ID.
-# uuid:				The Universal Unique ID for the invoice.
-# business_id:		The business the invoice is for.
+# id:               The invoice ID.
+# uuid:             The Universal Unique ID for the invoice.
+# business_id:      The business the invoice is for.
 #
-# name:				The name, typically the business name from the bill/expense/receipt.
+# name:             The name, typically the business name from the bill/expense/receipt.
 #
-# description:		The description of the expense, if more detail required than just the name.
+# description:      The description of the expense, if more detail required than just the name.
 #
-# invoice_date:		The date on the invoice from the other company.
-# paid_date:		The date the invoice was paid.
-# total_amount:		The total amount due for this expense.
+# invoice_date:     The date on the invoice from the other company.
+# paid_date:        The date the invoice was paid.
+# total_amount:     The total amount due for this expense.
 #
-# notes:			The internal notes for this expense.
+# notes:            The internal notes for this expense.
 #
-# date_added:		The UTC date and time the invoice was added.
-# last_updated:		The UTC date and time the invoice was last updated.
+# date_added:       The UTC date and time the invoice was added.
+# last_updated:     The UTC date and time the invoice was last updated.
 #
 create table ciniki_sapos_expenses (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	name varchar(150) not null,
-	description varchar(250) not null,
-	invoice_date date not null,
-	paid_date date not null,
-	total_amount decimal(19,4) not null,
-	notes varchar(6000) not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	index (name, invoice_date, paid_date),
-	index sync (uuid, business_id, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    name varchar(150) not null,
+    description varchar(250) not null,
+    invoice_date date not null,
+    paid_date date not null,
+    total_amount decimal(19,4) not null,
+    notes varchar(6000) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index (name, invoice_date, paid_date),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

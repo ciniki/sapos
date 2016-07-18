@@ -12,87 +12,87 @@
 #
 # Fields
 # ------
-# id:					The invoice ID.
-# uuid:					The Universal Unique ID for the invoice.
-# business_id:			The business the invoice is for.
+# id:                   The invoice ID.
+# uuid:                 The Universal Unique ID for the invoice.
+# business_id:          The business the invoice is for.
 #
-# invoice_id:			The ID of the invoice the transaction is for, if any.
+# invoice_id:           The ID of the invoice the transaction is for, if any.
 #
-# transaction_type:		The type of transaction
+# transaction_type:     The type of transaction
 #
-#						0 - unknown
-#						10 - Deposit
-#						20 - Payment
-#						60 - Refund
+#                       0 - unknown
+#                       10 - Deposit
+#                       20 - Payment
+#                       60 - Refund
 #
-# transaction_date:		The date the transaction occured.
+# transaction_date:     The date the transaction occured.
 #
-# source:				The source of the payment
+# source:               The source of the payment
 #
-#						0 - unknown
-#						10 - paypal
-#						20 - Square
-#						50 - Visa
-#						55 - Mastercard
-#						60 - Discover
-#						65 - Amex
-#						90 - Interac
-#						100 - Cash
-#						105 - Check
-#						110 - Email Transfer
-#						120 - Other
+#                       0 - unknown
+#                       10 - paypal
+#                       20 - Square
+#                       50 - Visa
+#                       55 - Mastercard
+#                       60 - Discover
+#                       65 - Amex
+#                       90 - Interac
+#                       100 - Cash
+#                       105 - Check
+#                       110 - Email Transfer
+#                       120 - Other
 #
-# customer_amount:		The amount of the transaction from the customer perspective.  This is how much
-#						the customer was debited or credited.
+# customer_amount:      The amount of the transaction from the customer perspective.  This is how much
+#                       the customer was debited or credited.
 #
-# transaction_fees:		Any fees associated with the transaction that will be removed from the amount.
+# transaction_fees:     Any fees associated with the transaction that will be removed from the amount.
 #
-# business_amount:		The amount deposited or withdrawn from the business account.
-#						Paypal removes the fee before depositing the money, this will take that into account.
+# business_amount:      The amount deposited or withdrawn from the business account.
+#                       Paypal removes the fee before depositing the money, this will take that into account.
 #
-# user_id:				The ID of the user who processed the transaction.  If the transaction was
-#						processed on the website, it should be set to zero.
+# user_id:              The ID of the user who processed the transaction.  If the transaction was
+#                       processed on the website, it should be set to zero.
 #
-# notes:				Any notes or comments about the transaction.
+# notes:                Any notes or comments about the transaction.
 #
-# gateway:				The payment gateway used for this transaction.  This allows the business
-#						to record a sale through paypal without using API.  If the gateway is set
-#						then the payment was processed through the API.
+# gateway:              The payment gateway used for this transaction.  This allows the business
+#                       to record a sale through paypal without using API.  If the gateway is set
+#                       then the payment was processed through the API.
 #
-#						10 - paypal
+#                       10 - paypal
 #
-# gateway_token:		The ID for the transaction with the external payment system.
-#						This was added to track the paypal ID of in the response.
+# gateway_token:        The ID for the transaction with the external payment system.
+#                       This was added to track the paypal ID of in the response.
 #
-# gateway_status:		The status or state of the transaction with the payment gateway.  This allows
-#						tracking of payments to make sure they are completed.  Was added for paypal
-#						'state' being returned in payment response.
+# gateway_status:       The status or state of the transaction with the payment gateway.  This allows
+#                       tracking of payments to make sure they are completed.  Was added for paypal
+#                       'state' being returned in payment response.
 #
-# gateway_response:		The json_decoded and php serialized response from paypal or other payment service.
+# gateway_response:     The json_decoded and php serialized response from paypal or other payment service.
 #
-# date_added:			The UTC date and time the invoice was added.
-# last_updated:			The UTC date and time the invoice was last updated.
+# date_added:           The UTC date and time the invoice was added.
+# last_updated:         The UTC date and time the invoice was last updated.
 #
 create table ciniki_sapos_transactions (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	invoice_id int not null,
-	transaction_type tinyint unsigned not null,
-	transaction_date datetime not null,
-	source smallint unsigned not null,
-	customer_amount decimal(19,4) not null,
-	transaction_fees decimal(19,4) not null,
-	business_amount decimal(19,4) not null,
-	user_id int not null,
-	notes varchar(6000) not null,
-	gateway tinyint unsigned not null,
-	gateway_token varchar(250) not null,
-	gateway_status varchar(50) not null,
-	gateway_response varchar(5000) not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	index (invoice_id),
-	index sync (uuid, business_id, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    invoice_id int not null,
+    transaction_type tinyint unsigned not null,
+    transaction_date datetime not null,
+    source smallint unsigned not null,
+    customer_amount decimal(19,4) not null,
+    transaction_fees decimal(19,4) not null,
+    business_amount decimal(19,4) not null,
+    user_id int not null,
+    notes varchar(6000) not null,
+    gateway tinyint unsigned not null,
+    gateway_token varchar(250) not null,
+    gateway_status varchar(50) not null,
+    gateway_response varchar(5000) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index (invoice_id),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

@@ -6,38 +6,38 @@
 #
 # Fields
 # ------
-# id:				The invoice ID.
-# uuid:				The Universal Unique ID for the invoice.
-# business_id:		The business the invoice is for.
+# id:               The invoice ID.
+# uuid:             The Universal Unique ID for the invoice.
+# business_id:      The business the invoice is for.
 #
-# name:				The name of the category.
+# name:             The name of the category.
 #
-# sequence:			The order of the categories for display.
+# sequence:         The order of the categories for display.
 #
-# flags:			**future**
-# taxrate_id:		**future** Link to ciniki.taxes.rate
+# flags:            **future**
+# taxrate_id:       **future** Link to ciniki.taxes.rate
 #
-# start_date:		The start date for the category, when it became active, 
-#					or '0000-00-00 00:00:00' for always active
+# start_date:       The start date for the category, when it became active, 
+#                   or '0000-00-00 00:00:00' for always active
 #
-# end_date:			The end date for the category, when it became deactive, 
-#					or '0000-00-00 00:00:00' for no end.
+# end_date:         The end date for the category, when it became deactive, 
+#                   or '0000-00-00 00:00:00' for no end.
 #
-# date_added:		The UTC date and time the invoice was added.
-# last_updated:		The UTC date and time the invoice was last updated.
+# date_added:       The UTC date and time the invoice was added.
+# last_updated:     The UTC date and time the invoice was last updated.
 #
 create table ciniki_sapos_expense_categories (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	name varchar(50) not null,
-	sequence tinyint not null,
-	flags tinyint not null,
-	taxrate_id int not null,
-	start_date datetime not null,
-	end_date datetime not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	index sync (uuid, business_id, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    name varchar(50) not null,
+    sequence tinyint not null,
+    flags tinyint not null,
+    taxrate_id int not null,
+    start_date datetime not null,
+    end_date datetime not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

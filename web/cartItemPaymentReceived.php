@@ -79,7 +79,7 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_
             }
         }
     }
-		
+        
     return array('stat'=>'ok');
 }
 ?>

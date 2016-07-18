@@ -20,17 +20,17 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
     $base_url = $args['base_url'];
 
 
-	//
-	// Get business/user settings
-	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-	$rc = ciniki_businesses_intlSettings($ciniki, $ciniki['request']['business_id']);
-	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$intl_timezone = $rc['settings']['intl-default-timezone'];
-	$intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
-	$intl_currency = $rc['settings']['intl-default-currency'];
+    //
+    // Get business/user settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+    $rc = ciniki_businesses_intlSettings($ciniki, $ciniki['request']['business_id']);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $intl_timezone = $rc['settings']['intl-default-timezone'];
+    $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+    $intl_currency = $rc['settings']['intl-default-currency'];
 
     //
     // Load the customer invoices
@@ -182,7 +182,7 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
             if( isset($customer_invoice['shipments']) ) {
                 $content = '';
                 foreach($customer_invoice['shipments'] as $shipment) {
-//						$content .= "<pre>" . print_r($shipment, true) . "</pre>";
+//                      $content .= "<pre>" . print_r($shipment, true) . "</pre>";
                     $shipment = $shipment['shipment'];
 //                   $content .= "<div class='cart'>";
 
@@ -223,13 +223,13 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
                         $item = $item['item'];
                         $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>"
                             . "<td>";
-//							if( isset($item['object']) && isset($item['permalink']) ) {
-//								switch($item['object']) {
-//									case 'ciniki.products.product': 
-//										$item['url'] = $ciniki['request']['base_url'] . '/products/product/' . $item['permalink'];
-//										break;
-//								}
-//							}
+//                          if( isset($item['object']) && isset($item['permalink']) ) {
+//                              switch($item['object']) {
+//                                  case 'ciniki.products.product': 
+//                                      $item['url'] = $ciniki['request']['base_url'] . '/products/product/' . $item['permalink'];
+//                                      break;
+//                              }
+//                          }
                         if( isset($item['url']) && $item['url'] != '' ) {
                             $content .= "<a href='" . $item['url'] . "'>" . $item['description'] . "</a>";
                         } else {
@@ -313,6 +313,6 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
         $page['blocks'][] = array('type'=>'message', 'content'=>'No orders found.');
     }
    
-	return array('stat'=>'ok', 'page'=>$page);
+    return array('stat'=>'ok', 'page'=>$page);
 }
 ?>

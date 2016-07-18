@@ -5,26 +5,26 @@
 #
 # Fields
 # ------
-# id:				The ID of the expense image.
-# uuid:				The Universal Unique ID.
-# business_id:		The ID of the business the expense is attached to.
+# id:               The ID of the expense image.
+# uuid:             The Universal Unique ID.
+# business_id:      The ID of the business the expense is attached to.
 #
-# expense_id:		The ID of the expense from the ciniki_sapos_expenses table.
+# expense_id:       The ID of the expense from the ciniki_sapos_expenses table.
 # 
-# image_id:			The ID of the image in the ciniki.images module.
+# image_id:         The ID of the image in the ciniki.images module.
 #
-# date_added:		The UTC date and time the image was added to the expense.
-# last_updated:		The UTC date and time the image was last updated.
+# date_added:       The UTC date and time the image was added to the expense.
+# last_updated:     The UTC date and time the image was last updated.
 #
 create table ciniki_sapos_expense_images (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	expense_id int not null,
-	image_id int not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	index (expense_id),
-	index (business_id, uuid, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    expense_id int not null,
+    image_id int not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index (expense_id),
+    index (business_id, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

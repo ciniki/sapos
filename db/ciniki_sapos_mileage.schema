@@ -5,48 +5,48 @@
 #
 # Fields
 # ------
-# id:				The invoice ID.
-# uuid:				The Universal Unique ID for the invoice.
-# business_id:		The business the invoice is for.
+# id:               The invoice ID.
+# uuid:             The Universal Unique ID for the invoice.
+# business_id:      The business the invoice is for.
 #
-# start_name:		The name of the starting place (Home, Work, etc)
-# start_address:	The address of the starting location.
+# start_name:       The name of the starting place (Home, Work, etc)
+# start_address:    The address of the starting location.
 #
-# end_name:			The name of the ending place.
-# end_address:		The address of the ending location.
+# end_name:         The name of the ending place.
+# end_address:      The address of the ending location.
 #
-# travel_date:		The date of the travel.
+# travel_date:      The date of the travel.
 #
-# distance:			The distance travelled.  Can be in KM's or Miles depending on what
-#					the users preference.
+# distance:         The distance travelled.  Can be in KM's or Miles depending on what
+#                   the users preference.
 #
-# flags:			The options for the mileage tracking.
+# flags:            The options for the mileage tracking.
 #
-#					0x01 - Round trip, otherwise one-way
-#					0x02 -
-#					0x04 -
-#					0x08 - 
+#                   0x01 - Round trip, otherwise one-way
+#                   0x02 -
+#                   0x04 -
+#                   0x08 - 
 #
-# notes:			The notes about the trip, who the user saw, what they did, etc.
+# notes:            The notes about the trip, who the user saw, what they did, etc.
 #
-# date_added:		The UTC date and time the mileage was added.
-# last_updated:		The UTC date and time the mileage was last updated.
+# date_added:       The UTC date and time the mileage was added.
+# last_updated:     The UTC date and time the mileage was last updated.
 #
 create table ciniki_sapos_mileage (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	start_name varchar(150) not null,
-	start_address varchar(250) not null,
-	end_name varchar(150) not null,
-	end_address varchar(250) not null,
-	travel_date date not null,
-	distance decimal(19,4) not null,
-	flags tinyint unsigned not null,
-	notes varchar(6000) not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key (id),
-	index (travel_date),
-	index sync (uuid, business_id, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    start_name varchar(150) not null,
+    start_address varchar(250) not null,
+    end_name varchar(150) not null,
+    end_address varchar(250) not null,
+    travel_date date not null,
+    distance decimal(19,4) not null,
+    flags tinyint unsigned not null,
+    notes varchar(6000) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index (travel_date),
+    index sync (uuid, business_id, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

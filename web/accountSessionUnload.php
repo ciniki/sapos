@@ -15,6 +15,6 @@ function ciniki_sapos_web_accountSessionUnload($ciniki, $settings, $business_id)
     unset($ciniki['session']['cart']);
     unset($_SESSION['cart']);
 
-	return array('stat'=>'ok');
+    return array('stat'=>'ok');
 }
 ?>
