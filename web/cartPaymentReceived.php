@@ -97,11 +97,6 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
 
         $subject = "Invoice #" . $invoice['invoice_number'];
         $textmsg = "Thank you for your order, please find the receipt attached.";
-//                    if( isset($settings['page-cart-dealersubmit-email-textmsg']) 
-//                        && $settings['page-cart-dealersubmit-email-textmsg'] != '' 
-//                        ) {
-//                        $textmsg = $settings['page-cart-dealersubmit-email-textmsg'];
-//                    }
         $ciniki['emailqueue'][] = array('to'=>$invoice['customer']['emails'][0]['email']['address'],
             'to_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
             'business_id'=>$business_id,
@@ -109,6 +104,36 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
             'textmsg'=>$textmsg,
             'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
             );
+
+        //
+        // Email a notification if requested
+        //
+        if( isset($settings['page-cart-payment-success-emails']) && $settings['page-cart-payment-success-emails'] != '' ) {
+            $emails = explode(',', $settings['page-cart-payment-success-emails']);
+
+            $subject = "Order #" . $invoice['invoice_number'];
+            $textmsg = "You have received a new order:\n";
+            $textmsg .= "\n";
+            $textmsg .= "Invoice: " . $invoice['invoice_number'] . "\n";
+            $textmsg .= "Bill To: " . $invoice['billing_name'] . "\n";
+            $textmsg .= "\n";
+            $textmsg .= "Items: \n";
+            foreach($invoice['items'] as $item) {
+                $item = $item['item'];
+                $textmsg .= $item['description'] . "\n";
+            }
+            $textmsg .= "\n";
+            foreach($emails as $email) {
+                $email = trim($email);
+                $ciniki['emailqueue'][] = array('to'=>$email,
+                    'to_name'=>'',
+                    'business_id'=>$business_id,
+                    'subject'=>$subject,
+                    'textmsg'=>$textmsg,
+                    );
+            }
+
+        }
     }
 
     return array('stat'=>'ok');

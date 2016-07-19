@@ -102,6 +102,33 @@ function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $business_id, $args)
         curl_close($ch);
     }
     if( strtolower($nvpResArray['ACK']) == 'success' || strtolower($nvpResArray['ACK']) == 'successwithwarning' ) {
+        //
+        // Add a transaction to the invoice
+        //
+        if( isset($args['invoice_id']) ) {
+            $dt = new DateTime('now', new DateTimeZone('UTC'));
+            $transaction_args = array(
+                'invoice_id'=>$args['invoice_id'],
+                'transaction_type'=>20,
+                'transaction_date'=>$dt->format('Y-m-d H:i:s'),
+                'source'=>'10',
+                'customer_amount'=>$nvpResArray['PAYMENTINFO_0_AMT'],
+                'transaction_fees'=>$nvpResArray['PAYMENTINFO_0_FEEAMT'],
+                'business_amount'=>BCSUB($nvpResArray['PAYMENTINFO_0_AMT'], $nvpResArray['PAYMENTINFO_0_FEEAMT'], 4),
+                'user_id'=>0,
+                'notes'=>'',
+                'gateway'=>10,
+                'gateway_token'=>$nvpResArray['TOKEN'],
+                'gateway_status'=>$nvpResArray['ACK'],
+                'gateway_response'=>serialize($nvpResArray),
+                );
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+            $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.transaction', $transaction_args);
+            if( $rc['stat'] != 'ok' ) {
+                error_log("PAYPAL-ERR: Unable to record transaction: " . print_r($rc['err'], true));
+            }
+        }
+
         return array('stat'=>'ok');
     } 
 
