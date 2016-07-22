@@ -132,7 +132,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
     //
     // Check if ship_date should be set
     //
-    if( (!isset($shipment['ship_date']) || $shipment['ship_date'] == '0000-00-00 00:00:00' || $shipment['ship_date'] == '') && isset($args['status']) && $args['status'] == '30' ) {
+    if( (!isset($shipment['ship_date']) || $shipment['ship_date'] == '0000-00-00 00:00:00' || $shipment['ship_date'] == '') && !isset($args['ship_date']) && isset($args['status']) && $args['status'] == '30' ) {
         $date = new DateTime('now', new DateTimeZone('UTC'));
         $args['ship_date'] = $date->format('Y-m-d H:i:s');
     }
