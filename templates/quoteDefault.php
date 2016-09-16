@@ -482,7 +482,7 @@ function ciniki_sapos_templates_quoteDefault(&$ciniki, $business_id, $invoice_id
             $lh = 2+($nlines*5);
         }
         // Check if we need a page break
-        if( $pdf->getY() > ($pdf->getPageHeight() - 30) ) {
+        if( $pdf->getY() > ($pdf->getPageHeight() - 30 - $lh) ) {
             $pdf->AddPage();
             $pdf->SetFillColor(224);
             $pdf->SetFont('', 'B');
