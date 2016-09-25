@@ -17,13 +17,12 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
     //
     // Setup the default 
     //
-    $rsp = array('stat'=>'ok', 'settings'=>array(), 'menu_items'=>array());  
+    $rsp = array('stat'=>'ok', 'settings'=>array(), 'menu_items'=>array(), 'settings_menu_items'=>array());  
 
     //
     // Get the settings
     //
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', 
-        $business_id, 'ciniki.sapos', 'settings', '');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', '');
     if( $rc['stat'] == 'ok' && isset($rc['settings']) ) {
         $rsp['settings'] = $rc['settings'];
     }
@@ -97,6 +96,15 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
             );
         $rsp['menu_items'][] = $menu_item;
     } 
+
+    if( isset($ciniki['business']['modules']['ciniki.sapos'])
+        && (isset($args['permissions']['owners'])
+            || isset($args['permissions']['resellers'])
+            || ($ciniki['session']['user']['perms']&0x01) == 0x01
+            )
+        ) {
+        $rsp['settings_menu_items'][] = array('priority'=>5900, 'label'=>'Accounting', 'edit'=>array('app'=>'ciniki.sapos.settings'));
+    }
 
     return $rsp;
 }
