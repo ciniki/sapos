@@ -116,11 +116,12 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
             $textmsg .= "\n";
             $textmsg .= "Invoice: " . $invoice['invoice_number'] . "\n";
             $textmsg .= "Bill To: " . $invoice['billing_name'] . "\n";
+            $textmsg .= "Amount Paid: " . $invoice['paid_amount'] . "\n";
             $textmsg .= "\n";
             $textmsg .= "Items: \n";
             foreach($invoice['items'] as $item) {
                 $item = $item['item'];
-                $textmsg .= $item['description'] . "\n";
+                $textmsg .= $item['description'] . " - " . $item['total_amount_display'] . "\n";
             }
             $textmsg .= "\n";
             foreach($emails as $email) {
@@ -130,6 +131,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
                     'business_id'=>$business_id,
                     'subject'=>$subject,
                     'textmsg'=>$textmsg,
+                    'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
                     );
             }
 
