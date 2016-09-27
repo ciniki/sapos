@@ -116,7 +116,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
             $textmsg .= "\n";
             $textmsg .= "Invoice: " . $invoice['invoice_number'] . "\n";
             $textmsg .= "Bill To: " . $invoice['billing_name'] . "\n";
-            $textmsg .= "Amount Paid: " . $invoice['paid_amount'] . "\n";
+            $textmsg .= "Total: " . $invoice['total_amount_display'] . "\n";
             $textmsg .= "\n";
             $textmsg .= "Items: \n";
             foreach($invoice['items'] as $item) {
