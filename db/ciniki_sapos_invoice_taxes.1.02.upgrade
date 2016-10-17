@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table ciniki_sapos_invoice_taxes to version 1.02.
+#
+ALTER TABLE ciniki_sapos_invoice_taxes ADD COLUMN flags tinyint unsigned not null AFTER taxrate_id;
+ALTER TABLE ciniki_sapos_invoice_taxes COMMENT='v1.02';

@@ -184,6 +184,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     // Check if invoice taxes need to be updated or added 
     //
     $invoice_tax_amount = 0;
+    $included_tax_amount = 0;
     foreach($new_taxes as $tid => $tax) {
         $tax_amount = bcadd($tax['calculated_items_amount'], $tax['calculated_invoice_amount'], 4);
         if( isset($old_taxes[$tid]) ) {
@@ -207,6 +208,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
                 array(
                     'invoice_id'=>$invoice_id,
                     'taxrate_id'=>$tid,
+                    'flags'=>$tax['flags'],
                     'line_number'=>0,
                     'description'=>$tax['name'],
                     'amount'=>$tax_amount,
@@ -218,7 +220,11 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
         //
         // Keep track of the total taxes for the invoice
         //
-        $invoice_tax_amount = bcadd($invoice_tax_amount, $tax_amount, 4);
+        if( ($tax['flags']&0x01) == 0x01 ) {
+            $included_tax_amount = bcadd($included_tax_amount, $tax_amount, 4);
+        } else {
+            $invoice_tax_amount = bcadd($invoice_tax_amount, $tax_amount, 4);
+        }
     }
 
     //
