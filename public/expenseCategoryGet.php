@@ -75,7 +75,7 @@ function ciniki_sapos_expenseCategoryGet(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['categories'][0]['category']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1423', 'msg'=>'Unable to find expense category.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.48', 'msg'=>'Unable to find expense category.'));
     }
     $category = $rc['categories'][0]['category'];
 

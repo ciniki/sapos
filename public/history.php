@@ -58,7 +58,7 @@ function ciniki_sapos_history($ciniki) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2030', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.55', 'msg'=>'Permission denied'));
         }
     }
 
@@ -81,7 +81,7 @@ function ciniki_sapos_history($ciniki) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2026', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.56', 'msg'=>'Permission denied'));
         }
     }
 

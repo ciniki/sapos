@@ -48,7 +48,7 @@ function ciniki_sapos_expenseCategoryDelete(&$ciniki) {
         return $rc;
     }
     if( isset($rc['num']['items']) && $rc['num']['items'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1424', 'msg'=>'Unable to remove category, there are still expenses using it'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.47', 'msg'=>'Unable to remove category, there are still expenses using it'));
     }
 
     //

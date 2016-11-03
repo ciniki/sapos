@@ -155,7 +155,7 @@ function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id
         return $rc;
     }
     if( !isset($rc['invoices']) || !isset($rc['invoices'][0]['invoice']) ) {
-        return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'2371', 'msg'=>'Invoice does not exist'));
+        return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.12', 'msg'=>'Invoice does not exist'));
     }
     $rsp['invoice'] = $rc['invoices'][0]['invoice'];
     $rsp['invoice']['subtotal_discount_percentage'] = (float)$rsp['invoice']['subtotal_discount_percentage'];

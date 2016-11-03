@@ -55,7 +55,7 @@ function ciniki_sapos_transactionUpdate(&$ciniki) {
         return $rc;
     }   
     if( !isset($rc['transaction']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1396', 'msg'=>'Unable to locate the invoice'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.144', 'msg'=>'Unable to locate the invoice'));
     }
     $transaction = $rc['transaction'];
 

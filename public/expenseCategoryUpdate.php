@@ -60,7 +60,7 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['category']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1439', 'msg'=>'Unable to find category'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.49', 'msg'=>'Unable to find category'));
     }
     $category = $rc['category'];
 

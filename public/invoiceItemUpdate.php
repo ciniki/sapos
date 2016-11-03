@@ -69,7 +69,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         return $rc;
     }   
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1523', 'msg'=>'Unable to locate the invoice item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.74', 'msg'=>'Unable to locate the invoice item'));
     }
     $item = $rc['item'];
 
@@ -88,7 +88,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2029', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.75', 'msg'=>'Permission denied'));
         }
     }
 

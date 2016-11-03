@@ -55,7 +55,7 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2027', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.66', 'msg'=>'Permission denied'));
         }
     }
 
@@ -109,7 +109,7 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
                     'object_ids'=>$object_ids,
                     ));
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1995', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.67', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
                 }
                 //
                 // Update the inventory levels for the invoice items

@@ -16,7 +16,7 @@
 function ciniki_sapos_itemCalcAmount($ciniki, $item) {
 
     if( !isset($item['quantity']) || !isset($item['unit_amount']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1399', 'msg'=>'Unable to calculate the item amount, missing quantity or unit amount'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.30', 'msg'=>'Unable to calculate the item amount, missing quantity or unit amount'));
     }
 
     $unit_amount = $item['unit_amount'];

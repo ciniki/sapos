@@ -13,7 +13,7 @@
 function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args) {
 
     if( !isset($args['amount']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3172', 'msg'=>'No amount specified.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.188', 'msg'=>'No amount specified.'));
     }
 
     //
@@ -25,7 +25,7 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
         return $rc;
     }
     if( !isset($rc['settings']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3180', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.189', 'msg'=>'Paypal processing not configured'));
     }
     $paypal_settings = $rc['settings'];
 
@@ -36,17 +36,17 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
         $paypal_endpoint = "https://api-3t.sandbox.paypal.com/nvp";
         $paypal_redirect_url = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
     } else {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3173', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.190', 'msg'=>'Paypal processing not configured'));
     }
 
     if( !isset($paypal_settings['paypal-ec-clientid']) || $paypal_settings['paypal-ec-clientid'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3182', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.191', 'msg'=>'Paypal processing not configured'));
     }
     if( !isset($paypal_settings['paypal-ec-password']) || $paypal_settings['paypal-ec-password'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3183', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.192', 'msg'=>'Paypal processing not configured'));
     }
     if( !isset($paypal_settings['paypal-ec-signature']) || $paypal_settings['paypal-ec-signature'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3184', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.193', 'msg'=>'Paypal processing not configured'));
     }
 
     $paypal_clientid = $paypal_settings['paypal-ec-clientid'];
@@ -113,13 +113,13 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
     }
 
     if( curl_errno($ch)) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3178', 'msg'=>'Error processing request: ' . curl_error($ch)));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.194', 'msg'=>'Error processing request: ' . curl_error($ch)));
     } else {
         curl_close($ch);
     }
 
     if( !isset($nvpResArray['ACK']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3164', 'msg'=>"There is a problem currently with Paypal, please try again later."));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.195', 'msg'=>"There is a problem currently with Paypal, please try again later."));
     }
 
     if( strtolower($nvpResArray['ACK']) == 'success' || strtolower($nvpResArray['ACK']) == 'successwithwarning' ) {
@@ -136,6 +136,6 @@ function ciniki_sapos_web_paypalExpressCheckoutSet(&$ciniki, $business_id, $args
     error_log("PAYPAL-ACK: " . urldecode($nvpResArray['ACK']));
     
     error_log("PAYPAL-ERR: " . urldecode($nvpResArray['L_ERRORCODE0']) . '-' . urldecode($nvpResArray['L_LONGMESSAGE0']));
-    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3179', 'msg'=>'Oops, we seem to have an error. Please try again or contact us for help. '));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.196', 'msg'=>'Oops, we seem to have an error. Please try again or contact us for help. '));
 }
 ?>

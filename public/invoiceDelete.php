@@ -50,7 +50,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     }
     if( isset($rc['shipments']) && $rc['shipments']['num_shipments'] > 0 ) {
         $n = $rc['shipments']['num_shipments'];
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2000', 'msg'=>"Unable to remove, you have " . $n . " shipment" . ($n>1?'s':'') ."."));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.63', 'msg'=>"Unable to remove, you have " . $n . " shipment" . ($n>1?'s':'') ."."));
     }
 
     //
@@ -64,11 +64,11 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     $invoice = $rc['invoice'];
 
     if( $invoice['status'] >= 40 && count($invoice['items']) > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1393', 'msg'=>'This invoice is already recorded in the accounting system, and cannot be removed.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.64', 'msg'=>'This invoice is already recorded in the accounting system, and cannot be removed.'));
     }
 
     if( count($invoice['transactions']) > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1395', 'msg'=>'There are transactions recorded for this invoice, it cannot be removed from the system.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.65', 'msg'=>'There are transactions recorded for this invoice, it cannot be removed from the system.'));
     }
 
     //

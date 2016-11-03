@@ -84,7 +84,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
     if( isset($rc['shipments']) && isset($rc['shipments'][0]['shipment']) ) {
         $shipment = $rc['shipments'][0]['shipment'];
     } else {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1926', 'msg'=>'Shipment does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.38', 'msg'=>'Shipment does not exist'));
     }
 
     //
@@ -102,7 +102,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2028', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.39', 'msg'=>'Permission denied'));
         }
     }
 
@@ -278,7 +278,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
                 'object_ids'=>$object_ids,
                 ));
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2014', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.40', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
             }
             //
             // Update the inventory levels for the invoice items

@@ -51,7 +51,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
         return $rc;
     }
     if( !isset($rc['invoice']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1080', 'msg'=>'Unable to find invoice'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.26', 'msg'=>'Unable to find invoice'));
     }
 
     //

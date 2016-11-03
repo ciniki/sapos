@@ -20,7 +20,7 @@ function ciniki_sapos_web_cartItemDelete($ciniki, $settings, $business_id, $args
         // Check that an item was specified
         //
         if( !isset($args['item_id']) || $args['item_id'] == '' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1701', 'msg'=>'No item specified'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.155', 'msg'=>'No item specified'));
         }
 
         //
@@ -38,7 +38,7 @@ function ciniki_sapos_web_cartItemDelete($ciniki, $settings, $business_id, $args
             return $rc;
         }   
         if( !isset($rc['item']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1702', 'msg'=>'Unable to locate the invoice item'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.156', 'msg'=>'Unable to locate the invoice item'));
         }
         $item = $rc['item'];
 
@@ -87,6 +87,6 @@ function ciniki_sapos_web_cartItemDelete($ciniki, $settings, $business_id, $args
         return array('stat'=>'ok');
     }
 
-    return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'1703', 'msg'=>'Cart does not exist'));
+    return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.157', 'msg'=>'Cart does not exist'));
 }
 ?>

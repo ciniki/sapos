@@ -23,7 +23,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             || !isset($args['object_id']) || $args['object_id'] == ''
             || !isset($args['quantity']) || $args['quantity'] == ''
             ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1609', 'msg'=>'No item specified'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.148', 'msg'=>'No item specified'));
         }
 
         if( !isset($args['price_id']) ) {
@@ -41,11 +41,11 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
                 $fn = $rc['function_call'];
                 $rc = $fn($ciniki, $business_id, $ciniki['session']['customer'], $args);
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1817', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.149', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
                 }
                 $item = $rc['item'];
             } else {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3159', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.150', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
             }
         }
         if( isset($item['object']) ) { $args['object'] = $item['object']; }
@@ -61,7 +61,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
                 if( $item['units_available'] > 0 ) {
                     $args['quantity'] = $item['units_available'];
                 } else {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1602', 'msg'=>"I'm sorry there are no more available."));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.151', 'msg'=>"I'm sorry there are no more available."));
                 }
             }
         }
@@ -147,7 +147,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
             $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1033', 'msg'=>'Internal Error', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.152', 'msg'=>'Internal Error', 'err'=>$rc['err']));
             }
             $item_id = $rc['id'];
             //
@@ -194,7 +194,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
                 ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
                 $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1813', 'msg'=>'Internal Error', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.153', 'msg'=>'Internal Error', 'err'=>$rc['err']));
                 }
                 $item_id = $rc['id'];
                 //
@@ -238,6 +238,6 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
         return array('stat'=>'ok');
     }
 
-    return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'1608', 'msg'=>'Cart does not exist'));
+    return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.154', 'msg'=>'Cart does not exist'));
 }
 ?>

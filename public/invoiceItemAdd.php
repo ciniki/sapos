@@ -81,7 +81,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2019', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.68', 'msg'=>'Permission denied'));
         }
     }
 

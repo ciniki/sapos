@@ -33,7 +33,7 @@ function ciniki_sapos_web_cartUpdate($ciniki, $settings, $business_id, $args) {
             return $rc;
         }   
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2016', 'msg'=>'Unable to locate the invoice'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.165', 'msg'=>'Unable to locate the invoice'));
         }
         $invoice = $rc['invoice'];
 
@@ -59,6 +59,6 @@ function ciniki_sapos_web_cartUpdate($ciniki, $settings, $business_id, $args) {
         return array('stat'=>'ok');
     }
 
-    return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'2017', 'msg'=>'Cart does not exist'));
+    return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.166', 'msg'=>'Cart does not exist'));
 }
 ?>

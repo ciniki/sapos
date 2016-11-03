@@ -17,7 +17,7 @@
 function ciniki_sapos_hooks_invoiceItemUpdate($ciniki, $business_id, $args) {
 
     if( !isset($args['item_id']) || $args['item_id'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2366', 'msg'=>'No item specified.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.9', 'msg'=>'No item specified.'));
     }
 
     //
@@ -35,7 +35,7 @@ function ciniki_sapos_hooks_invoiceItemUpdate($ciniki, $business_id, $args) {
         return $rc;
     }   
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2367', 'msg'=>'Unable to locate the invoice item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.10', 'msg'=>'Unable to locate the invoice item'));
     }
     $item = $rc['item'];
 
@@ -54,7 +54,7 @@ function ciniki_sapos_hooks_invoiceItemUpdate($ciniki, $business_id, $args) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2368', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.11', 'msg'=>'Permission denied'));
         }
     }
 

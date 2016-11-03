@@ -35,7 +35,7 @@ function ciniki_sapos_expenseImageAdd(&$ciniki) {
     } 
 
     if( $args['expense_id'] <= 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1418', 'msg'=>'No expense specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.50', 'msg'=>'No expense specified'));
     }
    
     //

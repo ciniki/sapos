@@ -12,7 +12,7 @@
 function ciniki_sapos_web_customerOrder(&$ciniki, $settings, $business_id, $customer_id, $args) {
 
     if( !isset($args['invoice_id']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2575', 'msg'=>"No invoice specified"));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.171', 'msg'=>"No invoice specified"));
     }
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');

@@ -41,7 +41,7 @@ function ciniki_sapos_reportSmartBorder(&$ciniki) {
     // Make sure either start_date or search string is set
     //
     if( !isset($args['start_date']) && !isset($args['start_needle']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2015', 'msg'=>'You must specify a start date or search string.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.103', 'msg'=>'You must specify a start date or search string.'));
     }
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');

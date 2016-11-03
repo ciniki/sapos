@@ -20,7 +20,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
         || !isset($args['object']) || $args['object'] == '' 
         || !isset($args['object_id']) || $args['object_id'] == '' 
         ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2378', 'msg'=>'No invoice or item specified.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.3', 'msg'=>'No invoice or item specified.'));
     }
 
     //
@@ -47,7 +47,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2401', 'msg'=>'Unable to find invoice item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.4', 'msg'=>'Unable to find invoice item'));
     }
     $item = $rc['item'];
 
@@ -66,7 +66,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2381', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.5', 'msg'=>'Permission denied'));
         }
     }
 
@@ -83,7 +83,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
         return $rc;
     }
     if( !isset($rc['invoice']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2402', 'msg'=>'Invoice does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.6', 'msg'=>'Invoice does not exist'));
     }
     $invoice = $rc['invoice'];
 
@@ -91,7 +91,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
     // Invoice has already been paid, we don't want to remove this item
     //
     if( $invoice['status'] >= 50 && (!isset($settings['rules-invoice-paid-change-items']) || $settings['rules-invoice-paid-change-items'] == 'no')) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2405', 'msg'=>'Invoice has been paid, unable to remove item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.7', 'msg'=>'Invoice has been paid, unable to remove item'));
     }
 
     //
@@ -107,7 +107,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $business_id, $args) {
         return $rc;
     }
     if( $rc['num_rows'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2386', 'msg'=>'Item is part of a shipment and cannot be removed.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.8', 'msg'=>'Item is part of a shipment and cannot be removed.'));
     }
 
     //

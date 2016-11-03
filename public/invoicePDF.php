@@ -104,10 +104,10 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
         // if customer is set
         //
         if( !isset($invoice['customer']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2154', 'msg'=>'No customer attached to the invoice, we are unable to send the email.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.82', 'msg'=>'No customer attached to the invoice, we are unable to send the email.'));
         }
         if( !isset($invoice['customer']['emails'][0]['email']['address']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2155', 'msg'=>"The customer doesn't have an email address, we are unable to send the email."));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.83', 'msg'=>"The customer doesn't have an email address, we are unable to send the email."));
         }
 
         if( isset($args['subject']) && isset($args['textmsg']) ) {
@@ -175,7 +175,7 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
             ));
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2464', 'msg'=>'Unable to create mail message.', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.84', 'msg'=>'Unable to create mail message.', 'err'=>$rc['err']));
         }
         $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$args['business_id']);
 

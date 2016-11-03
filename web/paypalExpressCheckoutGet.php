@@ -21,7 +21,7 @@ function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args
         return $rc;
     }
     if( !isset($rc['settings']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3192', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.181', 'msg'=>'Paypal processing not configured'));
     }
     $paypal_settings = $rc['settings'];
 
@@ -32,17 +32,17 @@ function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args
         $paypal_endpoint = "https://api-3t.sandbox.paypal.com/nvp";
         $paypal_redirect_url = "https://www.sandbox.paypal.com/webscr?cmd=_express-checkout";
     } else {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3185', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.182', 'msg'=>'Paypal processing not configured'));
     }
 
     if( !isset($paypal_settings['paypal-ec-clientid']) || $paypal_settings['paypal-ec-clientid'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3186', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.183', 'msg'=>'Paypal processing not configured'));
     }
     if( !isset($paypal_settings['paypal-ec-password']) || $paypal_settings['paypal-ec-password'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3195', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.184', 'msg'=>'Paypal processing not configured'));
     }
     if( !isset($paypal_settings['paypal-ec-signature']) || $paypal_settings['paypal-ec-signature'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3196', 'msg'=>'Paypal processing not configured'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.185', 'msg'=>'Paypal processing not configured'));
     }
 
     $paypal_clientid = $paypal_settings['paypal-ec-clientid'];
@@ -85,7 +85,7 @@ function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args
     }
 
     if( curl_errno($ch)) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3193', 'msg'=>'Error processing request: ' . curl_error($ch)));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.186', 'msg'=>'Error processing request: ' . curl_error($ch)));
     } else {
         curl_close($ch);
     }
@@ -97,6 +97,6 @@ function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args
 
     error_log("PAYPAL-ERR: " . urldecode($nvpResArray['L_ERROCODE0']) . '-' . urldecode($nvpResArray['L_SHORTMESSAGE0']));
 
-    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3194', 'msg'=>'Oops, we seem to have an error. Please try again or contact us for help. '));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.187', 'msg'=>'Oops, we seem to have an error. Please try again or contact us for help. '));
 }
 ?>

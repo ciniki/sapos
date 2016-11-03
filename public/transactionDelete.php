@@ -48,12 +48,12 @@ function ciniki_sapos_transactionDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['transaction']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1113', 'msg'=>'Unable to find transaction'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.142', 'msg'=>'Unable to find transaction'));
     }
     $transaction = $rc['transaction'];
 
     if( $transaction['gateway'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1411', 'msg'=>'Unable to remove transaction that was processed through a payment service.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.143', 'msg'=>'Unable to remove transaction that was processed through a payment service.'));
     }
 
     //

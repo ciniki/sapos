@@ -65,7 +65,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentLoad');
     $rc = ciniki_sapos_shipmentLoad($ciniki, $args['business_id'], $args['shipment_id']);
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2041', 'msg'=>'Shipment does not exist', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.136', 'msg'=>'Shipment does not exist', 'err'=>$rc['err']));
     }
     $shipment = $rc['shipment'];
 
@@ -73,7 +73,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
     // Reject if shipment is already shipped
     //
     if( $shipment['status'] > 20 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2036', 'msg'=>'Shipment has already been shipped.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.137', 'msg'=>'Shipment has already been shipped.'));
     }
 
     //
@@ -88,7 +88,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
             && $shipment['weight'] == 0
             && (!isset($args['weight']) || $args['weight'] == '' || $args['weight'] <= 0)
             ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2043', 'msg'=>'Shipping weight must be specified.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.138', 'msg'=>'Shipping weight must be specified.'));
         }
         // Make sure tracking_number is specified if required
         if( isset($settings['rules-shipment-shipped-require-tracking_number'])
@@ -96,7 +96,7 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
             && ($shipment['tracking_number'] == '' || $shipment['tracking_number'] == '0')
             && (!isset($args['tracking_number']) || $args['tracking_number'] == '' )
             ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2048', 'msg'=>'Tracking number must be specified.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.139', 'msg'=>'Tracking number must be specified.'));
         }
         // Make sure boxes is specified if required
         if( isset($settings['rules-shipment-shipped-require-boxes'])
@@ -104,14 +104,14 @@ function ciniki_sapos_shipmentUpdate(&$ciniki) {
             && $shipment['boxes'] == 0
             && (!isset($args['boxes']) || $args['boxes'] == '' || $args['boxes'] <= 0)
             ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2044', 'msg'=>'The number of boxes in a shipment must be specified.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.140', 'msg'=>'The number of boxes in a shipment must be specified.'));
         }
         // Make there are items in the shipment
         if( (!isset($settings['rules-shipment-shipped-require-items'])
             || $settings['rules-shipment-shipped-require-items'] == 'yes')
             && count($shipment['items']) < 1
             ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2162', 'msg'=>'No items added to the shipment.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.141', 'msg'=>'No items added to the shipment.'));
         }
     }
 

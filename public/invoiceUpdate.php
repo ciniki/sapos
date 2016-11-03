@@ -104,7 +104,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['invoice']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2011', 'msg'=>'Unable to find invoice'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.85', 'msg'=>'Unable to find invoice'));
     }
     $invoice = $rc['invoice'];
 
@@ -113,7 +113,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     //
     if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
         if( $invoice['salesrep_id'] != $ciniki['session']['user']['id'] ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2035', 'msg'=>'Permission Denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.86', 'msg'=>'Permission Denied'));
         }
         $update_args = array();
         //
@@ -263,7 +263,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
                 }
             }
         } else {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1096', 'msg'=>'Unable to find customer'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.87', 'msg'=>'Unable to find customer'));
         }
     }
 

@@ -69,7 +69,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2033', 'msg'=>'Unable to find invoice'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
         }
         $invoice = $rc['invoice'];
         //
@@ -80,7 +80,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
                 && $settings['rules-invoice-submit-require-po_number'] == 'yes' 
                 && (!isset($invoice['po_number']) || $invoice['po_number'] == '') 
                 ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2042', 'msg'=>'The order must have a PO Number before it can be submitted.'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.58', 'msg'=>'The order must have a PO Number before it can be submitted.'));
             }
             //
             // Check if customer is on hold
@@ -92,7 +92,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
                 return $rc;
             }
             if( !isset($rc['customer']) ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2046', 'msg'=>'Customer does exist for this invoice'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.59', 'msg'=>'Customer does exist for this invoice'));
             }
             $customer = $rc['customer'];
             if( $customer['status'] > 10 ) {
@@ -109,7 +109,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
             $args['submitted_by'] = $ciniki['session']['user']['display_name'];
         }
     } else {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2034', 'msg'=>'No action specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.60', 'msg'=>'No action specified'));
     }
 
     //

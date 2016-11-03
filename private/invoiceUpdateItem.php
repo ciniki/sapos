@@ -14,7 +14,7 @@
 function ciniki_sapos_invoiceUpdateItem(&$ciniki, $business_id, $invoice_id, $item) {
 
     if( !isset($item['object']) || $item['object'] == '' || !isset($item['object_id']) && $item['object_id'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1516', 'msg'=>'No object specified for updating invoice'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.24', 'msg'=>'No object specified for updating invoice'));
     }
     
     //
@@ -34,7 +34,7 @@ function ciniki_sapos_invoiceUpdateItem(&$ciniki, $business_id, $invoice_id, $it
         return $rc;
     }   
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1400', 'msg'=>'Unable to locate the invoice item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.25', 'msg'=>'Unable to locate the invoice item'));
     }
     $existing_item = $rc['item'];
 

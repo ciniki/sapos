@@ -64,7 +64,7 @@ function ciniki_sapos_expenseItemGet(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1381', 'msg'=>'Unable to find expense item.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.54', 'msg'=>'Unable to find expense item.'));
     }
     $item = $rc['item'];
 

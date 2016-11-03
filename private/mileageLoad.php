@@ -67,7 +67,7 @@ function ciniki_sapos_mileageLoad($ciniki, $business_id, $mileage_id) {
         return $rc;
     }
     if( !isset($rc['mileages']) || !isset($rc['mileages'][0]['mileage']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1713', 'msg'=>'Mileage entry does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.35', 'msg'=>'Mileage entry does not exist'));
     }
     $mileage = $rc['mileages'][0]['mileage'];
 

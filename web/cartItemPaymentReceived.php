@@ -15,14 +15,14 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_
     // Check that an item was specified
     //
     if( !isset($args['invoice_id']) || $args['invoice_id'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3165', 'msg'=>'No cart specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.158', 'msg'=>'No cart specified'));
     }
 
     //
     // Check that an item was specified
     //
     if( !isset($args['item_id']) || $args['item_id'] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3166', 'msg'=>'No item specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.159', 'msg'=>'No item specified'));
     }
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
@@ -44,7 +44,7 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_
         return $rc;
     }   
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3174', 'msg'=>'Unable to locate the invoice item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.160', 'msg'=>'Unable to locate the invoice item'));
     }
     $item = $rc['item'];
 

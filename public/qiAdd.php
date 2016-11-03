@@ -171,7 +171,7 @@ function ciniki_sapos_qiAdd(&$ciniki) {
                 }
             }
         } else {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1502', 'msg'=>'Unable to find customer'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.101', 'msg'=>'Unable to find customer'));
         }
     }
 

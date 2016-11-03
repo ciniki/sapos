@@ -143,7 +143,7 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
         return $rc;
     }
     if( !isset($rc['invoices']) || !isset($rc['invoices'][0]['invoice']) ) {
-        return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'2116', 'msg'=>'Invoice does not exist'));
+        return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.21', 'msg'=>'Invoice does not exist'));
     }
     $invoice = $rc['invoices'][0]['invoice'];
 

@@ -64,7 +64,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
                 'object_ids'=>$object_ids,
                 ));
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1995', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.145', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
             }
             //
             // Update the inventory levels for the invoice items

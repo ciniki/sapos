@@ -47,7 +47,7 @@ function ciniki_sapos_invoiceItemDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1398', 'msg'=>'Unable to find invoice item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.69', 'msg'=>'Unable to find invoice item'));
     }
     $item = $rc['item'];
 
@@ -66,7 +66,7 @@ function ciniki_sapos_invoiceItemDelete(&$ciniki) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2024', 'msg'=>'Permission denied'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.70', 'msg'=>'Permission denied'));
         }
     }
 
@@ -83,7 +83,7 @@ function ciniki_sapos_invoiceItemDelete(&$ciniki) {
         return $rc;
     }
     if( $rc['num_rows'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2057', 'msg'=>'Item is part of a shipment and cannot be removed.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.71', 'msg'=>'Item is part of a shipment and cannot be removed.'));
     }
 
     //

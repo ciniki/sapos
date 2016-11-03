@@ -47,7 +47,7 @@ function ciniki_sapos_shipmentDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['shipment']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1996', 'msg'=>'Shipment does not exist'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.104', 'msg'=>'Shipment does not exist'));
     }
     $shipment = $rc['shipment'];
 
@@ -55,7 +55,7 @@ function ciniki_sapos_shipmentDelete(&$ciniki) {
     // Reject if shipment is already shipped
     //
     if( $shipment['status'] > 20 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2040', 'msg'=>'Shipment has already been shipped.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.105', 'msg'=>'Shipment has already been shipped.'));
     }
 
     //
@@ -136,7 +136,7 @@ function ciniki_sapos_shipmentDelete(&$ciniki) {
                     'quantity'=>$item['quantity']));
                 if( $rc['stat'] != 'ok' ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1994', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.106', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));
                 }
             }
         }

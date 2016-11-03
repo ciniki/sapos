@@ -32,7 +32,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
         return $rc;
     }   
     if( !isset($rc['shipment']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2003', 'msg'=>'Unable to locate the shipment'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.41', 'msg'=>'Unable to locate the shipment'));
     }
     $shipment = $rc['shipment'];
 
@@ -82,7 +82,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
                     'object_ids'=>$object_ids,
                     ));
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2005', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.42', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
                 }
                 //
                 // Update the inventory levels for the invoice items
@@ -101,7 +101,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
                                 $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
                                     $item['id'], array('flags'=>$item['flags']), 0x04);
                                 if( $rc['stat'] != 'ok' ) {
-                                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2061', 'msg'=>'Unable to remove backorder flag on invoice item', 'err'=>$rc['err']));
+                                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.43', 'msg'=>'Unable to remove backorder flag on invoice item', 'err'=>$rc['err']));
                                 }
                             }
                         }
@@ -117,7 +117,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
                             $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
                                 $item['id'], array('flags'=>$item['flags']), 0x04);
                             if( $rc['stat'] != 'ok' ) {
-                                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2060', 'msg'=>'Unable to update backorder flag on invoice item', 'err'=>$rc['err']));
+                                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.44', 'msg'=>'Unable to update backorder flag on invoice item', 'err'=>$rc['err']));
                             }
                         }
                     }

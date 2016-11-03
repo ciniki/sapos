@@ -21,12 +21,12 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'checkModuleAccess');
     $rc = ciniki_businesses_checkModuleAccess($ciniki, $business_id, 'ciniki', 'sapos');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1688', 'msg'=>'Permission denied', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.13', 'msg'=>'Permission denied', 'err'=>$rc['err']));
     }
     $modules = $rc['modules'];
 
     if( !isset($rc['ruleset']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1271', 'msg'=>'No permissions granted'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.14', 'msg'=>'No permissions granted'));
     }
 
     //
@@ -52,7 +52,7 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
             return array('stat'=>'ok', 'modules'=>$modules);
         }
 
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2023', 'msg'=>'Access denied'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.15', 'msg'=>'Access denied'));
     }
     $groups = $rc['groups'];
 
@@ -111,6 +111,6 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
     //
     // By default fail
     //
-    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1258', 'msg'=>'Access denied'));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.16', 'msg'=>'Access denied'));
 }
 ?>

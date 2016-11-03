@@ -65,7 +65,7 @@ function ciniki_sapos_mileageRateGet(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['rates']) || !isset($rc['rates'][0]['rate']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1715', 'msg'=>'Mileage rate not found'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.88', 'msg'=>'Mileage rate not found'));
     }
     $rate = $rc['rates'][0]['rate'];
     $rate['rate'] = numfmt_format_currency($intl_currency_fmt, $rate['rate'], $intl_currency);

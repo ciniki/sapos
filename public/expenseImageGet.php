@@ -60,7 +60,7 @@ function ciniki_sapos_expenseImageGet($ciniki) {
         return $rc;
     }
     if( !isset($rc['images']) ) {
-        return array('stat'=>'ok', 'err'=>array('pkg'=>'ciniki', 'code'=>'1436', 'msg'=>'Unable to find image'));
+        return array('stat'=>'ok', 'err'=>array('code'=>'ciniki.sapos.52', 'msg'=>'Unable to find image'));
     }
     $image = $rc['images'][0]['image'];
     

@@ -41,7 +41,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
         return $rc;
     }   
     if( !isset($rc['invoice']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1397', 'msg'=>'Unable to locate the invoice'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.27', 'msg'=>'Unable to locate the invoice'));
     }
     $invoice = $rc['invoice'];
 
@@ -59,7 +59,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
             return $rc;
         }
         if( !isset($rc['customer']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2002', 'msg'=>'Unable to find customer'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.28', 'msg'=>'Unable to find customer'));
         }
         $customer = $rc['customer'];
     }
@@ -303,7 +303,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
         $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 
             $invoice_id, $args, 0x04);
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2010', 'msg'=>'Unable to update invoice', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.29', 'msg'=>'Unable to update invoice', 'err'=>$rc['err']));
         }
     }
 

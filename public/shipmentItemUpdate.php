@@ -40,7 +40,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     // Check if quantity is <= 0
     //
     if( isset($args['quantity']) && $args['quantity'] <= 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1980', 'msg'=>'Quantity must be specified and cannot be zero.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.124', 'msg'=>'Quantity must be specified and cannot be zero.'));
     }
 
     //
@@ -56,7 +56,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1935', 'msg'=>'Item does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.125', 'msg'=>'Item does not exist.'));
     }
     $item = $rc['item'];
 
@@ -73,7 +73,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['shipment']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1936', 'msg'=>'Shipment does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.126', 'msg'=>'Shipment does not exist.'));
     }
     $shipment = $rc['shipment'];
 
@@ -81,7 +81,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     // Reject if shipment is already shipped
     //
     if( $shipment['status'] > 20 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'2006', 'msg'=>'Shipment has already been shipped.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.127', 'msg'=>'Shipment has already been shipped.'));
     }
 
     //
@@ -98,7 +98,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1937', 'msg'=>'Invoice does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.128', 'msg'=>'Invoice does not exist.'));
     }
     $invoice_item = $rc['item'];
 
@@ -138,7 +138,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $invoice_item['id'], array('shipped_quantity'=>$new_shipped_quantity), 0x04);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1984', 'msg'=>'Unable to update the invoice.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.129', 'msg'=>'Unable to update the invoice.'));
         }
 
         //
@@ -155,7 +155,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
                     'quantity'=>$quantity_removed));
                 if( $rc['stat'] != 'ok' ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1990', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.130', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));
                 }
             }
         }
@@ -173,7 +173,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         //
         if( ($invoice_item['quantity'] - $invoice_item['shipped_quantity'] - $quantity_added) < 0 ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1978', 'msg'=>'The quantity is more than was ordered.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.131', 'msg'=>'The quantity is more than was ordered.'));
         }
 
         // 
@@ -182,11 +182,11 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         $new_shipped_quantity = $invoice_item['shipped_quantity'] + $quantity_added;
         if( $new_shipped_quantity < 0 ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1987', 'msg'=>'The new shipped quantity for the invoice item will be less than zero.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.132', 'msg'=>'The new shipped quantity for the invoice item will be less than zero.'));
         }
         if( $new_shipped_quantity > $invoice_item['quantity'] ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1989', 'msg'=>'The new shipped quantity for the invoice item will be less than zero.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.133', 'msg'=>'The new shipped quantity for the invoice item will be less than zero.'));
         }
 
         //
@@ -203,7 +203,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
                     'quantity'=>$quantity_added));
                 if( $rc['stat'] != 'ok' ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1982', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.134', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));
                 }
             }
         }
@@ -215,7 +215,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $invoice_item['id'], array('shipped_quantity'=>$new_shipped_quantity), 0x04);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1988', 'msg'=>'Unable to update the invoice.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.135', 'msg'=>'Unable to update the invoice.'));
         }
 
     }

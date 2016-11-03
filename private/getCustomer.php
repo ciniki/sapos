@@ -87,7 +87,7 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
                 }
             }
         } else {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1612', 'msg'=>'Unable to find customer'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.19', 'msg'=>'Unable to find customer'));
         }
     }
 
