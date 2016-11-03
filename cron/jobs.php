@@ -51,7 +51,7 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
             //
             // Log the message but don't exit, there might be many more to setup
             //
-            ciniki_cron_logMsg($ciniki, $rc['business_id'], array('code'=>'2621', 'msg'=>'Unable to add recurring invoice',
+            ciniki_cron_logMsg($ciniki, $rc['business_id'], array('code'=>'ciniki.sapos.205', 'msg'=>'Unable to add recurring invoice',
                 'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
                 ));
         }
