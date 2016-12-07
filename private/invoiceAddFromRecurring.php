@@ -323,6 +323,25 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
             }
             $new_item_id = $rc['id'];
         }
+        //
+        // Update the taxes/shipping incase something relavent changed
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
+        $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $new_invoice_id);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+
+        //
+        // Update the status
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $new_invoice_id);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
     }
 
     //

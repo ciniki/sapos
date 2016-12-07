@@ -44,6 +44,17 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
     
     foreach($recurring as $ri) {
         //
+        // We need the modules that are enabled for this business
+        //
+        $ciniki['business']['modules'] = array();
+        $rc = ciniki_businesses_checkModuleAccess($ciniki, $ri['business_id'], 'ciniki', 'sapos');
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_cron_logMsg($ciniki, $rc['business_id'], array('code'=>'ciniki.sapos.206', 'msg'=>'Unable to check module access.',
+                'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
+                ));
+            return $rc;
+        }
+        //
         // Add the missing recurring invoices
         //
         $rc = ciniki_sapos_invoiceAddFromRecurring($ciniki, $ri['business_id'], $ri['recurring_id']);
@@ -55,6 +66,7 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
                 'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
                 ));
         }
+        $ciniki['business']['modules'] = array();
     }
 
     return array('stat'=>'ok');
