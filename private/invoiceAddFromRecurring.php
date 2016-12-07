@@ -230,6 +230,10 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
         $dates['lastyear'] = clone $invoice_date;
         $dates['lastyear']->sub(new DateInterval('P1Y'));
         $dates['thismonth'] = clone $invoice_date;
+        $dates['plus2month'] = clone $invoice_date;
+        $dates['plus2month']->add(new DateInterval('P2M'));
+        $dates['plus11month'] = clone $invoice_date;
+        $dates['plus11month']->add(new DateInterval('P11M'));
         $dates['nextmonth'] = clone $invoice_date;
         $dates['nextmonth']->add(new DateInterval('P1M'));
         $dates['nextyear'] = clone $invoice_date;
@@ -349,7 +353,9 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
     //
     if( $invoice['invoice_type'] == '11' ) {
         $invoice_date->add(new DateInterval('P1M'));
-    } elseif( $invoice['invoice_type'] == '12') {
+    } elseif( $invoice['invoice_type'] == '16') {
+        $invoice_date->add(new DateInterval('P3M'));
+    } elseif( $invoice['invoice_type'] == '19') {
         $invoice_date->add(new DateInterval('P1Y'));
     }
     $invoice_date->setTimezone(new DateTimeZone('UTC'));

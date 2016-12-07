@@ -181,7 +181,9 @@ function ciniki_sapos_invoice() {
             if( i == 'invoice_number' ) {
                 if( this.data.invoice_type == 11 ) {
                     return 'Monthly <span class="subdue">[' + this.data['status_text'] + ']</span>';
-                } else if( this.data.invoice_type == 12 ) {
+                } else if( this.data.invoice_type == 16 ) {
+                    return 'Quarterly <span class="subdue">[' + this.data['status_text'] + ']</span>';
+                } else if( this.data.invoice_type == 18 ) {
                     return 'Yearly <span class="subdue">[' + this.data['status_text'] + ']</span>';
                 } else if( this.data.invoice_type == 90 ) {
                     return this.data[i];
@@ -821,7 +823,9 @@ function ciniki_sapos_invoice() {
             if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
                 this.invoiceTypes['11'] = 'Monthly';
                 ct++;
-                this.invoiceTypes['12'] = 'Yearly';
+                this.invoiceTypes['16'] = 'Quarterly';
+                ct++;
+                this.invoiceTypes['19'] = 'Yearly';
                 ct++;
             }
         }
@@ -1161,7 +1165,15 @@ function ciniki_sapos_invoice() {
                 this.invoice.sections.details.list.submitted_by.visible = 'no';
                 this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
                 break;
-            case '12': 
+            case '16': 
+                this.invoice.title = 'Quarterly Invoice';
+                this.invoice.sections.details.list.invoice_number.label = 'Recurring';
+                this.invoice.sections.details.list.invoice_date.label = 'Next Invoice Date';
+                this.invoice.sections._buttons.buttons.delete.label = 'Delete Recurring Invoice';
+                this.invoice.sections.details.list.submitted_by.visible = 'no';
+                this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
+                break;
+            case '19': 
                 this.invoice.title = 'Yearly Invoice';
                 this.invoice.sections.details.list.invoice_number.label = 'Recurring';
                 this.invoice.sections.details.list.invoice_date.label = 'Next Invoice Date';
@@ -1456,7 +1468,7 @@ function ciniki_sapos_invoice() {
         if( rsp.invoice.items.length == 0 && rsp.invoice.transactions.length == 0 ) {
             p.sections._buttons.buttons.delete.visible = 'yes';
         }
-        if( rsp.invoice.customer_id > 0 && rsp.invoice.invoice_type != 11 && rsp.invoice.invoice_type != 12 
+        if( rsp.invoice.customer_id > 0 && rsp.invoice.invoice_type != 11 && rsp.invoice.invoice_type != 16 && rsp.invoice.invoice_type != 19 
             && M.curBusiness.modules['ciniki.mail'] != null
             ) {
             p.sections.messages.visible = 'yes';

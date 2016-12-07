@@ -16,6 +16,7 @@ function ciniki_sapos_main() {
         this.menu.formtabs = {'label':'', 'visible':'no', 'tabs':{
             'invoices':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"invoices");'},
             'monthlyinvoices':{'label':'Monthly', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"monthlyinvoices");'},
+            'quarterlyinvoices':{'label':'Quarterly', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"quarterlyinvoices");'},
             'yearlyinvoices':{'label':'Yearly', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"yearlyinvoices");'},
             'pos':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"pos");'},
             'orders':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_main.showMenu(null,"orders");'},
@@ -84,8 +85,19 @@ function ciniki_sapos_main() {
                 'sortable':'yes',
                 'sortTypes':['number', 'date', 'text', 'altnumber', 'altnumber'],
                 'noData':'No Monthly Invoices',
-//              'addTxt':'More',
-//              'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'11\'});',
+                },
+            };
+        this.menu.forms.quarterlyinvoices = {
+            'quarterlyinvoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
+                'headerValues':['Invoice #','Date','Customer','Amount','Status'],
+                'hint':'Search invoice # or customer name', 
+                'noData':'No Invoices Found',
+                },
+            'invoices':{'label':'Monthly Recurring Invoices', 'type':'simplegrid', 'num_cols':5,
+                'headerValues':['Invoice #','Date','Customer','Amount','Status'],
+                'sortable':'yes',
+                'sortTypes':['number', 'date', 'text', 'altnumber', 'altnumber'],
+                'noData':'No Monthly Invoices',
                 },
             };
         this.menu.forms.yearlyinvoices = {
@@ -99,8 +111,6 @@ function ciniki_sapos_main() {
                 'sortable':'yes',
                 'sortTypes':['number', 'date', 'text', 'altnumber', 'altnumber'],
                 'noData':'No Yearly Invoices',
-//              'addTxt':'More',
-//              'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_type\':\'12\'});',
                 },
             };
         this.menu.forms.carts = {
@@ -206,9 +216,15 @@ function ciniki_sapos_main() {
                         M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
                     });
             }
+            if( s == 'quarterlyinvoice_search' && v != '' ) {
+                M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+                    'start_needle':v, 'invoice_type':'16', 'sort':'reverse', 'limit':'10'}, function(rsp) {
+                        M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
+                    });
+            }
             if( s == 'yearlyinvoice_search' && v != '' ) {
                 M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
-                    'start_needle':v, 'invoice_type':'12', 'sort':'reverse', 'limit':'10'}, function(rsp) {
+                    'start_needle':v, 'invoice_type':'19', 'sort':'reverse', 'limit':'10'}, function(rsp) {
                         M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
                     });
             }
@@ -238,7 +254,7 @@ function ciniki_sapos_main() {
             }
         };
         this.menu.liveSearchResultValue = function(s, f, i, j, d) {
-            if( s == 'invoice_search' || s == 'monthlyinvoice_search' || s == 'yearlyinvoice_search' || s == 'order_search' ) { 
+            if( s == 'invoice_search' || s == 'monthlyinvoice_search' || s == 'quarterlyinvoice_search' || s == 'yearlyinvoice_search' || s == 'order_search' ) { 
                 switch (j) {
                     case 0: return d.invoice.invoice_number;
                     case 1: return d.invoice.invoice_date;
@@ -273,7 +289,7 @@ function ciniki_sapos_main() {
             return '';
         };
         this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
-            if( s == 'invoice_search' || s == 'monthly_search' || s == 'yearly_search' || s == 'order_search' || s == 'quote_search' ) {
+            if( s == 'invoice_search' || s == 'monthly_search' || s == 'quarterlyinvoice_search' || s == 'yearly_search' || s == 'order_search' || s == 'quote_search' ) {
                 return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.showMenu();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
             }
             if( s == 'expense_search' ) {
@@ -352,6 +368,10 @@ function ciniki_sapos_main() {
                 if( i == 3 ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
                 return '';
             }
+            if( s == 'invoices' && this.formtab == 'quarterlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
+                if( i == 3 ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
+                return '';
+            }
             if( s == 'invoices' && this.formtab == 'yearlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
                 if( i == 3 ) { return this.data.totals.monthly_amount + ' (' + this.data.totals.total_amount + ')';  }
                 return '';
@@ -400,15 +420,19 @@ function ciniki_sapos_main() {
             if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
                 this.menu.formtabs.tabs.monthlyinvoices.visible = 'yes';
                 ct++;
+                this.menu.formtabs.tabs.quarterlyinvoices.visible = 'yes';
+                ct++;
                 this.menu.formtabs.tabs.yearlyinvoices.visible = 'yes';
                 ct++;
             } else {
                 this.menu.formtabs.tabs.monthlyinvoices.visible = 'no';
+                this.menu.formtabs.tabs.quarterlyinvoices.visible = 'no';
                 this.menu.formtabs.tabs.yearlyinvoices.visible = 'no';
             }
         } else {
             this.menu.formtabs.tabs.invoices.visible = 'no';
             this.menu.formtabs.tabs.monthlyinvoices.visible = 'no';
+            this.menu.formtabs.tabs.quarterlyinvoices.visible = 'no';
             this.menu.formtabs.tabs.yearlyinvoices.visible = 'no';
         }
         if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
@@ -502,11 +526,13 @@ function ciniki_sapos_main() {
                 });
         } 
         else if( this.menu.formtab == 'monthlyinvoices'
+            || this.menu.formtab == 'quarterlyinvoices'
             || this.menu.formtab == 'yearlyinvoices'
             ) {
             switch(this.menu.formtab) {
                 case 'monthlyinvoices': this.menu.invoice_type = 11; break;
-                case 'yearlyinvoices': this.menu.invoice_type = 12; break;
+                case 'quarterlyinvoices': this.menu.invoice_type = 16; break;
+                case 'yearlyinvoices': this.menu.invoice_type = 19; break;
             }
             M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
                 'sort':'date', 'type':this.menu.invoice_type}, function(rsp) {

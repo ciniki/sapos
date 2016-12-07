@@ -29,7 +29,7 @@ function ciniki_sapos_invoices() {
                 '0':{'label':'All', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,0);'},
                 '10':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,10);'},
 //              '11':{'label':'Monthly Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,11);'},
-//              '12':{'label':'Yearly Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,12);'},
+//              '19':{'label':'Yearly Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,19);'},
                 '20':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,20);'},
                 '30':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,30);'},
                 '40':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,40);'},
@@ -158,7 +158,7 @@ function ciniki_sapos_invoices() {
 //          if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
 //              this.invoices.sections.types.tabs['11'].visible = 'yes';
 //              ct++;
-//              this.invoices.sections.types.tabs['12'].visible = 'yes';
+//              this.invoices.sections.types.tabs['19'].visible = 'yes';
 //              ct++;
 //          }
         } else {
@@ -246,7 +246,7 @@ function ciniki_sapos_invoices() {
 //          if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
 //              this.invoices.sections.types.tabs['11'] = {'label':'Monthly', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,11);'};
 //              tc++;
-//              this.invoices.sections.types.tabs['12'] = {'label':'Yearly', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,12);'};
+//              this.invoices.sections.types.tabs['19'] = {'label':'Yearly', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,19);'};
 //              tc++;
 //          }
         }

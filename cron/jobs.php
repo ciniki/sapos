@@ -17,6 +17,7 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAddFromRecurring');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'checkModuleAccess');
 
     //
     // Get the list of recurring invoices with a invoice_date of today or before
@@ -30,7 +31,7 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
             . "AND ri.business_id = i.business_id "
             . "AND ri.invoice_date = i.invoice_date "
             . ") "
-        . "WHERE (ri.invoice_type = 11 OR ri.invoice_type = 12) "
+        . "WHERE (ri.invoice_type = 11 OR ri.invoice_type = 16 OR ri.invoice_type = 19) "
         . "AND ri.invoice_date < UTC_TIMESTAMP() "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
