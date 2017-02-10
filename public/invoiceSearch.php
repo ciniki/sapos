@@ -87,7 +87,7 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
     if( is_numeric($args['start_needle']) ) { 
         $strsql .= "AND (ciniki_sapos_invoices.invoice_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 //            . "OR ciniki_sapos_invoices.invoice_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
-            . "OR ciniki_sapos_invoices.po_number LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+            . "OR ciniki_sapos_invoices.po_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "OR ciniki_sapos_invoices.po_number LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "OR ciniki_sapos_invoices.po_number LIKE '%-" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . ") ";
@@ -99,6 +99,9 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
         if( isset($args['customer_id']) && $args['customer_id'] != '' ) {
             $strsql .= "AND (DATE_FORMAT(invoice_date, '%M %Y') LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
                 . "OR DATE_FORMAT(invoice_date, '%M %Y') LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+                . "OR ciniki_sapos_invoices.po_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+                . "OR ciniki_sapos_invoices.po_number LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+                . "OR ciniki_sapos_invoices.po_number LIKE '%-" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
                 . ") ";
         } else {
             $strsql .= "AND (ciniki_customers.display_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
@@ -106,6 +109,9 @@ function ciniki_sapos_invoiceSearch(&$ciniki) {
                 . "OR ciniki_customers.company LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
                 . "OR ciniki_customers.company LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
                 . "OR ciniki_customers.eid LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+                . "OR ciniki_sapos_invoices.po_number LIKE '%" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+                . "OR ciniki_sapos_invoices.po_number LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+                . "OR ciniki_sapos_invoices.po_number LIKE '%-" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
                 . "OR DATE_FORMAT(invoice_date, '%M %Y') LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
                 . "OR DATE_FORMAT(invoice_date, '%M %Y') LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
                 . ") ";

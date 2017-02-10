@@ -101,6 +101,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         . "ciniki_sapos_invoices.invoice_number, "
         . "ciniki_sapos_invoices.invoice_date, "
         . "ciniki_sapos_invoices.status, "
+        . "ciniki_sapos_invoices.po_number, "
         . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
         . "ciniki_customers.type AS customer_type, "
         . "ciniki_customers.display_name AS customer_display_name, "
@@ -217,7 +218,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $container = array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-            'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'status_text', 
+            'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'po_number', 'status_text', 
                 'customer_type', 'customer_display_name', 'total_amount'),
             'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
