@@ -119,6 +119,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
     $strsql = "SELECT ciniki_sapos_invoices.id, "
         . "ciniki_sapos_invoices.invoice_number, "
         . "ciniki_sapos_invoices.po_number, "
+        . "ciniki_sapos_invoices.flags, "
         . "ciniki_sapos_invoices.status, "
         . "ciniki_sapos_invoices.status AS status_text, "
         . "ciniki_sapos_invoices.customer_notes, "
@@ -143,7 +144,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
             'fields'=>array('id', 'invoice_number', 'submitted_by', 'po_number',
-                'status', 'status_text', 'customer_name'=>'display_name', 'customer_notes',
+                'flags', 'status', 'status_text', 'customer_name'=>'display_name', 'customer_notes',
                 'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city',
                 'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_phone'),
             'maps'=>array('status_text'=>$maps['invoice']['status'])),
@@ -162,6 +163,7 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $business_id, $shipment_id) {
         } else {
             $shipment['customer_name'] = '';
         }
+        $shipment['dropship'] = (($invoice['flags']&0x02) == 0x02 ? 'yes' : 'no');
         $shipment['customer_notes'] = $invoice['customer_notes'];
         $shipment['shipping_name'] = $invoice['shipping_name'];
         $shipment['shipping_address1'] = $invoice['shipping_address1'];

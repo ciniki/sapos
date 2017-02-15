@@ -18,7 +18,8 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action',
-            'validlist'=>array('submit')),
+            'validlist'=>array('submit', 'discount')),
+        'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Percent'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -52,65 +53,8 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         $args['unit_discount_percentage'] = 0;
     }
 
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
-
-    if( isset($args['action']) && $args['action'] == 'submit' ) {
-        $strsql = "SELECT po_number, customer_id, invoice_type, status, shipping_status, submitted_by "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-            . "";
-        // Check if only a sales rep
-        if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
-            $strsql .= "AND ciniki_sapos_invoices.salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' ";
-        }
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
-        }
-        $invoice = $rc['invoice'];
-        //
-        // Only allow orders to be submitted if still in incomplete status
-        //
-        if( ($invoice['invoice_type'] == 40 || $invoice['invoice_type'] == 20) && $invoice['status'] == 10 ) {
-            if( isset($settings['rules-invoice-submit-require-po_number']) 
-                && $settings['rules-invoice-submit-require-po_number'] == 'yes' 
-                && (!isset($invoice['po_number']) || $invoice['po_number'] == '') 
-                ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.58', 'msg'=>'The order must have a PO Number before it can be submitted.'));
-            }
-            //
-            // Check if customer is on hold
-            //
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'customerStatus');
-            $rc = ciniki_customers_hooks_customerStatus($ciniki, $args['business_id'],
-            array('customer_id'=>$invoice['customer_id']));
-            if( $rc['stat'] != 'ok' ) {
-                return $rc;
-            }
-            if( !isset($rc['customer']) ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.59', 'msg'=>'Customer does exist for this invoice'));
-            }
-            $customer = $rc['customer'];
-            if( $customer['status'] > 10 ) {
-                $args['status'] = 15;    // On hold
-            } else {
-                $args['status'] = 30;    // Pending shipping
-                //
-                // Check if cart should be turned into order
-                //
-                if( $invoice['invoice_type'] == 20 ) {
-                    $args['invoice_type'] = 40;
-                }
-            }
-            $args['submitted_by'] = $ciniki['session']['user']['display_name'];
-        }
-    } else {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.60', 'msg'=>'No action specified'));
-    }
 
     //
     // Start the transaction
@@ -123,15 +67,122 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         return $rc;
     }
 
+    $update_args = array();
+    if( isset($args['action']) && $args['action'] == 'submit' ) {
+        $strsql = "SELECT po_number, customer_id, invoice_type, status, shipping_status, submitted_by "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "";
+        // Check if only a sales rep
+        if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
+            $strsql .= "AND ciniki_sapos_invoices.salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' ";
+        }
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+        if( !isset($rc['invoice']) ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
+        }
+        $invoice = $rc['invoice'];
+        //
+        // Only allow orders to be submitted if still in incomplete status
+        //
+        if( ($invoice['invoice_type'] == 40 || $invoice['invoice_type'] == 20) && $invoice['status'] == 10 ) {
+            if( isset($settings['rules-invoice-submit-require-po_number']) 
+                && $settings['rules-invoice-submit-require-po_number'] == 'yes' 
+                && (!isset($invoice['po_number']) || $invoice['po_number'] == '') 
+                ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.58', 'msg'=>'The order must have a PO Number before it can be submitted.'));
+            }
+            //
+            // Check if customer is on hold
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'customerStatus');
+            $rc = ciniki_customers_hooks_customerStatus($ciniki, $args['business_id'],
+            array('customer_id'=>$invoice['customer_id']));
+            if( $rc['stat'] != 'ok' ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                return $rc;
+            }
+            if( !isset($rc['customer']) ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.59', 'msg'=>'Customer does exist for this invoice'));
+            }
+            $customer = $rc['customer'];
+            if( $customer['status'] > 10 ) {
+                $update_args['status'] = 15;    // On hold
+            } else {
+                $update_args['status'] = 30;    // Pending shipping
+                //
+                // Check if cart should be turned into order
+                //
+                if( $invoice['invoice_type'] == 20 ) {
+                    $update_args['invoice_type'] = 40;
+                }
+            }
+            $update_args['submitted_by'] = $ciniki['session']['user']['display_name'];
+        }
+    } elseif( isset($args['action']) && $args['action'] == 'discount' && isset($args['unit_discount_percentage']) ) {
+        error_log('discount');
+        $strsql = "SELECT id, uuid, quantity, unit_amount, unit_discount_amount, unit_discount_percentage "
+            . "FROM ciniki_sapos_invoice_items "
+            . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+        if( isset($rc['rows']) ) {
+            $items = $rc['rows'];
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+            foreach($items as $item) {
+                if( $item['unit_discount_percentage'] != $args['unit_discount_percentage'] ) {
+                    $item_args['unit_discount_percentage'] = $args['unit_discount_percentage'];
+                    $rc = ciniki_sapos_itemCalcAmount($ciniki, array(
+                        'quantity'=>$item['quantity'],
+                        'unit_amount'=>$item['unit_amount'],
+                        'unit_discount_amount'=>$item['unit_discount_amount'],
+                        'unit_discount_percentage'=>$args['unit_discount_percentage'],
+                        ));
+                    if( $rc['stat'] != 'ok' ) {
+                        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                        return $rc;
+                    }
+                    $item_args['subtotal_amount'] = $rc['subtotal'];
+                    $item_args['discount_amount'] = $rc['discount'];
+                    $item_args['total_amount'] = $rc['total'];
+
+                    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $item['id'], $item_args, 0x04);
+                    if( $rc['stat'] != 'ok' ) {
+                        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                        return $rc;
+                    }
+                }
+            }
+        }
+
+    } else {
+        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.60', 'msg'=>'No action specified'));
+    }
+
     //
     // Update the invoice
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice', 
-        $args['invoice_id'], $args, 0x04);
-    if( $rc['stat'] != 'ok' ) {
-        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-        return $rc;
+    if( count($update_args) > 0 ) {
+        $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice', 
+            $args['invoice_id'], $update_args, 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
     }
 
     //
@@ -200,6 +251,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
     }
+    error_log('done');
 
     //
     // Update the last_change date in the business modules

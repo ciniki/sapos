@@ -35,7 +35,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
         // 0x010000
         array('flag'=>array('bit'=>'17', 'name'=>'Quotes')), 
         array('flag'=>array('bit'=>'18', 'name'=>'Work Location')),     // Address where the work was done
-//      array('flag'=>array('bit'=>'19', 'name'=>'')), 
+        array('flag'=>array('bit'=>'19', 'name'=>'Drop Ships')), 
 //      array('flag'=>array('bit'=>'20', 'name'=>'')),
         // 0x100000
         array('flag'=>array('bit'=>'21', 'name'=>'Paypal Payments')), 

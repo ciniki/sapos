@@ -76,7 +76,7 @@
 # flags:                The flags for the invoice to control shipping/pickup, etc.
 #
 #                       0x01 - Don't show discounts/savings, only show the final price with quantity.
-#                       0x02 - 
+#                       0x02 - Drop ship
 #                       0x04 -
 #                       0x08 - 
 #

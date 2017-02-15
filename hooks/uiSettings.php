@@ -41,7 +41,7 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
             'priority'=>5910,
             'label'=>'Orders', 
             'edit'=>array('app'=>'ciniki.sapos.orders'),
-            'add'=>array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'0', 'invoice_type'=>'40')),
+            'add'=>array('app'=>'ciniki.sapos.invoice', 'args'=>array('action'=>'"\'addorder\'"', 'invoice_id'=>'0', 'invoice_type'=>'40')),
             'search'=>array(
                 'method'=>'ciniki.sapos.invoiceSearch',
                 'args'=>array('sort'=>'reverse'),

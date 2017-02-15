@@ -164,7 +164,7 @@ function ciniki_sapos_orders() {
                 return 'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'shipment_id\':\'' + d.shipment.id + '\'});';
             }
         };
-        this.menu.addButton('add', 'Order', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'customer_id\':\'0\',\'invoice_type\':\'40\'});', 'add');
+        this.menu.addButton('add', 'Order', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'action\':\'addorder\', \'customer_id\':\'0\',\'invoice_type\':\'40\'});', 'add');
         this.menu.addClose('Back');
 
         //

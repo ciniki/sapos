@@ -90,6 +90,15 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
     }
 
     //
+    // Check if drop ship specified
+    //
+    if( isset($args['flags']) && ($args['flags']&0x02) == 0x02 ) {
+        if( !isset($args['shipping_phone']) || $args['shipping_phone'] == '' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.207', 'msg'=>'A shipping phone number must be specified'));
+        }
+    }
+
+    //
     // Force the invoice_date and due_date to be a date time with 12:00:00 (noon)
     // This is used for calculating taxes based on invoice_date
     //
@@ -128,7 +137,10 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
                 $args['customer_id'] = $rc['customer']['parent_id'];
             }
         }
-
+    
+        //
+        // Get the customer details and add to the args if not already set
+        //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'getCustomer');
         $rc = ciniki_sapos_getCustomer($ciniki, $args['business_id'], $args);
         if( $rc['stat'] != 'ok' ) {

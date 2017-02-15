@@ -148,7 +148,7 @@ function ciniki_sapos_shipment() {
             return d.label;
         };
         this.edit.listValue = function(s, i, d) {
-            if( i == 'shipping_address' ) { return this.data[i].replace(/\n/g, '<br/>') + (this.data.shipping_phone!=null&&this.data.shipping_phone!=''?'<br/> Phone: ' + this.data.shipping_phone:''); }
+//                return this.data[i].replace(/\n/g, '<br/>') + (this.data.shipping_phone!=null&&this.data.shipping_phone!=''?'<br/> Phone: ' + this.data.shipping_phone:''); }
             if( i == 'invoice_number' ) { return this.data[i] + ' <span class="subdue">[' + this.data['invoice_status_text'] + ']</span>'; }
             if( i == 'weight' ) { return this.data[i] + ' ' + this.data['weight_units_text']; }
             return this.data[i];
@@ -202,6 +202,9 @@ function ciniki_sapos_shipment() {
             return '';
         };
         this.edit.rowStyle = function(s, i, d) {
+            if( i == 'shipping_address' && M.modFlagOn('ciniki.sapos', 0x040000) && this.data.dropship == 'yes' ) {
+                return 'background:' + M.ciniki_sapos_invoice.colours['invoice-drop-ship'] + ';';
+            }
             if( s == 'invoice_items' ) {
                 if( (d.item.flags&0x0300) > 0 ) {
                     return 'background: ' + M.ciniki_sapos_shipment.colours['invoice-item-forced-backordered'] + ';';
@@ -268,6 +271,7 @@ function ciniki_sapos_shipment() {
 
         // Change also in invoice.js
         this.colours = {
+            'invoice-drop-ship':'#FFD6D6',
             'invoice-item-available':'#C0FFC0',
             'invoice-item-partial':'#FFFFC0',
             'invoice-item-backordered':'#FFC6C6',
@@ -338,6 +342,16 @@ function ciniki_sapos_shipment() {
                     }
                     var p = M.ciniki_sapos_shipment.edit;
                     p.data = rsp.shipment;
+                    p.data.shipping_address = M.formatAddress({
+                        'name':rsp.shipment.shipping_name,
+                        'address1':rsp.shipment.shipping_address1,
+                        'address2':rsp.shipment.shipping_address2,
+                        'city':rsp.shipment.shipping_city,
+                        'province':rsp.shipment.shipping_province,
+                        'postal':rsp.shipment.shipping_postal,
+                        'country':rsp.shipment.shipping_country,
+                        'phone':rsp.shipment.shipping_phone,
+                        });
                     // Only show the delete button when the shipment is still in packing.  If not 
                     // the status must be reset to packing before it can be deleted.
                     if( rsp.shipment.status >= 20 && rsp.shipment.items.length > 0 ) {
@@ -407,8 +421,9 @@ function ciniki_sapos_shipment() {
                         'invoice_status_text':(rsp.invoice.status_text!=null?rsp.invoice.status_text:''),
                         'invoice_po_number':(rsp.invoice.po_number!=null?rsp.invoice.po_number:''),
                         'customer_name':(rsp.invoice.customer.display_name!=null?rsp.invoice.customer.display_name:''),
-                        'shipping_address':(rsp.invoice.shipping_address!=null?rsp.invoice.shipping_address:''),
+//                        'shipping_address':(rsp.invoice.shipping_address!=null?rsp.invoice.shipping_address:''),
                         'shipment_number':(snum!=null?snum:'1'),
+                        'dropship':(rsp.invoice.flags&0x02) == 0x02 ? 'yes' : 'no',
                         'weight':'',
                         'weight_units':'10',
                         'shipping_company':'',
@@ -421,6 +436,16 @@ function ciniki_sapos_shipment() {
                         'items':[],
                         'customer_notes':(rsp.invoice.customer_notes!=null?rsp.invoice.customer_notes:''),
                         };
+                    p.data.shipping_address = M.formatAddress({
+                        'name':rsp.invoice.shipping_name,
+                        'address1':rsp.invoice.shipping_address1,
+                        'address2':rsp.invoice.shipping_address2,
+                        'city':rsp.invoice.shipping_city,
+                        'province':rsp.invoice.shipping_province,
+                        'postal':rsp.invoice.shipping_postal,
+                        'country':rsp.invoice.shipping_country,
+                        'phone':rsp.invoice.shipping_phone,
+                        });
                     if( rsp.invoice.po_number != null && rsp.invoice.po_number != '' ) {
                         p.sections.invoice.list.invoice_po_number.visible = 'yes';
                     }

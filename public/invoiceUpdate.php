@@ -94,7 +94,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     //
     // Get the existing invoice details to compare fields
     //
-    $strsql = "SELECT invoice_number, customer_id, salesrep_id, tax_location_id, pricepoint_id "
+    $strsql = "SELECT invoice_number, customer_id, flags, salesrep_id, tax_location_id, pricepoint_id "
         . "FROM ciniki_sapos_invoices "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
         . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -162,6 +162,13 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
         }
     } else {
         $update_args = $args;
+    }
+
+    if( isset($args['flags']) ) {
+        $invoice['flags'] = $args['flags'];
+    }
+    if( ($invoice['flags']&0x02) && isset($args['shipping_phone']) && $args['shipping_phone'] == '' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.208', 'msg'=>'A shipping phone number must be specified'));
     }
 
     //
@@ -239,7 +246,11 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
             }
             if( isset($customer['addresses']) ) {
                 foreach($customer['addresses'] as $aid => $address) {
-                    if( ($address['flags']&0x01) == 0x01 
+                    //
+                    // Only add customer address when drop ship not set
+                    //
+                    if( ($invoice['flags']&0x02) == 0 
+                        && ($address['flags']&0x01) == 0x01 
                         && ((isset($args['shipping_address1']) && $args['shipping_address1'] == '') 
                             || $args['shipping_update'] == 'yes') ) {
                         $update_args['shipping_address1'] = $address['address1'];
