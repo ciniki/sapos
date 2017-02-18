@@ -31,6 +31,11 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
     $intl_timezone = $rc['settings']['intl-default-timezone'];
     $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
     $intl_currency = $rc['settings']['intl-default-currency'];
+    
+    $codes = 'no';
+    if( isset($ciniki['business']['modules']['ciniki.sapos']['flags']) && ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0400) == 0x0400 ) {
+        $codes = 'yes';
+    }
 
     //
     // Load the customer invoices
@@ -100,9 +105,9 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
                     $item = $item['item'];
                     $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'><td>";
                     if( isset($item['url']) && $item['url'] != '' ) {
-                        $content .= "<a href='" . $item['url'] . "'>" . $item['description'] . "</a>";
+                        $content .= "<a href='" . $item['url'] . "'>" . ($codes == 'yes' && $item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'] . "</a>";
                     } else {
-                        $content .= $item['description'];
+                        $content .= ($codes == 'yes' && $item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
                     }
                     $content .= "</td>";
                     $content .= "<td class='alignright'>" . $item['quantity'] . "</td>";
