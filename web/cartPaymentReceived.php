@@ -97,13 +97,29 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
 
         $subject = "Invoice #" . $invoice['invoice_number'];
         $textmsg = "Thank you for your order, please find the receipt attached.";
-        $ciniki['emailqueue'][] = array('to'=>$invoice['customer']['emails'][0]['email']['address'],
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
+        $rc = ciniki_mail_hooks_addMessage($ciniki, $business_id, array(
+            'object'=>'ciniki.sapos.invoice',
+            'object_id'=>$cart['id'],
+            'customer_id'=>$invoice['customer']['id'],
+            'customer_email'=>$invoice['customer']['emails'][0]['email']['address'],
+            'customer_name'=>$invoice['customer']['display_name'],
+            'subject'=>$subject,
+            'html_content'=>$textmsg,
+            'text_content'=>$textmsg,
+            'attachments'=>array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$business_id);
+/*        $ciniki['emailqueue'][] = array('to'=>$invoice['customer']['emails'][0]['email']['address'],
             'to_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
             'business_id'=>$business_id,
             'subject'=>$subject,
             'textmsg'=>$textmsg,
             'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
-            );
+            ); */
 
         //
         // Email a notification if requested
@@ -126,13 +142,27 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
             $textmsg .= "\n";
             foreach($emails as $email) {
                 $email = trim($email);
-                $ciniki['emailqueue'][] = array('to'=>$email,
+/*                $ciniki['emailqueue'][] = array('to'=>$email,
                     'to_name'=>'',
                     'business_id'=>$business_id,
                     'subject'=>$subject,
                     'textmsg'=>$textmsg,
                     'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
-                    );
+                    ); */
+                $rc = ciniki_mail_hooks_addMessage($ciniki, $business_id, array(
+                    'object'=>'ciniki.sapos.invoice',
+                    'object_id'=>$cart['id'],
+                    'customer_email'=>$email,
+                    'customer_name'=>'',
+                    'subject'=>$subject,
+                    'html_content'=>$textmsg,
+                    'text_content'=>$textmsg,
+                    'attachments'=>array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
+                    ));
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
+                $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$business_id);
             }
 
         }
