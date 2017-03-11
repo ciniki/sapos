@@ -30,7 +30,7 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
     //
     // Check if orders should be shown
     //
-/*
+/*  Moved to customer package
     if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x60) 
         && (isset($args['permissions']['owners'])
             || isset($args['permissions']['employees'])
