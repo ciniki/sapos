@@ -66,21 +66,25 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
         $args['unit_discount_percentage'] = 0;
     }
 
+    $strsql = "SELECT id, customer_id, salesrep_id "
+        . "FROM ciniki_sapos_invoices "
+        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( !isset($rc['invoice']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.45', 'msg'=>'Invoice not found.'));
+    }
+    $invoice = $rc['invoice'];
+
     //
     // Check to make sure the invoice belongs to the salesrep
     //
     if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
-        $strsql = "SELECT id "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-            . "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( !isset($rc['invoice']) ) {
+        if( $invoice['salesrep_id'] != $ciniki['session']['user']['id'] ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.68', 'msg'=>'Permission denied'));
         }
     }
@@ -160,6 +164,24 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
                     $args['flags'] |= $rc['item']['flags'];
                 }
             }
+        }
+    }
+
+    //
+    // Check if a global customer discount
+    //
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.customers', 0x08000000) ) {
+        $strsql = "SELECT discount_percent "
+            . "FROM ciniki_customers "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $invoice['customer_id']) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.customers', 'customer');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['customer']['discount_percent']) && $rc['customer']['discount_percent'] > 0 ) {
+            $args['unit_discount_percentage'] = $rc['customer']['discount_percent'];
         }
     }
 

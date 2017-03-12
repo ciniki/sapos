@@ -91,6 +91,24 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
         $args['notes'] = '';
 
         //
+        // Check if a global customer discount
+        //
+        if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.customers', 0x08000000) ) {
+            $strsql = "SELECT discount_percent "
+                . "FROM ciniki_customers "
+                . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['customer']['id']) . "' "
+                . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.customers', 'customer');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['customer']['discount_percent']) && $rc['customer']['discount_percent'] > 0 ) {
+                $args['unit_discount_percentage'] = $rc['customer']['discount_percent'];
+            }
+        }
+
+        //
         // Get the max line_number for this invoice
         //
         if( !isset($args['line_number']) || $args['line_number'] == '' || $args['line_number'] == 0 ) {
