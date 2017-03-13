@@ -54,7 +54,7 @@ function ciniki_sapos_shipmentItemDelete(&$ciniki) {
     //
     // Get the details of the shipment
     //
-    $strsql = "SELECT id, invoice_id, status "
+    $strsql = "SELECT id, invoice_id, status, shipment_number "
         . "FROM ciniki_sapos_shipments "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['shipment_id']) . "' "
         . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -92,6 +92,25 @@ function ciniki_sapos_shipmentItemDelete(&$ciniki) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.121', 'msg'=>'Invoice does not exist.'));
     }
     $invoice_item = $rc['item'];
+
+    //
+    // Load the invoice/order number
+    //
+    $strsql = "SELECT invoice_number "
+        . "FROM ciniki_sapos_invoices "
+        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
+        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( !isset($rc['invoice']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.103', 'msg'=>'Invoice does not exist.'));
+    }
+    $invoice = $rc['invoice'];
+
+    $history_notes = 'Order #' . $invoice['invoice_number'] . '-' . $shipment['shipment_number'];
 
     //
     // Start transaction
@@ -137,7 +156,9 @@ function ciniki_sapos_shipmentItemDelete(&$ciniki) {
             $rc = $fn($ciniki, $args['business_id'], array(
                 'object'=>$invoice_item['object'],
                 'object_id'=>$invoice_item['object_id'],
-                'quantity'=>$quantity_removed));
+                'quantity'=>$quantity_removed,
+                'history_notes'=>(float)$quantity_removed . " replaced from " . $history_notes,
+                ));
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.123', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));

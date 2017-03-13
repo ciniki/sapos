@@ -63,7 +63,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     //
     // Get the details of the shipment
     //
-    $strsql = "SELECT id, invoice_id, status "
+    $strsql = "SELECT id, invoice_id, status, shipment_number "
         . "FROM ciniki_sapos_shipments "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['shipment_id']) . "' "
         . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -119,7 +119,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     }
     $invoice = $rc['invoice'];
 
-    $history_notes = 'Order #' . $invoice['invoice_number'];
+    $history_notes = 'Order #' . $invoice['invoice_number'] . '-' . $shipment['shipment_number'];
 
     //
     // Quantity is the same, nothing to do
@@ -172,7 +172,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
                     'object'=>$invoice_item['object'],
                     'object_id'=>$invoice_item['object_id'],
                     'quantity'=>$quantity_removed,
-                    'history_notes'=>$history_notes,
+                    'history_notes'=>(float)$quantity_removed . " replaced from " . $history_notes,
                     ));
                 if( $rc['stat'] != 'ok' ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -222,7 +222,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
                     'object'=>$invoice_item['object'],
                     'object_id'=>$invoice_item['object_id'],
                     'quantity'=>$quantity_added,
-                    'history_notes'=>$history_notes,
+                    'history_notes'=>(float)$quantity_added . " shipped on " . $history_notes,
                     ));
                 if( $rc['stat'] != 'ok' ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
