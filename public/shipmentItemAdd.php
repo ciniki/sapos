@@ -167,6 +167,25 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
     }
 
     //
+    // Load the invoice/order number
+    //
+    $strsql = "SELECT invoice_number "
+        . "FROM ciniki_sapos_invoices "
+        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
+        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( !isset($rc['invoice']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.103', 'msg'=>'Invoice does not exist.'));
+    }
+    $invoice = $rc['invoice'];
+
+    $history_notes = 'Order #' . $invoice['invoice_number'];
+
+    //
     // Check for a callback to the object
     //
     if( $invoice_item['object'] != '' && $invoice_item['object_id'] != '' ) {
@@ -177,7 +196,9 @@ function ciniki_sapos_shipmentItemAdd(&$ciniki) {
             $rc = $fn($ciniki, $args['business_id'], array(
                 'object'=>$invoice_item['object'],
                 'object_id'=>$invoice_item['object_id'],
-                'quantity'=>$args['quantity']));
+                'quantity'=>$args['quantity'],
+                'history_notes'=>$history_notes,
+                ));
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.115', 'msg'=>'Unable to remove from inventory', 'err'=>$rc['err']));

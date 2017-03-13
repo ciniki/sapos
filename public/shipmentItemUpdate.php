@@ -103,6 +103,25 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     $invoice_item = $rc['item'];
 
     //
+    // Load the invoice/order number
+    //
+    $strsql = "SELECT invoice_number "
+        . "FROM ciniki_sapos_invoices "
+        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
+        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( !isset($rc['invoice']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.103', 'msg'=>'Invoice does not exist.'));
+    }
+    $invoice = $rc['invoice'];
+
+    $history_notes = 'Order #' . $invoice['invoice_number'];
+
+    //
     // Quantity is the same, nothing to do
     //
 //    if( $item['quantity'] == $args['quantity'] ) {
@@ -152,7 +171,9 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
                 $rc = $fn($ciniki, $args['business_id'], array(
                     'object'=>$invoice_item['object'],
                     'object_id'=>$invoice_item['object_id'],
-                    'quantity'=>$quantity_removed));
+                    'quantity'=>$quantity_removed,
+                    'history_notes'=>$history_notes,
+                    ));
                 if( $rc['stat'] != 'ok' ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.130', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));
@@ -200,7 +221,9 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
                 $rc = $fn($ciniki, $args['business_id'], array(
                     'object'=>$invoice_item['object'],
                     'object_id'=>$invoice_item['object_id'],
-                    'quantity'=>$quantity_added));
+                    'quantity'=>$quantity_added,
+                    'history_notes'=>$history_notes,
+                    ));
                 if( $rc['stat'] != 'ok' ) {
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.134', 'msg'=>'Unable to replace inventory', 'err'=>$rc['err']));
