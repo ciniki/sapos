@@ -82,6 +82,9 @@ function ciniki_sapos_expenses() {
                 return d.expense.total_amount_display;
             }
         };
+        this.expenses.headerClass = function(s, i) {
+            if( i > 1 ) { return 'alignright'; }
+        }
         this.expenses.cellClass = function(s, i, j, d) {
             if( j == 1 ) { return 'multiline'; }
             if( j > 1 ) { return 'alignright'; }
