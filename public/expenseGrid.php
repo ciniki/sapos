@@ -118,6 +118,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
     //
     $strsql = "SELECT ciniki_sapos_expenses.id, "
         . "ciniki_sapos_expenses.name, "
+        . "ciniki_sapos_expenses.description, "
         . "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
         . "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.paid_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS paid_date, "
         . "ciniki_sapos_expenses.total_amount, "
@@ -163,7 +164,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
-            'fields'=>array('id', 'name', 'invoice_date', 'paid_date', 'total_amount')),
+            'fields'=>array('id', 'name', 'description', 'invoice_date', 'paid_date', 'total_amount')),
 //            'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
 //            ),
         array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',

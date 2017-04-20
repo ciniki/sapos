@@ -85,7 +85,7 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     if( isset($args['items']) && $args['items'] == 'yes' ) {
         $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-            array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
+            array('container'=>'expenses', 'fname'=>'name', 'name'=>'expense',
                 'fields'=>array('id', 'invoice_date', 'name', 'description', 'total_amount')),
             array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
                 'fields'=>array('id'=>'item_id', 'category_id', 'amount')),

@@ -64,7 +64,13 @@ function ciniki_sapos_expenses() {
         };
         this.expenses.cellValue = function(s, i, j, d) {
             if( j == 0 ) { return d.expense.invoice_date; }
-            if( j == 1 ) { return d.expense.name; }
+            if( j == 1 ) { 
+                if( d.expense.description != '' ) {
+                    return '<span class="maintext">' + d.expense.name + '</span><span class="subtext">' + d.expense.description + '</span>'; 
+                } else {
+                    return d.expense.name; 
+                }
+            }
             if( j < this.sections[s].num_cols-1 ) {
                 for(k in d.expense.items) {
                     if( d.expense.items[k].item.category_id == this.categories[j-2].category.id ) {
@@ -77,6 +83,7 @@ function ciniki_sapos_expenses() {
             }
         };
         this.expenses.cellClass = function(s, i, j, d) {
+            if( j == 1 ) { return 'multiline'; }
             if( j > 1 ) { return 'alignright'; }
         };
         this.expenses.rowFn = function(s, i, d) {
