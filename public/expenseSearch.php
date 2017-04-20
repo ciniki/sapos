@@ -77,6 +77,8 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
             $strsql .= "ORDER BY ciniki_sapos_expenses.last_updated DESC ";
         } elseif( $args['sort'] == 'reverse' ) {
             $strsql .= "ORDER BY ciniki_sapos_expenses.invoice_date DESC ";
+        } else {
+            $strsql .= "ORDER BY ciniki_sapos_expenses.invoice_date DESC ";
         }
     }
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
