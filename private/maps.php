@@ -117,6 +117,15 @@ function ciniki_sapos_maps($ciniki) {
             ),
         );
     $maps['transaction'] = array(
+        'status'=>array(
+            '40'=>'Completed',
+            '60'=>'Deposited',
+            ),
+        'transaction_type'=>array(
+            '10'=>'Deposit',
+            '20'=>'Payment',
+            '60'=>'Refund',
+            ),
         'source'=>array(
             '10'=>'Paypal',
             '20'=>'Square',
@@ -129,7 +138,7 @@ function ciniki_sapos_maps($ciniki) {
             '105'=>'Check',
             '110'=>'Email Transfer',
             '120'=>'Other',
-            )
+            ),
         );
     $maps['shipment'] = array(
         'status'=>array(

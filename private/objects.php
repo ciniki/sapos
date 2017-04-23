@@ -136,6 +136,7 @@ function ciniki_sapos_objects($ciniki) {
         'table'=>'ciniki_sapos_transactions',
         'fields'=>array(
             'invoice_id'=>array('ref'=>'ciniki.sapos.invoice'),
+            'status'=>array('name'=>'Status', 'default'=>'40'),
             'transaction_type'=>array(),
             'transaction_date'=>array(),
             'source'=>array(),

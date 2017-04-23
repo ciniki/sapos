@@ -1,0 +1,6 @@
+#
+# This file will upgrade the database table ciniki_artcatalog to version 1.02.
+#
+ALTER TABLE ciniki_sapos_transactions ADD COLUMN status tinyint unsigned not null after invoice_id;
+UPDATE ciniki_sapos_transactions SET status = 40;
+ALTER TABLE ciniki_sapos_transactions COMMENT='v1.02';

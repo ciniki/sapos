@@ -718,6 +718,9 @@ function ciniki_sapos_invoice() {
         this.transaction.data = {};
         this.transaction.sections = {
             'details':{'label':'', 'fields':{
+                'status':{'label':'Status', 'type':'toggle', 'toggles':{'10':'Completed', '40':'Deposited'},
+                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x080000); },
+                    },
                 'transaction_type':{'label':'Type', 'type':'toggle', 'default':'20', 'toggles':M.ciniki_sapos_invoice.transactionTypes},
                 'transaction_date':{'label':'Date', 'type':'text', 'size':'medium'},
                 'source':{'label':'Source', 'type':'select', 'options':M.ciniki_sapos_invoice.transactionSources},

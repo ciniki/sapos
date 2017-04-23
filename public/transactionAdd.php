@@ -18,6 +18,7 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'),
+        'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'),
         'transaction_type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'),
         'transaction_date'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Date'),
         'source'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'source',

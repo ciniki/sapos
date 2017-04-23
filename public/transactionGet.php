@@ -54,6 +54,7 @@ function ciniki_sapos_transactionGet(&$ciniki) {
     // Get the transaction details
     //
     $strsql = "SELECT id, "
+        . "status, "
         . "transaction_type, "
         . "transaction_date, "
         . "source, "
@@ -69,8 +70,7 @@ function ciniki_sapos_transactionGet(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
-            'fields'=>array('id', 'transaction_type', 'transaction_date', 'source', 
-                'customer_amount', 'transaction_fees', 'business_amount'),
+            'fields'=>array('id', 'status', 'transaction_type', 'transaction_date', 'source', 'customer_amount', 'transaction_fees', 'business_amount'),
             'utctotz'=>array('transaction_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)), 
             ),
         ));
@@ -81,12 +81,9 @@ function ciniki_sapos_transactionGet(&$ciniki) {
         return array('stat'=>'ok', 'invoices'=>array());
     }
     $transaction = $rc['transactions'][0]['transaction'];
-    $transaction['customer_amount'] = numfmt_format_currency($intl_currency_fmt,
-        $transaction['customer_amount'], $intl_currency);
-    $transaction['transaction_fees'] = numfmt_format_currency($intl_currency_fmt,
-        $transaction['transaction_fees'], $intl_currency);
-    $transaction['business_amount'] = numfmt_format_currency($intl_currency_fmt,
-        $transaction['business_amount'], $intl_currency);
+    $transaction['customer_amount'] = numfmt_format_currency($intl_currency_fmt, $transaction['customer_amount'], $intl_currency);
+    $transaction['transaction_fees'] = numfmt_format_currency($intl_currency_fmt, $transaction['transaction_fees'], $intl_currency);
+    $transaction['business_amount'] = numfmt_format_currency($intl_currency_fmt, $transaction['business_amount'], $intl_currency);
 
     return array('stat'=>'ok', 'transaction'=>$transaction);
 }

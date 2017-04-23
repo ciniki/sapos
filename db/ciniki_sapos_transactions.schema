@@ -18,6 +18,11 @@
 #
 # invoice_id:           The ID of the invoice the transaction is for, if any.
 #
+# status:               The current status of the transaction. This is used to track transfers into business bank account.
+#
+#                           10 - Completed
+#                           40 - Deposited
+#
 # transaction_type:     The type of transaction
 #
 #                       0 - unknown
@@ -78,6 +83,7 @@ create table ciniki_sapos_transactions (
     uuid char(36) not null,
     business_id int not null,
     invoice_id int not null,
+    status tinyint unsigned not null,
     transaction_type tinyint unsigned not null,
     transaction_date datetime not null,
     source smallint unsigned not null,

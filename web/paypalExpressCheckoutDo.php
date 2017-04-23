@@ -109,6 +109,7 @@ function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $business_id, $args)
             $dt = new DateTime('now', new DateTimeZone('UTC'));
             $transaction_args = array(
                 'invoice_id'=>$args['invoice_id'],
+                'status'=>40,
                 'transaction_type'=>20,
                 'transaction_date'=>$dt->format('Y-m-d H:i:s'),
                 'source'=>'10',

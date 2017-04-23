@@ -18,6 +18,7 @@ function ciniki_sapos_transactionUpdate(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'transaction_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Transaction'),
+        'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'),
         'transaction_type'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Type'),
         'transaction_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Date'),
         'source'=>array('required'=>'no', 'blank'=>'no', 'name'=>'source',
