@@ -664,10 +664,10 @@ function ciniki_sapos_main() {
     this.transaction.data = {};
     this.transaction.sections = {
         'details':{'label':'', 'fields':{
+            'transaction_type':{'label':'Type', 'type':'toggle', 'default':'20', 'toggles':this.transactionTypes},
             'status':{'label':'Status', 'type':'toggle', 'toggles':{'40':'Completed', '60':'Deposited'},
                 'visible':function() { return M.modFlagSet('ciniki.sapos', 0x080000); },
                 },
-            'transaction_type':{'label':'Type', 'type':'toggle', 'default':'20', 'toggles':this.transactionTypes},
             'transaction_date':{'label':'Date', 'type':'text', 'size':'medium'},
             'source':{'label':'Source', 'type':'select', 'options':this.transactionSources},
             'customer_amount':{'label':'Customer Amount', 'type':'text', 'size':'small'},
