@@ -101,4 +101,4 @@ create table ciniki_sapos_transactions (
     primary key (id),
     index (invoice_id),
     index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';
