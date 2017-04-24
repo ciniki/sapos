@@ -57,8 +57,7 @@ function ciniki_sapos_expenseUpdate(&$ciniki) {
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'categories', 'fname'=>'id',
-            'fields'=>array('id', 'name')),
+        array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'name')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -78,8 +77,7 @@ function ciniki_sapos_expenseUpdate(&$ciniki) {
         . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'items', 'fname'=>'category_id',
-            'fields'=>array('id', 'category_id', 'amount')),
+        array('container'=>'items', 'fname'=>'category_id', 'fields'=>array('id', 'category_id', 'amount')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -107,8 +105,7 @@ function ciniki_sapos_expenseUpdate(&$ciniki) {
     //
     // Update the expense
     //
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.expense', 
-        $args['expense_id'], $args, 0x07);
+    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.expense', $args['expense_id'], $args, 0x07);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;

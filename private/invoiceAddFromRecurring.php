@@ -225,6 +225,8 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
         //
         // Setup lastmonth and lastyear dates
         //
+        $dates['yesterday'] = clone $invoice_date;
+        $dates['yesterday']->sub(new DateInterval('P1D'));
         $dates['lastmonth'] = clone $invoice_date;
         $dates['lastmonth']->sub(new DateInterval('P1M'));
         $dates['lastyear'] = clone $invoice_date;
