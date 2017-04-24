@@ -95,6 +95,8 @@ function ciniki_sapos_main() {
             'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status'],
             'headerClasses':['', '', '', 'alignright', 'alignright'],
             'cellClasses':['', '', '', 'alignright', 'alignright'],
+            'sortable':'yes',
+            'sortTypes':['text', 'date', 'text', 'number', 'text'],
             'noData':'No Invoices',
             },
         };
@@ -124,6 +126,8 @@ function ciniki_sapos_main() {
             'headerValues':['Type', 'Date', 'Invoice #', 'Customer', 'Amount', 'Fees', 'Net', 'Status'],
             'headerClasses':['', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
             'cellClasses':['', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+            'sortable':'yes',
+            'sortTypes':['text', 'date', 'number', 'text', 'number', 'number', 'number'],
             'noData':'No Invoices',
             },
         };
@@ -376,7 +380,7 @@ function ciniki_sapos_main() {
                 case 2: return d.invoice_number;
                 case 3: return d.customer_display_name;
                 case 4: return d.customer_amount_display;
-                case 5: return d.transation_fees_display;
+                case 5: return d.transaction_fees_display;
                 case 6: return d.business_amount_display;
                 case 7: return d.status_text;
             }
