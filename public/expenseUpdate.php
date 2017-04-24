@@ -18,10 +18,10 @@ function ciniki_sapos_expenseUpdate(&$ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
         'expense_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Expense'), 
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'), 
-        'description'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Description'), 
+        'description'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Description'), 
         'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'date', 'name'=>'Invoice Date'),
         'paid_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'date', 'name'=>'Paid Date'),
-        'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'), 
+        'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
