@@ -1700,9 +1700,9 @@ function ciniki_sapos_invoice() {
 
     this.printInvoice = function(iid) {
         if( iid <= 0 ) { return false; }
-//      window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
-//          {'business_id':M.curBusinessID, 'invoice_id':iid}));
-        M.api.openPDF('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 'invoice_id':iid});
+//      window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 'invoice_id':iid}));
+//        M.api.openPDF('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 'invoice_id':iid});
+        M.showPDF('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 'invoice_id':iid});
     };
 
     this.emailCustomer = function(cb, invoice) {
