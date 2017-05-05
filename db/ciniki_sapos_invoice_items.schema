@@ -20,6 +20,8 @@
 # status:           The current status of the item.  shipped/backordered/delivered, etc.
 #
 #                   0 - no status **future**
+#
+# category:         The category for the invoice item when running reports.
 #                   
 # flags:            The flags for the item in the invoice/order.
 #
@@ -94,6 +96,7 @@ create table ciniki_sapos_invoice_items (
     invoice_id int not null,
     line_number int not null,
     status tinyint unsigned not null,
+    category varchar(150) not null,
     flags smallint unsigned not null,
     object varchar(100) not null,
     object_id varchar(100) not null,
@@ -116,4 +119,4 @@ create table ciniki_sapos_invoice_items (
     primary key (id),
     index (invoice_id, object, object_id, taxtype_id),
     index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.05';
+) ENGINE='InnoDB', COMMENT='v1.06';

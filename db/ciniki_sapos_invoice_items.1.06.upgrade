@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table to version 1.06.
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN category varchar(150) not null AFTER status;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.06';

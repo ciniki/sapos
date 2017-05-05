@@ -29,9 +29,9 @@ function ciniki_sapos_flags($ciniki, $modules) {
         array('flag'=>array('bit'=>'12', 'name'=>'Quantity Totals')),
         // 0x1000
         array('flag'=>array('bit'=>'13', 'name'=>'Recurring Invoices')), // Must also have Invoices enabled
-//      array('flag'=>array('bit'=>'14', 'name'=>'Recurring Expenses')), // Must also have Expenses enabled
-//      array('flag'=>array('bit'=>'15', 'name'=>'Recurring Purchase Orders')), // Must also have Purchase Orders enabled
-//      array('flag'=>array('bit'=>'16', 'name'=>'')),
+//        array('flag'=>array('bit'=>'14', 'name'=>'Recurring Expenses')), // Must also have Expenses enabled
+//        array('flag'=>array('bit'=>'15', 'name'=>'Recurring Purchase Orders')), // Must also have Purchase Orders enabled
+//        array('flag'=>array('bit'=>'16', 'name'=>'')),
         // 0x010000
         array('flag'=>array('bit'=>'17', 'name'=>'Quotes')), 
         array('flag'=>array('bit'=>'18', 'name'=>'Work Location')),     // Address where the work was done
@@ -40,8 +40,13 @@ function ciniki_sapos_flags($ciniki, $modules) {
         // 0x100000
         array('flag'=>array('bit'=>'21', 'name'=>'Paypal Payments')), 
         array('flag'=>array('bit'=>'22', 'name'=>'Paypal Express Checkout')),
-//      array('flag'=>array('bit'=>'23', 'name'=>'')), 
-//      array('flag'=>array('bit'=>'24', 'name'=>'')),
+//        array('flag'=>array('bit'=>'23', 'name'=>'')), 
+//        array('flag'=>array('bit'=>'24', 'name'=>'')),
+        // 0x01000000
+        array('flag'=>array('bit'=>'25', 'name'=>'Item Categories')), 
+//        array('flag'=>array('bit'=>'26', 'name'=>'')),
+//        array('flag'=>array('bit'=>'27', 'name'=>'')), 
+//        array('flag'=>array('bit'=>'28', 'name'=>'')),
 
         );
 

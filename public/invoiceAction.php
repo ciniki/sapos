@@ -251,7 +251,6 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
     }
-    error_log('done');
 
     //
     // Update the last_change date in the business modules

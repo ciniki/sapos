@@ -20,77 +20,80 @@ function ciniki_sapos_main() {
         '120':'Other',
         };
 
+    this._tabs = {'label':'', 'visible':'no', 'selected':'invoices', 'cb':'',
+        'tabs':{
+            'invoices':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"invoices");'},
+            'monthlyinvoices':{'label':'Monthly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"monthlyinvoices");'},
+            'quarterlyinvoices':{'label':'Quarterly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"quarterlyinvoices");'},
+            'yearlyinvoices':{'label':'Yearly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"yearlyinvoices");'},
+            'transactions':{'label':'Transactions', 'visible':'no', 'fn':'M.ciniki_sapos_main.transactions.open(M.ciniki_sapos_main._tabs.cb);'},
+    //        'categories':{'label':'Categories', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"categories");'},
+            'pos':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"pos");'},
+            'orders':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"orders");'},
+            'carts':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"carts");'},
+            'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.expenses.open(M.ciniki_sapos_main._tabs.cb);'},
+            'mileage':{'label':'Mileage', 'visible':'no', 'fn':'M.ciniki_sapos_main.mileage.open(M.ciniki_sapos_main._tabs.cb);'},
+            'quotes':{'label':'Quotes', 'visible':'no', 'fn':'M.ciniki_sapos_main.quotes.open(M.ciniki_sapos_main._tabs.cb);'},
+            'reports':{'label':'Reports', 'visible':'no', 'fn':'M.ciniki_sapos_main.reports.open(M.ciniki_sapos_main._tabs.cb,"reports");'},
+        },
+    };
+
+    this._years = {'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'', 
+        'tabs':{},
+        };
+    this._months = {'label':'', 'type':'paneltabs', 'selected':'0', 'panel':'invoices',
+        'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'transactions' || s == 'expenses' || s == 'quotes' ) ? 'yes' : 'no');},
+        'tabs':{
+            '0':{'label':'All', 'fn':'M.ciniki_sapos_main.monthSwitch(0);'},
+            '1':{'label':'Jan', 'fn':'M.ciniki_sapos_main.monthSwitch(1);'},
+            '2':{'label':'Feb', 'fn':'M.ciniki_sapos_main.monthSwitch(2);'},
+            '3':{'label':'Mar', 'fn':'M.ciniki_sapos_main.monthSwitch(3);'},
+            '4':{'label':'Apr', 'fn':'M.ciniki_sapos_main.monthSwitch(4);'},
+            '5':{'label':'May', 'fn':'M.ciniki_sapos_main.monthSwitch(5);'},
+            '6':{'label':'Jun', 'fn':'M.ciniki_sapos_main.monthSwitch(6);'},
+            '7':{'label':'Jul', 'fn':'M.ciniki_sapos_main.monthSwitch(7);'},
+            '8':{'label':'Aug', 'fn':'M.ciniki_sapos_main.monthSwitch(8);'},
+            '9':{'label':'Sep', 'fn':'M.ciniki_sapos_main.monthSwitch(9);'},
+            '10':{'label':'Oct', 'fn':'M.ciniki_sapos_main.monthSwitch(10);'},
+            '11':{'label':'Nov', 'fn':'M.ciniki_sapos_main.monthSwitch(11);'},
+            '12':{'label':'Dec', 'fn':'M.ciniki_sapos_main.monthSwitch(12);'},
+        }};
+    this.monthSwitch = function(m) {
+        this[this._months.panel].monthSwitch(m);
+    }
+
     //
     // The menu panel
     //
-    this.menu = new M.panel('Accounting',
-        'ciniki_sapos_main', 'menu',
-        'mc', 'large narrowaside', 'sectioned', 'ciniki.sapos.main.menu');
+    this.menu = new M.panel('Accounting', 'ciniki_sapos_main', 'menu', 'mc', 'full', 'sectioned', 'ciniki.sapos.main.menu');
     this.menu.data = {'invoice_type':'invoices'};
     this.menu.invoice_type = 10;
-    this.menu.year = new Date().getFullYear();
-    this.menu.month = 0;
     this.menu.payment_status = 0;
-    this.menu.formtab = 'invoices';
-    this.menu.formtabs = {'label':'', 'visible':'no', 'tabs':{
-        'invoices':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"invoices");'},
-        'monthlyinvoices':{'label':'Monthly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"monthlyinvoices");'},
-        'quarterlyinvoices':{'label':'Quarterly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"quarterlyinvoices");'},
-        'yearlyinvoices':{'label':'Yearly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"yearlyinvoices");'},
-        'transactions':{'label':'Transactions', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"transactions");'},
-        'pos':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"pos");'},
-        'orders':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"orders");'},
-        'carts':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"carts");'},
-        'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"expenses");'},
-        'mileage':{'label':'Mileage', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"mileage");'},
-        'quotes':{'label':'Quotes', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(null,"quotes");'},
-        }};
-    this.menu.forms = {};
-    this.menu.forms.invoices = {
-        'invoice_actions':{'label':'', 'aside':'yes', 'list':{
-            'add':{'label':'Add Invoice', 'fn':'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{});'},
-            'downloadexcel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_main.menu.downloadExcel();'},
-            }},
-        'invoice_reports':{'label':'Reports', 'aside':'yes', 'visible':'no', 'list':{
-            'taxreport':{'label':'Tax Report', 
-                'visible':function() {return (M.curBusiness.modules['ciniki.taxes']!=null?'yes':'no');},
-                'fn':'M.startApp(\'ciniki.sapos.invoicereports\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'report\':\'taxreport\'});',
-                },
-            }},
-        '_quickadd':{'label':'', 'visible':'no', 'buttons':{
-            'quickadd':{'label':'Quick Invoice', 'fn':'M.startApp(\'ciniki.sapos.qi\',null,\'M.ciniki_sapos_main.menu.open();\');'},
+    this.menu.menutabs = this._tabs;
+    this.menu.sections = {
+//        '_quickadd':{'label':'', 'visible':'no', 'buttons':{
+//            'quickadd':{'label':'Quick Invoice', 'fn':'M.startApp(\'ciniki.sapos.qi\',null,\'M.ciniki_sapos_main.menu.open();\');'},
+//            }},
+        'years':this._years,
+        'months':this._months,
+        'payment_statuses':{'label':'', 'type':'paneltabs', 'selected':'0', 
+            'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'invoices' ? 'yes' : 'no');},
+            'tabs':{
+                '0':{'label':'All', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,0);'},
+                '10':{'label':'Payment Required', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,10);'},
+                '40':{'label':'Partial Payment', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,40);'},
+                '50':{'label':'Paid', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,50);'},
+                '55':{'label':'Refund Required', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,55);'},
+                '60':{'label':'Refunded', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,60);'},
             }},
         'invoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
+            'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'monthlyinvoices' || s == 'quarterlyinvoices' || s == 'yearlyinvoices') ? 'yes' : 'no');},
             'headerValues':['Invoice #','Date','Customer','Amount','Status'],
             'headerClasses':['', '', '', 'alignright', 'alignright'],
             'cellClasses':['', '', '', 'alignright', 'alignright'],
             'hint':'Search invoice # or customer name', 
             'noData':'No Invoices Found',
             },
-        'years':{'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'', 'tabs':{}},
-        'months':{'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'0', 'tabs':{
-            '0':{'label':'All', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,0);'},
-            '1':{'label':'Jan', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,1);'},
-            '2':{'label':'Feb', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,2);'},
-            '3':{'label':'Mar', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,3);'},
-            '4':{'label':'Apr', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,4);'},
-            '5':{'label':'May', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,5);'},
-            '6':{'label':'Jun', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,6);'},
-            '7':{'label':'Jul', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,7);'},
-            '8':{'label':'Aug', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,8);'},
-            '9':{'label':'Sep', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,9);'},
-            '10':{'label':'Oct', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,10);'},
-            '11':{'label':'Nov', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,11);'},
-            '12':{'label':'Dec', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,12);'},
-            }},
-        'payment_statuses':{'label':'', 'visible':'yes', 'type':'paneltabs', 'selected':'0', 'tabs':{
-            '0':{'label':'All', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,0);'},
-            '10':{'label':'Payment Required', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,10);'},
-            '40':{'label':'Partial Payment', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,40);'},
-            '50':{'label':'Paid', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,50);'},
-            '55':{'label':'Refund Required', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,55);'},
-            '60':{'label':'Refunded', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,60);'},
-            }},
         'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
             'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status'],
             'headerClasses':['', '', '', 'alignright', 'alignright'],
@@ -99,13 +102,15 @@ function ciniki_sapos_main() {
             'sortTypes':['text', 'date', 'text', 'number', 'text'],
             'noData':'No Invoices',
             },
-        };
-    this.menu.forms.transactions = {
+        }
+/*    this.menu.forms.categories = {
 //        'invoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
 //            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
 //            'hint':'Search invoice # or customer name', 
 //            'noData':'No Invoices Found',
 //            },
+        'categories':{'label':'Categories', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
+            },
         'years':{'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'', 'tabs':{}},
         'months':{'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'0', 'tabs':{
             '0':{'label':'All', 'fn':'M.ciniki_sapos_main.menu.transactions(null,null,0);'},
@@ -122,191 +127,20 @@ function ciniki_sapos_main() {
             '11':{'label':'Nov', 'fn':'M.ciniki_sapos_main.menu.transactions(null,null,11);'},
             '12':{'label':'Dec', 'fn':'M.ciniki_sapos_main.menu.transactions(null,null,12);'},
             }},
-        'transactions':{'label':'', 'type':'simplegrid', 'num_cols':7,
-            'headerValues':['Type', 'Date', 'Invoice #', 'Customer', 'Amount', 'Fees', 'Net', 'Status'],
-            'headerClasses':['', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+        'items':{'label':'', 'type':'simplegrid', 'num_cols':7,
+            'headerValues':['Invoice #', 'Description', 'Quantity/Price', 'Total'],
+            'headerClasses':['', '', 'alignright', 'alignright'],
+            'cellClasses':['', '', 'alignright', 'alignright'],
             'sortable':'yes',
-            'sortTypes':['text', 'date', 'number', 'text', 'number', 'number', 'number'],
-            'noData':'No Invoices',
+            'sortTypes':['number', 'text', 'number', 'number'],
+            'noData':'No invoice items',
             },
-        };
-    this.menu.forms.monthlyinvoices = {
-        'monthlyinvoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'hint':'Search invoice # or customer name', 
-            'noData':'No Invoices Found',
-            },
-        'invoices':{'label':'Monthly Recurring Invoices', 'type':'simplegrid', 'num_cols':5,
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'sortable':'yes',
-            'sortTypes':['number', 'date', 'text', 'altnumber', 'altnumber'],
-            'noData':'No Monthly Invoices',
-            },
-        };
-    this.menu.forms.quarterlyinvoices = {
-        'quarterlyinvoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'hint':'Search invoice # or customer name', 
-            'noData':'No Invoices Found',
-            },
-        'invoices':{'label':'Monthly Recurring Invoices', 'type':'simplegrid', 'num_cols':5,
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'sortable':'yes',
-            'sortTypes':['number', 'date', 'text', 'altnumber', 'altnumber'],
-            'noData':'No Monthly Invoices',
-            },
-        };
-    this.menu.forms.yearlyinvoices = {
-        'yearlyinvoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'hint':'Search invoice # or customer name', 
-            'noData':'No Invoices Found',
-            },
-        'invoices':{'label':'Yearly Recurring Invoices', 'type':'simplegrid', 'num_cols':5,
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'sortable':'yes',
-            'sortTypes':['number', 'date', 'text', 'altnumber', 'altnumber'],
-            'noData':'No Yearly Invoices',
-            },
-        };
-    this.menu.forms.carts = {
-        'invoice_search':{'label':'Shopping Carts', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'hint':'Search invoice # or customer name', 
-            'noData':'No Invoices Found',
-            },
-        'invoices':{'label':'Recent Carts', 'type':'simplegrid', 'num_cols':5,
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'noData':'No Invoices',
-            'addTxt':'More',
-            'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_type\':\'20\'});',
-            },
-        };
-    this.menu.forms.pos = {
-        'invoice_search':{'label':'Post of Sale', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'hint':'Search invoice # or customer name', 
-            'noData':'No Invoices Found',
-            },
-        'invoices':{'label':'Recent Sales', 'type':'simplegrid', 'num_cols':5,
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'noData':'No Invoices',
-            'addTxt':'More',
-            'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_type\':\'30\'});',
-            },
-        };
-    this.menu.forms.orders = {
-        'order_search':{'label':'Purchase Orders', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'hint':'Search invoice # or customer name', 
-            'noData':'No Invoices Found',
-            },
-//          'menu':{'label':'', 'list':{
-//              'packlist':{'label':'Packing Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'list\':\'packlist\'});'},
-//              'pendship':{'label':'Shipping Required', 'fn':'M.startApp(\'ciniki.sapos.shipments\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'list\':\'pendship\'});'},
-//              }},
-        'invoices':{'label':'Recent Orders', 'type':'simplegrid', 'num_cols':5,
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'noData':'No Invoices',
-            'addTxt':'More',
-            'addFn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_type\':\'40\'});',
-            },
-        };
-    this.menu.forms.expenses = {
-        'expense_search':{'label':'Expenses', 'type':'livesearchgrid', 'livesearchcols':3, 
-            'headerValues':['Expense','Date','Amount'],
-            'hint':'Search expenses', 
-            'noData':'No Expenses Found',
-            },
-        'expenses':{'label':'Recent Expenses', 'type':'simplegrid', 'num_cols':3,
-            'headerValues':['Expense', 'Date','Amount'],
-            'noData':'No Expenses',
-            'addTxt':'More',
-            'addFn':'M.startApp(\'ciniki.sapos.expenses\',null,\'M.ciniki_sapos_main.menu.open();\');',
-            },
-        '_buttons':{'label':'', 'visible':'no', 'buttons':{
-            'settings':{'label':'Setup Expenses', 'visible':'no', 'fn':'M.startApp(\'ciniki.sapos.settings\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'ecats\':\'yes\'});'},
-            }},
-        };
-    this.menu.forms.mileage = {
-        'mileage_search':{'label':'Mileage', 'type':'livesearchgrid', 'livesearchcols':3, 
-            'headerValues':['Date', 'From/To', 'Distance'],
-            'hint':'Search mileage', 
-            'noData':'No Mileage Entries Found',
-            },
-        'mileages':{'label':'Recent Mileage', 'type':'simplegrid', 'num_cols':4,
-            'headerValues':['Date', 'From/To', 'Distance', 'Amount'],
-            'noData':'No Mileage',
-            'addTxt':'More',
-            'addFn':'M.startApp(\'ciniki.sapos.mileages\',null,\'M.ciniki_sapos_main.menu.open();\');',
-            },
-        '_buttons':{'label':'', 'visible':'no', 'buttons':{
-            'settings':{'label':'Setup Mileage', 'visible':'no', 'fn':'M.startApp(\'ciniki.sapos.settings\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'mrates\':\'yes\'});'},
-            }},
-        };
-    this.menu.forms.quotes = {
-        'quote_actions':{'label':'', 'aside':'yes', 'list':{
-            'add':{'label':'Add Quote', 'fn':'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_type\':\'90\'});'},
-            'more':{'label':'More', 'fn':'M.startApp(\'ciniki.sapos.invoices\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_type\':\'90\'});'},
-            }},
-        'quote_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':4, 
-            'headerValues':['Quote #','Date','Customer','Amount'],
-            'hint':'Search quote # or customer name', 
-            'noData':'No Quotes Found',
-            },
-        'invoices':{'label':'Recent Quotes', 'type':'simplegrid', 'num_cols':4,
-            'headerValues':['Quote #','Date','Customer','Amount'],
-            'noData':'No Quotes',
-            },
-        };
+        };  */
     this.menu.liveSearchCb = function(s, i, v) {
         if( s == 'invoice_search' && v != '' ) {
             M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
                 'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
                     M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
-                });
-        }
-        if( s == 'monthlyinvoice_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
-                'start_needle':v, 'invoice_type':'11', 'sort':'reverse', 'limit':'10'}, function(rsp) {
-                    M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
-                });
-        }
-        if( s == 'quarterlyinvoice_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
-                'start_needle':v, 'invoice_type':'16', 'sort':'reverse', 'limit':'10'}, function(rsp) {
-                    M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
-                });
-        }
-        if( s == 'yearlyinvoice_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
-                'start_needle':v, 'invoice_type':'19', 'sort':'reverse', 'limit':'10'}, function(rsp) {
-                    M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
-                });
-        }
-        else if( s == 'order_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
-                'start_needle':v, 'invoice_type':'40', 'sort':'reverse', 'limit':'10'}, function(rsp) {
-                    M.ciniki_sapos_main.menu.liveSearchShow('order_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
-                });
-        }
-        else if( s == 'expense_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'business_id':M.curBusinessID,
-                'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
-                    M.ciniki_sapos_main.menu.liveSearchShow('expense_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.expenses);
-                });
-        }
-        else if( s == 'mileage_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.mileageSearch', {'business_id':M.curBusinessID,
-                'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
-                    M.ciniki_sapos_main.menu.liveSearchShow('mileage_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.mileages);
-                });
-        }
-        else if( s == 'quote_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
-                'start_needle':v, 'sort':'reverse', 'invoice_type':'90', 'limit':'10'}, function(rsp) {
-                    M.ciniki_sapos_main.menu.liveSearchShow('quote_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
                 });
         }
     };
@@ -320,44 +154,15 @@ function ciniki_sapos_main() {
                 case 4: return d.invoice.status_text;
             }
         }
-        else if( s == 'expense_search' ) { 
-            switch (j) {
-                case 0: return d.expense.name;
-                case 1: return d.expense.invoice_date;
-                case 2: return d.expense.total_amount_display;
-            }
-        }
-        else if( s == 'mileage_search' ) { 
-            switch (j) {
-                case 0: return d.mileage.travel_date;
-                case 1: return d.mileage.start_name + ' - ' + d.mileage.end_name;
-                case 2: return d.mileage.total_distance + ' ' + d.mileage.units;
-                case 3: return d.mileage.amount_display;
-            }
-        }
-        else if( s == 'quote_search' ) { 
-            switch (j) {
-                case 0: return d.invoice.invoice_number;
-                case 1: return d.invoice.invoice_date;
-                case 2: return d.invoice.customer_display_name;
-                case 3: return d.invoice.total_amount_display;
-            }
-        }
         return '';
     };
     this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
-        if( s == 'invoice_search' || s == 'monthly_search' || s == 'quarterlyinvoice_search' || s == 'yearly_search' || s == 'order_search' || s == 'quote_search' ) {
+        if( s == 'invoice_search' ) {
             return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
-        }
-        if( s == 'expense_search' ) {
-            return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
-        }
-        if( s == 'mileage_search' ) {
-            return 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'mileage_id\':\'' + d.mileage.id + '\'});';
         }
     };
     this.menu.sectionData = function(s) {
-        if( s == 'invoices' || s == 'transactions' || s == 'expenses' || s == 'mileages' ) { return this.data[s]; }
+        if( s == 'invoices' || s == 'items' ) { return this.data[s]; }
         return this.sections[s].list;
     };
     this.menu.noData = function(s) {
@@ -373,31 +178,43 @@ function ciniki_sapos_main() {
                 case 4: return d.invoice.status_text;
             }
         }
-        if( s == 'transactions' ) {
-            switch(j) {
-                case 0: return d.transaction_type;
-                case 1: return d.transaction_date;
-                case 2: return d.invoice_number;
-                case 3: return d.customer_display_name;
-                case 4: return d.customer_amount_display;
-                case 5: return d.transaction_fees_display;
-                case 6: return d.business_amount_display;
-                case 7: return d.status_text;
-            }
+        if( s == 'categories' ) {
+            return d.category + (d.num_items > 0 ? ' <span class="count">' + d.num_items + '</span>' : '');
         }
-        if( s == 'expenses' ) {
-            switch(j) {
-                case 0: return d.expense.name;
-                case 1: return d.expense.invoice_date;
-                case 2: return d.expense.total_amount_display;
+        if( s == 'items' ) {
+            if( j == 0 ) {
+                return '<span class="subdue">' + (parseInt(i) + 1) + '</span>';
             }
-        }
-        if( s == 'mileages' ) {
-            switch(j) {
-                case 0: return d.mileage.travel_date;
-                case 1: return d.mileage.start_name + ' - ' + d.mileage.end_name;
-                case 2: return d.mileage.total_distance + ' ' + d.mileage.units;
-                case 3: return d.mileage.amount_display;
+            else if( j == 1 ) {
+                if( d.code != null && d.code != '' ) {
+                    return '<span class="maintext">' + d.code + '</span><span class="subtext">' + d.description + '</span>' + (d.notes!=null&&d.notes!=''?'<span class="subsubtext">'+d.notes+'</span>':'');
+                }
+                if( d.notes != null && d.notes != '' ) {
+                    return '<span class="maintext">' + d.description + '</span><span class="subtext">' + d.notes + '</span>';
+                }
+                return d.description;
+            }
+            else if( j == 2 ) {
+                var discount = '';
+                if( d.discount_amount != 0) {
+                    if( d.unit_discount_amount > 0 ) {
+                        discount += '-' + ((d.quantity>0&&d.quantity!=1)?(d.quantity+'@'):'') + '$' + d.unit_discount_amount;
+                    }
+                    if( d.unit_discount_percentage > 0 ) {
+                        if( discount != '' ) { discount += ', '; }
+                        discount += '-' + d.unit_discount_percentage + '%';
+                    }
+                }
+                if( (this.data.flags&0x01) > 0 ) {
+                    return ((d.quantity>0&&d.quantity!=1)?(d.quantity+' @ '):'') + d.unit_discounted_amount_display;
+                } else if( discount != '' ) {
+                    return '<span class="maintext">' + ((d.quantity>0&&d.quantity!=1)?(d.quantity+' @ '):'') + d.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.discount_amount_display + ')</span>';
+                } else {
+                    return ((d.quantity>0&&d.quantity!=1)?(d.quantity+' @ '):'') + d.unit_amount_display;
+                }
+            }
+            else if( j == 3 ) {
+                return '<span class="maintext">' + d.total_amount_display + '</span><span class="subtext">' + ((d.taxtype_name!=null)?d.taxtype_name:'') + '</span>';
             }
         }
     };
@@ -416,19 +233,10 @@ function ciniki_sapos_main() {
         if( s == 'invoices' ) {
             return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
         }
-        if( s == 'transactions' ) {
-            return 'M.ciniki_sapos_main.transaction.open(\'M.ciniki_sapos_main.menu.open();\',\'' + d.id + '\');';
-        }
-        if( s == 'expenses' ) {
-            return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
-        }
-        if( s == 'mileages' ) {
-            return 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'mileage_id\':\'' + d.mileage.id + '\'});';
-        }
         return '';
     }
     this.menu.footerValue = function(s, i, j, d) {
-        if( s == 'invoices' && this.formtab == 'invoices' && this.data.totals != null ) {
+        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'invoices' && this.data.totals != null ) {
             switch(i) {
                 case 0: return this.data.totals.num_invoices;
                 case 1: return '';
@@ -437,27 +245,21 @@ function ciniki_sapos_main() {
                 case 4: return '';
             }
         } 
-        if( s == 'transactions' && this.formtab == 'transactions' && this.data.totals != null ) {
+        if( s == 'items' && M.ciniki_sapos_main._tabs.selected == 'categories' && this.data.totals != null ) {
             switch(i) {
                 case 0: return this.data.totals.num_transactions;
-                case 1: return '';
-                case 2: return '';
-                case 3: return '';
-                case 4: return this.data.totals.customer_amount_display;
-                case 5: return this.data.totals.transaction_fees_display;
-                case 6: return this.data.totals.business_amount_display;
-                case 7: return '';
+                case 3: return this.data.totals.total;
             }
         }
-        if( s == 'invoices' && this.formtab == 'monthlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
+        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'monthlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
             if( i == 3 ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
             return '';
         }
-        if( s == 'invoices' && this.formtab == 'quarterlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
+        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'quarterlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
             if( i == 3 ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
             return '';
         }
-        if( s == 'invoices' && this.formtab == 'yearlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
+        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'yearlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
             if( i == 3 ) { return this.data.totals.monthly_amount + ' (' + this.data.totals.total_amount + ')';  }
             return '';
         }
@@ -468,43 +270,42 @@ function ciniki_sapos_main() {
         if( s == 'transactions' && i > 1 ) { return 'alignright'; }
         return '';
     }
+    this.menu.yearSwitch = function(y) { this.invoices(null,y); }
+    this.menu.monthSwitch = function(m) { this.invoices(null,null,m); }
     this.menu.open = function(cb, type) {
-        if( type != null ) { this.formtab = type; }
+        this.delButton('add');
+        this.delButton('download');
+        this.addButton('add', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{});');
 
-        this.size = 'medium mediumflex';
-        if( this.formtab == 'invoices' ) {
+        this.sections.years.visible = 'no';
+        this.size = 'full';
+        this.sections.invoices.headerValues = ['Invoice #', 'Date', 'Customer', 'Amount', 'Status'];
+        if( M.ciniki_sapos_main._tabs.selected == 'invoices' ) {
             this.invoice_type = 10;
             M.ciniki_sapos_main.menu.invoices(cb);
-            this.size = 'large narrowaside';
+            this.addButton('download', 'Excel', 'M.ciniki_sapos_main.menu.downloadExcel();');
         }
-        else if( this.formtab == 'transactions' ) {
-            this.forms.transactions.transactions.num_cols = (M.modFlagOn('ciniki.sapos', 0x080000) ? 8 : 7);
-            M.ciniki_sapos_main.menu.transactions(cb);
-            this.size = 'full';
-        }
-        else if( this.formtab == 'carts' || this.formtab == 'pos' || this.formtab == 'orders' || this.formtab == 'quotes') {
-            switch(this.formtab) {
-                case 'carts': this.invoice_type = 20; break;
-                case 'pos': this.invoice_type = 30; break;
-                case 'orders': this.invoice_type = 40; break;
-                case 'quotes': this.invoice_type = 90; this.size = 'medium narrowaside'; break;
+        else if( M.ciniki_sapos_main._tabs.selected == 'carts' || M.ciniki_sapos_main._tabs.selected == 'pos' || M.ciniki_sapos_main._tabs.selected == 'orders' ) {
+            switch(M.ciniki_sapos_main._tabs.selected) {
+                case 'carts': 
+                    this.sections.invoices.headerValues = ['Cart #', 'Date', 'Customer', 'Amount', 'Status'];
+                    this.sections.invoices.noData = 'No open shopping carts';
+                    M.ciniki_sapos_main.menu.invoices(cb,null,null,20, 0);
+                    break;
+                case 'pos': 
+                    this.sections.invoices.headerValues = ['POS #', 'Date', 'Customer', 'Amount', 'Status'];
+                    this.sections.invoices.noData = 'No open sales';
+                    M.ciniki_sapos_main.menu.invoices(cb,null,null,30, 0);
+                    break;
+                case 'orders': 
+                    this.sections.invoices.headerValues = ['Order #', 'Date', 'Customer', 'Amount', 'Status'];
+                    this.sections.invoices.noData = 'No open orders';
+                    M.ciniki_sapos_main.menu.invoices(cb,null,null,40, 0);
+                    break;
             }
-            M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID,
-                'limit':'10', 'sort':'latest', 'type':this.invoice_type}, function(rsp) {
-                    if( rsp.stat != 'ok' ) {
-                        M.api.err(rsp);
-                        return false;
-                    }
-                    var p = M.ciniki_sapos_main.menu;
-                    p.data.invoices = rsp.invoices;
-                    p.forms.invoices.invoice_search.visible = (rsp.invoices.length > 0)?'yes':'no';
-                    p.forms.invoices.invoices.visible = (rsp.invoices.length > 0)?'yes':'no';
-                    p.refresh();
-                    p.show(cb);
-                });
         } 
-        else if( this.formtab == 'monthlyinvoices' || this.formtab == 'quarterlyinvoices' || this.formtab == 'yearlyinvoices') {
-            switch(this.formtab) {
+        else if( M.ciniki_sapos_main._tabs.selected == 'monthlyinvoices' || M.ciniki_sapos_main._tabs.selected == 'quarterlyinvoices' || M.ciniki_sapos_main._tabs.selected == 'yearlyinvoices') {
+            switch(M.ciniki_sapos_main._tabs.selected) {
                 case 'monthlyinvoices': this.invoice_type = 11; break;
                 case 'quarterlyinvoices': this.invoice_type = 16; break;
                 case 'yearlyinvoices': this.invoice_type = 19; break;
@@ -517,78 +318,22 @@ function ciniki_sapos_main() {
                 var p = M.ciniki_sapos_main.menu;
                 p.data.invoices = rsp.invoices;
                 p.data.totals = rsp.totals;
-                p.forms.invoices.invoice_search.visible = (rsp.invoices.length > 0)?'yes':'no';
-                p.forms.invoices.invoices.visible = (rsp.invoices.length > 0)?'yes':'no';
-                p.refresh();
-                p.show(cb);
-            });
-        }
-        else if( this.formtab == 'expenses' ) {
-            M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID, 'limit':'10', 'sort':'latest', 'type':'expenses'}, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
-                }
-                var p = M.ciniki_sapos_main.menu;
-                p.data.expenses = rsp.expenses;
-                if( rsp.expenses.length > 0 ) {
-                    p.forms.expenses.expense_search.visible = 'yes';
-                    p.forms.expenses.expenses.visible = 'yes';
-                    p.forms.expenses._buttons.visible = 'no';
-                    p.forms.expenses._buttons.buttons.settings.visible = 'no';
-                } else {
-                    p.forms.expenses.expense_search.visible = 'no';
-                    p.forms.expenses.expenses.visible = 'no';
-                    p.forms.expenses._buttons.visible = 'yes';
-                    p.forms.expenses._buttons.buttons.settings.visible = 'yes';
-                }
-                p.refresh();
-                p.show(cb);
-            });
-        }
-        else if( this.formtab == 'mileage' ) {
-            M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID, 'limit':'10', 'sort':'latest', 'type':'mileage'}, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
-                }
-                var p = M.ciniki_sapos_main.menu;
-                p.data.mileages = rsp.mileages;
-                if( rsp.mileages.length > 0 ) {
-                    p.forms.mileage.mileage_search.visible = 'yes';
-                    p.forms.mileage.mileages.visible = 'yes';
-                    p.forms.mileage._buttons.visible = 'no';
-                    p.forms.mileage._buttons.buttons.settings.visible = 'no';
-                } else {
-                    p.forms.mileage.mileage_search.visible = 'no';
-                    p.forms.mileage.mileages.visible = 'no';
-                    p.forms.mileage._buttons.visible = 'yes';
-                    p.forms.mileage._buttons.buttons.settings.visible = 'yes';
-                }
                 p.refresh();
                 p.show(cb);
             });
         }
     }
     this.menu.invoices = function(cb, year, month, type, pstatus) {
-        if( year != null ) {
-            this.year = year;
-            this.forms.invoices.years.selected = year;
-        }
-        if( month != null ) {
-            this.month = month;
-            this.forms.invoices.months.selected = month;
-        }
-        if( type != null ) {
-            this.invoice_type = type;
-            this.forms.invoices.types.selected = type;
-        }
+        this.sections.years.panel = 'menu';
+        this.sections.months.panel = 'menu';
+        if( year != null ) { this.sections.years.selected = year; }
+        if( month != null ) { this.sections.months.selected = month; }
+        if( type != null ) { this.invoice_type = type; }
         if( pstatus != null ) {
             this.payment_status = pstatus;
-            this.forms.invoices.payment_statuses.selected = pstatus;
+            this.sections.payment_statuses.selected = pstatus;
         }
-        this.forms.invoices.months.visible = (this.month>0)?'yes':'yes';
-        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID, 'year':this.year, 'month':this.month, 'stats':'yes',
+        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
             'payment_status':this.payment_status, 'type':this.invoice_type, 'sort':'invoice_date'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -599,51 +344,16 @@ function ciniki_sapos_main() {
                 p.data.totals = rsp.totals;
                 if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
                     var year = new Date().getFullYear();
-                    p.forms.invoices.years.tabs = {};
+                    p.sections.years.tabs = {};
+                    p.sections.years.visible = 'no';
                     if( year != rsp.stats.min_invoice_date_year ) {
-                        p.forms.invoices.years.visible = 'yes';
+                        p.sections.years.visible = 'yes';
                     }
-                    if( p.forms.invoices.years.selected == '' ) {
-                        p.forms.invoices.years.selected = year;
+                    if( p.sections.years.selected == '' ) {
+                        p.sections.years.selected = year;
                     }
                     for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
-                        p.forms.invoices.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.menu.invoices(null,' + i + ',null);'};
-                    }
-                }
-                p.refresh();
-                p.show(cb);
-            });
-    }
-    this.menu.transactions = function(cb, year, month, type, pstatus) {
-        if( year != null ) {
-            this.year = year;
-            this.forms.transactions.years.selected = year;
-        }
-        if( month != null ) {
-            this.month = month;
-            this.forms.transactions.months.selected = month;
-        }
-        this.forms.transactions.months.visible = (this.month>0)?'yes':'yes';
-        M.api.getJSONCb('ciniki.sapos.transactionList', {'business_id':M.curBusinessID, 'year':this.year, 'month':this.month, 'stats':'yes',
-            'sort':'transaction_date'}, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
-                }
-                var p = M.ciniki_sapos_main.menu;
-                p.data.transactions = rsp.transactions;
-                p.data.totals = rsp.totals;
-                if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
-                    var year = new Date().getFullYear();
-                    p.forms.transactions.years.tabs = {};
-                    if( year != rsp.stats.min_invoice_date_year ) {
-                        p.forms.transactions.years.visible = 'yes';
-                    }
-                    if( p.forms.transactions.years.selected == '' ) {
-                        p.forms.transactions.years.selected = year;
-                    }
-                    for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
-                        p.forms.transactions.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.menu.transactions(null,' + i + ',null);'};
+                        p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.menu.invoices(null,' + i + ',null);'};
                     }
                 }
                 p.refresh();
@@ -652,13 +362,106 @@ function ciniki_sapos_main() {
     }
     this.menu.downloadExcel = function() {
         var args = {'business_id':M.curBusinessID, 'output':'excel'};
-        if( this.year != null ) { args.year = this.year; }
-        if( this.month != null ) { args.month = this.month; }
-        if( this != null ) { args.type = this.invoice_type; }
+        if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
+        if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
+        if( this.invoice_type != null ) { args.type = this.invoice_type; }
         if( this.payment_status != null ) { args.payment_status = this.payment_status; }
         M.api.openFile('ciniki.sapos.invoiceList', args);
     }
     this.menu.addClose('Back');
+
+    //
+    // The transactions list panel
+    //
+    this.transactions = new M.panel('Transactions', 'ciniki_sapos_main', 'transactions', 'mc', 'full', 'sectioned', 'ciniki.sapos.main.transactions');
+    this.transactions.data = {};
+    this.transactions.menutabs = this._tabs;
+    this.transactions.sections = {
+        'years':this._years,
+        'months':this._months,
+        'transactions':{'label':'', 'type':'simplegrid', 'num_cols':7,
+            'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'transactions' ? 'yes' : 'no');},
+            'headerValues':['Type', 'Date', 'Invoice #', 'Customer', 'Amount', 'Fees', 'Net', 'Status'],
+            'headerClasses':['', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+            'sortable':'yes',
+            'sortTypes':['text', 'date', 'number', 'text', 'number', 'number', 'number'],
+            'noData':'No Invoices',
+            },
+        }
+    this.transactions.noData = function(s) {
+        return this.sections[s].noData;
+    };
+    this.transactions.cellValue = function(s, i, j, d) {
+        if( s == 'transactions' ) {
+            switch(j) {
+                case 0: return d.transaction_type;
+                case 1: return d.transaction_date;
+                case 2: return d.invoice_number;
+                case 3: return d.customer_display_name;
+                case 4: return d.customer_amount_display;
+                case 5: return d.transaction_fees_display;
+                case 6: return d.business_amount_display;
+                case 7: return d.status_text;
+            }
+        }
+    }
+    this.transactions.rowFn = function(s, i, d) {
+        if( s == 'transactions' ) {
+            return 'M.ciniki_sapos_main.transaction.open(\'M.ciniki_sapos_main.transactions.open();\',\'' + d.id + '\');';
+        }
+    }
+    this.transactions.footerValue = function(s, i, j, d) {
+        if( s == 'transactions' && M.ciniki_sapos_main._tabs.selected == 'transactions' && this.data.totals != null ) {
+            switch(i) {
+                case 0: return this.data.totals.num_transactions;
+                case 1: return '';
+                case 2: return '';
+                case 3: return '';
+                case 4: return this.data.totals.customer_amount_display;
+                case 5: return this.data.totals.transaction_fees_display;
+                case 6: return this.data.totals.business_amount_display;
+                case 7: return '';
+            }
+        }
+        return null;
+    }
+    this.transactions.footerClass = function(s, i, d) {
+        if( s == 'transactions' && i > 1 ) { return 'alignright'; }
+        return '';
+    }
+    this.transactions.yearSwitch = function(y) { this.open(null,y); }
+    this.transactions.monthSwitch = function(m) { this.open(null,null,m); }
+    this.transactions.open = function(cb, year, month) {
+        if( year != null ) { this.sections.years.selected = year; }
+        if( month != null ) { this.sections.months.selected = month; }
+        M.api.getJSONCb('ciniki.sapos.transactionList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
+            'sort':'transaction_date'}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.ciniki_sapos_main.transactions;
+                p.data.transactions = rsp.transactions;
+                p.data.totals = rsp.totals;
+                if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
+                    var year = new Date().getFullYear();
+                    p.sections.years.tabs = {};
+                    if( year != rsp.stats.min_invoice_date_year ) {
+                        p.sections.years.visible = 'yes';
+                    }
+                    if( p.sections.years.selected == '' ) {
+                        p.sections.years.selected = year;
+                    }
+                    for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
+                        p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.transactions.open(null,' + i + ',0);'};
+                    }
+                }
+                p.refresh();
+                p.show(cb);
+            });
+    }
+    this.transactions.addClose('Back');
 
     //
     // The transaction panel
@@ -770,6 +573,446 @@ function ciniki_sapos_main() {
     this.transaction.addClose('Cancel');
 
     //
+    // The expenses panel
+    //
+    this.expenses = new M.panel('Expenses', 'ciniki_sapos_main', 'expenses', 'mc', 'full', 'sectioned', 'ciniki.sapos.main.expenses');
+    this.expenses.year = null;
+    this.expenses.month = 0;
+    this.expenses.categories = {};
+    this.expenses.data = {};
+    this.expenses.menutabs = this._tabs;
+    this.expenses.sections = {
+        'years':this._years,
+        'months':this._months,
+        'expenses':{'label':'', 'type':'simplegrid', 'num_cols':5,
+            'sortable':'yes',
+            'sortTypes':['date', 'alttext', 'number', 'number', 'number'],
+            'noData':'No Expenses Found',
+            },
+    };
+    this.expenses.sectionData = function(s) {
+        return this.data[s];
+    };
+    this.expenses.headerValue = function(s, i, d) {
+        if( i == 0 ) { return 'Date'; }
+        if( i == 1 ) { return 'Name'; }
+        if( i < this.sections[s].num_cols-1 ) {
+            return this.categories[i-2].category.name;
+        } else {
+            return 'Total';
+        }
+    };
+    this.expenses.footerValue = function(s, i, d) {
+        if( i < 2 ) { return ''; }
+        if( i < this.sections[s].num_cols-1 ) {
+            return this.categories[i-2].category.total_amount_display;
+        } else {
+            return this.data.totals.total_amount_display;
+        }
+    };
+    this.expenses.footerClass = function(s, i, d) {
+        if( i > 1 ) { return 'alignright'; }
+    };
+    this.expenses.noData = function(s) {
+        return this.sections[s].noData;
+    };
+    this.expenses.liveSearchCb = function(s, i, v) {
+        if( s == 'search' && v != '' ) {
+            M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'business_id':M.curBusinessID,
+                'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
+                    M.ciniki_sapos_main.expenses.liveSearchShow('search',null,M.gE(M.ciniki_sapos_main.expenses.panelUID + '_' + s), rsp.expenses);
+                });
+        } 
+    };
+    this.expenses.liveSearchResultValue = function(s, f, i, j, d) {
+        if( s == 'search' ) { 
+            switch (j) {
+                case 0: return d.expense.name;
+                case 1: return d.expense.invoice_date;
+                case 2: return d.expense.total_amount_display;
+            }
+        }
+        return '';
+    };
+    this.expenses.liveSearchResultRowFn = function(s, f, i, j, d) {
+        if( s == 'search' ) {
+            return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
+        }
+    };
+    this.expenses.cellValue = function(s, i, j, d) {
+        if( j == 0 ) { return d.expense.invoice_date; }
+        if( j == 1 ) { 
+            if( d.expense.description != '' ) {
+                return '<span class="maintext">' + d.expense.name + '</span><span class="subtext">' + d.expense.description + '</span>'; 
+            } else {
+                return d.expense.name; 
+            }
+        }
+        if( j < this.sections[s].num_cols-1 ) {
+            for(k in d.expense.items) {
+                if( d.expense.items[k].item.category_id == this.categories[j-2].category.id ) {
+                    return d.expense.items[k].item.amount_display;
+                }
+            }
+            return '';
+        } else {
+            return d.expense.total_amount_display;
+        }
+    };
+    this.expenses.cellSortValue = function(s, i, j, d) {
+        if( j == 1 ) { return d.expense.name + d.expense.description; }
+    }
+    this.expenses.headerClass = function(s, i) {
+        if( i > 1 ) { return 'alignright'; }
+    }
+    this.expenses.cellClass = function(s, i, j, d) {
+        if( j == 1 ) { return 'multiline'; }
+        if( j > 1 ) { return 'alignright'; }
+    };
+    this.expenses.rowFn = function(s, i, d) {
+        if( s == 'expenses' ) {
+            return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
+        }
+    };
+    this.expenses.yearSwitch = function(y) { this.open(null,y); }
+    this.expenses.monthSwitch = function(m) { this.open(null,null,m); }
+    this.expenses.open = function(cb, year, month) {
+        this.sections.years.panel = 'expenses';
+        this.sections.months.panel = 'expenses';
+        if( year != null ) { this.sections.years.selected = year; }
+        if( month != null ) { this.sections.months.selected = month; }
+        this.sections.years.visible = 'no';
+        M.api.getJSONCb('ciniki.sapos.expenseGrid', {'business_id':M.curBusinessID, 'year':M.ciniki_sapos_main._years.selected, 'month':M.ciniki_sapos_main._months.selected, 'stats':'yes'}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_main.expenses;
+            p.data.expenses = rsp.expenses;
+            p.categories = rsp.categories;
+            p.sections.expenses.num_cols = rsp.categories.length + 3;
+            p.sections.expenses.sortTypes = ['date', 'alttext'];
+            for(i=0;i<rsp.categories.length;i++) {
+                p.sections.expenses.sortTypes.push('number');
+            }
+            p.sections.expenses.sortTypes.push('number');
+            p.data.totals = rsp.totals;
+            if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
+                p.sections.years.visible = 'yes';
+                var year = new Date().getFullYear();
+                p.sections.years.tabs = {};
+                for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
+                    p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.expenses.open(null,' + i + ',null);'};
+                }
+            }
+            p.refresh();
+            p.show(cb);
+        });
+    };
+    this.expenses.download = function() {
+        var args = {'business_id':M.curBusinessID, 'output':'excel'};
+        if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
+        if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
+        M.api.openFile('ciniki.sapos.expenseGrid', args);
+    };
+    this.expenses.addButton('add', 'Expense', 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{});');
+    this.expenses.addButton('download', 'Excel', 'M.ciniki_sapos_main.expenses.download();');
+    this.expenses.addClose('Back');
+
+    //
+    // The mileage panel
+    //
+    this.mileage = new M.panel('Mileage', 'ciniki_sapos_main', 'mileage', 'mc', 'large', 'sectioned', 'ciniki.sapos.main.mileage');
+    this.mileage.year = null;
+    this.mileage.month = 0;
+    this.mileage.data = {};
+    this.mileage.menutabs = this._tabs;
+    this.mileage.sections = {
+        'years':this._years,
+        'months':this._months,
+        'search':{'label':'Mileage', 'type':'livesearchgrid', 'livesearchcols':3, 
+            'headerValues':['Date', 'From/To', 'Distance'],
+            'hint':'Search mileage', 
+            'noData':'No Mileage Entries Found',
+            },
+        'mileages':{'label':'Recent Mileage', 'type':'simplegrid', 'num_cols':4,
+            'headerValues':['Date', 'From/To', 'Distance', 'Amount'],
+            'noData':'No Mileage',
+            'addTxt':'More',
+            'addFn':'M.startApp(\'ciniki.sapos.mileages\',null,\'M.ciniki_sapos_main.mileage.open();\');',
+            },
+        '_buttons':{'label':'', 'visible':'no', 
+            'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'mileage' ? 'yes' : 'no');},
+            'buttons':{
+                'settings':{'label':'Setup Mileage', 'visible':'no', 'fn':'M.startApp(\'ciniki.sapos.settings\',null,\'M.ciniki_sapos_main.mileage.open();\',\'mc\',{\'mrates\':\'yes\'});'},
+            }},
+    };
+    this.mileage.liveSearchCb = function(s, i, v) {
+        if( s == 'search' && v != '' ) {
+            M.api.getJSONBgCb('ciniki.sapos.mileageSearch', {'business_id':M.curBusinessID,
+                'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
+                    M.ciniki_sapos_main.mileage.liveSearchShow('search',null,M.gE(M.ciniki_sapos_main.mileage.panelUID + '_' + s), rsp.mileages);
+                });
+        }
+    };
+    this.mileage.liveSearchResultValue = function(s, f, i, j, d) {
+        if( s == 'search' ) { 
+            switch (j) {
+                case 0: return d.mileage.travel_date;
+                case 1: return d.mileage.start_name + ' - ' + d.mileage.end_name;
+                case 2: return d.mileage.total_distance + ' ' + d.mileage.units;
+                case 3: return d.mileage.amount_display;
+            }
+        }
+        return '';
+    };
+    this.mileage.liveSearchResultRowFn = function(s, f, i, j, d) {
+        if( s == 'search' ) {
+            return 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_main.mileage.open();\',\'mc\',{\'mileage_id\':\'' + d.mileage.id + '\'});';
+        }
+    };
+    this.mileage.cellValue = function(s, i, j, d) {
+        if( s == 'mileages' ) {
+            switch(j) {
+                case 0: return d.mileage.travel_date;
+                case 1: return d.mileage.start_name + ' - ' + d.mileage.end_name;
+                case 2: return d.mileage.total_distance + ' ' + d.mileage.units;
+                case 3: return d.mileage.amount_display;
+            }
+        }
+    };
+    this.mileage.yearSwitch = function(y) { this.open(null,y); }
+    this.mileage.monthSwitch = function(m) { this.open(null,null,m); }
+    this.mileage.open = function(cb, year, month) {
+        this.sections.years.panel = 'expenses';
+        this.sections.months.panel = 'expenses';
+        if( year != null ) { this.sections.years.selected = year; }
+        if( month != null ) { this.sections.months.selected = month; }
+        M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID, 'limit':'10', 'sort':'latest', 'type':'mileage'}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_main.mileage;
+            p.data.mileages = rsp.mileages;
+            if( rsp.mileages.length > 0 ) {
+                p.sections.search.visible = 'yes';
+                p.sections.mileages.visible = 'yes';
+                p.sections._buttons.visible = 'no';
+                p.sections._buttons.buttons.settings.visible = 'no';
+            } else {
+                p.sections.search.visible = 'no';
+                p.sections.mileages.visible = 'no';
+                p.sections._buttons.visible = 'yes';
+                p.sections._buttons.buttons.settings.visible = 'yes';
+            }
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.mileage.addClose('Back');
+       
+    //
+    // The quotes panel
+    //
+    this.quotes = new M.panel('Quotes', 'ciniki_sapos_main', 'quotes', 'mc', 'full', 'sectioned', 'ciniki.sapos.main.quotes');
+    this.quotes.year = null;
+    this.quotes.month = 0;
+    this.quotes.data = {};
+    this.quotes.menutabs = this._tabs;
+    this.quotes.sections = {
+        'years':this._years,
+        'months':this._months,
+        'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':3, 
+            'headerValues':['Date', 'From/To', 'Distance'],
+            'hint':'Search quotes', 
+            'noData':'No quotes found',
+            },
+        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
+            'headerValues':['Quote #', 'Date', 'Customer', 'Amount', 'Status'],
+            'headerClasses':['', '', '', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', 'alignright', 'alignright'],
+            'sortable':'yes',
+            'sortTypes':['text', 'date', 'text', 'number', 'text'],
+            'noData':'No quotes',
+            },
+    };
+    this.quotes.liveSearchCb = function(s, i, v) {
+        if( s == 'search' && v != '' ) {
+            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+                'start_needle':v, 'sort':'reverse', 'invoice_type':'90', 'limit':'10'}, function(rsp) {
+                    M.ciniki_sapos_main.quotes.liveSearchShow('search',null,M.gE(M.ciniki_sapos_main.quotes.panelUID + '_' + s), rsp.invoices);
+                });
+        }
+    };
+    this.quotes.liveSearchResultValue = function(s, f, i, j, d) {
+        if( s == 'search' ) { 
+            switch (j) {
+                case 0: return d.invoice.invoice_number;
+                case 1: return d.invoice.invoice_date;
+                case 2: return d.invoice.customer_display_name;
+                case 3: return d.invoice.total_amount_display;
+            }
+        } 
+        return '';
+    };
+    this.quotes.liveSearchResultRowFn = function(s, f, i, j, d) {
+        if( s == 'search' ) {
+            return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.quotes.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
+        }
+    };
+    this.quotes.noData = function(s) {
+        return this.sections[s].noData;
+    };
+    this.quotes.cellValue = function(s, i, j, d) {
+        if( s == 'invoices' ) {
+            switch(j) {
+                case 0: return d.invoice.invoice_number;
+                case 1: return d.invoice.invoice_date;
+                case 2: return d.invoice.customer_display_name;
+                case 3: return d.invoice.total_amount_display;
+                case 4: return d.invoice.status_text;
+            }
+        }
+    };
+    this.quotes.cellSortValue = function(s, i, j, d) {
+        if( s == 'invoices' ) {
+            switch(j) {
+                case 0: return d.invoice.invoice_number;
+                case 1: return d.invoice.invoice_date;
+                case 2: return d.invoice.customer_display_name;
+                case 3: return d.invoice.total_amount;
+                case 4: return d.invoice.status;
+            }
+        }
+    };
+    this.quotes.rowFn = function(s, i, d) {
+        if( s == 'invoices' ) {
+            return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.quotes.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
+        }
+        return '';
+    }
+    this.quotes.footerValue = function(s, i, j, d) {
+        if( s == 'invoices' && this.data.totals != null ) {
+            switch(i) {
+                case 0: return this.data.totals.num_invoices;
+                case 1: return '';
+                case 2: return '';
+                case 3: return this.data.totals.total_amount;
+                case 4: return '';
+            }
+        } 
+        return null;
+    }
+    this.quotes.footerClass = function(s, i, d) {
+        if( s == 'invoices' && i == 4 ) { return 'alignright'; }
+        return '';
+    }
+    this.quotes.yearSwitch = function(y) { this.open(null,y); }
+    this.quotes.monthSwitch = function(m) { this.open(null,null,m); }
+    this.quotes.open = function(cb, year, month) {
+        this.sections.years.panel = 'quotes';
+        this.sections.months.panel = 'quotes';
+        if( year != null ) { this.sections.years.selected = year; }
+        if( month != null ) { this.sections.months.selected = month; }
+        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
+            'sort':'invoice_date', 'type':90}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.ciniki_sapos_main.quotes;
+                p.data.invoices = rsp.invoices;
+                p.data.totals = rsp.totals;
+                if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
+                    var year = new Date().getFullYear();
+                    p.sections.years.tabs = {};
+                    p.sections.years.visible = 'no';
+                    if( year != rsp.stats.min_invoice_date_year ) {
+                        p.sections.years.visible = 'yes';
+                    }
+                    if( p.sections.years.selected == '' ) {
+                        p.sections.years.selected = year;
+                    }
+                    for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
+                        p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.quotes.open(null,' + i + ',null);'};
+                    }
+                }
+                p.refresh();
+                p.show(cb);
+            });
+    }
+    this.quotes.addButton('add', 'Quote', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.quotes.open();\',\'mc\',{\'invoice_type\':\'90\'});');
+
+    //
+    // The reports panel
+    //
+    this.reports = new M.panel('Reports', 'ciniki_sapos_main', 'reports', 'mc', 'large', 'sectioned', 'ciniki.sapos.main.reports');
+    this.reports.year = null;
+    this.reports.quarter = 0;
+    this.reports.data = {};
+    this.reports.menutabs = this._tabs;
+    this.reports.cols = [];
+    this.reports.sections = {
+        'quarters':{'label':'', 'type':'simplegrid', 'num_cols':2,
+            'cols':{},
+            'noData':'No taxes found',
+            },
+    };
+    this.reports.sectionData = function(s) {
+        return this.data[s];
+    };
+    this.reports.headerValue = function(s, i, d) {
+        if( i == 0 ) { return 'Quarter'; }
+        if( i > 1 && i == (this.sections.quarters.num_cols - 1) ) { return 'Total'; }
+        console.log(this.sections.quarters);
+        return this.sections.quarters.cols[(i-1)].name;
+    };
+    this.reports.cellValue = function(s, i, j, d) {
+        if( j == 0 ) { return d.start_date + ' - ' + d.end_date; }
+        if( j > 1 && j == (this.sections.quarters.num_cols - 1) ) { return d.total_amount_display; }
+        var c = this.sections.quarters.cols[(j-1)];
+        return d[c.type][c.id].amount_display;
+    };
+    this.reports.setup = function() {
+    };
+    this.reports.open = function(cb, report) {
+        var method = '';
+        switch (report) {
+            case 'reports': method = 'ciniki.sapos.reportInvoicesTaxes'; break;
+        }
+        M.api.getJSONCb(method, {'business_id':M.curBusinessID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_main[report];
+            p.data = rsp;
+            p.sections.quarters.cols = {};
+            var c = 0;
+            p.sections.quarters.num_cols = 1;
+            for(i in p.data.taxrates) {
+                p.sections.quarters.cols[c] = {'type':'taxrates', 'id':p.data.taxrates[i].id, 'name':p.data.taxrates[i].name};
+                c++;
+            }
+            for(i in p.data.expensecategories) {
+                p.sections.quarters.cols[c] = {'type':'expenses', 'id':p.data.expensecategories[i].id, 'name':p.data.expensecategories[i].name};
+                c++;
+            }
+            p.sections.quarters.num_cols += c;
+            if( c > 1 ) {
+                // Add extra column for totals
+                p.sections.quarters.num_cols++;
+            }
+
+
+            p.refresh();
+            p.show(cb);
+        });
+    };
+    this.reports.addClose('Back');
+
+    //
     // Arguments:
     // aG - The arguments to be parsed into args
     //
@@ -787,89 +1030,86 @@ function ciniki_sapos_main() {
             return false;
         } 
 
-        this.menu.forms.invoices._quickadd.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0)?'yes':'no';
-//        if( M.curBusiness.modules['ciniki.sapos'].settings['invoice-reports-taxes-ontario-hst'] ) {
+        this._tabs.tabs.reports.visible = 'no';
         if( M.curBusiness.modules['ciniki.taxes'] != null ) {
-            this.menu.forms.invoices.invoice_reports.visible = 'yes';     
-        } else {
-            this.menu.forms.invoices.invoice_reports.visible = 'no';     
+            this._tabs.tabs.reports.visible = 'yes';
         }
         
         var ct = 0;
         var sp = '';
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 ) {
-            this.menu.formtabs.tabs.invoices.visible = 'yes';
-            this.menu.formtabs.tabs.transactions.visible = 'yes';
+        if( M.modFlagOn('ciniki.sapos', 0x01) ) {
+            this._tabs.tabs.invoices.visible = 'yes';
+            this._tabs.tabs.transactions.visible = 'yes';
             if( sp == '' ) { sp = 'invoices'; }
             ct+=2;
-            if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
-                this.menu.formtabs.tabs.monthlyinvoices.visible = 'yes';
-                ct++;
-                this.menu.formtabs.tabs.quarterlyinvoices.visible = 'yes';
-                ct++;
-                this.menu.formtabs.tabs.yearlyinvoices.visible = 'yes';
-                ct++;
+            if( M.modFlagOn('ciniki.sapos', 0x1000) ) {
+                this._tabs.tabs.monthlyinvoices.visible = 'yes';
+                this._tabs.tabs.quarterlyinvoices.visible = 'yes';
+                this._tabs.tabs.yearlyinvoices.visible = 'yes';
+                ct+=3;
             } else {
-                this.menu.formtabs.tabs.monthlyinvoices.visible = 'no';
-                this.menu.formtabs.tabs.quarterlyinvoices.visible = 'no';
-                this.menu.formtabs.tabs.yearlyinvoices.visible = 'no';
+                this._tabs.tabs.monthlyinvoices.visible = 'no';
+                this._tabs.tabs.quarterlyinvoices.visible = 'no';
+                this._tabs.tabs.yearlyinvoices.visible = 'no';
             }
         } else {
-            this.menu.formtabs.tabs.invoices.visible = 'no';
-            this.menu.formtabs.tabs.monthlyinvoices.visible = 'no';
-            this.menu.formtabs.tabs.quarterlyinvoices.visible = 'no';
-            this.menu.formtabs.tabs.yearlyinvoices.visible = 'no';
+            this._tabs.tabs.invoices.visible = 'no';
+            this._tabs.tabs.monthlyinvoices.visible = 'no';
+            this._tabs.tabs.quarterlyinvoices.visible = 'no';
+            this._tabs.tabs.yearlyinvoices.visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
-            this.menu.formtabs.tabs.pos.visible = 'yes';
+        if( M.modFlagOn('ciniki.sapos', 0x10) ) {
+            this._tabs.tabs.pos.visible = 'yes';
             if( sp == '' ) { sp = 'pos'; }
             ct++;
         } else {
-            this.menu.formtabs.tabs.pos.visible = 'no';
+            this._tabs.tabs.pos.visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 ) {
-            this.menu.formtabs.tabs.orders.visible = 'yes';
+        if( M.modFlagOn('ciniki.sapos', 0x20) ) {
+            this._tabs.tabs.orders.visible = 'yes';
             if( sp == '' ) { sp = 'orders'; }
             ct++;
         } else {
-            this.menu.formtabs.tabs.orders.visible = 'no';
+            this._tabs.tabs.orders.visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
-            this.menu.formtabs.tabs.carts.visible = 'yes';
+        if( M.modFlagOn('ciniki.sapos', 0x08) ) {
+            this._tabs.tabs.carts.visible = 'yes';
             if( sp == '' ) { sp = 'carts'; }
             ct++;
         } else {
-            this.menu.formtabs.tabs.carts.visible = 'no';
+            this._tabs.tabs.carts.visible = 'no';
         }
         var rbts = 0;
         var lbts = 0;
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x02) > 0 ) {
-            this.menu.formtabs.tabs.expenses.visible = 'yes';
+        if( M.modFlagOn('ciniki.sapos', 0x02) ) {
+            this._tabs.tabs.expenses.visible = 'yes';
             if( sp == '' ) { sp = 'expenses'; }
             ct++;
         } else {
-            this.menu.formtabs.tabs.expenses.visible = 'no';
+            this._tabs.tabs.expenses.visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x100) > 0 ) {
-            this.menu.formtabs.tabs.mileage.visible = 'yes';
+        if( M.modFlagOn('ciniki.sapos', 0x0100) ) {
+            this._tabs.tabs.mileage.visible = 'yes';
             if( sp == '' ) { sp = 'mileage'; }
             ct++;
         } else {
-            this.menu.formtabs.tabs.mileage.visible = 'no';
+            this._tabs.tabs.mileage.visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
-            this.menu.formtabs.tabs.quotes.visible = 'yes';
+        if( M.modFlagOn('ciniki.sapos', 0x010000) ) {
+            this._tabs.tabs.quotes.visible = 'yes';
             if( sp == '' ) { sp = 'quotes'; }
             ct++;
         } else {
-            this.menu.formtabs.tabs.quotes.visible = 'no';
+            this._tabs.tabs.quotes.visible = 'no';
         }
         if( ct > 1 ) {
-            this.menu.formtabs.visible = 'yes';
+            this._tabs.visible = 'yes';
         } else {
-            this.menu.formtabs.visible = 'no';
+            this._tabs.visible = 'no';
         }
-
-        this.menu.open(cb, sp);
+        this._years.selected = new Date().getFullYear();
+        
+        this._tabs.cb = cb;
+        this.menu.menutabSwitch(sp);
     }
 }

@@ -21,6 +21,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
         'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
         'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
+        'stats'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Stats'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -112,7 +113,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
         $categories[$cid]['category']['total_amount'] = 0;
         $cidx[$category['category']['id']] = $cid;
     }
-    
+
     //
     // Build the query to get the list of expenses
     //
@@ -163,19 +164,14 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
     $strsql .= "ORDER BY ciniki_sapos_expenses.invoice_date ";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
-            'fields'=>array('id', 'name', 'description', 'invoice_date', 'paid_date', 'total_amount')),
-//            'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
-//            ),
-        array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
-            'fields'=>array('id'=>'item_id', 'category_id', 'amount'=>'item_amount')),
+        array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense', 'fields'=>array('id', 'name', 'description', 'invoice_date', 'paid_date', 'total_amount')),
+        array('container'=>'items', 'fname'=>'item_id', 'name'=>'item', 'fields'=>array('id'=>'item_id', 'category_id', 'amount'=>'item_amount')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
     if( !isset($rc['expenses']) ) {
         $expenses = array();
-//        return array('stat'=>'ok', 'categories'=>$categories, 'expenses'=>array(), 'totals'=>array());
     } else {
         $expenses = $rc['expenses'];
     }
@@ -218,6 +214,20 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
     $totals['total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
         $totals['total_amount'], $intl_currency);
     $totals['num_expenses'] = count($expenses);
+
+    $rsp = array('stat'=>'ok', 'categories'=>$categories, 'expenses'=>$expenses, 'totals'=>$totals);
+
+    if( isset($args['stats']) && $args['stats'] == 'yes' ) {
+        $rsp['stats'] = array();
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStats');
+        $rc = ciniki_sapos__invoiceStats($ciniki, $args['business_id']);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['stats']) ) {
+            $rsp['stats'] = $rc['stats'];
+        }
+    }
 
     //
     // Output as Excel if requested
@@ -327,6 +337,6 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
         return array('stat'=>'exit');
     }
 
-    return array('stat'=>'ok', 'categories'=>$categories, 'expenses'=>$expenses, 'totals'=>$totals);
+    return $rsp;
 }
 ?>

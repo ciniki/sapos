@@ -125,7 +125,7 @@ function ciniki_sapos_invoice() {
                 'sortTypes':['text','number','number','number','number','number','number'],
                 'addTxt':'Add',
                 'addFn':'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id);',
-                'noData':'No shipments',
+                'noData':'No items',
                 },
             'items':{'label':'', 'type':'simplegrid', 'num_cols':4,
                 'headerValues':['#', 'Description', 'Quantity/Price', 'Total'],

@@ -131,11 +131,74 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
     }
 
     //
-    // Process the taxes into quarters
+    // Get the list of expense categories
+    //
+    $strsql = "SELECT id, name "
+        . "FROM ciniki_sapos_expense_categories "
+        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND (flags&0x01) = 0x01 "
+        . "";
+    $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.taxes', array(
+        array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'name')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( isset($rc['categories']) ) {
+        $expensecategories = $rc['categories'];
+    } else {
+        $expensecategories = array();
+    }
+
+    //
+    // Get the tax expenses
+    //
+    $strsql = "SELECT e.invoice_date, "
+        . "i.id, "
+        . "i.category_id, "
+        . "i.amount "
+        . "FROM ciniki_sapos_expense_categories AS c "
+        . "LEFT JOIN ciniki_sapos_expense_items AS i ON ("
+            . "c.id = i.category_id "
+            . "AND i.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . ") "
+        . "LEFT JOIN ciniki_sapos_expenses AS e ON ("
+            . "i.expense_id = e.id "
+            . "AND e.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . ") "
+        . "WHERE c.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND (c.flags&0x01) = 0x01 "
+        . "ORDER BY e.invoice_date ";
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'expenses', 'fname'=>'id', 
+            'fields'=>array('invoice_date', 'category_id', 'amount'),
+            'utctodate'=>array('invoice_date'=>$intl_timezone),
+            ),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( isset($rc['expenses']) ) {
+        $expenses = $rc['expenses'];
+    } else {
+        $expenses = array();
+    }
+
+    //
+    // Process the taxes and expenses into quarters
     //
     $quarters = array();
-    if( count($taxes) > 0 ) {
-        $start_date = clone $taxes[0]['invoice_date'];
+    if( count($taxes) > 0 || count($expenses) > 0 ) {
+       
+        if( isset($taxes[0]['invoice_date']) ) {
+            if( isset($expenses[0]['invoice_date']) && $expenses[0]['invoice_date'] < $taxes[0]['invoice_date'] ) {
+                $start_date = clone $expenses[0]['invoice_date'];
+            } else {
+                $start_date = clone $taxes[0]['invoice_date'];
+            }
+        } else {
+            $start_date = clone $expenses[0]['invoice_date'];
+        }
         
         $qstart = clone $last_quarter_start_date;
         $qstart->add($qinterval);
@@ -146,11 +209,15 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
                 'end_date'=>clone $qstart,
                 'total_amount'=>0,
                 'taxrates'=>array(),
+                'expenses'=>array(),
                 );
             $quarter['end_date']->add($qinterval);
             $quarter['end_date']->sub($onesecond);
             foreach($taxrates as $rate) {
                 $quarter['taxrates'][$rate['id']] = array('amount'=>0);
+            }
+            foreach($expensecategories as $c) {
+                $quarter['expenses'][$c['id']] = array('amount'=>0);
             }
             // Push to top of array so array is in date order
             array_unshift($quarters, $quarter);
@@ -177,6 +244,27 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
             $quarters[$current_quarter]['taxrates'][$tax['taxrate_id']]['amount'] = bcadd($quarters[$current_quarter]['taxrates'][$tax['taxrate_id']]['amount'], $tax['amount'], 4);
             $quarters[$current_quarter]['total_amount'] = bcadd($quarters[$current_quarter]['total_amount'], $tax['amount'], 4);
         }
+
+        //
+        // Process the expenses
+        //
+        $current_quarter = 0;
+        foreach($expenses as $eid => $expense) {
+            if( $expense['invoice_date'] > $cur_date ) {
+                break;
+            }
+            while( $expense['invoice_date'] > $quarters[$current_quarter]['end_date'] ) {
+                $current_quarter++;
+                if( !isset($quarters[$current_quarter]) ) {
+                    break;
+                }
+            }
+            if( !isset($quarters[$current_quarter]) ) {
+                break;
+            }
+            $quarters[$current_quarter]['expenses'][$expense['category_id']]['amount'] = bcadd($quarters[$current_quarter]['expenses'][$expense['category_id']]['amount'], $expense['amount'], 4);
+            $quarters[$current_quarter]['total_amount'] = bcsub($quarters[$current_quarter]['total_amount'], $expense['amount'], 4);
+        }
        
         //
         // Convert dates into strings
@@ -188,6 +276,9 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
             $quarters[$qid]['end_date'] = $quarter['end_date']->format('M j, Y');
             foreach($quarter['taxrates'] as $tid => $rate) {
                 $quarters[$qid]['taxrates'][$tid]['amount_display'] = numfmt_format_currency($intl_currency_fmt, $rate['amount'], $intl_currency);
+            }
+            foreach($quarter['expenses'] as $eid => $expense) {
+                $quarters[$qid]['expenses'][$eid]['amount_display'] = numfmt_format_currency($intl_currency_fmt, $expense['amount'], $intl_currency);
             }
             $quarters[$qid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $quarter['total_amount'], $intl_currency);
         }
@@ -201,6 +292,14 @@ function ciniki_sapos_reportInvoicesTaxes(&$ciniki) {
         $r_taxrates[] = $rate;
     }
 
-    return array('stat'=>'ok', 'taxrates'=>$r_taxrates, 'quarters'=>$quarters);
+    //
+    // Convert expensecategories into array
+    //
+    $r_expensecategories = array();
+    foreach($expensecategories as $e) {
+        $r_expensecategories[] = $e;
+    }
+
+    return array('stat'=>'ok', 'taxrates'=>$r_taxrates, 'expensecategories'=>$r_expensecategories, 'quarters'=>$quarters);
 }
 ?>

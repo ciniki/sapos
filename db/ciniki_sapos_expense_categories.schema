@@ -6,7 +6,7 @@
 #
 # Fields
 # ------
-# id:               The invoice ID.
+# id:               The ID of the expense category.
 # uuid:             The Universal Unique ID for the invoice.
 # business_id:      The business the invoice is for.
 #
@@ -14,8 +14,8 @@
 #
 # sequence:         The order of the categories for display.
 #
-# flags:            **future**
-# taxrate_id:       **future** Link to ciniki.taxes.rate
+# flags:            ** future **
+# taxrate_id:       The ID of the tax rate this attached to.
 #
 # start_date:       The start date for the category, when it became active, 
 #                   or '0000-00-00 00:00:00' for always active

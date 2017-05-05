@@ -218,8 +218,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $container = array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-            'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'po_number', 'status_text', 
-                'customer_type', 'customer_display_name', 'total_amount'),
+            'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'po_number', 'status_text', 'customer_type', 'customer_display_name', 'total_amount'),
             'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
             ));

@@ -308,15 +308,16 @@ function ciniki_sapos_settings() {
         //
         // The expense category edit panel
         //
-        this.ecatedit = new M.panel('Expense Category',
-            'ciniki_sapos_settings', 'ecatedit',
-            'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.ecatedit');
+        this.ecatedit = new M.panel('Expense Category', 'ciniki_sapos_settings', 'ecatedit', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.ecatedit');
         this.ecatedit.category_id = 0;
         this.ecatedit.data = {};
         this.ecatedit.sections = {
             'category':{'label':'Category', 'fields':{
                 'sequence':{'label':'Sequence', 'type':'text', 'size':'small'},
                 'name':{'label':'Name', 'type':'text', 'size':'medium'},
+                'flags':{'label':'Options', 'type':'flags', 
+                    'visible':function() { return M.modOn('ciniki.taxes'); },
+                    'flags':{'1':{'name':'Tax'}}},
                 }},
             '_buttons':{'label':'', 'buttons':{
                 'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveExpenseCategory();'},

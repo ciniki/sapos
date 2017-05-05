@@ -155,7 +155,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
                 // 
                 // Check if the item must only be one per line
                 //
-                if( ($rc['item']['flags']&0x08) > 0 ) {
+                if( isset($rc['item']['flags']) && ($rc['item']['flags']&0x08) > 0 ) {
                     // Each line must only contain one item
                     $num_lines = $args['quantity'];
                     $args['quantity'] = 1;        
