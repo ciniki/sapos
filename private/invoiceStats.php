@@ -116,6 +116,28 @@ function ciniki_sapos__invoiceStats($ciniki, $business_id) {
         $rsp['stats']['max_invoice_date_year'] = $rc['stats'][0]['stats']['max_invoice_date_year'];
     }
 
+    //
+    // Get the list of categories used in invoices
+    //
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x01000000) ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $strsql = "SELECT DISTINCT IF(category = '', 'Uncategorized', category) AS category "
+            . "FROM ciniki_sapos_invoice_items "
+            . "WHERE ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array( 
+            array('container'=>'categories', 'fname'=>'category', 'fields'=>array('name'=>'category')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['categories']) ) {
+            $rsp['stats']['categories'] = $rc['categories'];
+        } else {
+            $rsp['stats']['categories'] = array();
+        }
+    }
+
     return $rsp;
 }
 ?>

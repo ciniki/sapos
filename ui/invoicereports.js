@@ -39,7 +39,6 @@ function ciniki_sapos_invoicereports() {
             }
             var p = M.ciniki_sapos_invoicereports[report];
             p.data = rsp;
-            console.log(p.data.taxrates.length);
             if( p.data.taxrates.length > 1 ) {
                 p.sections.quarters.num_cols = p.data.taxrates.length + 2;
             } else {
