@@ -45,7 +45,7 @@ function ciniki_sapos_hooks_customerStatusUpdate($ciniki, $business_id, $args) {
     // Update open orders
     //
     if( isset($args['customer_id']) && $args['customer_id'] > 0 
-        && isset($args['status']) && $args['status'] == '40' 
+        && isset($args['status']) && ($args['status'] == '40'  || $args['status'] == 41)
         ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
         $strsql = "SELECT id, invoice_type, status "

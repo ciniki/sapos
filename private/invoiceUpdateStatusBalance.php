@@ -212,6 +212,11 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
             // Customer is on hold, and order is not fulfilled, make the invoice on hold as well
             $new_status = 15;
         }
+        elseif( isset($customer) && isset($customer['status']) && $customer['status'] == '41'  // Secondary hold
+            && $new_status < 50 ) {
+            // Customer is on hold, and order is not fulfilled, make the invoice warehouse hold as well
+            $new_status = 14;
+        }
         elseif( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
             $new_status = 20;
         }
