@@ -84,6 +84,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'invoice-header-business-email',
         'invoice-header-business-website',
         'invoice-bottom-message',
+        'packingslip-bottom-message',
         'invoice-footer-message',
         'invoice-email-message',
         'invoice-reports-taxes-ontario-hst',

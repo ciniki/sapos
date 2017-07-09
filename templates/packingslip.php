@@ -555,11 +555,14 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $business_id, $shipment_id
     //
     // Check if there is a message to be displayed
     //
-    if( isset($sapos_settings['invoice-bottom-message']) 
-        && $sapos_settings['invoice-bottom-message'] != '' ) {
-        $pdf->Ln();
+    if( isset($sapos_settings['packingslip-bottom-message']) && $sapos_settings['packingslip-bottom-message'] != '' ) {
+        if( $pdf->getY() > ($pdf->getPageHeight() - 40) ) {
+            $pdf->AddPage();
+        } else {
+            $pdf->Ln();
+        }
         $pdf->SetFont('');
-        $pdf->MultiCell(180, 5, $sapos_settings['invoice-bottom-message'], 0, 'L');
+        $pdf->MultiCell(180, 5, $sapos_settings['packingslip-bottom-message'], 0, 'L');
     }
 
     // ---------------------------------------------------------

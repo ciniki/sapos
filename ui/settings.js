@@ -111,6 +111,9 @@ function ciniki_sapos_settings() {
             '_bottom_msg':{'label':'Invoice Message', 'fields':{
                 'invoice-bottom-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
                 }},
+            '_packingslip_bottom_msg':{'label':'Packing Slip Message', 'fields':{
+                'packingslip-bottom-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+                }},
             '_footer_msg':{'label':'Footer Message', 'fields':{
                 'invoice-footer-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
                 }},
