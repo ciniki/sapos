@@ -137,6 +137,9 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
         $items[$i]['item']['unit_discount_amount'] = numfmt_format_currency($intl_currency_fmt, 
             $item['item']['unit_discount_amount'], $intl_currency);
         $items[$i]['item']['quantity'] = (float)$item['item']['quantity'];
+        if( !isset($item['item']['flags']) ) {
+            $items[$i]['item']['flags'] = 0;
+        }
     }
 
     return array('stat'=>'ok', 'items'=>$items);

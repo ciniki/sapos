@@ -1,0 +1,60 @@
+#
+# Description
+# -----------
+# The packages that are available for donations online or in accounting. 
+# If donations are to be linked to SAPOS module, then a package must exist.
+#
+# Fields
+# ------
+# id:                   The ID assigned to the event.
+# uuid:                 The Universal Unique ID.
+# business_id:          The business the event is attached to.
+#
+# name:                 The name of the package.
+# subname:              The subname/second name of the package.
+# permalink:            The permalink of the package, a combination of name and subname.
+#
+# invoice_name:         The name to appear on the invoice.
+#
+# flags:                The options for the package.
+#
+#                           0x01 - Visible on website
+#                           0x02 - Fixed Amount, used the amount field.
+#                           0x04 - 
+#                           0x08 - 
+#
+# category:             The category of the package. **future** 
+#
+# sequence:             The sort order for the packages.
+#
+# amount:               The donation amount if the flag 0x01 has been set.
+#
+# primary_image_id:     The ID of the main image for the package.
+#
+# synopsis:             The overview of the package.
+# description:          The description of the package.
+# 
+# date_added:           The UTC date and time the record was added.
+# last_updated:         The UTC date and time the record was last updated.
+#
+create table ciniki_sapos_donation_packages (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    name varchar(150) not null,
+    subname varchar(250) not null,
+    permalink varchar(250) not null,
+    invoice_name varchar(150) not null,
+    flags tinyint unsigned not null,
+    category varchar(150) not null,
+    sequence tinyint unsigned not null,
+    amount decimal(19,4) not null,
+    primary_image_id int not null,
+    synopsis varchar(2000),
+    description varchar(10000),
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (business_id, permalink),
+    index business_uuid (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

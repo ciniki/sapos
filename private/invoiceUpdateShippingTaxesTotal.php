@@ -25,6 +25,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     // Get the invoice details, so we know what taxes are applicable for the invoice date
     //
     $strsql = "SELECT ciniki_sapos_invoices.status, "
+        . "ciniki_sapos_invoices.receipt_number, "
         . "ciniki_sapos_invoices.shipping_status, "
         . "ciniki_sapos_invoices.invoice_date, "
         . "ciniki_sapos_invoices.customer_id, "
@@ -61,6 +62,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
         'status'=>$rc['invoice']['status'],
         'customer_id'=>$rc['invoice']['customer_id'],
         'date'=>$rc['invoice']['invoice_date'],
+        'receipt_number'=>$rc['invoice']['receipt_number'],
         'subtotal_amount'=>$rc['invoice']['subtotal_amount'],
         'subtotal_discount_amount'=>$rc['invoice']['subtotal_discount_amount'],
         'subtotal_discount_percentage'=>$rc['invoice']['subtotal_discount_percentage'],
@@ -130,8 +132,12 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     // Build the hash of invoice details and items to pass to ciniki.taxes for tax calculations
     //
     $shipping_status = $invoice['shipping_status'];
+    $donation_amount = 0;
     if( count($items) > 0 ) {
         foreach($items as $iid => $item) {
+            if( ($item['flags']&0x8000) == 0x8000 ) {
+                $donation_amount = bcadd($donation_amount, $item['total_amount'], 6);
+            }
             $invoice['items'][] = array(
                 'id'=>$item['id'],
                 'amount'=>$item['total_amount'],
@@ -145,6 +151,25 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
                     $shipping_status = 10;
                 }
             }
+        }
+    }
+
+    //
+    // Check if invoice should have a receipt_number
+    //
+    if( $donation_amount > 0 && ($invoice['receipt_number'] == '' || $invoice['receipt_number'] == 0) ) {
+        $strsql = "SELECT MAX(receipt_number) AS max_num "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.225', 'msg'=>'Unable to find next available receipt number', 'err'=>$rc['err']));
+        }
+        if( isset($rc['num']['max_num']) ) {
+            $receipt_number = $rc['num']['max_num'] + 1;
+        } else {
+            $receipt_number = 1;
         }
     }
     
@@ -283,6 +308,9 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     }
     if( $shipping_status != $invoice['shipping_status'] ) {
         $args['shipping_status'] = $shipping_status;
+    }
+    if( isset($receipt_number) && $receipt_number != $invoice['receipt_number'] ) {
+        $args['receipt_number'] = $receipt_number;
     }
     if( count($args) > 0 ) {
         $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 

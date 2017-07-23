@@ -114,6 +114,19 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'quote-bottom-message',
         'quote-footer-message',
         'quote-email-message',
+        'donation-receipt-header-image',
+        'donation-receipt-header-contact-position',
+        'donation-receipt-header-business-name',
+        'donation-receipt-header-business-address',
+        'donation-receipt-header-business-phone',
+        'donation-receipt-header-business-cell',
+        'donation-receipt-header-business-fax',
+        'donation-receipt-header-business-email',
+        'donation-receipt-header-business-website',
+        'donation-receipt-signing-officer',
+        'donation-receipt-charity-number',
+        'donation-receipt-location-issued',
+        'donation-receipt-thankyou-message',
         );
     //
     // Check each valid setting and see if a new value was passed in the arguments for it.

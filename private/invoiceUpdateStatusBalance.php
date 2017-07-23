@@ -22,12 +22,13 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice
     //
     // Apply any rules to the invoice
     //
-
+    
 
     //
     // Get the invoice details
     //
     $strsql = "SELECT customer_id, invoice_type, status, "
+        . "receipt_number, "
         . "payment_status, shipping_status, manufacturing_status, "
         . "ROUND(total_amount, 2) AS total_amount, "
         . "ROUND(paid_amount, 2) AS paid_amount, "

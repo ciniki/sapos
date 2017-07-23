@@ -161,8 +161,8 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
                     $args['quantity'] = 1;        
                     // Force each on it's own invoice line
                     $existing_id = 0;             
-                    $args['flags'] |= $rc['item']['flags'];
                 }
+                $args['flags'] |= $rc['item']['flags'];
             }
         }
     }

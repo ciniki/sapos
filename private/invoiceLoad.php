@@ -54,6 +54,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
     $strsql = "SELECT id, "
         . "invoice_number, "
         . "po_number, "
+        . "receipt_number, "
         . "customer_id, "
         . "salesrep_id, "
         . "invoice_type, "
@@ -68,6 +69,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
         . "manufacturing_status AS manufacturing_status_text, "
         . "flags, "
         . "invoice_date, "
+        . "invoice_date AS donation_year, "
         . "invoice_date AS invoice_time, "
         . "invoice_date AS invoice_datetime, "
         . "due_date, "
@@ -120,12 +122,12 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
     }
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-            'fields'=>array('id', 'invoice_number', 'po_number', 'customer_id', 'salesrep_id',
+            'fields'=>array('id', 'invoice_number', 'po_number', 'receipt_number', 'customer_id', 'salesrep_id',
                 'invoice_type', 'invoice_type_text', 'status', 'status_text',
                 'payment_status', 'payment_status_text',
                 'shipping_status', 'shipping_status_text',
                 'manufacturing_status', 'manufacturing_status_text',
-                'flags', 'invoice_date', 'invoice_time', 'invoice_datetime', 'due_date',
+                'flags', 'invoice_date', 'donation_year', 'invoice_time', 'invoice_datetime', 'due_date',
                 'billing_name', 'billing_address1', 'billing_address2', 'billing_city', 
                 'billing_province', 'billing_postal', 'billing_country',
                 'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
@@ -137,6 +139,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id) {
                 'paid_amount', 'balance_amount',
                 'customer_notes', 'invoice_notes', 'internal_notes', 'submitted_by'),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
+                'donation_year'=>array('timezone'=>$intl_timezone, 'format'=>'Y'),
                 'invoice_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
                 'invoice_datetime'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
                 'due_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),

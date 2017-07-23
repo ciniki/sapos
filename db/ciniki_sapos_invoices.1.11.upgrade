@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table ciniki_sapos_invoices to version 1.11.
+#
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN receipt_number varchar(50) not null AFTER po_number;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.11';

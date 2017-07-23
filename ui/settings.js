@@ -46,6 +46,12 @@ function ciniki_sapos_settings() {
             'paypalpayments':{'label':'Paypal Checkout', 'list':{
                 'paypalpayments':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.editPaypalPayments(\'M.ciniki_sapos_settings.showMenu();\');'},
                 }},
+            'donations':{'label':'Donations', 
+                'visible':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
+                'list':{
+                    'packages':{'label':'Packages', 'fn':'M.ciniki_sapos_settings.packages.open(\'M.ciniki_sapos_settings.showMenu();\');'},
+                    'donations':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.donations.open(\'M.ciniki_sapos_settings.showMenu();\');'},
+                }},
         };
         this.menu.addClose('Back');
 
@@ -480,6 +486,258 @@ function ciniki_sapos_settings() {
         this.paypalpayments.addButton('save', 'Save', 'M.ciniki_sapos_settings.savePaypalPayments();');
         this.paypalpayments.addClose('Cancel');
     }
+
+    //
+    // The donation settings panel
+    //
+    this.donations = new M.panel('Settings', 'ciniki_sapos_settings', 'donations', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.main');
+    this.donations.sections = {
+//        'image':{'label':'Header Image', 'fields':{
+//            'donation-receipt-header-image':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'controls':'all', 'history':'no'},
+//            }},
+//        'header':{'label':'Header Address Options', 'fields':{
+//            'donation-receipt-header-contact-position':{'label':'Position', 'type':'toggle', 'default':'center', 'toggles':this.positionOptions},
+//            'donation-receipt-header-business-name':{'label':'Business Name', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//            'donation-receipt-header-business-address':{'label':'Address', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-business-phone':{'label':'Phone', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-business-cell':{'label':'Cell', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-business-fax':{'label':'Fax', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-business-email':{'label':'Email', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-business-website':{'label':'Website', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//            }},
+        '_charity_info':{'label':'', 'fields':{
+            'donation-receipt-signing-officer':{'label':'Signing Officer', 'type':'text'},
+            'donation-receipt-charity-number':{'label':'Charity Number', 'type':'text'},
+            'donation-receipt-location-issued':{'label':'Location Issued', 'type':'text'},
+            }},
+        '_thank_you_msg':{'label':'Thank You Message', 'fields':{
+            'donation-receipt-thankyou-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.donations.save();'},
+            }},
+    };
+    this.donations.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.donations.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
+    }
+    this.donations.fieldValue = function(s, i, d) {
+        if( this.data[i] == null && d.default != null ) { return d.default; }
+        return this.data[i];
+    };
+    this.donations.addDropImage = function(iid) {
+        M.ciniki_sapos_settings.donations.setFieldValue('donation-receipt-header-image', iid);
+        return true;
+    };
+    this.donations.deleteImage = function(fid) {
+        this.setFieldValue(fid, 0);
+        return true;
+    };
+    this.donations.open = function(cb) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.donations;
+            p.data = rsp.settings;
+            p.refresh();
+            p.show(cb);
+        });
+    };
+    this.donations.save = function() {
+        var c = this.serializeForm('no');
+        if( c != '' ) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+                c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    M.ciniki_sapos_settings.donations.close();
+                });
+        } else {
+            this.close();
+        }
+    };
+    this.donations.addButton('save', 'Save', 'M.ciniki_sapos_settings.donations.save();');
+    this.donations.addClose('Cancel');
+
+    //
+    // The panel to list the package
+    //
+    this.packages = new M.panel('Packages', 'ciniki_sapos_settings', 'packages', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.packages');
+    this.packages.data = {};
+    this.packages.nplist = [];
+    this.packages.sections = {
+//        'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':1,
+//            'cellClasses':[''],
+//            'hint':'Search package',
+//            'noData':'No package found',
+//            },
+        'packages':{'label':'Donation Package', 'type':'simplegrid', 'num_cols':1,
+            'noData':'No package',
+            'addTxt':'Add Donation Package',
+            'addFn':'M.ciniki_sapos_settings.package.open(\'M.ciniki_sapos_settings.packages.open();\',0,null);'
+            },
+    }
+/*    this.packages.liveSearchCb = function(s, i, v) {
+        if( s == 'search' && v != '' ) {
+            M.api.getJSONBgCb('ciniki.donations.packageSearch', {'business_id':M.curBusinessID, 'start_needle':v, 'limit':'25'}, function(rsp) {
+                M.ciniki_sapos_settings.packages.liveSearchShow('search',null,M.gE(M.ciniki_sapos_settings.packages.panelUID + '_' + s), rsp.packages);
+                });
+        }
+    }
+    this.packages.liveSearchResultValue = function(s, f, i, j, d) {
+        return d.name;
+    }
+    this.packages.liveSearchResultRowFn = function(s, f, i, j, d) {
+        return 'M.ciniki_sapos_settings.package.open(\'M.ciniki_sapos_settings.packages.open();\',\'' + d.id + '\');';
+    } */
+    this.packages.cellValue = function(s, i, j, d) {
+        if( s == 'packages' ) {
+            switch(j) {
+                case 0: return d.name;
+            }
+        }
+    }
+    this.packages.rowFn = function(s, i, d) {
+        if( s == 'packages' ) {
+            return 'M.ciniki_sapos_settings.package.open(\'M.ciniki_sapos_settings.packages.open();\',\'' + d.id + '\',M.ciniki_sapos_settings.package.nplist);';
+        }
+    }
+    this.packages.open = function(cb) {
+        M.api.getJSONCb('ciniki.sapos.packageList', {'business_id':M.curBusinessID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.packages;
+            p.data = rsp;
+            p.nplist = (rsp.nplist != null ? rsp.nplist : null);
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.packages.addClose('Back');
+
+    //
+    // The panel to edit Donation Package
+    //
+    this.package = new M.panel('Donation Package', 'ciniki_sapos_settings', 'package', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.package');
+    this.package.data = null;
+    this.package.package_id = 0;
+    this.package.nplist = [];
+    this.package.sections = {
+/*        '_primary_image_id':{'label':'Image', 'type':'imageform', 'aside':'yes', 'fields':{
+            'primary_image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'controls':'all', 'history':'no',
+                'addDropImage':function(iid) {
+                    M.ciniki_sapos_settings.package.setFieldValue('primary_image_id', iid);
+                    return true;
+                    },
+                'addDropImageRefresh':'',
+                'removeImage':function(fid) {
+                    M.ciniki_sapos_settings.package.setFieldValue(fid,0);
+                    return true;
+                 },
+             },
+        }},*/
+        'general':{'label':'', 'aside':'yes', 'fields':{
+            'name':{'label':'Name', 'required':'yes', 'type':'text'},
+            'subname':{'label':'Price Display', 'type':'text', 'size':'small'},
+            'sequence':{'label':'Order', 'type':'text', 'size':'small'},
+            'flags1':{'label':'Visible', 'type':'flagtoggle', 'field':'flags', 'bit':0x01, 'default':'off'},
+            'flags2':{'label':'Fixed Amount', 'type':'flagtoggle', 'field':'flags', 'bit':0x02, 'default':'on', 'on_fields':['amount']},
+//            'category':{'label':'Category', 'type':'text'},
+            'amount':{'label':'Amount', 'type':'text', 'size':'medium'},
+            'invoice_name':{'label':'Invoice Description', 'required':'yes', 'type':'text'},
+            }},
+        '_synopsis':{'label':'Synopsis', 'fields':{
+            'synopsis':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
+            }},
+//        '_description':{'label':'Description', 'fields':{
+//            'description':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+//            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.package.save();'},
+            'delete':{'label':'Delete', 
+                'visible':function() {return M.ciniki_sapos_settings.package.package_id > 0 ? 'yes' : 'no'; },
+                'fn':'M.ciniki_sapos_settings.package.remove();'},
+            }},
+        };
+    this.package.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.package.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.packageHistory', 'args':{'business_id':M.curBusinessID, 'package_id':this.package_id, 'field':i}};
+    }
+    this.package.open = function(cb, pid, list) {
+        if( pid != null ) { this.package_id = pid; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('ciniki.sapos.packageGet', {'business_id':M.curBusinessID, 'package_id':this.package_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.package;
+            p.data = rsp.package;
+            p.sections.general.fields.amount.visible = ((rsp.package.flags&0x02) == 0x02 ? 'yes' : 'no');
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.package.save = function(cb) {
+        if( cb == null ) { cb = 'M.ciniki_sapos_settings.package.close();'; }
+        if( !this.checkForm() ) { return false; }
+        if( this.package_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('ciniki.sapos.packageUpdate', {'business_id':M.curBusinessID, 'package_id':this.package_id}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    eval(cb);
+                });
+            } else {
+                eval(cb);
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('ciniki.sapos.packageAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.package.package_id = rsp.id;
+                eval(cb);
+            });
+        }
+    }
+    this.package.remove = function() {
+        if( confirm('Are you sure you want to remove package?') ) {
+            M.api.getJSONCb('ciniki.sapos.packageDelete', {'business_id':M.curBusinessID, 'package_id':this.package_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.package.close();
+            });
+        }
+    }
+    this.package.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.package_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_sapos_settings.package.save(\'M.ciniki_sapos_settings.package.open(null,' + this.nplist[this.nplist.indexOf('' + this.package_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.package.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.package_id) > 0 ) {
+            return 'M.ciniki_sapos_settings.package.save(\'M.ciniki_sapos_settings.package_id.open(null,' + this.nplist[this.nplist.indexOf('' + this.package_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.package.addButton('save', 'Save', 'M.ciniki_sapos_settings.package.save();');
+    this.package.addClose('Cancel');
+    this.package.addButton('next', 'Next');
+    this.package.addLeftButton('prev', 'Prev');
 
     //
     // Arguments:

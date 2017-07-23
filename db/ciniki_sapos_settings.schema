@@ -18,8 +18,12 @@
 # invoice-header-business-email:    (yes|no) Include the business contact email.
 # invoice-header-business-website:  (yes|no) Include the business website.
 #
-# invoice-bottom-message:       The text to show before the footer.
-# invoice-footer-message:       The text to show in the footer of the invoice.
+# invoice-bottom-message:           The text to show before the footer.
+# invoice-footer-message:           The text to show in the footer of the invoice.
+#
+# Donation Settings
+# -----------------
+# donation-receipt-minimum:         The minimum amount that must be donated before a receipt can be issued.
 #
 # Fiscal Year Settings
 # --------------------

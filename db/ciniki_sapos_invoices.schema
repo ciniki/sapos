@@ -22,6 +22,8 @@
 #
 # po_number:            The Purchase Order number from the company placing the order.
 #
+# receipt_number:       The number to be used on donation receipts. Should be sequential.
+#
 # customer_id:          The ID of the customer the invoice is for.
 #
 # salesrep_id:          The ID of the salesrep for this invoice, 0 if no rep.
@@ -149,6 +151,7 @@ create table ciniki_sapos_invoices (
     source_id int not null,
     invoice_number varchar(20) not null,
     po_number varchar(100) not null,
+    receipt_number varchar(50) not null,
     customer_id int not null,
     salesrep_id int not null,
     invoice_type tinyint unsigned not null,
@@ -203,4 +206,4 @@ create table ciniki_sapos_invoices (
     index (customer_id, status, invoice_date),
     unique index (business_id, invoice_number),
     index sync (uuid, business_id, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.10';
+) ENGINE='InnoDB', COMMENT='v1.11';
