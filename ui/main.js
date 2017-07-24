@@ -34,7 +34,7 @@ function ciniki_sapos_main() {
             'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.expenses.open(M.ciniki_sapos_main._tabs.cb);'},
             'mileage':{'label':'Mileage', 'visible':'no', 'fn':'M.ciniki_sapos_main.mileage.open(M.ciniki_sapos_main._tabs.cb);'},
             'quotes':{'label':'Quotes', 'visible':'no', 'fn':'M.ciniki_sapos_main.quotes.open(M.ciniki_sapos_main._tabs.cb);'},
-            'reports':{'label':'Reports', 'visible':'no', 'fn':'M.ciniki_sapos_main.reports.open(M.ciniki_sapos_main._tabs.cb);'},
+            'reports':{'label':'Reports', 'visible':'no', 'fn':'M.ciniki_sapos_main.reports.open(M.ciniki_sapos_main._tabs.cb,"taxes");'},
         },
     };
 
@@ -1174,14 +1174,14 @@ function ciniki_sapos_main() {
     this.reports.open = function(cb, report) {
         var method = '';
         switch (report) {
-            case 'reports': method = 'ciniki.sapos.reportInvoicesTaxes'; break;
+            case 'taxes': method = 'ciniki.sapos.reportInvoicesTaxes'; break;
         }
         M.api.getJSONCb(method, {'business_id':M.curBusinessID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
             }
-            var p = M.ciniki_sapos_main[report];
+            var p = M.ciniki_sapos_main.reports;
             p.data = rsp;
             p.sections.quarters.cols = {};
             var c = 0;
@@ -1204,6 +1204,41 @@ function ciniki_sapos_main() {
         });
     }
     this.reports.addClose('Back');
+
+    //
+    // Report for Ontario, Canada HST
+    //
+    this.ontariohst = new M.panel('Ontario HST',
+        'ciniki_sapos_main', 'ontariohst',
+        'mc', 'large', 'sectioned', 'ciniki.sapos.main.ontariohst');
+    this.ontariohst.year = null;
+    this.ontariohst.quarter = 0;
+    this.ontariohst.data = {};
+    this.ontariohst.sections = {
+        'years':{'label':'', 'type':'paneltabs', 'selected':'', 'tabs':{}},
+        'quarters':{'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'1', 'tabs':{
+            '1':{'label':'Jan-Mar', 'fn':'M.ciniki_sapos_main.showOntarioHST(null,null,1);'},
+            '2':{'label':'Apr-Jun', 'fn':'M.ciniki_sapos_main.showOntarioHST(null,null,2);'},
+            '3':{'label':'Jul-Sep', 'fn':'M.ciniki_sapos_main.showOntarioHST(null,null,3);'},
+            '4':{'label':'Oct-Dec', 'fn':'M.ciniki_sapos_main.showOntarioHST(null,null,4);'},
+            }},
+        'taxes':{'label':'', 'type':'simplegrid', 'num_cols':2,
+            'sortable':'yes',
+            'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status'],
+            'sortTypes':['number', 'date', 'text', 'number', 'text'],
+            'noData':'No Invoices Found',
+            },
+    };
+    this.ontariohst.sectionData = function(s) {
+        return this.data[s];
+    };
+    this.ontariohst.cellValue = function(s, i, j, d) {
+        switch(j) {
+            case 0: return d.hst_line;
+            case 1: return d.hst_value;
+        }
+    };
+    this.ontariohst.addClose('Back');
 
     //
     // Arguments:
