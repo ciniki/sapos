@@ -127,6 +127,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'donation-receipt-charity-number',
         'donation-receipt-location-issued',
         'donation-receipt-thankyou-message',
+        'donation-receipt-signature-image',
         );
     //
     // Check each valid setting and see if a new value was passed in the arguments for it.

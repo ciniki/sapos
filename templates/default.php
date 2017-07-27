@@ -717,16 +717,29 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
         $w = array(50, 50, 80);
         if( isset($sapos_settings['donation-receipt-thankyou-message']) && $sapos_settings['donation-receipt-thankyou-message'] != '' ) {
             $pdf->SetFont('', 'B');
-            $pdf->Cell($w[0]+$w[1], $lh*2, $sapos_settings['donation-receipt-thankyou-message'], 0, 0, 'L', 1);
-            $pdf->Cell($w[2], $lh*2, '', 0, 0, 'L', 1);
+            $pdf->Cell($w[0]+$w[1], $lh*4, $sapos_settings['donation-receipt-thankyou-message'], 0, 0, 'L', 1);
         } else {
-            $pdf->Cell($w[0]+$w[1], $lh*2, '', 0, 0, 'L', 1);
-            $pdf->Cell($w[2], $lh*2, '', 0, 0, 'L', 1);
+            $pdf->Cell($w[0]+$w[1], $lh*4, '', 0, 0, 'L', 1);
+        }
+        if( isset($sapos_settings['donation-receipt-signature-image']) && $sapos_settings['donation-receipt-signature-image'] != '' ) {
+            $pdf->getY();
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadImage');
+            $rc = ciniki_images_loadImage($ciniki, $business_id, $sapos_settings['donation-receipt-signature-image'], 'original');
+            if( $rc['stat'] == 'ok' ) {
+                $height = $rc['image']->getImageHeight();
+                $width = $rc['image']->getImageWidth();
+                $image_ratio = $width/$height;
+                $available_ratio = $w[2]/25;
+                if( $available_ratio < $image_ratio ) {
+                    $pdf->Image('@'.$rc['image']->getImageBlob(), '', '', $w[2], 0, 'JPEG', '', 'C', 2, '150');
+                } else {
+                    $pdf->Image('@'.$rc['image']->getImageBlob(), '', '', 0, 25, 'JPEG', '', 'C', 2, '150');
+                }
+            }
         }
         $pdf->Ln();
         $pdf->SetFont('', '');
         $pdf->setCellPadding(2);
-
         //
         // Output charity information and signature
         //

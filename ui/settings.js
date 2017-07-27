@@ -513,6 +513,9 @@ function ciniki_sapos_settings() {
         '_thank_you_msg':{'label':'Thank You Message', 'fields':{
             'donation-receipt-thankyou-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
             }},
+        'image':{'label':'Signature Image', 'fields':{
+            'donation-receipt-signature-image':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'controls':'all', 'history':'no'},
+            }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.donations.save();'},
             }},
@@ -525,7 +528,7 @@ function ciniki_sapos_settings() {
         return this.data[i];
     };
     this.donations.addDropImage = function(iid) {
-        M.ciniki_sapos_settings.donations.setFieldValue('donation-receipt-header-image', iid);
+        M.ciniki_sapos_settings.donations.setFieldValue('donation-receipt-signature-image', iid);
         return true;
     };
     this.donations.deleteImage = function(fid) {
