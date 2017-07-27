@@ -40,15 +40,13 @@ function ciniki_sapos_main() {
     };
 
     this.yearSwitch = function(y) {
-        console.log(y);
-        console.log(this._years.panel);
         this[this._years.panel].yearSwitch(y);
     }
     this._years = {'label':'', 'visible':'no', 'type':'paneltabs', 'selected':'', 'panel':'invoices',
         'tabs':{},
         };
     this._months = {'label':'', 'type':'paneltabs', 'selected':'0', 'panel':'invoices',
-        'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'transactions' || s == 'expenses' || s == 'quotes' || s == 'categories' ) ? 'yes' : 'no');},
+        'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'transactions' || s == 'expenses' || s == 'quotes' || s == 'categories' || s == 'donations' ) ? 'yes' : 'no');},
         'tabs':{
             '0':{'label':'All', 'fn':'M.ciniki_sapos_main.monthSwitch(0);'},
             '1':{'label':'Jan', 'fn':'M.ciniki_sapos_main.monthSwitch(1);'},
@@ -65,6 +63,7 @@ function ciniki_sapos_main() {
             '12':{'label':'Dec', 'fn':'M.ciniki_sapos_main.monthSwitch(12);'},
         }};
     this.monthSwitch = function(m) {
+        console.log(this._months.panel);
         this[this._months.panel].monthSwitch(m);
     }
 
@@ -406,6 +405,8 @@ function ciniki_sapos_main() {
     this.transactions.yearSwitch = function(y) { this.open(null,y); }
     this.transactions.monthSwitch = function(m) { this.open(null,null,m); }
     this.transactions.open = function(cb, year, month) {
+        this.sections.years.panel = 'transactions';
+        this.sections.months.panel = 'transactions';
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
         M.api.getJSONCb('ciniki.sapos.transactionList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
@@ -546,256 +547,75 @@ function ciniki_sapos_main() {
     this.transaction.addClose('Cancel');
 
     //
-    // The menu panel
+    // The donations panel
     //
-    this.menu = new M.panel('Accounting', 'ciniki_sapos_main', 'menu', 'mc', 'full', 'sectioned', 'ciniki.sapos.main.menu');
-    this.menu.data = {'invoice_type':'invoices'};
-    this.menu.invoice_type = 10;
-    this.menu.payment_status = 0;
-    this.menu.menutabs = this._tabs;
-    this.menu.sections = {
-//        '_quickadd':{'label':'', 'visible':'no', 'buttons':{
-//            'quickadd':{'label':'Quick Invoice', 'fn':'M.startApp(\'ciniki.sapos.qi\',null,\'M.ciniki_sapos_main.menu.open();\');'},
-//            }},
+    this.donations = new M.panel('Transactions', 'ciniki_sapos_main', 'donations', 'mc', 'full', 'sectioned', 'ciniki.sapos.main.donations');
+    this.donations.data = {};
+    this.donations.menutabs = this._tabs;
+    this.donations.sections = {
         'years':this._years,
         'months':this._months,
-        'payment_statuses':{'label':'', 'type':'paneltabs', 'selected':'0', 
-            'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'invoices' ? 'yes' : 'no');},
-            'tabs':{
-                '0':{'label':'All', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,0);'},
-                '10':{'label':'Payment Required', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,10);'},
-                '40':{'label':'Partial Payment', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,40);'},
-                '50':{'label':'Paid', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,50);'},
-                '55':{'label':'Refund Required', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,55);'},
-                '60':{'label':'Refunded', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,60);'},
-            }},
-        'invoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'monthlyinvoices' || s == 'quarterlyinvoices' || s == 'yearlyinvoices') ? 'yes' : 'no');},
-            'headerValues':['Invoice #','Date','Customer','Amount','Status'],
-            'headerClasses':['', '', '', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', 'alignright', 'alignright'],
-            'hint':'Search invoice # or customer name', 
-            'noData':'No Invoices Found',
-            },
-        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
-            'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status'],
-            'headerClasses':['', '', '', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', 'alignright', 'alignright'],
+        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':4,
+            'headerValues':['Invoice #', 'Date', 'Customer', 'Amount'],
+            'headerClasses':['', '', '', 'alignright'],
+            'cellClasses':['', '', '', 'alignright'],
             'sortable':'yes',
-            'sortTypes':['text', 'date', 'text', 'number', 'text'],
+            'sortTypes':['date', 'text', 'number', 'text', 'number', 'number', 'number'],
             'noData':'No Invoices',
             },
         }
-    this.menu.liveSearchCb = function(s, i, v) {
-        if( s == 'invoice_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
-                'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
-                    M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
-                });
-        }
-    };
-    this.menu.liveSearchResultValue = function(s, f, i, j, d) {
-        if( s == 'invoice_search' || s == 'monthlyinvoice_search' || s == 'quarterlyinvoice_search' || s == 'yearlyinvoice_search' || s == 'order_search' ) { 
-            switch (j) {
-                case 0: return d.invoice.invoice_number;
-                case 1: return d.invoice.invoice_date;
-                case 2: return d.invoice.customer_display_name;
-                case 3: return d.invoice.total_amount_display;
-                case 4: return d.invoice.status_text;
-            }
-        }
-        return '';
-    };
-    this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
-        if( s == 'invoice_search' ) {
-            return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
-        }
-    };
-    this.menu.sectionData = function(s) {
-        if( s == 'invoices' || s == 'items' ) { return this.data[s]; }
-        return this.sections[s].list;
-    };
-    this.menu.noData = function(s) {
+    this.donations.noData = function(s) {
         return this.sections[s].noData;
-    };
-    this.menu.cellValue = function(s, i, j, d) {
-        if( s == 'invoices' ) {
-            switch(j) {
-                case 0: return d.invoice.invoice_number;
-                case 1: return d.invoice.invoice_date;
-                case 2: return d.invoice.customer_display_name;
-                case 3: return d.invoice.total_amount_display;
-                case 4: return d.invoice.status_text;
-            }
-        }
-        if( s == 'categories' ) {
-            return d.category + (d.num_items > 0 ? ' <span class="count">' + d.num_items + '</span>' : '');
-        }
-        if( s == 'items' ) {
-            if( j == 0 ) {
-                return '<span class="subdue">' + (parseInt(i) + 1) + '</span>';
-            }
-            else if( j == 1 ) {
-                if( d.code != null && d.code != '' ) {
-                    return '<span class="maintext">' + d.code + '</span><span class="subtext">' + d.description + '</span>' + (d.notes!=null&&d.notes!=''?'<span class="subsubtext">'+d.notes+'</span>':'');
-                }
-                if( d.notes != null && d.notes != '' ) {
-                    return '<span class="maintext">' + d.description + '</span><span class="subtext">' + d.notes + '</span>';
-                }
-                return d.description;
-            }
-            else if( j == 2 ) {
-                var discount = '';
-                if( d.discount_amount != 0) {
-                    if( d.unit_discount_amount > 0 ) {
-                        discount += '-' + ((d.quantity>0&&d.quantity!=1)?(d.quantity+'@'):'') + '$' + d.unit_discount_amount;
-                    }
-                    if( d.unit_discount_percentage > 0 ) {
-                        if( discount != '' ) { discount += ', '; }
-                        discount += '-' + d.unit_discount_percentage + '%';
-                    }
-                }
-                if( (this.data.flags&0x01) > 0 ) {
-                    return ((d.quantity>0&&d.quantity!=1)?(d.quantity+' @ '):'') + d.unit_discounted_amount_display;
-                } else if( discount != '' ) {
-                    return '<span class="maintext">' + ((d.quantity>0&&d.quantity!=1)?(d.quantity+' @ '):'') + d.unit_amount_display + '</span><span class="subtext">' + discount + ' (-' + d.discount_amount_display + ')</span>';
-                } else {
-                    return ((d.quantity>0&&d.quantity!=1)?(d.quantity+' @ '):'') + d.unit_amount_display;
-                }
-            }
-            else if( j == 3 ) {
-                return '<span class="maintext">' + d.total_amount_display + '</span><span class="subtext">' + ((d.taxtype_name!=null)?d.taxtype_name:'') + '</span>';
-            }
-        }
-    };
-    this.menu.cellSortValue = function(s, i, j, d) {
-        if( s == 'invoices' ) {
-            switch(j) {
-                case 0: return d.invoice.invoice_number;
-                case 1: return d.invoice.invoice_date;
-                case 2: return d.invoice.customer_display_name;
-                case 3: return d.invoice.total_amount;
-                case 4: return d.invoice.status;
-            }
-        }
-    };
-    this.menu.rowFn = function(s, i, d) {
-        if( s == 'invoices' ) {
-            return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
-        }
-        return '';
     }
-    this.menu.footerValue = function(s, i, j, d) {
-        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'invoices' && this.data.totals != null ) {
+    this.donations.cellValue = function(s, i, j, d) {
+        if( s == 'invoices' ) {
+            switch(j) {
+                case 0: return d.invoice_number;
+                case 1: return d.invoice_date;
+                case 2: return d.customer_display_name;
+                case 3: return d.donation_amount_display;
+            }
+        }
+    }
+    this.donations.rowFn = function(s, i, d) {
+        if( s == 'invoices' ) {
+            return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.donations.open();\',\'mc\',{\'invoice_id\':\'' + d.id + '\'});';
+        }
+    }
+    this.donations.footerValue = function(s, i, j, d) {
+        if( s == 'invoices' && this.data.totals != null ) {
             switch(i) {
                 case 0: return this.data.totals.num_invoices;
                 case 1: return '';
                 case 2: return '';
-                case 3: return this.data.totals.total_amount;
-                case 4: return '';
+                case 3: return this.data.totals.donation_amount;
             }
-        } 
-        if( s == 'items' && M.ciniki_sapos_main._tabs.selected == 'categories' && this.data.totals != null ) {
-            switch(i) {
-                case 0: return this.data.totals.num_transactions;
-                case 3: return this.data.totals.total;
-            }
-        }
-        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'monthlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
-            if( i == 3 ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
-            return '';
-        }
-        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'quarterlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
-            if( i == 3 ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
-            return '';
-        }
-        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'yearlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
-            if( i == 3 ) { return this.data.totals.monthly_amount + ' (' + this.data.totals.total_amount + ')';  }
-            return '';
         }
         return null;
     }
-    this.menu.footerClass = function(s, i, d) {
-        if( s == 'invoices' && i == 4 ) { return 'alignright'; }
-        if( s == 'transactions' && i > 1 ) { return 'alignright'; }
+    this.donations.footerClass = function(s, i, d) {
+        if( s == 'invoices' && i > 1 ) { return 'alignright'; }
         return '';
     }
-    this.menu.yearSwitch = function(y) { this.invoices(null,y); }
-    this.menu.monthSwitch = function(m) { this.invoices(null,null,m); }
-    this.menu.open = function(cb, type) {
-        this.delButton('add');
-        this.delButton('download');
-        this.addButton('add', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{});');
-
-        this.sections.years.visible = 'no';
-        this.size = 'full';
-        this.sections.invoices.headerValues = ['Invoice #', 'Date', 'Customer', 'Amount', 'Status'];
-        if( M.ciniki_sapos_main._tabs.selected == 'invoices' ) {
-            this.invoice_type = 10;
-            M.ciniki_sapos_main.menu.invoices(cb);
-            this.addButton('download', 'Excel', 'M.ciniki_sapos_main.menu.downloadExcel();');
-        }
-        else if( M.ciniki_sapos_main._tabs.selected == 'carts' || M.ciniki_sapos_main._tabs.selected == 'pos' || M.ciniki_sapos_main._tabs.selected == 'orders' ) {
-            switch(M.ciniki_sapos_main._tabs.selected) {
-                case 'carts': 
-                    this.sections.invoices.headerValues = ['Cart #', 'Date', 'Customer', 'Amount', 'Status'];
-                    this.sections.invoices.noData = 'No open shopping carts';
-                    M.ciniki_sapos_main.menu.invoices(cb,null,null,20, 0);
-                    break;
-                case 'pos': 
-                    this.sections.invoices.headerValues = ['POS #', 'Date', 'Customer', 'Amount', 'Status'];
-                    this.sections.invoices.noData = 'No open sales';
-                    M.ciniki_sapos_main.menu.invoices(cb,null,null,30, 0);
-                    break;
-                case 'orders': 
-                    this.sections.invoices.headerValues = ['Order #', 'Date', 'Customer', 'Amount', 'Status'];
-                    this.sections.invoices.noData = 'No open orders';
-                    M.ciniki_sapos_main.menu.invoices(cb,null,null,40, 0);
-                    break;
-            }
-        } 
-        else if( M.ciniki_sapos_main._tabs.selected == 'monthlyinvoices' || M.ciniki_sapos_main._tabs.selected == 'quarterlyinvoices' || M.ciniki_sapos_main._tabs.selected == 'yearlyinvoices') {
-            switch(M.ciniki_sapos_main._tabs.selected) {
-                case 'monthlyinvoices': this.invoice_type = 11; break;
-                case 'quarterlyinvoices': this.invoice_type = 16; break;
-                case 'yearlyinvoices': this.invoice_type = 19; break;
-            }
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID, 'sort':'date', 'type':this.invoice_type}, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
-                }
-                var p = M.ciniki_sapos_main.menu;
-                p.data.invoices = rsp.invoices;
-                p.data.totals = rsp.totals;
-                p.refresh();
-                p.show(cb);
-            });
-        }
-    }
-    this.menu.invoices = function(cb, year, month, type, pstatus) {
-        this.sections.years.panel = 'menu';
-        this.sections.months.panel = 'menu';
+    this.donations.yearSwitch = function(y) { this.open(null,y); }
+    this.donations.monthSwitch = function(m) { this.open(null,null,m); }
+    this.donations.open = function(cb, year, month) {
+        this.sections.years.panel = 'donations';
+        this.sections.months.panel = 'donations';
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
-        if( type != null ) { this.invoice_type = type; }
-        if( pstatus != null ) {
-            this.payment_status = pstatus;
-            this.sections.payment_statuses.selected = pstatus;
-        }
-        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
-            'payment_status':this.payment_status, 'type':this.invoice_type, 'sort':'invoice_date'}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.donationList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 
+            'type':'10', 'payment_status':'50', 'stats':'yes', 'sort':'invoice_date'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
-                var p = M.ciniki_sapos_main.menu;
+                var p = M.ciniki_sapos_main.donations;
                 p.data.invoices = rsp.invoices;
                 p.data.totals = rsp.totals;
                 if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
                     var year = new Date().getFullYear();
                     p.sections.years.tabs = {};
-                    p.sections.years.visible = 'no';
                     if( year != rsp.stats.min_invoice_date_year ) {
                         p.sections.years.visible = 'yes';
                     }
@@ -803,22 +623,16 @@ function ciniki_sapos_main() {
                         p.sections.years.selected = year;
                     }
                     for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
-                        p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.menu.yearSwitch(' + i + ');'};
+                        p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.donations.open(null,' + i + ',0);'};
                     }
                 }
                 p.refresh();
                 p.show(cb);
             });
     }
-    this.menu.downloadExcel = function() {
-        var args = {'business_id':M.curBusinessID, 'output':'excel'};
-        if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
-        if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
-        if( this.invoice_type != null ) { args.type = this.invoice_type; }
-        if( this.payment_status != null ) { args.payment_status = this.payment_status; }
-        M.api.openFile('ciniki.sapos.invoiceList', args);
-    }
-    this.menu.addClose('Back');
+    this.donations.addClose('Back');
+
+
     //
     // The categories panel
     //
