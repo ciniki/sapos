@@ -639,7 +639,7 @@ function ciniki_sapos_templates_default(&$ciniki, $business_id, $invoice_id, $bu
     //
     // Check if there is a donation receipt to attached
     //
-    if( $donation_amount > 0 ) {
+    if( $donation_amount >= 25 ) {
         $pdf->header_details = array();
         $pdf->AddPage();
         //
