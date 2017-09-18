@@ -140,6 +140,9 @@ function ciniki_sapos_settings() {
                 'rules-salesreps-invoice-shipping':{'label':'Shipping Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
                 'rules-salesreps-invoice-notes':{'label':'Customer Notes', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
                 }},
+            '_invoice_email_options':{'label':'Invoice Email Options', 'fields':{
+                'invoice-email-all-addresses':{'label':'Multiple emails per customer', 'type':'toggle', 'default':'no', 'toggles':{'no':'Send to one', 'yes':'Send to all'}},
+                }},
             '_invoice_email_msg':{'label':'Default Invoice Email Message', 'fields':{
                 'invoice-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
                 }},
@@ -765,6 +768,7 @@ function ciniki_sapos_settings() {
         //
         this.invoice.sections._salesreps.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0?'yes':'no');
         this.invoice.sections._invoice_email_msg.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x01)>0?'yes':'no';
+        this.invoice.sections._invoice_email_options.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x01)>0&&(M.userPerms&0x01)==0x01?'yes':'no';
         this.invoice.sections._cart_email_msg.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
         this.invoice.sections._pos_email_msg.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x10)>0?'yes':'no';
         this.invoice.sections._order_email_msg.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x20)>0?'yes':'no';

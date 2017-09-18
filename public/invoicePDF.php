@@ -160,23 +160,45 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
         //
         // Add to the mail module
         //
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
-        $rc = ciniki_mail_hooks_addMessage($ciniki, $args['business_id'], array(
-            'object'=>'ciniki.sapos.invoice',
-            'object_id'=>$args['invoice_id'],
-            'customer_id'=>$invoice['customer_id'],
-            'customer_email'=>$invoice['customer']['emails'][0]['email']['address'],
-            'customer_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
-            'subject'=>$subject,
-            'html_content'=>$textmsg,
-            'text_content'=>$textmsg,
-            'attachments'=>array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
-            ));
-        if( $rc['stat'] != 'ok' ) {
-            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.84', 'msg'=>'Unable to create mail message.', 'err'=>$rc['err']));
+        if( isset($sapos_settings['invoice-email-all-addresses']) && $sapos_settings['invoice-email-all-addresses'] == 'yes' ) {
+            foreach($invoice['customer']['emails'] as $e) {
+                ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
+                $rc = ciniki_mail_hooks_addMessage($ciniki, $args['business_id'], array(
+                    'object'=>'ciniki.sapos.invoice',
+                    'object_id'=>$args['invoice_id'],
+                    'customer_id'=>$invoice['customer_id'],
+                    'customer_email'=>$e['email']['address'],
+                    'customer_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
+                    'subject'=>$subject,
+                    'html_content'=>$textmsg,
+                    'text_content'=>$textmsg,
+                    'attachments'=>array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
+                    ));
+                if( $rc['stat'] != 'ok' ) {
+                    ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.84', 'msg'=>'Unable to create mail message.', 'err'=>$rc['err']));
+                }
+                $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$args['business_id']);
+            }
+        } else {
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
+            $rc = ciniki_mail_hooks_addMessage($ciniki, $args['business_id'], array(
+                'object'=>'ciniki.sapos.invoice',
+                'object_id'=>$args['invoice_id'],
+                'customer_id'=>$invoice['customer_id'],
+                'customer_email'=>$invoice['customer']['emails'][0]['email']['address'],
+                'customer_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
+                'subject'=>$subject,
+                'html_content'=>$textmsg,
+                'text_content'=>$textmsg,
+                'attachments'=>array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.84', 'msg'=>'Unable to create mail message.', 'err'=>$rc['err']));
+            }
+            $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$args['business_id']);
         }
-        $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$args['business_id']);
 
         //
         // Commit the transaction
