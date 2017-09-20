@@ -100,6 +100,10 @@ function ciniki_sapos_history($ciniki) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
             return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
                 $args['business_id'], 'ciniki_sapos_invoice_items', $args['object_id'], $args['field'], 'currency');
+        } elseif( $args['field'] == 'force_backorder' ) {
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryFlagBit');
+            return ciniki_core_dbGetModuleHistoryFlagBit($ciniki, 'ciniki.sapos', 'ciniki_sapos_history',
+                $args['business_id'], 'ciniki_sapos_invoice_items', $args['object_id'], 'flags', 0x0200, 'no', 'yes');
         } 
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
         return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', 
