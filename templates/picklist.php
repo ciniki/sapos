@@ -55,6 +55,12 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
     // Get the inventory levels for each object
     //
     foreach($objects as $object => $object_ids) {
+        //
+        // Check if valid object
+        //
+        if( $object == '' ) {
+            continue;
+        }
         list($pkg,$mod,$obj) = explode('.', $object);
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryLevels');
         if( $rc['stat'] == 'ok' ) {
