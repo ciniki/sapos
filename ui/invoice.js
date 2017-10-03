@@ -1542,6 +1542,7 @@ function ciniki_sapos_invoice() {
         } else {
             p.sections._buttons.buttons.picklist.visible = 'no';
         }
+        p.sections._buttons.buttons.picklist.visible = 'no';
         if( rsp.invoice.status > 10 && (M.curBusiness.sapos.settings['ui-options-print-invoice'] == null 
             || M.curBusiness.sapos.settings['ui-options-print-invoice'] == 'yes') 
             ) {
