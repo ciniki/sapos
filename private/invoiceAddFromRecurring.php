@@ -154,6 +154,7 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
         . "ciniki_sapos_invoice_items.line_number, "
         . "ciniki_sapos_invoice_items.flags, "
         . "ciniki_sapos_invoice_items.status, "
+        . "ciniki_sapos_invoice_items.category, "
         . "ciniki_sapos_invoice_items.object, "
         . "ciniki_sapos_invoice_items.object_id, "
         . "ciniki_sapos_invoice_items.price_id, "
@@ -176,7 +177,7 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $business_id, $invoice_id
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'items', 'fname'=>'id',
-            'fields'=>array('id', 'line_number', 'flags', 'status',
+            'fields'=>array('id', 'line_number', 'flags', 'status', 'category', 
                 'object', 'object_id', 'price_id', 'code', 'description', 'quantity', 'shipped_quantity',
                 'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
                 'subtotal_amount', 'discount_amount', 'total_amount', 'taxtype_id', 'notes')),

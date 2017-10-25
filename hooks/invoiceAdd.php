@@ -37,6 +37,16 @@ function ciniki_sapos_hooks_invoiceAdd($ciniki, $business_id, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
     //
+    // Load auto category settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', 'invoice-autocat');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+
+    //
     // Check if payment_status is used
     //
     if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0200) > 0 ) {
@@ -142,6 +152,12 @@ function ciniki_sapos_hooks_invoiceAdd($ciniki, $business_id, $args) {
     foreach($invoice_items as $i => $item) {
         $item['invoice_id'] = $invoice_id;
         $item['line_number'] = $line_number++;
+        //
+        // Check for auto categories
+        //
+        if( isset($settings['invoice-autocat-' . $item['object']]) ) {
+            $item['category'] = $settings['invoice-autocat-' . $item['object']];
+        }
         if( !isset($item['amount']) ) {
             //
             // Calculate the final amount for each item in the invoice

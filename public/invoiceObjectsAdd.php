@@ -38,6 +38,16 @@ function ciniki_sapos_invoiceObjectsAdd(&$ciniki) {
         return $rc;
     }
 
+    //
+    // Load auto category settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $args['business_id'], 'ciniki.sapos', 'settings', 'invoice-autocat');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
     //
@@ -161,6 +171,12 @@ function ciniki_sapos_invoiceObjectsAdd(&$ciniki) {
     foreach($invoice_items as $i => $item) {
         $item['invoice_id'] = $args['invoice_id'];
         $item['line_number'] = $line_number++;
+        //
+        // Check for auto categories
+        //
+        if( isset($settings['invoice-autocat-' . $item['object']]) ) {
+            $item['category'] = $settings['invoice-autocat-' . $item['object']];
+        }
         if( !isset($item['amount']) ) {
             //
             // Calculate the final amount for each item in the invoice

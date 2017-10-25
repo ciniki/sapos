@@ -99,6 +99,16 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
     }
 
     //
+    // Load auto category settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $args['business_id'], 'ciniki.sapos', 'settings', 'invoice-autocat');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+
+    //
     // Force the invoice_date and due_date to be a date time with 12:00:00 (noon)
     // This is used for calculating taxes based on invoice_date
     //
@@ -235,6 +245,12 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
     foreach($invoice_items as $i => $item) {
         $item['invoice_id'] = $invoice_id;
         $item['line_number'] = $line_number++;
+        //
+        // Check for auto categories
+        //
+        if( isset($settings['invoice-autocat-' . $item['object']]) ) {
+            $item['category'] = $settings['invoice-autocat-' . $item['object']];
+        }
         if( !isset($item['amount']) ) {
             //
             // Calculate the final amount for each item in the invoice

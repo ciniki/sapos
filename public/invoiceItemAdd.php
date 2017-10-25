@@ -20,6 +20,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'),
         'line_number'=>array('required'=>'no', 'blank'=>'no', 'default'=>'1', 'name'=>'Line Number'),
         'status'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Status'),
+        'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Options'),
         'object'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Object'),
         'object_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Object ID'),
@@ -55,8 +56,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
     //
     // Load the settings
     //
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 
-        'business_id', $args['business_id'], 'ciniki.sapos', 'settings', '');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $args['business_id'], 'ciniki.sapos', 'settings', '');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -220,6 +220,13 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
     $item_id = 0;
     for($line_num = 1; $line_num<=$num_lines; $line_num++) {
         if( $existing_id == 0 ) {
+            //
+            // Check for auto categories
+            //
+            if( (!isset($args['category']) || $args['category'] != '') && isset($args['object']) && isset($settings['invoice-autocat-' . $args['object']]) ) {
+                $args['category'] = $settings['invoice-autocat-' . $args['object']];
+            }
+
             //
             // Add the item
             //

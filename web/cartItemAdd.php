@@ -12,6 +12,16 @@
 function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
 
     //
+    // Load auto category settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', 'invoice-autocat');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $sapos_settings = isset($rc['settings']) ? $rc['settings'] : array();
+
+    //
     // Check that a cart does not exist
     //
     if( isset($ciniki['session']['cart']['sapos_id']) && $ciniki['session']['cart']['sapos_id'] > 0 ) {
@@ -136,8 +146,14 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartAdd');
             if( $rc['stat'] == 'ok' ) {
                 $itemAddCBfn = $rc['function_call'];
-
             }
+        }
+
+        //
+        // Check for auto categories
+        //
+        if( isset($sapos_settings['invoice-autocat-' . $args['object']]) ) {
+            $args['category'] = $sapos_settings['invoice-autocat-' . $args['object']];
         }
 
         //

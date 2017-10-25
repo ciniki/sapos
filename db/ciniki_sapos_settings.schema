@@ -44,6 +44,12 @@
 # paypal-live-clientid:
 # paypal-live-secret:
 #
+# Auto Invoice Item Categories
+# ----------------------------
+# invoice-autocat-object:       The default category to assign for invoice items what object. The object
+#                               is returned from sapos/objectList hooks, and should be in the format:
+#                               ciniki.events.registration, ciniki.courses.offering_registration, etc.
+#
 # Fields
 # ======
 # business_id:  The id of the business the detail is for.
