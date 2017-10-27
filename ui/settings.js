@@ -18,7 +18,7 @@ function ciniki_sapos_settings() {
             'quote':{'label':'Quote Settings', 'fn':'M.ciniki_sapos_settings.quote.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
         'invoice':{'label':'Invoices', 'list':{
-            'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.editInvoice(\'M.ciniki_sapos_settings.menu.open();\');'},
+            'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.invoice.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.qi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             'rules':{'label':'Rules', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showRules(\'M.ciniki_sapos_settings.menu.open();\',\'invoice\');'},
             'reports':{'label':'Reports', 
@@ -194,7 +194,7 @@ function ciniki_sapos_settings() {
 
             }},
         '_buttons':{'label':'', 'buttons':{
-            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.saveInvoice();'},
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.invoice.save();'},
             }},
     }
     this.invoice.fieldHistoryArgs = function(s, i) {
@@ -213,7 +213,7 @@ function ciniki_sapos_settings() {
         this.setFieldValue(fid, 0);
         return true;
     }
-    this.editInvoice = function(cb) {
+    this.invoice.open = function(cb) {
         M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
@@ -225,7 +225,7 @@ function ciniki_sapos_settings() {
             p.show(cb);
         });
     }
-    this.saveInvoice = function() {
+    this.invoice.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
             M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
@@ -240,7 +240,7 @@ function ciniki_sapos_settings() {
             this.close();
         }
     }
-    this.invoice.addButton('save', 'Save', 'M.ciniki_sapos_settings.saveInvoice();');
+    this.invoice.addButton('save', 'Save', 'M.ciniki_sapos_settings.invoice.save();');
     this.invoice.addClose('Cancel');
 
     //
