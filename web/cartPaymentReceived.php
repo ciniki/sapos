@@ -66,7 +66,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
         // Load the invoice settings
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-        $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', 'invoice');
+        $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', '');
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
