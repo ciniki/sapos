@@ -14,37 +14,58 @@ function ciniki_sapos_settings() {
     //
     this.menu = new M.panel('Settings', 'ciniki_sapos_settings', 'menu', 'mc', 'narrow', 'sectioned', 'ciniki.sapos.settings.menu');
     this.menu.sections = {
-        'quote':{'label':'Quotes', 'list':{
-            'quote':{'label':'Quote Settings', 'fn':'M.ciniki_sapos_settings.quote.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+        'quote':{'label':'Quotes', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x010000); },
+            'list':{
+                'quote':{'label':'Quote Settings', 'fn':'M.ciniki_sapos_settings.quote.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
-        'invoice':{'label':'Invoices', 'list':{
-            'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.invoice.open(\'M.ciniki_sapos_settings.menu.open();\');'},
-            'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.qi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
-            'rules':{'label':'Rules', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showRules(\'M.ciniki_sapos_settings.menu.open();\',\'invoice\');'},
-            'reports':{'label':'Reports', 
-                'visible':function() {return ((M.userPerms&0x01)>0?'yes':'no');},
-                'fn':'M.ciniki_sapos_settings.invoicereports.open(\'M.ciniki_sapos_settings.menu.open();\',\'invoicereports\');'},
-            'categories':{'label':'Categories',
-                'visible':function() {return (M.modFlagOn('ciniki.sapos', 0x01000000) && (M.userPerms&0x01)>0?'yes':'no');},
-                'fn':'M.ciniki_sapos_settings.categories.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+        'invoice':{'label':'Invoices', 
+            'visible':function() { return M.modFlagAny('ciniki.sapos', 0x35); },
+            'list':{
+                'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.invoice.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+                'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.qi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+                'rules':{'label':'Rules', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showRules(\'M.ciniki_sapos_settings.menu.open();\',\'invoice\');'},
+                'reports':{'label':'Reports', 
+                    'visible':function() {return ((M.userPerms&0x01)>0?'yes':'no');},
+                    'fn':'M.ciniki_sapos_settings.invoicereports.open(\'M.ciniki_sapos_settings.menu.open();\',\'invoicereports\');'},
+                'categories':{'label':'Categories',
+                    'visible':function() {return (M.modFlagOn('ciniki.sapos', 0x01000000) && (M.userPerms&0x01)>0?'yes':'no');},
+                    'fn':'M.ciniki_sapos_settings.categories.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
-        'shipments':{'label':'Shipments', 'visible':'no', 'list':{
-            'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.shipment.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+        'shipments':{'label':'Shipments', 'visible':'no', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40); },
+            'list':{
+                'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.shipment.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
-        'expenses':{'label':'Expenses', 'visible':'no', 'list':{
-            'expenses':{'label':'Expense Categories', 'fn':'M.ciniki_sapos_settings.ecats.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+        'expenses':{'label':'Expenses', 'visible':'no', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x02); },
+            'list':{
+                'expenses':{'label':'Expense Categories', 'fn':'M.ciniki_sapos_settings.ecats.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
-        'mileage':{'label':'Mileage', 'visible':'no', 'list':{
-            'mileagerates':{'label':'Rates', 'fn':'M.ciniki_sapos_settings.mrates.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+        'mileage':{'label':'Mileage', 'visible':'no', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x0100); },
+            'list':{
+                'mileagerates':{'label':'Rates', 'fn':'M.ciniki_sapos_settings.mrates.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
-        'paypalapi':{'label':'Paypal API', 'list':{
-            'paypalapi':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalapi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+        'paypalapi':{'label':'Paypal API', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x0200); },
+            'list':{
+                'paypalapi':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalapi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
-        'paypalec':{'label':'Paypal Express Checkout', 'list':{
-            'paypalec':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalec.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+        'stripe':{'label':'', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x800000); },
+            'list':{
+                'paypalapi':{'label':'Stripe', 'fn':'M.ciniki_sapos_settings.stripe.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
-        'paypalpayments':{'label':'Paypal Checkout', 'list':{
-            'paypalpayments':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalpayments.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+        'paypalec':{'label':'Paypal Express Checkout', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x200000); },
+            'list':{
+                'paypalec':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalec.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+            }},
+        'paypalpayments':{'label':'Paypal Checkout', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x100000); },
+            'list':{
+                'paypalpayments':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalpayments.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
         'donations':{'label':'Donations', 
             'visible':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
@@ -54,7 +75,7 @@ function ciniki_sapos_settings() {
             }},
     }
     this.menu.open = function(cb) {
-        this.sections.invoice.list.qi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
+/*        this.sections.invoice.list.qi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
         this.sections.quote.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x010000)>0?'yes':'no';
         this.sections.invoice.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x35)>0?'yes':'no';
         this.sections.shipments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0?'yes':'no';
@@ -62,7 +83,7 @@ function ciniki_sapos_settings() {
         this.sections.mileage.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100)>0?'yes':'no';
         this.sections.paypalapi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0?'yes':'no';
         this.sections.paypalec.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x200000)>0?'yes':'no';
-        this.sections.paypalpayments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100000)>0?'yes':'no';
+        this.sections.paypalpayments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100000)>0?'yes':'no'; */
         this.refresh();
         this.show(cb);
     }
@@ -910,6 +931,54 @@ function ciniki_sapos_settings() {
     }
     this.paypalpayments.addButton('save', 'Save', 'M.ciniki_sapos_settings.paypalpayments.save();');
     this.paypalpayments.addClose('Cancel');
+
+    //
+    // The Stripe settings panel
+    //
+    this.stripe = new M.panel('Stripe', 'ciniki_sapos_settings', 'stripe', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.stripe');
+    this.stripe.sections = {
+        'stripe':{'label':'Paypal', 'fields':{
+            'stripe-pk':{'label':'Publishable key', 'type':'text'},
+            'stripe-sk':{'label':'Secret key', 'type':'text'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.stripe.save();'},
+            }},
+    }
+    this.stripe.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
+    }
+    this.stripe.fieldValue = function(s, i, d) {
+        return this.data[i];
+    }
+    this.stripe.open = function(cb) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.stripe;
+            p.data = rsp.settings;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.stripe.save = function() {
+        var c = this.serializeForm('no');
+        if( c != '' ) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.stripe.close();
+            });
+        } else {
+            this.close();
+        }
+    }
+    this.stripe.addButton('save', 'Save', 'M.ciniki_sapos_settings.stripe.save();');
+    this.stripe.addClose('Cancel');
 
     //
     // The donation settings panel

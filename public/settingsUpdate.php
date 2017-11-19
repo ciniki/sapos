@@ -115,6 +115,8 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'quote-bottom-message',
         'quote-footer-message',
         'quote-email-message',
+        'stripe-pk',
+        'stripe-sk',
         'donation-receipt-header-image',
         'donation-receipt-header-contact-position',
         'donation-receipt-header-business-name',

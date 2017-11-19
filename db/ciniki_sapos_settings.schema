@@ -44,6 +44,11 @@
 # paypal-live-clientid:
 # paypal-live-secret:
 #
+# Stripe Settings
+# ---------------
+# stripe-pk:                    The publishable key.
+# stripe-sk:                    The secret key.
+#
 # Auto Invoice Item Categories
 # ----------------------------
 # invoice-autocat-object:       The default category to assign for invoice items what object. The object

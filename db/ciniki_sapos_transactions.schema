@@ -37,6 +37,7 @@
 #                       0 - unknown
 #                       10 - paypal
 #                       20 - Square
+#                       30 - Stripe
 #                       50 - Visa
 #                       55 - Mastercard
 #                       60 - Discover
