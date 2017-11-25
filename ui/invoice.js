@@ -887,8 +887,8 @@ function ciniki_sapos_invoice() {
             this.invoiceStatuses['30'] = 'Pending Shipping';
             this.orderStatuses['30'] = 'Pending Shipping';
         }
+        this.invoiceStatuses['40'] = 'Payment Required';
         if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0200) > 0 ) {
-            this.invoiceStatuses['40'] = 'Payment Required';
             this.orderStatuses['40'] = 'Payment Required';
         }
         this.invoiceStatuses['50'] = 'Paid';
