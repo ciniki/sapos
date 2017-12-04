@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_id, $args) {
+function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $tnid, $args) {
 
     //
     // Check that an item was specified
@@ -37,7 +37,7 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
         . "AND invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
     if( $rc['stat'] != 'ok' ) { 
@@ -56,7 +56,7 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemPaymentReceived');
         if( $rc['stat'] == 'ok' ) {
             $fn = $rc['function_call'];
-            $rc = $fn($ciniki, $business_id, $ciniki['session']['customer'], array(
+            $rc = $fn($ciniki, $tnid, $ciniki['session']['customer'], array(
                 'object'=>$item['object'],
                 'object_id'=>$item['object_id'],
                 'price_id'=>$item['price_id'],
@@ -72,7 +72,7 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_
             // Update the invoice item with the new object and object_id
             //
             if( (isset($rc['object']) && $rc['object'] != $item['object']) || (isset($rc['flags']) && $rc['flags'] != $args['flags'])) {
-                $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item', $item['id'], $rc, 0x04);
+                $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', $item['id'], $rc, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }

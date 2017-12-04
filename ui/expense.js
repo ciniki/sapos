@@ -60,7 +60,7 @@ function ciniki_sapos_expense() {
         };
         this.expense.addDropImage = function(iid) {
             var rsp = M.api.getJSON('ciniki.sapos.expenseImageAdd',
-                {'business_id':M.curBusinessID, 'image_id':iid,
+                {'tnid':M.curTenantID, 'image_id':iid,
                     'expense_id':M.ciniki_sapos_expense.expense.expense_id});
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
@@ -70,7 +70,7 @@ function ciniki_sapos_expense() {
         };
         this.expense.addDropImageRefresh = function() {
             if( M.ciniki_sapos_expense.expense.expense_id > 0 ) {
-                var rsp = M.api.getJSONCb('ciniki.sapos.expenseGet', {'business_id':M.curBusinessID, 
+                var rsp = M.api.getJSONCb('ciniki.sapos.expenseGet', {'tnid':M.curTenantID, 
                     'expense_id':M.ciniki_sapos_expense.expense.expense_id, 'images':'yes'}, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -116,7 +116,7 @@ function ciniki_sapos_expense() {
         };
         this.edit.liveSearchCb = function(s, i, v) {
             if( i == 'name' ) {
-                M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'business_id':M.curBusinessID,
+                M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'tnid':M.curTenantID,
                     'items':'yes', 'start_needle':v, 'limit':15}, function(rsp) {
                         M.ciniki_sapos_expense.edit.searchExpenseResults = rsp.expenses;
                         M.ciniki_sapos_expense.edit.liveSearchShow(s,i,M.gE(M.ciniki_sapos_expense.edit.panelUID+'_'+i), rsp.expenses);
@@ -152,10 +152,10 @@ function ciniki_sapos_expense() {
         };
         this.edit.fieldHistoryArgs = function(s, i) {
             if( s == 'items' ) {
-                return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+                return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                     'object':'ciniki.sapos.expense_item', 'object_id':this.expense_id, 'field':i}};
             }
-            return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.expense', 'object_id':this.expense_id, 'field':i}};
         };
         this.edit.addButton('save', 'Save', 'M.ciniki_sapos_expense.saveExpense();');
@@ -171,7 +171,7 @@ function ciniki_sapos_expense() {
             return false;
         }
 
-        M.api.getJSONCb('ciniki.sapos.expenseCategoryList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.expenseCategoryList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -195,7 +195,7 @@ function ciniki_sapos_expense() {
     this.showExpense = function(cb, eid) {
         if( eid != null ) { this.expense.expense_id = eid; }
         if( this.expense.expense_id > 0 ) {
-            M.api.getJSONCb('ciniki.sapos.expenseGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.expenseGet', {'tnid':M.curTenantID,
                 'expense_id':this.expense.expense_id, 'images':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -216,7 +216,7 @@ function ciniki_sapos_expense() {
         if( this.edit.expense_id > 0 ) {
             this.edit.sections._buttons.buttons.delete.visible = 'yes';
             this.edit.sections._buttons.buttons.saveadd.visible = 'no';
-            M.api.getJSONCb('ciniki.sapos.expenseGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.expenseGet', {'tnid':M.curTenantID,
                 'expense_id':this.edit.expense_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -252,7 +252,7 @@ function ciniki_sapos_expense() {
         if( this.edit.expense_id > 0 ) {
             var c = this.edit.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.expenseUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.expenseUpdate', {'tnid':M.curTenantID,
                     'expense_id':this.edit.expense_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -266,7 +266,7 @@ function ciniki_sapos_expense() {
         } else {
             var c = this.edit.serializeForm('yes');
             M.api.postJSONCb('ciniki.sapos.expenseAdd', 
-                {'business_id':M.curBusinessID}, c, function(rsp) {
+                {'tnid':M.curTenantID}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -280,7 +280,7 @@ function ciniki_sapos_expense() {
     this.deleteExpense = function(eid) {
         if( eid <= 0 ) { return false; }
         if( confirm("Are you sure you want to remove this expense?") ) {
-            M.api.getJSONCb('ciniki.sapos.expenseDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.expenseDelete', {'tnid':M.curTenantID,
                 'expense_id':eid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

@@ -7,19 +7,19 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The business ID to check the session user against.
+// tnid:         The tenant ID to check the session user against.
 // method:              The requested method.
 //
 // Returns
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id, $images) {
+function ciniki_sapos_expenseLoad($ciniki, $tnid, $expense_id, $images) {
     //
-    // Get the time information for business and user
+    // Get the time information for tenant and user
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -48,7 +48,7 @@ function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id, $images) {
         . "notes "
         . "FROM ciniki_sapos_expenses "
         . "WHERE ciniki_sapos_expenses.id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
-        . "AND ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_expenses.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
@@ -82,10 +82,10 @@ function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id, $images) {
         . "ciniki_sapos_expense_items.notes "
         . "FROM ciniki_sapos_expense_items "
         . "LEFT JOIN ciniki_sapos_expense_categories ON (ciniki_sapos_expense_items.category_id = ciniki_sapos_expense_categories.id "
-            . "AND ciniki_sapos_expense_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_sapos_expense_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE ciniki_sapos_expense_items.expense_id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
-        . "AND ciniki_sapos_expense_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_expense_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "ORDER BY ciniki_sapos_expense_categories.sequence "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -111,7 +111,7 @@ function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id, $images) {
     if( $images == 'yes' ) {
         $strsql = "SELECT id, image_id "
             . "FROM ciniki_sapos_expense_images "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND expense_id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
             . "";
         $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -126,7 +126,7 @@ function ciniki_sapos_expenseLoad($ciniki, $business_id, $expense_id, $images) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheThumbnail');
             foreach($images as $iid => $img ) {
                 if( $img['image']['image_id'] > 0 ) {
-                    $rc = ciniki_images_loadCacheThumbnail($ciniki, $args['business_id'], $img['image']['image_id'], 75);
+                    $rc = ciniki_images_loadCacheThumbnail($ciniki, $args['tnid'], $img['image']['image_id'], 75);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }

@@ -16,7 +16,7 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Invoice'), 
         'type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Card Type'),
         'number'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Card Number'),
@@ -43,10 +43,10 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.paypalProcess'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.paypalProcess'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -55,7 +55,7 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
     // Load paypal settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $args['business_id'], 'ciniki.sapos', 'settings', 'paypal');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', 'paypal');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -242,7 +242,7 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
         'source'=>'10',
         'customer_amount'=>$args['total'],
         'transaction_fees'=>0,
-        'business_amount'=>$args['total'],
+        'tenant_amount'=>$args['total'],
         'user_id'=>$ciniki['session']['user']['id'],
         'notes'=>'',
         'gateway'=>'10',
@@ -259,10 +259,10 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
     if( isset($paypal_response['transactions'][0]['amount']['details']['fee']) ) {
         $fee = $paypal_response['transactions'][0]['amount']['details']['fee'];
         $transaction['transaction_fees'] = $fee;
-        $transaction['business_amount'] = bcsub($transaction['customer_amount'], $fee, 2);
+        $transaction['tenant_amount'] = bcsub($transaction['customer_amount'], $fee, 2);
     }
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-    $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.sapos.transaction', $transaction, 0x04);
+    $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.sapos.transaction', $transaction, 0x04);
     if( $rc['stat'] != 'ok' ) {
         error_log('ERR: paypal transaction completed, but failed to add transaction to database');
         return $rc;
@@ -276,7 +276,7 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
         // Update the shipping costs, taxes, and total
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $args['invoice_id']);
+        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['tnid'], $args['invoice_id']);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
             return $rc;
@@ -293,11 +293,11 @@ function ciniki_sapos_paypalProcess(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'sapos');
 
     return array('stat'=>'ok');
 }

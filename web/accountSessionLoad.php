@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $business_id) {
+function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $tnid) {
 
     //
     // Check if the customer is signed in and look for an open cart
@@ -20,7 +20,7 @@ function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $business_id) 
         ) {
         $strsql = "SELECT id "
             . "FROM ciniki_sapos_invoices "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND customer_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['customer']['id']) . "' "
             . "AND invoice_type = 20 "
             . "AND status = 10 "
@@ -43,7 +43,7 @@ function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $business_id) 
     //
     if( isset($ciniki['session']['cart']['sapos_id']) && $ciniki['session']['cart']['sapos_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-        $rc = ciniki_sapos_invoiceLoad($ciniki, $business_id, $ciniki['session']['cart']['sapos_id']);
+        $rc = ciniki_sapos_invoiceLoad($ciniki, $tnid, $ciniki['session']['cart']['sapos_id']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -68,7 +68,7 @@ function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $business_id) 
 
         if( isset($rc['invoice']['customer_id']) && $rc['invoice']['customer_id'] == 0 ) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartCustomerUpdate');
-            $rc = ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $business_id);
+            $rc = ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $tnid);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

@@ -9,14 +9,14 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_customerOrder(&$ciniki, $settings, $business_id, $customer_id, $args) {
+function ciniki_sapos_web_customerOrder(&$ciniki, $settings, $tnid, $customer_id, $args) {
 
     if( !isset($args['invoice_id']) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.171', 'msg'=>"No invoice specified"));
     }
 
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -37,7 +37,7 @@ function ciniki_sapos_web_customerOrder(&$ciniki, $settings, $business_id, $cust
     // Load the invoice
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-    $rc = ciniki_sapos_invoiceLoad($ciniki, $business_id, $args['invoice_id']);
+    $rc = ciniki_sapos_invoiceLoad($ciniki, $tnid, $args['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -49,7 +49,7 @@ function ciniki_sapos_web_customerOrder(&$ciniki, $settings, $business_id, $cust
     if( isset($invoice['shipments']) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentLoad');
         foreach($invoice['shipments'] as $sid => $shipment) {
-            $rc = ciniki_sapos_shipmentLoad($ciniki, $business_id, $shipment['shipment']['id']);
+            $rc = ciniki_sapos_shipmentLoad($ciniki, $tnid, $shipment['shipment']['id']);
             if( $rc['stat'] != 'ok' ) {
                 continue;
             }

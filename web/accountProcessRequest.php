@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id, $args) {
+function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $tnid, $args) {
 
     $page = array(
         'title'=>'Orders',
@@ -21,10 +21,10 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
 
 
     //
-    // Get business/user settings
+    // Get tenant/user settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $ciniki['request']['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $ciniki['request']['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -33,7 +33,7 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
     $intl_currency = $rc['settings']['intl-default-currency'];
     
     $codes = 'no';
-    if( isset($ciniki['business']['modules']['ciniki.sapos']['flags']) && ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0400) == 0x0400 ) {
+    if( isset($ciniki['tenant']['modules']['ciniki.sapos']['flags']) && ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x0400) == 0x0400 ) {
         $codes = 'yes';
     }
 
@@ -41,7 +41,7 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
     // Load the customer invoices
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'customerOrders');
-    $rc = ciniki_sapos_web_customerOrders($ciniki, $settings, $ciniki['request']['business_id'], $ciniki['session']['customer']['id'], array());
+    $rc = ciniki_sapos_web_customerOrders($ciniki, $settings, $ciniki['request']['tnid'], $ciniki['session']['customer']['id'], array());
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -61,7 +61,7 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $business_id
             foreach($invoices as $invoice) {
                 if( $invoice['id'] == $invoice_id ) {
                     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'customerOrder');
-                    $rc = ciniki_sapos_web_customerOrder($ciniki, $settings, $ciniki['request']['business_id'], 
+                    $rc = ciniki_sapos_web_customerOrder($ciniki, $settings, $ciniki['request']['tnid'], 
                         $ciniki['session']['customer']['id'], array('invoice_id'=>$invoice['id']));
                     if( $rc['stat'] != 'ok' ) {
                         $page['blocks'][] = array('type'=>'formmessage', 'level'=>'error', 

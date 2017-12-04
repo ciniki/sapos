@@ -10,7 +10,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:            The ID of the business to get the details for.
+// tnid:            The ID of the tenant to get the details for.
 // invoice_id:            The ID of the invoice to get the history for.
 // field:                The field to get the history for. 
 //
@@ -27,7 +27,7 @@ function ciniki_sapos_invoiceHistory($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'field'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'field'), 
         ));
@@ -37,24 +37,24 @@ function ciniki_sapos_invoiceHistory($ciniki) {
     $args = $rc['args'];
     
     //
-    // Check access to business_id as owner, or sys admin
+    // Check access to tnid as owner, or sys admin
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceHistory');
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.invoiceHistory');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
 
     if( $args['field'] == 'invoice_date' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
-        return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field'],'date');
+        return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['tnid'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field'],'date');
     }
     if( $args['field'] == 'due_date' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistoryReformat');
-        return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field'], 'date');
+        return ciniki_core_dbGetModuleHistoryReformat($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['tnid'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field'], 'date');
     }
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbGetModuleHistory');
-    return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field']);
+    return ciniki_core_dbGetModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['tnid'], 'ciniki_sapos_invoices', $args['invoice_id'], $args['field']);
 }
 ?>

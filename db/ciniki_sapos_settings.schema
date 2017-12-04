@@ -11,12 +11,12 @@
 # invoice-header-image:             The ID of the image to use has a logo or header on the invoice.
 #
 # invoice-header-contact-position:  (left|center|right|off) the position of the address information.
-# invoice-header-business-name:     (yes|no) Include the business name.
-# invoice-header-business-address:  (yes|no) Include the business name.
-# invoice-header-business-phone:    (yes|no) Include the business phone number.
-# invoice-header-business-fax:      (yes|no) Include the business fax number.
-# invoice-header-business-email:    (yes|no) Include the business contact email.
-# invoice-header-business-website:  (yes|no) Include the business website.
+# invoice-header-tenant-name:     (yes|no) Include the tenant name.
+# invoice-header-tenant-address:  (yes|no) Include the tenant name.
+# invoice-header-tenant-phone:    (yes|no) Include the tenant phone number.
+# invoice-header-tenant-fax:      (yes|no) Include the tenant fax number.
+# invoice-header-tenant-email:    (yes|no) Include the tenant contact email.
+# invoice-header-tenant-website:  (yes|no) Include the tenant website.
 #
 # invoice-bottom-message:           The text to show before the footer.
 # invoice-footer-message:           The text to show in the footer of the invoice.
@@ -27,12 +27,12 @@
 #
 # Fiscal Year Settings
 # --------------------
-# fiscal-yearend-month:         The year end for the business.  Used for accounting purposes.  Default is 12.
-# fiscal-yearend-day:           The year end for the business.  Used for accounting purposes.  Default is 31.
+# fiscal-yearend-month:         The year end for the tenant.  Used for accounting purposes.  Default is 12.
+# fiscal-yearend-day:           The year end for the tenant.  Used for accounting purposes.  Default is 31.
 #
 # Paypal Settings
 # ---------------
-# paypal-api-processing:        (yes|no) Does the business have access to paypal API Credit Card processing.
+# paypal-api-processing:        (yes|no) Does the tenant have access to paypal API Credit Card processing.
 #                               This typicall is available if they have the virtual terminal ability.
 #
 # paypal-test-account:          The dummy email address used for the test account.
@@ -57,18 +57,18 @@
 #
 # Fields
 # ======
-# business_id:  The id of the business the detail is for.
+# tnid:         The id of the tenant the detail is for.
 # detail_key:   The unique key for the detail.
 # detail_value: The value stored for this key.
 # date_added:   The date and time the entry was created in the database.
 # last_updated: The date and time the entry was last updated.
 #
 create table ciniki_sapos_settings (
-    business_id int not null,
+    tnid int not null,
     detail_key varchar(100) not null,
     detail_value varchar(20000) not null,
     date_added datetime not null,
     last_updated datetime not null,
-    primary key (business_id, detail_key),
+    primary key (tnid, detail_key),
     index (last_updated)
 ) ENGINE=InnoDB, COMMENT='v1.01';

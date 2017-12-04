@@ -15,7 +15,7 @@ function ciniki_sapos_expenseDelete(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'expense_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Expense'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -25,10 +25,10 @@ function ciniki_sapos_expenseDelete(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.expenseDelete'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.expenseDelete'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -37,7 +37,7 @@ function ciniki_sapos_expenseDelete(&$ciniki) {
     // Load the expense record
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'expenseLoad');
-    $rc = ciniki_sapos_expenseLoad($ciniki, $args['business_id'], $args['expense_id'], 'no');
+    $rc = ciniki_sapos_expenseLoad($ciniki, $args['tnid'], $args['expense_id'], 'no');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -60,7 +60,7 @@ function ciniki_sapos_expenseDelete(&$ciniki) {
     //
     if( isset($expense['items']) && count($expense['items']) > 0 ) {
         foreach($expense['items'] as $iid => $item) {
-            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.expense_item', 
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.sapos.expense_item', 
                 $item['item']['id'], NULL, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -72,7 +72,7 @@ function ciniki_sapos_expenseDelete(&$ciniki) {
     //
     // Remove the expense
     //
-    $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.expense', 
+    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.sapos.expense', 
         $args['expense_id'], NULL, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -89,11 +89,11 @@ function ciniki_sapos_expenseDelete(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'sapos');
 
     return array('stat'=>'ok');
 }

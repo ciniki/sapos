@@ -7,19 +7,19 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The business ID to check the session user against.
+// tnid:         The tenant ID to check the session user against.
 // method:              The requested method.
 //
 // Returns
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_invoiceAddFromExisting($ciniki, $business_id, $invoice_id) {
+function ciniki_sapos_invoiceAddFromExisting($ciniki, $tnid, $invoice_id) {
     //
-    // Get the time information for business and user
+    // Get the time information for tenant and user
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -89,10 +89,10 @@ function ciniki_sapos_invoiceAddFromExisting($ciniki, $business_id, $invoice_id)
         . "submitted_by "
         . "FROM ciniki_sapos_invoices "
         . "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     // Check if only a sales rep
-    if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
+    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
         $strsql .= "AND ciniki_sapos_invoices.salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' ";
     }
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -120,7 +120,7 @@ function ciniki_sapos_invoiceAddFromExisting($ciniki, $business_id, $invoice_id)
     $invoice = $rc['invoices'][0]['invoice'];
 
     //
-    // Set the time to business timezone
+    // Set the time to tenant timezone
     //
     $invoice_date = new DateTime($invoice['invoice_date'], new DateTimeZone('UTC'));
     $invoice_date->setTimezone(new DateTimeZone($intl_timezone));
@@ -152,7 +152,7 @@ function ciniki_sapos_invoiceAddFromExisting($ciniki, $business_id, $invoice_id)
     //
     $strsql = "SELECT MAX(CAST(invoice_number AS UNSIGNED)) AS curmax "
         . "FROM ciniki_sapos_invoices "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'max_num');
     if( $rc['stat'] != 'ok' ) {
@@ -168,7 +168,7 @@ function ciniki_sapos_invoiceAddFromExisting($ciniki, $business_id, $invoice_id)
     //
     // Save the invoice
     //
-    $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice', $new_invoice, 0x04);
+    $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.invoice', $new_invoice, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
@@ -185,11 +185,11 @@ function ciniki_sapos_invoiceAddFromExisting($ciniki, $business_id, $invoice_id)
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $business_id, 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $tnid, 'ciniki', 'sapos');
 
     return array('stat'=>'ok', 'id'=>$new_invoice_id);
 }

@@ -10,13 +10,13 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $business_id, $args) {
+function ciniki_sapos_web_paypalExpressCheckoutGet(&$ciniki, $tnid, $args) {
 
     //
     // Load paypal settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', 'paypal');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', 'paypal');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

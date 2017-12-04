@@ -11,7 +11,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $business_id) {
+function ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $tnid) {
 
     //
     // Check that a cart does not exist
@@ -30,7 +30,7 @@ function ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $business_id) {
         if( isset($ciniki['session']['customer']['id']) && $ciniki['session']['customer']['id'] > 0 ) {
             $cart_args['customer_id'] = $ciniki['session']['customer']['id'];
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'getCustomer');
-            $rc = ciniki_sapos_getCustomer($ciniki, $business_id, $cart_args);
+            $rc = ciniki_sapos_getCustomer($ciniki, $tnid, $cart_args);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -40,7 +40,7 @@ function ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $business_id) {
             // Update the cart
             //
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-            $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', $ciniki['session']['cart']['sapos_id'], $cart_args, 0x07);
+            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', $ciniki['session']['cart']['sapos_id'], $cart_args, 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.147', 'msg'=>'Internal error', 'err'=>$rc['err']));
             }

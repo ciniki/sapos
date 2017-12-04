@@ -1,7 +1,7 @@
 #
 # Description
 # -----------
-# The ciniki_sapos_invoices stores the invoice data for a business.  Each entry is an invoice
+# The ciniki_sapos_invoices stores the invoice data for a tenant.  Each entry is an invoice
 # with the line items being stored in ciniki_sapos_invoice_items table.
 #
 # The billing and shipping addresses are stored in this table incase they are changed, we know where
@@ -11,7 +11,7 @@
 # ------
 # id:                   The invoice ID.
 # uuid:                 The Universal Unique ID for the invoice.
-# business_id:          The business the invoice is for.
+# tnid:                 The tenant the invoice is for.
 #
 # source_id:            The ID of the recurring or parent invoice that created this invoice.
 #
@@ -82,11 +82,11 @@
 #                       0x04 -
 #                       0x08 - 
 #
-# invoice_date:         The UTC date and time for the invoice.  When returning to the business,
-#                       it should be converted to local timezone.  Most businesses won't care about
+# invoice_date:         The UTC date and time for the invoice.  When returning to the tenant,
+#                       it should be converted to local timezone.  Most tenants won't care about
 #                       the time, just the date.  The time is important for tax purposes, when 
 #                       taxes end at midnight.  The default time should be set to 12:00:00 (noon) for
-#                       the business timezone.
+#                       the tenant timezone.
 #
 # due_date:             The UTC date and time the invoice is due, if applicable.  The default time 
 #                       should be set to 12:00:00 (noon).
@@ -147,7 +147,7 @@
 create table ciniki_sapos_invoices (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     source_id int not null,
     invoice_number varchar(20) not null,
     po_number varchar(100) not null,
@@ -204,6 +204,6 @@ create table ciniki_sapos_invoices (
     last_updated datetime not null,
     primary key (id),
     index (customer_id, status, invoice_date),
-    unique index (business_id, invoice_number),
-    index sync (uuid, business_id, last_updated)
+    unique index (tnid, invoice_number),
+    index sync (uuid, tnid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.11';

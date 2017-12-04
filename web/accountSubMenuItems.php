@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_accountSubMenuItems($ciniki, $settings, $business_id) {
+function ciniki_sapos_web_accountSubMenuItems($ciniki, $settings, $tnid) {
 
     $submenu = array();
 
@@ -18,7 +18,7 @@ function ciniki_sapos_web_accountSubMenuItems($ciniki, $settings, $business_id) 
         . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS typestatus, "
         . "COUNT(id) "
         . "FROM ciniki_sapos_invoices "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND customer_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['customer']['id']) . "' "
         . "AND (invoice_type = 40 OR invoice_type = 10) "
         . "AND status IN (15, 30, 50) "

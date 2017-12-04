@@ -16,7 +16,7 @@ function ciniki_sapos_expenseCategoryDelete(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'category_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Category'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -26,10 +26,10 @@ function ciniki_sapos_expenseCategoryDelete(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.expenseCategoryDelete'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.expenseCategoryDelete'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -39,7 +39,7 @@ function ciniki_sapos_expenseCategoryDelete(&$ciniki) {
     //
     $strsql = "SELECT 'items', COUNT(*) as num "
         . "FROM ciniki_sapos_expense_items "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
@@ -55,7 +55,7 @@ function ciniki_sapos_expenseCategoryDelete(&$ciniki) {
     // Remove the category
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
-    $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.expense_category', 
+    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.sapos.expense_category', 
         $args['category_id'], NULL, 0x07);
     if( $rc['stat'] != 'ok' ) {
         return $rc;

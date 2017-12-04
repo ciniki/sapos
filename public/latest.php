@@ -16,7 +16,7 @@ function ciniki_sapos_latest(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice Type'), 
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
@@ -29,16 +29,16 @@ function ciniki_sapos_latest(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.latest'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.latest'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
 
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -71,7 +71,7 @@ function ciniki_sapos_latest(&$ciniki) {
         //
         $strsql = "SELECT status, COUNT(id) "
             . "FROM ciniki_sapos_shipments "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "GROUP BY status "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
@@ -87,15 +87,15 @@ function ciniki_sapos_latest(&$ciniki) {
         $strsql = "SELECT IF((ciniki_sapos_invoice_items.flags&0x0340)=0x0040,'available','backordered') AS bo_status, "
             . "COUNT(DISTINCT ciniki_sapos_invoices.id) "
             . "FROM ciniki_sapos_invoices, ciniki_sapos_invoice_items "
-            . "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_sapos_invoices.status >= 20 "
             . "AND ciniki_sapos_invoices.shipping_status > 0 "
             . "AND ciniki_sapos_invoices.shipping_status < 50 "
             . "AND ciniki_sapos_invoices.invoice_type = 40 "
             . "AND ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
-            . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "
-            . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "GROUP BY bo_status "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
@@ -112,7 +112,7 @@ function ciniki_sapos_latest(&$ciniki) {
             . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS typestatus, "
             . "COUNT(id) "
             . "FROM ciniki_sapos_invoices "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "GROUP BY invoice_type, status "
             . "";
         $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'stats');
@@ -130,7 +130,7 @@ function ciniki_sapos_latest(&$ciniki) {
             . "MAX(invoice_date) AS max_invoice_date, "
             . "MAX(invoice_date) AS max_invoice_date_year "
             . "FROM ciniki_sapos_invoices "
-            . "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND invoice_date <> '0000-00-00 00:00:00' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
@@ -168,7 +168,7 @@ function ciniki_sapos_latest(&$ciniki) {
         $num_cats = -1;
         $strsql = "SELECT 'categories', COUNT(*) "
             . "FROM ciniki_sapos_expense_categories "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
         $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'cats');
@@ -188,7 +188,7 @@ function ciniki_sapos_latest(&$ciniki) {
             . "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
             . "total_amount "
             . "FROM ciniki_sapos_expenses "
-            . "WHERE ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_sapos_expenses.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         if( isset($args['sort']) ) {
             if( $args['sort'] == 'latest' ) {
@@ -231,7 +231,7 @@ function ciniki_sapos_latest(&$ciniki) {
         $num_cats = -1;
         $strsql = "SELECT 'rates', COUNT(*) "
             . "FROM ciniki_sapos_mileage_rates "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
         $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'rates');
@@ -260,9 +260,9 @@ function ciniki_sapos_latest(&$ciniki) {
                 . "AND (ciniki_sapos_mileage_rates.end_date = '0000-00-00 00:00:00' "
                     . "OR ciniki_sapos_mileage.travel_date < ciniki_sapos_mileage_rates.end_date "
                     . ") "
-                . "AND ciniki_sapos_mileage_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_sapos_mileage_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_sapos_mileage.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_sapos_mileage.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         if( isset($args['sort']) ) {
             if( $args['sort'] == 'latest' ) {
@@ -319,9 +319,9 @@ function ciniki_sapos_latest(&$ciniki) {
         . "total_amount "
         . "FROM ciniki_sapos_invoices "
         . "LEFT JOIN ciniki_customers ON (ciniki_sapos_invoices.customer_id = ciniki_customers.id "
-            . "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     if( isset($args['type']) && $args['type'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.invoice_type = '" . ciniki_core_dbQuote($ciniki, $args['type']) . "' ";

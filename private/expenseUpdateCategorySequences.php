@@ -12,7 +12,7 @@
 // =======
 // <rsp stat="ok" />
 //
-function ciniki_sapos_expenseUpdateCategorySequences($ciniki, $business_id, $category_id, $new_seq, $old_seq) {
+function ciniki_sapos_expenseUpdateCategorySequences($ciniki, $tnid, $category_id, $new_seq, $old_seq) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
 
@@ -21,7 +21,7 @@ function ciniki_sapos_expenseUpdateCategorySequences($ciniki, $business_id, $cat
     //
     $strsql = "SELECT id, sequence AS number "
         . "FROM ciniki_sapos_expense_categories "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     // Use the last_updated to determine which is in the proper position for duplicate numbers
     if( $new_seq < $old_seq || $old_seq == -1) {
@@ -45,7 +45,7 @@ function ciniki_sapos_expenseUpdateCategorySequences($ciniki, $business_id, $cat
                 $strsql = "UPDATE ciniki_sapos_expense_categories SET "
                     . "sequence = '" . ciniki_core_dbQuote($ciniki, $cur_number) . "' "
                     . ", last_updated = UTC_TIMESTAMP() "
-                    . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                     . "AND id = '" . ciniki_core_dbQuote($ciniki, $category['id']) . "' "
                     . "";
                 $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.sapos');
@@ -53,7 +53,7 @@ function ciniki_sapos_expenseUpdateCategorySequences($ciniki, $business_id, $cat
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                 }
                 ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.sapos', 
-                    'ciniki_sapos_history', $business_id, 
+                    'ciniki_sapos_history', $tnid, 
                     2, 'ciniki_sapos_expense_categories', $category['id'], 'sequence', $cur_number);
                 $ciniki['syncqueue'][] = array('push'=>'ciniki.sapos.expense_category', 
                     'args'=>array('id'=>$category['id']));

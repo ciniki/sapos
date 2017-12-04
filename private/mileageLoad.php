@@ -7,19 +7,19 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The business ID to check the session user against.
+// tnid:         The tenant ID to check the session user against.
 // method:              The requested method.
 //
 // Returns
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_mileageLoad($ciniki, $business_id, $mileage_id) {
+function ciniki_sapos_mileageLoad($ciniki, $tnid, $mileage_id) {
     //
-    // Get the time information for business and user
+    // Get the time information for tenant and user
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -52,10 +52,10 @@ function ciniki_sapos_mileageLoad($ciniki, $business_id, $mileage_id) {
             . "AND (ciniki_sapos_mileage_rates.end_date = '0000-00-00 00:00:00' "
                 . "OR ciniki_sapos_mileage.travel_date <= ciniki_sapos_mileage_rates.end_date "
                 . ") "
-            . "AND ciniki_sapos_mileage_rates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_sapos_mileage_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE ciniki_sapos_mileage.id = '" . ciniki_core_dbQuote($ciniki, $mileage_id) . "' "
-        . "AND ciniki_sapos_mileage.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_mileage.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'mileages', 'fname'=>'id', 'name'=>'mileage',

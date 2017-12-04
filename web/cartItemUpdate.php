@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args) {
+function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $tnid, $args) {
 
     //
     // Check that a cart does not exist
@@ -31,7 +31,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
             . "subtotal_amount, discount_amount, total_amount "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
         if( $rc['stat'] != 'ok' ) { 
@@ -50,7 +50,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemLookup');
             if( $rc['stat'] == 'ok' ) {
                 $fn = $rc['function_call'];
-                $rc = $fn($ciniki, $business_id, $ciniki['session']['customer'], array(
+                $rc = $fn($ciniki, $tnid, $ciniki['session']['customer'], array(
                     'object'=>$item['object'],
                     'object_id'=>$item['object_id'],
                     'price_id'=>$item['price_id'],
@@ -72,7 +72,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
             //
             if( $args['quantity'] <= 0 ) {
                 ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartItemDelete');
-                return ciniki_sapos_web_cartItemDelete($ciniki, $settings, $business_id, $args);
+                return ciniki_sapos_web_cartItemDelete($ciniki, $settings, $tnid, $args);
             }
 
             //
@@ -114,7 +114,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
         // Update the item
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args['item_id'], $args, 0x04);
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', $args['item_id'], $args, 0x04);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -135,7 +135,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemUpdate');
             if( $rc['stat'] == 'ok' ) {
                 $fn = $rc['function_call'];
-                $rc = $fn($ciniki, $business_id, $invoice_id, $item);
+                $rc = $fn($ciniki, $tnid, $invoice_id, $item);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
@@ -146,7 +146,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
         // Update the taxes
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
-        $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $invoice_id);
+        $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_id);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -155,7 +155,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $business_id, $args
         // Update the invoice status
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice_id);
+        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }

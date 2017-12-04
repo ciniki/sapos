@@ -16,7 +16,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
         'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
         'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
@@ -36,16 +36,16 @@ function ciniki_sapos_transactionList(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.transactionList'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.transactionList'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
 
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -69,7 +69,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
     if( isset($args['stats']) && $args['stats'] == 'yes' ) {
         $rsp['stats'] = array();
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStats');
-        $rc = ciniki_sapos__invoiceStats($ciniki, $args['business_id']);
+        $rc = ciniki_sapos__invoiceStats($ciniki, $args['tnid']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -89,7 +89,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
         . "t.source, "
         . "t.customer_amount, "
         . "t.transaction_fees, "
-        . "t.business_amount, "
+        . "t.tenant_amount, "
         . "i.invoice_number, "
         . "i.invoice_date, "
         . "i.status AS invoice_status, "
@@ -97,17 +97,17 @@ function ciniki_sapos_transactionList(&$ciniki) {
         . "FROM ciniki_sapos_transactions AS t "
         . "LEFT JOIN ciniki_sapos_invoices AS i ON ("
             . "t.invoice_id = i.id "
-            . "AND i.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND i.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_customers AS c ON ("
             . "i.customer_id = c.id "
-            . "AND c.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND c.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE t.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE t.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     if( isset($args['year']) && $args['year'] != '' ) {
         //
-        // Set the start and end date for the business timezone, then convert to UTC
+        // Set the start and end date for the tenant timezone, then convert to UTC
         //
         $tz = new DateTimeZone($intl_timezone);
         if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
@@ -138,7 +138,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
             'fields'=>array('id', 'transaction_status', 'status_text', 'transaction_type', 'transaction_date', 'source', 
                 'customer_display_name', 
-                'customer_amount', 'transaction_fees', 'business_amount', 'invoice_number', 'invoice_date', 'invoice_status'),
+                'customer_amount', 'transaction_fees', 'tenant_amount', 'invoice_number', 'invoice_date', 'invoice_status'),
             'maps'=>array(
                 'status_text'=>$maps['transaction']['status'],
                 'invoice_status'=>$maps['invoice']['status'],
@@ -161,20 +161,20 @@ function ciniki_sapos_transactionList(&$ciniki) {
     $rsp['totals'] = array(
         'customer_amount'=>0,
         'transaction_fees'=>0,
-        'business_amount'=>0,
+        'tenant_amount'=>0,
         );
     foreach($rsp['transactions'] as $tid => $transaction) {
         $rsp['transactions'][$tid]['customer_amount_display'] = numfmt_format_currency($intl_currency_fmt, $transaction['customer_amount'], $intl_currency);
         $rsp['transactions'][$tid]['transaction_fees_display'] = numfmt_format_currency($intl_currency_fmt, $transaction['transaction_fees'], $intl_currency);
-        $rsp['transactions'][$tid]['business_amount_display'] = numfmt_format_currency($intl_currency_fmt, $transaction['business_amount'], $intl_currency);
+        $rsp['transactions'][$tid]['tenant_amount_display'] = numfmt_format_currency($intl_currency_fmt, $transaction['tenant_amount'], $intl_currency);
         $rsp['totals']['customer_amount'] = bcadd($rsp['totals']['customer_amount'], $transaction['customer_amount'], 2);
         $rsp['totals']['transaction_fees'] = bcadd($rsp['totals']['transaction_fees'], $transaction['transaction_fees'], 2);
-        $rsp['totals']['business_amount'] = bcadd($rsp['totals']['business_amount'], $transaction['business_amount'], 2);
+        $rsp['totals']['tenant_amount'] = bcadd($rsp['totals']['tenant_amount'], $transaction['tenant_amount'], 2);
     }
 
     $rsp['totals']['customer_amount_display'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['customer_amount'], $intl_currency);
     $rsp['totals']['transaction_fees_display'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['transaction_fees'], $intl_currency);
-    $rsp['totals']['business_amount_display'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['business_amount'], $intl_currency);
+    $rsp['totals']['tenant_amount_display'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['tenant_amount'], $intl_currency);
     $rsp['totals']['num_transactions'] = count($rsp['transactions']);
 
     

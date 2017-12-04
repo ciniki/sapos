@@ -17,7 +17,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'), 
         'invoice_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Invoice'), 
         'pricepoint_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Pricepoint'), 
@@ -30,10 +30,10 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceItemSearch'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.invoiceItemSearch'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -44,10 +44,10 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
     }
 
     //
-    // Load business INTL settings
+    // Load tenant INTL settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -73,7 +73,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
         if( !is_callable($search_function) ) {
             continue;
         }
-        $rc = $search_function($ciniki, $args['business_id'], array(
+        $rc = $search_function($ciniki, $args['tnid'], array(
             'start_needle'=>$args['start_needle'], 
             'pricepoint_id'=>$args['pricepoint_id'],
             'invoice_id'=>$args['invoice_id'],
@@ -90,8 +90,8 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
     // Check existing items in invoices, but only if owner/employee
     //
     if( count($items) == 0 
-        && (!isset($ciniki['business']['user']['perms'])
-            || ($ciniki['business']['user']['perms']&0x03) > 0
+        && (!isset($ciniki['tenant']['user']['perms'])
+            || ($ciniki['tenant']['user']['perms']&0x03) > 0
             )
         ) {
         $strsql = "SELECT DISTINCT "    
@@ -106,7 +106,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
             . "ciniki_sapos_invoice_items.taxtype_id, "
             . "ciniki_sapos_invoice_items.notes "
             . "FROM ciniki_sapos_invoice_items "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND object = '' "
             . "AND (description LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
                 . "OR description LIKE ' %" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "

@@ -7,19 +7,19 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The business ID to check the session user against.
+// tnid:         The tenant ID to check the session user against.
 // method:              The requested method.
 //
 // Returns
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_hooks_customerStatusUpdate($ciniki, $business_id, $args) {
+function ciniki_sapos_hooks_customerStatusUpdate($ciniki, $tnid, $args) {
     //
-    // Get the time information for business and user
+    // Get the time information for tenant and user
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -51,7 +51,7 @@ function ciniki_sapos_hooks_customerStatusUpdate($ciniki, $business_id, $args) {
         $strsql = "SELECT id, invoice_type, status "
             . "FROM ciniki_sapos_invoices "
             . "WHERE customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND status < 50 "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
@@ -61,7 +61,7 @@ function ciniki_sapos_hooks_customerStatusUpdate($ciniki, $business_id, $args) {
         if( isset($rc['rows']) ) {
             $invoices = $rc['rows'];
             foreach($invoices as $invoice) {
-                $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice['id']);
+                $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice['id']);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }

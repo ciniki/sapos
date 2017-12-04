@@ -8,7 +8,7 @@
 # ------
 # id:               The invoice ID.
 # uuid:             The Universal Unique ID for the invoice.
-# business_id:      The business the invoice is for.
+# tnid:             The tenant the invoice is for.
 #
 # rate:             The change per mile/kilometer
 #
@@ -24,12 +24,12 @@
 create table ciniki_sapos_mileage_rates (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     rate decimal(19,4) not null,
     start_date datetime not null,
     end_date datetime not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
-    index sync (uuid, business_id, last_updated)
+    index sync (uuid, tnid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

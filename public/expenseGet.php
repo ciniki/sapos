@@ -17,7 +17,7 @@ function ciniki_sapos_expenseGet(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'expense_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'images'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Images'),
         )); 
@@ -28,10 +28,10 @@ function ciniki_sapos_expenseGet(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.expenseGet'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.expenseGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -42,7 +42,7 @@ function ciniki_sapos_expenseGet(&$ciniki) {
     // Return the expense record
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'expenseLoad');
-    $rc = ciniki_sapos_expenseLoad($ciniki, $args['business_id'], $args['expense_id'], $args['images']);
+    $rc = ciniki_sapos_expenseLoad($ciniki, $args['tnid'], $args['expense_id'], $args['images']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

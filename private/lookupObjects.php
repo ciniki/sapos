@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_lookupObjects(&$ciniki, $business_id, $objects) {
+function ciniki_sapos_lookupObjects(&$ciniki, $tnid, $objects) {
     $items = array();
     foreach($objects as $o => $object) {
         list($pkg, $mod, $obj) = explode('.', $object['object']);
@@ -29,7 +29,7 @@ function ciniki_sapos_lookupObjects(&$ciniki, $business_id, $objects) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.32', 'msg'=>'Unable to load invoice item details'));
         }
 
-        $rc = $lookup_function($ciniki, $business_id, array('object'=>$object['object'], 'object_id'=>$object['id']));
+        $rc = $lookup_function($ciniki, $tnid, array('object'=>$object['object'], 'object_id'=>$object['id']));
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.33', 'msg'=>'Unable to load invoice item details', 'err'=>$rc['err']));
         }

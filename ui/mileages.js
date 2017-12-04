@@ -87,7 +87,7 @@ function ciniki_sapos_mileages() {
             return false;
         } 
 
-        M.api.getJSONCb('ciniki.sapos.mileageStats', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.mileageStats', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -115,7 +115,7 @@ function ciniki_sapos_mileages() {
             this.mileages.sections.months.selected = month;
         }
         this.mileages.sections.months.visible = (this.mileages.month>0)?'yes':'yes';
-        M.api.getJSONCb('ciniki.sapos.mileageList', {'business_id':M.curBusinessID,
+        M.api.getJSONCb('ciniki.sapos.mileageList', {'tnid':M.curTenantID,
             'year':this.mileages.year, 'month':this.mileages.month}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -130,7 +130,7 @@ function ciniki_sapos_mileages() {
     };
 
     this.downloadExcel = function() {
-        var args = {'business_id':M.curBusinessID, 'output':'excel'};
+        var args = {'tnid':M.curTenantID, 'output':'excel'};
         if( this.mileages.year != null ) { args.year = this.mileages.year; }
         if( this.mileages.month != null ) { args.month = this.mileages.month; }
 //      window.open(M.api.getUploadURL('ciniki.sapos.mileageList', args));

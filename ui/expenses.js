@@ -22,7 +22,7 @@ function ciniki_sapos_main() {
         } 
 
         this.expenses.categories = {};
-        M.api.getJSONCb('ciniki.sapos.expenseStats', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.expenseStats', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;

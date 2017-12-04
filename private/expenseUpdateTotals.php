@@ -13,7 +13,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_expenseUpdateTotals($ciniki, $business_id, $expense_id) {
+function ciniki_sapos_expenseUpdateTotals($ciniki, $tnid, $expense_id) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
@@ -29,7 +29,7 @@ function ciniki_sapos_expenseUpdateTotals($ciniki, $business_id, $expense_id) {
         . "total_amount "
         . "FROM ciniki_sapos_expenses "
         . "WHERE ciniki_sapos_expenses.id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
-        . "AND ciniki_sapos_expenses.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_expenses.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'expense');
     if( $rc['stat'] != 'ok' ) {
@@ -47,7 +47,7 @@ function ciniki_sapos_expenseUpdateTotals($ciniki, $business_id, $expense_id) {
         . "amount "
         . "FROM ciniki_sapos_expense_items "
         . "WHERE ciniki_sapos_expense_items.expense_id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
-        . "AND ciniki_sapos_expense_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_expense_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
     if( $rc['stat'] != 'ok' ) {
@@ -74,7 +74,7 @@ function ciniki_sapos_expenseUpdateTotals($ciniki, $business_id, $expense_id) {
         $args['total_amount'] = $expense_total_amount;
     }
     if( count($args) > 0 ) {
-        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.expense', 
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.expense', 
             $expense_id, $args, 0x04);
         if( $rc['stat'] != 'ok' ) {
             return $rc;

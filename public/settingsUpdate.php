@@ -17,7 +17,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -26,19 +26,19 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.settingsUpdate'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.settingsUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
 
     //
-    // Grab the settings for the business from the database
+    // Grab the settings for the tenant from the database
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQuery');
-    $rc = ciniki_core_dbDetailsQuery($ciniki, 'ciniki_sapos_settings', 'business_id', $args['business_id'], 'ciniki.sapos', 'settings', '');
+    $rc = ciniki_core_dbDetailsQuery($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', '');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -76,13 +76,13 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'paypal-ec-signature',
         'invoice-header-image',
         'invoice-header-contact-position',
-        'invoice-header-business-name',
-        'invoice-header-business-address',
-        'invoice-header-business-phone',
-        'invoice-header-business-cell',
-        'invoice-header-business-fax',
-        'invoice-header-business-email',
-        'invoice-header-business-website',
+        'invoice-header-tenant-name',
+        'invoice-header-tenant-address',
+        'invoice-header-tenant-phone',
+        'invoice-header-tenant-cell',
+        'invoice-header-tenant-fax',
+        'invoice-header-tenant-email',
+        'invoice-header-tenant-website',
         'invoice-bottom-message',
         'packingslip-bottom-message',
         'invoice-footer-message',
@@ -119,13 +119,13 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'stripe-sk',
         'donation-receipt-header-image',
         'donation-receipt-header-contact-position',
-        'donation-receipt-header-business-name',
-        'donation-receipt-header-business-address',
-        'donation-receipt-header-business-phone',
-        'donation-receipt-header-business-cell',
-        'donation-receipt-header-business-fax',
-        'donation-receipt-header-business-email',
-        'donation-receipt-header-business-website',
+        'donation-receipt-header-tenant-name',
+        'donation-receipt-header-tenant-address',
+        'donation-receipt-header-tenant-phone',
+        'donation-receipt-header-tenant-cell',
+        'donation-receipt-header-tenant-fax',
+        'donation-receipt-header-tenant-email',
+        'donation-receipt-header-tenant-website',
         'donation-receipt-signing-officer',
         'donation-receipt-charity-number',
         'donation-receipt-location-issued',
@@ -139,8 +139,8 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
     foreach($changelog_fields as $field) {
         if( isset($ciniki['request']['args'][$field]) 
             && (!isset($settings[$field]) || $ciniki['request']['args'][$field] != $settings[$field]) ) {
-            $strsql = "INSERT INTO ciniki_sapos_settings (business_id, detail_key, detail_value, date_added, last_updated) "
-                . "VALUES ('" . ciniki_core_dbQuote($ciniki, $ciniki['request']['args']['business_id']) . "'"
+            $strsql = "INSERT INTO ciniki_sapos_settings (tnid, detail_key, detail_value, date_added, last_updated) "
+                . "VALUES ('" . ciniki_core_dbQuote($ciniki, $ciniki['request']['args']['tnid']) . "'"
                 . ", '" . ciniki_core_dbQuote($ciniki, $field) . "'"
                 . ", '" . ciniki_core_dbQuote($ciniki, $ciniki['request']['args'][$field]) . "'"
                 . ", UTC_TIMESTAMP(), UTC_TIMESTAMP()) "
@@ -152,7 +152,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                 return $rc;
             }
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['business_id'], 
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['tnid'], 
                 2, 'ciniki_sapos_settings', $field, 'detail_value', $ciniki['request']['args'][$field]);
             $ciniki['syncqueue'][] = array('push'=>'ciniki.sapos.setting', 
                 'args'=>array('id'=>$field));
@@ -168,11 +168,11 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'sapos');
 
     return array('stat'=>'ok');
 }

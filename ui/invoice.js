@@ -194,12 +194,12 @@ function ciniki_sapos_invoice() {
             }
     //          if( i == 'po_number' && this.data.status < 50 ) {
     //              // Check if salesrep and if have access to update po_number
-    //              if( M.curBusiness.permissions.owners != null 
-    //                  || M.curBusiness.permissions.employees != null
+    //              if( M.curTenant.permissions.owners != null 
+    //                  || M.curTenant.permissions.employees != null
     //                  || (M.userPerms&0x01) > 0
-    //                  || (M.curBusiness.permissions.salesreps != null 
-    //                      && M.curBusiness.sapos.settings['rules-salesreps-invoice-po_number'] != null
-    //                      && M.curBusiness.sapos.settings['rules-salesreps-invoice-po_number'] == 'edit'
+    //                  || (M.curTenant.permissions.salesreps != null 
+    //                      && M.curTenant.sapos.settings['rules-salesreps-invoice-po_number'] != null
+    //                      && M.curTenant.sapos.settings['rules-salesreps-invoice-po_number'] == 'edit'
     //                      && this.data.status < 20
     //                      )
     //                  ) {
@@ -220,7 +220,7 @@ function ciniki_sapos_invoice() {
             if( s == 'shipping' && M.modFlagOn('ciniki.sapos', 0x040000) && (this.data.flags&0x02) == 0x02 ) {
                 return 'background:' + M.ciniki_sapos_invoice.colours['invoice-drop-ship'] + ';';
             }
-            if( s == 'shipitems' && (M.curBusiness.modules['ciniki.sapos'].flags&0x40) > 0 ) {
+            if( s == 'shipitems' && (M.curTenant.modules['ciniki.sapos'].flags&0x40) > 0 ) {
                 if( (d.item.flags&0x0300) > 0 ) {
                     return 'background: ' + M.ciniki_sapos_invoice.colours['invoice-item-forced-backordered'] + ';';
                 } else if( d.item.required_quantity != null && d.item.required_quantity == 0 ) {
@@ -264,9 +264,9 @@ function ciniki_sapos_invoice() {
                     return d.item.quantity;
                 }
                 if( j == 2 ) {
-                    if( M.curBusiness.permissions.owners == null
-                        && M.curBusiness.permissions.employees == null 
-                        && M.curBusiness.permissions.salesreps != null 
+                    if( M.curTenant.permissions.owners == null
+                        && M.curTenant.permissions.employees == null 
+                        && M.curTenant.permissions.salesreps != null 
                         ) {
                         if( d.item.inventory_reserved != null ) {
                             return (d.item.inventory_quantity - d.item.inventory_reserved);
@@ -361,7 +361,7 @@ function ciniki_sapos_invoice() {
                     case 1: return d.transaction.transaction_date;
                     case 2: return ((d.transaction.transaction_type==60)?'-':'')+d.transaction.customer_amount;
     //                  case 3: return d.transaction.transaction_fees;
-    //                  case 4: return d.transaction.business_amount;
+    //                  case 4: return d.transaction.tenant_amount;
                 }
             }
             if( s == 'shipments' ) {
@@ -391,7 +391,7 @@ function ciniki_sapos_invoice() {
                 return 'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
             }
             if( s == 'items' && (M.ciniki_sapos_invoice.invoice.data.status < 50 
-                || (M.curBusiness.sapos.settings['rules-invoice-paid-change-items'] != null && M.curBusiness.sapos.settings['rules-invoice-paid-change-items'] == 'yes'))
+                || (M.curTenant.sapos.settings['rules-invoice-paid-change-items'] != null && M.curTenant.sapos.settings['rules-invoice-paid-change-items'] == 'yes'))
                 ) {
                 if( d.item.object == 'ciniki.fatt.offeringregistration' ) {
                     return 'M.startApp(\'ciniki.fatt.sapos\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
@@ -535,7 +535,7 @@ function ciniki_sapos_invoice() {
             return this.data[i];
         };
         this.edit.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.invoice', 'object_id':this.invoice_id, 'field':i}};
         };
         this.edit.updateForm = function() {
@@ -565,9 +565,9 @@ function ciniki_sapos_invoice() {
                 }
                 this.sections.details.fields.po_number.visible = 'yes';
                 this.sections.details.fields.status.visible = 'yes';
-                this.sections.details.fields.payment_status.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0||this.data.payment_status>0)?'yes':'no';
-                this.sections.details.fields.shipping_status.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0||this.data.shipping_status>0)?'yes':'no';
-                this.sections.details.fields.manufacturing_status.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x80)>0||this.data.manufacturing_status>0)?'yes':'no';
+                this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x0200)>0||this.data.payment_status>0)?'yes':'no';
+                this.sections.details.fields.shipping_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x40)>0||this.data.shipping_status>0)?'yes':'no';
+                this.sections.details.fields.manufacturing_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x80)>0||this.data.manufacturing_status>0)?'yes':'no';
                 this.sections.details.fields.due_date.visible = 'yes';
                 if( e_po != null && this.sections.details.fields.po_number.visible == 'yes' ) {
                     e_po.parentNode.parentNode.style.display = 'table-row';
@@ -634,7 +634,7 @@ function ciniki_sapos_invoice() {
             };
         this.item.liveSearchCb = function(s, i, v) {
             if( i == 'code' || i == 'description' ) {
-                M.api.getJSONBgCb('ciniki.sapos.invoiceItemSearch', {'business_id':M.curBusinessID,
+                M.api.getJSONBgCb('ciniki.sapos.invoiceItemSearch', {'tnid':M.curTenantID,
                     'field':i, 'pricepoint_id':M.ciniki_sapos_invoice.invoice.pricepoint_id, 'invoice_id':M.ciniki_sapos_invoice.invoice.invoice_id, 'start_needle':v, 'limit':15}, function(rsp) {
                         M.ciniki_sapos_invoice.item.liveSearchShow(s,i,M.gE(M.ciniki_sapos_invoice.item.panelUID + '_' + i), rsp.items);
                     });
@@ -699,7 +699,7 @@ function ciniki_sapos_invoice() {
             this.setFieldValue('unit_amount', unescape(u));
             this.setFieldValue('unit_discount_amount', unescape(uda));
             this.setFieldValue('unit_discount_percentage', unescape(udp));
-            if( M.curBusiness.modules['ciniki.taxes'] != null ) {
+            if( M.curTenant.modules['ciniki.taxes'] != null ) {
                 this.setFieldValue('taxtype_id', t);
             }
             this.price_id = pid;
@@ -714,7 +714,7 @@ function ciniki_sapos_invoice() {
             return '';
         };
         this.item.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.invoice_item', 'object_id':this.item_id, 'field':i}};
         };
         this.item.addButton('save', 'Save', 'M.ciniki_sapos_invoice.saveItem();');
@@ -738,7 +738,7 @@ function ciniki_sapos_invoice() {
                 'source':{'label':'Source', 'type':'select', 'options':M.ciniki_sapos_invoice.transactionSources},
                 'customer_amount':{'label':'Customer Amount', 'type':'text', 'size':'small'},
                 'transaction_fees':{'label':'Fees', 'type':'text', 'size':'small'},
-                'business_amount':{'label':'Business Amount', 'type':'text', 'size':'small'},
+                'tenant_amount':{'label':'Tenant Amount', 'type':'text', 'size':'small'},
                 }},
             '_notes':{'label':'Notes', 'fields':{
                 'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -753,7 +753,7 @@ function ciniki_sapos_invoice() {
             return '';
         };
         this.transaction.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.transaction', 'object_id':this.transaction_id, 'field':i}};
         };
         this.transaction.addButton('save', 'Save', 'M.ciniki_sapos_invoice.saveTransaction();');
@@ -786,7 +786,7 @@ function ciniki_sapos_invoice() {
     }
     this.addorder.liveSearchCb = function(s, i, value) {
         if( i == 'customer_id' && value != '' ) {
-            M.api.getJSONBgCb('ciniki.customers.searchQuick', {'business_id':M.curBusinessID, 'start_needle':encodeURIComponent(value), 'limit':'25'}, 
+            M.api.getJSONBgCb('ciniki.customers.searchQuick', {'tnid':M.curTenantID, 'start_needle':encodeURIComponent(value), 'limit':'25'}, 
                 function(rsp) { 
                     M.ciniki_sapos_invoice.addorder.liveSearchShow(s, i, M.gE(M.ciniki_sapos_invoice.addorder.panelUID + '_' + s), rsp.customers); 
                 });
@@ -820,7 +820,7 @@ function ciniki_sapos_invoice() {
             c += this.serializeFormSection('yes', 'address');
         }
         // Create the new invoice, and then display it
-        M.api.postJSONCb('ciniki.sapos.invoiceAdd', {'business_id':M.curBusinessID, 'invoice_type':this.data.invoice_type}, c, function(rsp) {
+        M.api.postJSONCb('ciniki.sapos.invoiceAdd', {'tnid':M.curTenantID, 'invoice_type':this.data.invoice_type}, c, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -847,8 +847,8 @@ function ciniki_sapos_invoice() {
         //
         // Setup editable fields for owners/employees
         //
-        if( M.curBusiness.permissions.owners != null
-            || M.curBusiness.permissions.employees != null
+        if( M.curTenant.permissions.owners != null
+            || M.curTenant.permissions.employees != null
             || (M.userPerms&0x01) > 0 
             ) {
             for(i in this.edit.sections.details.fields) {
@@ -871,8 +871,8 @@ function ciniki_sapos_invoice() {
             'invoice-item-fulfilled':'#E6E6E6',
         };
         for(i in this.colours) {
-            if( M.curBusiness.sapos.settings['ui-colours-' + i] != null ) {
-                this.colours[i] = M.curBusiness.sapos.settings['ui-colours-' + i];
+            if( M.curTenant.sapos.settings['ui-colours-' + i] != null ) {
+                this.colours[i] = M.curTenant.sapos.settings['ui-colours-' + i];
             }
         }
         this.invoiceStatuses = {
@@ -882,16 +882,16 @@ function ciniki_sapos_invoice() {
             '10':'Incomplete',
             '15':'On Hold',
             };
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x80) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x80) > 0 ) {
             this.invoiceStatuses['20'] = 'Pending Manufacturing';
             this.orderStatuses['20'] = 'Pending Manufacturing';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x40) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x40) > 0 ) {
             this.invoiceStatuses['30'] = 'Pending Shipping';
             this.orderStatuses['30'] = 'Pending Shipping';
         }
         this.invoiceStatuses['40'] = 'Payment Required';
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0200) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x0200) > 0 ) {
             this.orderStatuses['40'] = 'Payment Required';
         }
         this.invoiceStatuses['50'] = 'Paid';
@@ -904,8 +904,8 @@ function ciniki_sapos_invoice() {
         this.orderStatuses['65'] = 'Void';
 
         this.edit.sections.details.fields.status.options = this.invoiceStatuses;
-        this.edit.sections.shipping.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0)?'yes':'no';
-        this.edit.sections.work.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x020000)>0)?'yes':'no';
+        this.edit.sections.shipping.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x40)>0)?'yes':'no';
+        this.edit.sections.work.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x020000)>0)?'yes':'no';
 
         //
         // Determine what types we have available
@@ -913,11 +913,11 @@ function ciniki_sapos_invoice() {
         this.invoiceTypes = {};
         var ct = 0;
         this.default_invoice_type = '';
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x01) > 0 ) {
             this.invoiceTypes['10'] = 'Invoice';
             if( this.default_invoice_type == '' ) { this.default_invoice_type = '10'; }
             ct++;
-            if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
+            if( (M.curTenant.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
                 this.invoiceTypes['11'] = 'Monthly';
                 ct++;
                 this.invoiceTypes['16'] = 'Quarterly';
@@ -926,22 +926,22 @@ function ciniki_sapos_invoice() {
                 ct++;
             }
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x20) > 0 ) {
             this.invoiceTypes['40'] = 'Order';
             if( this.default_invoice_type == '' ) { this.default_invoice_type = '40'; }
             ct++;
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x10) > 0 ) {
             this.invoiceTypes['30'] = 'POS';
             if( this.default_invoice_type == '' ) { this.default_invoice_type = '30'; }
             ct++;
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x08) > 0 ) {
             this.invoiceTypes['20'] = 'Cart';
             if( this.default_invoice_type == '' ) { this.default_invoice_type = '20'; }
             ct++;
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
             this.invoiceTypes['90'] = 'Quote';
             if( this.default_invoice_type == '' ) { this.default_invoice_type = '90'; }
             ct++;
@@ -954,28 +954,28 @@ function ciniki_sapos_invoice() {
             this.edit.sections.details.fields.invoice_type.active = 'yes';
         }
         this.edit.sections.details.fields.invoice_type.toggles = this.invoiceTypes;
-        this.item.sections.details.fields.code.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0400)>0?'yes':'no');
+        this.item.sections.details.fields.code.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x0400)>0?'yes':'no');
 
         //
-        // Setup the taxtypes available for the business
+        // Setup the taxtypes available for the tenant
         //
-        if( M.curBusiness.modules['ciniki.taxes'] != null ) {
+        if( M.curTenant.modules['ciniki.taxes'] != null ) {
             this.item.sections.details.fields.taxtype_id.active = 'yes';
             this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
-            if( M.curBusiness.taxes != null && M.curBusiness.taxes.settings.types != null ) {
-                for(i in M.curBusiness.taxes.settings.types) {
-                    this.item.sections.details.fields.taxtype_id.options[M.curBusiness.taxes.settings.types[i].type.id] = M.curBusiness.taxes.settings.types[i].type.name;
+            if( M.curTenant.taxes != null && M.curTenant.taxes.settings.types != null ) {
+                for(i in M.curTenant.taxes.settings.types) {
+                    this.item.sections.details.fields.taxtype_id.options[M.curTenant.taxes.settings.types[i].type.id] = M.curTenant.taxes.settings.types[i].type.name;
                 }
             }
             //
             // Setup the tax locations
             //
-            if( (M.curBusiness.modules['ciniki.taxes'].flags&0x01) > 0 
-                && M.curBusiness.taxes.settings != null
-                && M.curBusiness.taxes.settings.locations != null
+            if( (M.curTenant.modules['ciniki.taxes'].flags&0x01) > 0 
+                && M.curTenant.taxes.settings != null
+                && M.curTenant.taxes.settings.locations != null
                 ) {
                 var locations = {'0':'Use Shipping Address'};
-                var locs = M.curBusiness.taxes.settings.locations;
+                var locs = M.curTenant.taxes.settings.locations;
                 for(i in locs) {
                     locations[locs[i].location.id] = locs[i].location.name + ' [' + (locs[i].location.rates!=null?locs[i].location.rates:'None') + ']';
                 }
@@ -995,9 +995,9 @@ function ciniki_sapos_invoice() {
         //
         // If products or first aid, show available field
         //
-        if( (M.curBusiness.modules['ciniki.products'] != null && (M.curBusiness.modules['ciniki.products'].flags&0x04) > 0)
-            || (M.curBusiness.modules['ciniki.fatt'] != null && (M.curBusiness.modules['ciniki.fatt'].flags&0x01) > 0)
-            || (M.curBusiness.modules['ciniki.herbalist'] != null)
+        if( (M.curTenant.modules['ciniki.products'] != null && (M.curTenant.modules['ciniki.products'].flags&0x04) > 0)
+            || (M.curTenant.modules['ciniki.fatt'] != null && (M.curTenant.modules['ciniki.fatt'].flags&0x01) > 0)
+            || (M.curTenant.modules['ciniki.herbalist'] != null)
             ) {
             this.item.sections.details.fields.code.livesearchcols=3;
             this.item.sections.details.fields.code.headerValues = ['Item', 'Available', 'Price'];
@@ -1010,7 +1010,7 @@ function ciniki_sapos_invoice() {
             this.item.sections.details.fields.description.headerValues = ['Item', 'Price'];
         }
 
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x40) ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x40) ) {
             this.invoice.sections.shipitems.active = 'yes';
             this.invoice.sections.items.active = 'no';
         } else {
@@ -1018,17 +1018,17 @@ function ciniki_sapos_invoice() {
             this.invoice.sections.items.active = 'yes';
         }
         // If salesreps are enabled
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
             this.edit.sections.details.fields.salesrep_id.active = 'yes';
         } else {
             this.edit.sections.details.fields.salesrep_id.active = 'no';
         }
 
-        if( M.curBusiness.modules['ciniki.customers'] != null
-            && (M.curBusiness.modules['ciniki.customers'].flags&0x1000) > 0 
+        if( M.curTenant.modules['ciniki.customers'] != null
+            && (M.curTenant.modules['ciniki.customers'].flags&0x1000) > 0 
             ) {
             var pricepoints = {};
-            var s_pp = M.curBusiness.customers.settings.pricepoints;
+            var s_pp = M.curTenant.customers.settings.pricepoints;
             pricepoints[0] = 'None';
             for(i in s_pp) {
                 pricepoints[s_pp[i].pricepoint.id] = s_pp[i].pricepoint.name;
@@ -1040,43 +1040,43 @@ function ciniki_sapos_invoice() {
             this.edit.sections.details.fields.pricepoint_id.options = {};
         }
 
-        if( M.curBusiness.permissions.owners == null
-            && M.curBusiness.permissions.employees == null 
-            && M.curBusiness.permissions.salesreps != null 
+        if( M.curTenant.permissions.owners == null
+            && M.curTenant.permissions.employees == null 
+            && M.curTenant.permissions.salesreps != null 
             ) {
             var edit = 'no';
             for(i in this.edit.sections.details.fields) {
-                if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-' + i] != null
-                    && M.curBusiness.sapos.settings['rules-salesreps-invoice-' + i] == 'edit') ) {
+                if( (M.curTenant.sapos.settings['rules-salesreps-invoice-' + i] != null
+                    && M.curTenant.sapos.settings['rules-salesreps-invoice-' + i] == 'edit') ) {
                     this.edit.sections.details.fields[i].active = 'yes';
                     edit = 'yes';
                 } else {
                     this.edit.sections.details.fields[i].active = 'no';
                 }
             }
-            if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-billing'] != null
-                && M.curBusiness.sapos.settings['rules-salesreps-invoice-billing'] == 'edit') ) {
+            if( (M.curTenant.sapos.settings['rules-salesreps-invoice-billing'] != null
+                && M.curTenant.sapos.settings['rules-salesreps-invoice-billing'] == 'edit') ) {
                 this.edit.sections.billing.active = 'yes';
                 edit = 'yes';
             } else {
                 this.edit.sections.billing.active = 'no';
             }
-            if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-shipping'] != null
-                && M.curBusiness.sapos.settings['rules-salesreps-invoice-shipping'] == 'edit') ) {
+            if( (M.curTenant.sapos.settings['rules-salesreps-invoice-shipping'] != null
+                && M.curTenant.sapos.settings['rules-salesreps-invoice-shipping'] == 'edit') ) {
                 this.edit.sections.shipping.active = 'yes';
                 edit = 'yes';
             } else {
                 this.edit.sections.shipping.active = 'no';
             }
-            if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-work'] != null
-                && M.curBusiness.sapos.settings['rules-salesreps-invoice-work'] == 'edit') ) {
+            if( (M.curTenant.sapos.settings['rules-salesreps-invoice-work'] != null
+                && M.curTenant.sapos.settings['rules-salesreps-invoice-work'] == 'edit') ) {
                 this.edit.sections.work.active = 'yes';
                 edit = 'yes';
             } else {
                 this.edit.sections.work.active = 'no';
             }
-            if( (M.curBusiness.sapos.settings['rules-salesreps-invoice-notes'] != null
-                && M.curBusiness.sapos.settings['rules-salesreps-invoice-notes'] == 'edit') ) {
+            if( (M.curTenant.sapos.settings['rules-salesreps-invoice-notes'] != null
+                && M.curTenant.sapos.settings['rules-salesreps-invoice-notes'] == 'edit') ) {
                 this.edit.sections._customer_notes.active = 'yes';
                 this.edit.sections._internal_notes.active = 'yes';
                 edit = 'yes';
@@ -1133,17 +1133,17 @@ function ciniki_sapos_invoice() {
             c = 'objects=' + c + '&';
         }
         if( args != null && args.type != null ) {
-            if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 && args.type == 10) {
+            if( (M.curTenant.modules['ciniki.sapos'].flags&0x01) > 0 && args.type == 10) {
                 c += 'invoice_type=10&';
-            } else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 && args.type == 11) {
+            } else if( (M.curTenant.modules['ciniki.sapos'].flags&0x1000) > 0 && args.type == 11) {
                 c += 'invoice_type=11&';
-            } else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 && args.type == 20) {
+            } else if( (M.curTenant.modules['ciniki.sapos'].flags&0x08) > 0 && args.type == 20) {
                 c += 'invoice_type=20&';
-            } else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 && args.type == 30) {
+            } else if( (M.curTenant.modules['ciniki.sapos'].flags&0x10) > 0 && args.type == 30) {
                 c += 'invoice_type=30&';
-            } else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 && args.type == 40) {
+            } else if( (M.curTenant.modules['ciniki.sapos'].flags&0x20) > 0 && args.type == 40) {
                 c += 'invoice_type=40&';
-            } else if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 && args.type == 90) {
+            } else if( (M.curTenant.modules['ciniki.sapos'].flags&0x010000) > 0 && args.type == 90) {
                 c += 'invoice_type=90&';
             } else {
                 c += 'invoice_type=' + this.default_invoice_type + '&';
@@ -1171,7 +1171,7 @@ function ciniki_sapos_invoice() {
         }
         // Check if this should be added to an existing invoice
         if( args != null && args.invoice_id != null && args.invoice_id > 0 && objects != null ) {
-            M.api.postJSONCb('ciniki.sapos.invoiceObjectsAdd', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.invoiceObjectsAdd', {'tnid':M.curTenantID,
                 'invoice_id':args.invoice_id, 'customer_id':cid}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1183,7 +1183,7 @@ function ciniki_sapos_invoice() {
                 });
         } else {
             // Create the new invoice, and then display it
-            M.api.postJSONCb('ciniki.sapos.invoiceAdd', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.invoiceAdd', {'tnid':M.curTenantID,
                 'customer_id':cid}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1199,7 +1199,7 @@ function ciniki_sapos_invoice() {
     this.showInvoice = function(cb, iid, list) {
         if( iid != null ) { this.invoice.invoice_id = iid; }
         if( list != null ) { this.invoice.prevnext.list = list; }
-        M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID,
+        M.api.getJSONCb('ciniki.sapos.invoiceGet', {'tnid':M.curTenantID,
             'invoice_id':this.invoice.invoice_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -1317,8 +1317,8 @@ function ciniki_sapos_invoice() {
         p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
         p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
         p.sections.details.list.submitted_by.visible=(rsp.invoice.submitted_by!='')?'yes':'no';
-        if( M.curBusiness.sapos.settings['rules-invoice-submit-require-po_number']
-            && M.curBusiness.sapos.settings['rules-invoice-submit-require-po_number'] == 'yes' ) {
+        if( M.curTenant.sapos.settings['rules-invoice-submit-require-po_number']
+            && M.curTenant.sapos.settings['rules-invoice-submit-require-po_number'] == 'yes' ) {
             // Force visible if required field
             p.sections.details.list.po_number.visible = 'yes';
         }
@@ -1326,15 +1326,15 @@ function ciniki_sapos_invoice() {
         p.sections.internal_notes.visible=(rsp.invoice.internal_notes!='')?'yes':'no';
         p.sections.details.list.salesrep_id_text.visible=(rsp.invoice.salesrep_id_text!=null&&rsp.invoice.salesrep_id_text!='')?'yes':'no';
         // Decide if pricepoint should be shown
-        if( M.curBusiness.modules['ciniki.customers'] != null 
-            && (M.curBusiness.modules['ciniki.customers'].flags&0x1000) > 0 ) {
+        if( M.curTenant.modules['ciniki.customers'] != null 
+            && (M.curTenant.modules['ciniki.customers'].flags&0x1000) > 0 ) {
             if( rsp.invoice.pricepoint_id != null && rsp.invoice.pricepoint_id > 0 
-                && M.curBusiness.customers.settings != null
-                && M.curBusiness.customers.settings.pricepoints != null 
+                && M.curTenant.customers.settings != null
+                && M.curTenant.customers.settings.pricepoints != null 
                 ) {
-                for(i in M.curBusiness.customers.settings.pricepoints) {
-                    if( M.curBusiness.customers.settings.pricepoints[i].pricepoint.id == rsp.invoice.pricepoint_id ) {
-                        rsp.invoice.pricepoint_id_text = M.curBusiness.customers.settings.pricepoints[i].pricepoint.name;
+                for(i in M.curTenant.customers.settings.pricepoints) {
+                    if( M.curTenant.customers.settings.pricepoints[i].pricepoint.id == rsp.invoice.pricepoint_id ) {
+                        rsp.invoice.pricepoint_id_text = M.curTenant.customers.settings.pricepoints[i].pricepoint.name;
                         break;
                     }
                 }
@@ -1368,9 +1368,9 @@ function ciniki_sapos_invoice() {
         }
         // Must be owner/employee/sysadmin to add/edit customers
         p.rightbuttons = {};
-        if( M.curBusiness.permissions.owners == null 
-            && M.curBusiness.permissions.employees == null 
-            && M.curBusiness.permissions.salesreps != null
+        if( M.curTenant.permissions.owners == null 
+            && M.curTenant.permissions.employees == null 
+            && M.curTenant.permissions.salesreps != null
             && (M.userPerms&0x01) == 0
             ) {
             p.sections.customer_details.addTxt = '';
@@ -1378,19 +1378,19 @@ function ciniki_sapos_invoice() {
             p.sections._buttons.buttons.delete.visible=(rsp.invoice.status==10?'yes':'no');
             p.sections.shipitems.addTxt = (rsp.invoice.status == 10)?'Add':'';
             p.sections.items.addTxt = (rsp.invoice.status == 10)?'Add':'';
-            if( ((M.curBusiness.sapos.settings['rules-salesreps-invoice-po_number'] != null
-                    && M.curBusiness.sapos.settings['rules-salesreps-invoice-po_number'] == 'edit') 
-                || (M.curBusiness.sapos.settings['rules-salesreps-invoice-billing'] != null
-                    && M.curBusiness.sapos.settings['rules-salesreps-billing'] == 'edit') 
-                || (M.curBusiness.sapos.settings['rules-salesreps-invoice-shipping'] != null
-                    && M.curBusiness.sapos.settings['rules-salesreps-invoice-shipping'] == 'edit') 
-                || (M.curBusiness.sapos.settings['rules-salesreps-invoice-work'] != null
-                    && M.curBusiness.sapos.settings['rules-salesreps-invoice-work'] == 'edit') 
+            if( ((M.curTenant.sapos.settings['rules-salesreps-invoice-po_number'] != null
+                    && M.curTenant.sapos.settings['rules-salesreps-invoice-po_number'] == 'edit') 
+                || (M.curTenant.sapos.settings['rules-salesreps-invoice-billing'] != null
+                    && M.curTenant.sapos.settings['rules-salesreps-billing'] == 'edit') 
+                || (M.curTenant.sapos.settings['rules-salesreps-invoice-shipping'] != null
+                    && M.curTenant.sapos.settings['rules-salesreps-invoice-shipping'] == 'edit') 
+                || (M.curTenant.sapos.settings['rules-salesreps-invoice-work'] != null
+                    && M.curTenant.sapos.settings['rules-salesreps-invoice-work'] == 'edit') 
                 ) && rsp.invoice.status < 20 ) {
                 p.addButton('edit', 'Edit', 'M.ciniki_sapos_invoice.editInvoice(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.invoice_id);');
             }
         } else {
-            if( rsp.invoice.status < 50 || M.curBusiness.permissions.owners != null ) {
+            if( rsp.invoice.status < 50 || M.curTenant.permissions.owners != null ) {
                 p.addButton('edit', 'Edit', 'M.ciniki_sapos_invoice.editInvoice(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.invoice_id);');
             }
             if( rsp.invoice.invoice_type == '10' ) {
@@ -1402,7 +1402,7 @@ function ciniki_sapos_invoice() {
             }
             p.sections._buttons.buttons.delete.visible=(rsp.invoice.status<40&&(rsp.invoice.transactions==null||rsp.invoice.transactions.length==0)&&(rsp.invoice.shipments==null||rsp.invoice.shipments.length==0))?'yes':'no';
             p.sections.shipitems.addTxt = (rsp.invoice.status < 50)?'Add':'';
-            p.sections.items.addTxt = (rsp.invoice.status < 50||(M.curBusiness.sapos.settings['rules-invoice-paid-change-items'] != null && M.curBusiness.sapos.settings['rules-invoice-paid-change-items'] == 'yes'))?'Add':'';
+            p.sections.items.addTxt = (rsp.invoice.status < 50||(M.curTenant.sapos.settings['rules-invoice-paid-change-items'] != null && M.curTenant.sapos.settings['rules-invoice-paid-change-items'] == 'yes'))?'Add':'';
         }
         if( rsp.invoice.billing_name != '' || rsp.invoice.billing_address1 != '' ) {
             p.sections.billing.visible = 'yes';
@@ -1428,7 +1428,7 @@ function ciniki_sapos_invoice() {
         } else {
             p.sections.billing.visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x020000)>0 && rsp.invoice.work_address1 != '' ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x020000)>0 && rsp.invoice.work_address1 != '' ) {
             p.sections.work.visible = 'yes';
             p.data.work_address = M.formatAddress({
                 'address1':p.data.work_address1,
@@ -1445,7 +1445,7 @@ function ciniki_sapos_invoice() {
         p.sections.shipping.visible=(rsp.invoice.shipping_status>0||rsp.invoice.invoice_type==40)?'yes':'no';
         p.sections.tallies.visible='yes';
         p.data.tallies = {};
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x0800) > 0 ) {
             p.data.tallies['total_nopromo_quantity'] = {'tally':{'description':'Number of Items', 'amount':rsp.invoice.total_nopromo_quantity}};
         }
         p.data.tallies['subtotal'] = {'tally':{'description':'Sub Total', 'amount':(rsp.invoice.subtotal_amount!=null)?rsp.invoice.subtotal_amount_display:'0.00'}};
@@ -1485,16 +1485,16 @@ function ciniki_sapos_invoice() {
         } else {
             p.sections.transactions.visible='no';
         }
-        if( M.curBusiness.sapos != null && M.curBusiness.sapos.settings != null 
-            && M.curBusiness.sapos.settings['paypal-api-processing'] != null 
-            && M.curBusiness.sapos.settings['paypal-api-processing'] == 'yes' ) {
+        if( M.curTenant.sapos != null && M.curTenant.sapos.settings != null 
+            && M.curTenant.sapos.settings['paypal-api-processing'] != null 
+            && M.curTenant.sapos.settings['paypal-api-processing'] == 'yes' ) {
             p.sections._buttons.buttons.terminal.visible='yes';
         } else {
             p.sections._buttons.buttons.terminal.visible='no';
         }
         if( rsp.invoice.shipping_status > 0 ) {
-            if( M.curBusiness.permissions.owners != null
-                || M.curBusiness.permissions.employees != null
+            if( M.curTenant.permissions.owners != null
+                || M.curTenant.permissions.employees != null
                 || (M.userPerms&0x01) > 0 ) {
 //              p.sections._buttons.buttons.picklist.visible = (rsp.invoice.status>15&&rsp.invoice.status<50?'yes':'no');
                 p.sections.shipments.addTxt = (rsp.invoice.status<50?'Add Shipment':'');
@@ -1526,7 +1526,7 @@ function ciniki_sapos_invoice() {
             }
         }
         p.sections._buttons.buttons.submitorder.visible = ((rsp.invoice.invoice_type=='40'||rsp.invoice.invoice_type=='20')&&rsp.invoice.items.length>0&&rsp.invoice.status==10?'yes':'no');
-        if( (M.curBusiness.permissions.owners != null || M.curBusiness.permissions.employees != null || (M.userPerms&0x01) > 0) 
+        if( (M.curTenant.permissions.owners != null || M.curTenant.permissions.employees != null || (M.userPerms&0x01) > 0) 
             && rsp.invoice.invoice_type == '40' && rsp.invoice.status < 40
             ) {
             p.sections._buttons.buttons.applydiscount.visible = 'yes';
@@ -1535,10 +1535,10 @@ function ciniki_sapos_invoice() {
         }
 //      p.sections._buttons.buttons.print.visible = (rsp.invoice.status>10?'yes':'no');
 //      p.sections._buttons.buttons.printenv.visible = (rsp.invoice.status>10?'yes':'no');
-        if( rsp.invoice.status > 10 && (M.curBusiness.sapos.settings['ui-options-print-picklist'] == null 
-            || M.curBusiness.sapos.settings['ui-options-print-picklist'] == 'yes') 
-            && ( M.curBusiness.permissions.owners != null
-                || M.curBusiness.permissions.employees != null
+        if( rsp.invoice.status > 10 && (M.curTenant.sapos.settings['ui-options-print-picklist'] == null 
+            || M.curTenant.sapos.settings['ui-options-print-picklist'] == 'yes') 
+            && ( M.curTenant.permissions.owners != null
+                || M.curTenant.permissions.employees != null
                 || (M.userPerms&0x01) > 0 ) 
             ) {
             p.sections._buttons.buttons.picklist.visible = 'yes';
@@ -1546,15 +1546,15 @@ function ciniki_sapos_invoice() {
             p.sections._buttons.buttons.picklist.visible = 'no';
         }
         p.sections._buttons.buttons.picklist.visible = 'no';
-        if( rsp.invoice.status > 10 && (M.curBusiness.sapos.settings['ui-options-print-invoice'] == null 
-            || M.curBusiness.sapos.settings['ui-options-print-invoice'] == 'yes') 
+        if( rsp.invoice.status > 10 && (M.curTenant.sapos.settings['ui-options-print-invoice'] == null 
+            || M.curTenant.sapos.settings['ui-options-print-invoice'] == 'yes') 
             ) {
             p.sections._buttons.buttons.print.visible = 'yes';
         } else {
             p.sections._buttons.buttons.print.visible = 'no';
         }
-        if( rsp.invoice.status > 10 && (M.curBusiness.sapos.settings['ui-options-print-envelope'] == null 
-            || M.curBusiness.sapos.settings['ui-options-print-envelope'] == 'yes') 
+        if( rsp.invoice.status > 10 && (M.curTenant.sapos.settings['ui-options-print-envelope'] == null 
+            || M.curTenant.sapos.settings['ui-options-print-envelope'] == 'yes') 
             ) {
             p.sections._buttons.buttons.printenv.visible = 'yes';
         } else {
@@ -1576,7 +1576,7 @@ function ciniki_sapos_invoice() {
             p.sections._buttons.buttons.delete.visible = 'yes';
         }
         if( rsp.invoice.customer_id > 0 && rsp.invoice.invoice_type != 11 && rsp.invoice.invoice_type != 16 && rsp.invoice.invoice_type != 19 
-            && M.curBusiness.modules['ciniki.mail'] != null
+            && M.curTenant.modules['ciniki.mail'] != null
             ) {
             p.sections.messages.visible = 'yes';
 //          p.sections._buttons.buttons.email.visible = 'yes';
@@ -1595,7 +1595,7 @@ function ciniki_sapos_invoice() {
         // If the customer has changed, then update the details of the invoice
         if( cid != null && this.invoice.data.customer_id != cid ) {
             // Update the customer attached to the invoice, and update shipping/billing records for the invoice
-            M.api.getJSONCb('ciniki.sapos.invoiceUpdate', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceUpdate', {'tnid':M.curTenantID,
                 'invoice_id':this.invoice.invoice_id, 'customer_id':cid, 
                 'billing_update':'yes', 'shipping_update':'yes', 'work_update':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -1605,7 +1605,7 @@ function ciniki_sapos_invoice() {
                     M.ciniki_sapos_invoice.showInvoiceFinish(null,rsp);
                 });
         } else {
-            M.api.getJSONCb('ciniki.sapos.invoiceUpdate', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceUpdate', {'tnid':M.curTenantID,
                 'invoice_id':this.invoice.invoice_id, 
                 'billing_update':'yes', 'shipping_update':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -1621,7 +1621,7 @@ function ciniki_sapos_invoice() {
     this.editInvoice = function(cb, iid) {
         if( iid != null ) { this.edit.invoice_id = iid; }
         if( this.invoice.invoice_id > 0 ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceGet', {'tnid':M.curTenantID,
                 'invoice_id':this.invoice.invoice_id, 'salesreps':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1630,9 +1630,9 @@ function ciniki_sapos_invoice() {
                     var p = M.ciniki_sapos_invoice.edit;
                     p.data = rsp.invoice;
                     // Sales Reps
-                    if( (M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0 
-                        && (M.curBusiness.permissions.owners != null
-                            || M.curBusiness.permissions.employees != null
+                    if( (M.curTenant.modules['ciniki.sapos'].flags&0x0800) > 0 
+                        && (M.curTenant.permissions.owners != null
+                            || M.curTenant.permissions.employees != null
                             || (M.userPerms&0x01) > 0
                             )
                         ) {
@@ -1651,13 +1651,13 @@ function ciniki_sapos_invoice() {
                     }
                     p.sections.shipping.fields.flags_2.active = M.modFlagSet('ciniki.sapos', 0x040000);
                     if( p.sections.details.fields.payment_status.visible == 'yes' ) {
-                        p.sections.details.fields.payment_status.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0||rsp.invoice.payment_status>0)?'yes':'no';
+                        p.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x0200)>0||rsp.invoice.payment_status>0)?'yes':'no';
                     }
                     if( p.sections.details.fields.shipping_status.visible == 'yes' ) {
-                        p.sections.details.fields.shipping_status.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0||rsp.invoice.shipping_status>0)?'yes':'no';
+                        p.sections.details.fields.shipping_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x40)>0||rsp.invoice.shipping_status>0)?'yes':'no';
                     }
                     if( p.sections.details.fields.manufacturing_status.visible == 'yes' ) {
-                        p.sections.details.fields.manufacturing_status.visible = ((M.curBusiness.modules['ciniki.sapos'].flags&0x80)>0||rsp.invoice.manufacturing_status>0)?'yes':'no';
+                        p.sections.details.fields.manufacturing_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x80)>0||rsp.invoice.manufacturing_status>0)?'yes':'no';
                     }
                     p.refresh();
                     p.show(cb);
@@ -1669,7 +1669,7 @@ function ciniki_sapos_invoice() {
     this.saveInvoice = function() {
         var c = this.edit.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.invoiceUpdate', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.invoiceUpdate', {'tnid':M.curTenantID,
                 'invoice_id':this.edit.invoice_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1686,7 +1686,7 @@ function ciniki_sapos_invoice() {
         var v = prompt(n, M.ciniki_sapos_invoice.invoice.data[f]);
         if( v != null && v != '' ) {
             c = '&' + encodeURIComponent(f) + '=' + encodeURIComponent(v);
-            M.api.postJSONCb('ciniki.sapos.invoiceUpdate', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.invoiceUpdate', {'tnid':M.curTenantID,
                 'invoice_id':this.invoice.invoice_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1700,7 +1700,7 @@ function ciniki_sapos_invoice() {
     this.deleteInvoice = function(iid) {
         if( iid <= 0 ) { return false; }
         if( confirm("Are you sure you want to remove this invoice from the system?") ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceDelete', {'tnid':M.curTenantID,
                 'invoice_id':iid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1713,38 +1713,38 @@ function ciniki_sapos_invoice() {
 
     this.printInvoice = function(iid) {
         if( iid <= 0 ) { return false; }
-//      window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 'invoice_id':iid}));
-//        M.api.openPDF('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 'invoice_id':iid});
-        M.showPDF('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 'invoice_id':iid});
+//      window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 'invoice_id':iid}));
+//        M.api.openPDF('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 'invoice_id':iid});
+        M.showPDF('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 'invoice_id':iid});
     };
 
     this.emailCustomer = function(cb, invoice) {
         this.email.invoice_id = invoice.id;
         this.email.data.subject = 'Invoice #' + invoice.invoice_number;
-        if( M.curBusiness.sapos.settings['invoice-email-message'] != null ) {
-            this.email.data.textmsg = M.curBusiness.sapos.settings['invoice-email-message'];
+        if( M.curTenant.sapos.settings['invoice-email-message'] != null ) {
+            this.email.data.textmsg = M.curTenant.sapos.settings['invoice-email-message'];
         } else {
             this.email.data.textmsg = 'Please find your invoice attached.';
         }
         if( invoice.invoice_type == 20 ) {
             this.email.data.subject = 'Shopping Cart #' + invoice.invoice_number;
-            if( M.curBusiness.sapos.settings['cart-email-message'] != null ) {
-                this.email.data.textmsg = M.curBusiness.sapos.settings['cart-email-message'];
+            if( M.curTenant.sapos.settings['cart-email-message'] != null ) {
+                this.email.data.textmsg = M.curTenant.sapos.settings['cart-email-message'];
             } 
         } else if( invoice.invoice_type == 30 ) {
             this.email.data.subject = 'Receipt #' + invoice.invoice_number;
-            if( M.curBusiness.sapos.settings['pos-email-message'] != null ) {
-                this.email.data.textmsg = M.curBusiness.sapos.settings['pos-email-message'];
+            if( M.curTenant.sapos.settings['pos-email-message'] != null ) {
+                this.email.data.textmsg = M.curTenant.sapos.settings['pos-email-message'];
             } 
         } else if( invoice.invoice_type == 40 ) {
             this.email.data.subject = 'Order #' + invoice.invoice_number;
-            if( M.curBusiness.sapos.settings['order-email-message'] != null ) {
-                this.email.data.textmsg = M.curBusiness.sapos.settings['order-email-message'];
+            if( M.curTenant.sapos.settings['order-email-message'] != null ) {
+                this.email.data.textmsg = M.curTenant.sapos.settings['order-email-message'];
             } 
         } else if( invoice.invoice_type == 90 ) {
             this.email.data.subject = 'Quote #' + invoice.invoice_number;
-            if( M.curBusiness.sapos.settings['quote-email-message'] != null ) {
-                this.email.data.textmsg = M.curBusiness.sapos.settings['quote-email-message'];
+            if( M.curTenant.sapos.settings['quote-email-message'] != null ) {
+                this.email.data.textmsg = M.curTenant.sapos.settings['quote-email-message'];
             } 
         }
         this.email.refresh();
@@ -1754,7 +1754,7 @@ function ciniki_sapos_invoice() {
     this.sendEmail = function() {
         var subject = this.email.formFieldValue(this.email.sections._subject.fields.subject, 'subject');
         var textmsg = this.email.formFieldValue(this.email.sections._textmsg.fields.textmsg, 'textmsg');
-        M.api.getJSONCb('ciniki.sapos.invoicePDF', {'business_id':M.curBusinessID, 
+        M.api.getJSONCb('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 
             'invoice_id':this.email.invoice_id, 'subject':subject, 'textmsg':textmsg, 'output':'pdf', 'email':'yes'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -1767,28 +1767,28 @@ function ciniki_sapos_invoice() {
     this.printQuote = function(iid) {
         if( iid <= 0 ) { return false; }
 //      window.open(M.api.getUploadURL('ciniki.sapos.quotePDF',
-//          {'business_id':M.curBusinessID, 'invoice_id':iid}));
-        M.api.openPDF('ciniki.sapos.quotePDF', {'business_id':M.curBusinessID, 'invoice_id':iid});
+//          {'tnid':M.curTenantID, 'invoice_id':iid}));
+        M.api.openPDF('ciniki.sapos.quotePDF', {'tnid':M.curTenantID, 'invoice_id':iid});
     };
 
     this.printPickList = function(iid) {
         if( iid <= 0 ) { return false; }
 //      window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF',
-//          {'business_id':M.curBusinessID, 'invoice_id':iid, 'type':'picklist'}));
+//          {'tnid':M.curTenantID, 'invoice_id':iid, 'type':'picklist'}));
         M.api.openPDF('ciniki.sapos.invoicePDF',
-            {'business_id':M.curBusinessID, 'invoice_id':iid, 'type':'picklist'});
+            {'tnid':M.curTenantID, 'invoice_id':iid, 'type':'picklist'});
     };
 
     this.printEnvelope = function(iid) {
         if( iid <= 0 ) { return false; }
 //      window.open(M.api.getUploadURL('ciniki.sapos.invoicePDFEnv',
-//          {'business_id':M.curBusinessID, 'invoice_id':iid}));
+//          {'tnid':M.curTenantID, 'invoice_id':iid}));
         M.api.openPDF('ciniki.sapos.invoicePDFEnv',
-            {'business_id':M.curBusinessID, 'invoice_id':iid});
+            {'tnid':M.curTenantID, 'invoice_id':iid});
     };
 
     this.submitOrder = function(iid) {
-        M.api.getJSONCb('ciniki.sapos.invoiceAction', {'business_id':M.curBusinessID,
+        M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
             'invoice_id':iid, 'action':'submit'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -1800,7 +1800,7 @@ function ciniki_sapos_invoice() {
     this.applyDiscount = function(iid) {
         var d = prompt('Enter Discount Percent', '');
         if( d != '' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceAction', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
                 'invoice_id':iid, 'action':'discount', 'unit_discount_percentage':d}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1827,8 +1827,8 @@ function ciniki_sapos_invoice() {
             'country':p.data.billing_country,
             'phone':'',
         };
-        if( M.curBusiness.intl != null && M.curBusiness.intl['intl-default-currency'] != null ) {
-            d.currency = M.curBusiness.intl['intl-default-currency'];
+        if( M.curTenant.intl != null && M.curTenant.intl['intl-default-currency'] != null ) {
+            d.currency = M.curTenant.intl['intl-default-currency'];
         }
         if( p.data.billing_name != '' ) {
             var sn = p.data.billing_name.split(' ');
@@ -1854,7 +1854,7 @@ function ciniki_sapos_invoice() {
 //      if( ppid != null ) { this.item.pricepoint_id = ppid; }
         if( this.item.item_id > 0 ) {
             this.item.sections._buttons.buttons.delete.visible = 'yes';
-            M.api.getJSONCb('ciniki.sapos.invoiceItemGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceItemGet', {'tnid':M.curTenantID,
                 'item_id':this.item.item_id, 'taxtypes':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1893,8 +1893,8 @@ function ciniki_sapos_invoice() {
             p.price_id = 0;
             p.sections._buttons.buttons.delete.visible = 'no';
             p.sections.details.fields.force_backorder.active = 'no';
-//          if( M.curBusiness.modules['ciniki.taxes'] != null ) {
-//              M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
+//          if( M.curTenant.modules['ciniki.taxes'] != null ) {
+//              M.api.getJSONCb('ciniki.taxes.typeList', {'tnid':M.curTenantID}, function(rsp) {
 //                  if( rsp.stat != 'ok' ) {
 //                      M.api.err(rsp);
 //                      return false;
@@ -1939,7 +1939,7 @@ function ciniki_sapos_invoice() {
                 }
             }
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.invoiceItemUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.invoiceItemUpdate', {'tnid':M.curTenantID,
                     'item_id':this.item.item_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -1961,7 +1961,7 @@ function ciniki_sapos_invoice() {
             if( this.item.price_id > 0 ) {
                 c += 'price_id=' + this.item.price_id + '&';
             }
-            M.api.postJSONCb('ciniki.sapos.invoiceItemAdd', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.invoiceItemAdd', {'tnid':M.curTenantID,
                 'invoice_id':this.item.invoice_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1975,7 +1975,7 @@ function ciniki_sapos_invoice() {
     this.deleteItem = function(iid) {
         if( iid <= 0 ) { return false; }
         if( confirm("Are you sure you want to remove this item?") ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceItemDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceItemDelete', {'tnid':M.curTenantID,
                 'item_id':iid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1990,7 +1990,7 @@ function ciniki_sapos_invoice() {
         if( tid != null ) { this.transaction.transaction_id = tid; }
         if( inid != null ) { this.transaction.invoice_id = inid; }
         if( this.transaction.transaction_id > 0 ) {
-            M.api.getJSONCb('ciniki.sapos.transactionGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.transactionGet', {'tnid':M.curTenantID,
                 'transaction_id':this.transaction.transaction_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -2025,7 +2025,7 @@ function ciniki_sapos_invoice() {
         if( this.transaction.transaction_id > 0 ) {
             var c = this.transaction.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.transactionUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.transactionUpdate', {'tnid':M.curTenantID,
                     'transaction_id':this.transaction.transaction_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -2038,7 +2038,7 @@ function ciniki_sapos_invoice() {
             }
         } else {
             var c = this.transaction.serializeForm('yes');
-            M.api.postJSONCb('ciniki.sapos.transactionAdd', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.transactionAdd', {'tnid':M.curTenantID,
                 'invoice_id':this.transaction.invoice_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -2052,7 +2052,7 @@ function ciniki_sapos_invoice() {
     this.deleteTransaction = function(tid) {
         if( tid <= 0 ) { return false; }
         if( confirm("Are you sure you want to remove this transaction?") ) {
-            M.api.getJSONCb('ciniki.sapos.transactionDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.transactionDelete', {'tnid':M.curTenantID,
                 'transaction_id':tid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

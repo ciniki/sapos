@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This cron job checks for any recurring invoices that need to be created in any business.
+// This cron job checks for any recurring invoices that need to be created in any tenant.
 //
 // Arguments
 // =========
@@ -17,18 +17,18 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAddFromRecurring');
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'checkModuleAccess');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'checkModuleAccess');
 
     //
     // Get the list of recurring invoices with a invoice_date of today or before
     //
-    $strsql = "SELECT ri.business_id, "
+    $strsql = "SELECT ri.tnid, "
         . "ri.id AS recurring_id, "
         . "i.id AS invoice_id "
         . "FROM ciniki_sapos_invoices AS ri "
         . "LEFT JOIN ciniki_sapos_invoices AS i ON ("
             . "ri.id = i.source_id "
-            . "AND ri.business_id = i.business_id "
+            . "AND ri.tnid = i.tnid "
             . "AND ri.invoice_date = i.invoice_date "
             . ") "
         . "WHERE (ri.invoice_type = 11 OR ri.invoice_type = 16 OR ri.invoice_type = 19) "
@@ -45,12 +45,12 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
     
     foreach($recurring as $ri) {
         //
-        // We need the modules that are enabled for this business
+        // We need the modules that are enabled for this tenant
         //
-        $ciniki['business']['modules'] = array();
-        $rc = ciniki_businesses_checkModuleAccess($ciniki, $ri['business_id'], 'ciniki', 'sapos');
+        $ciniki['tenant']['modules'] = array();
+        $rc = ciniki_tenants_checkModuleAccess($ciniki, $ri['tnid'], 'ciniki', 'sapos');
         if( $rc['stat'] != 'ok' ) {
-            ciniki_cron_logMsg($ciniki, $rc['business_id'], array('code'=>'ciniki.sapos.206', 'msg'=>'Unable to check module access.',
+            ciniki_cron_logMsg($ciniki, $rc['tnid'], array('code'=>'ciniki.sapos.206', 'msg'=>'Unable to check module access.',
                 'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
                 ));
             return $rc;
@@ -58,16 +58,16 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
         //
         // Add the missing recurring invoices
         //
-        $rc = ciniki_sapos_invoiceAddFromRecurring($ciniki, $ri['business_id'], $ri['recurring_id']);
+        $rc = ciniki_sapos_invoiceAddFromRecurring($ciniki, $ri['tnid'], $ri['recurring_id']);
         if( $rc['stat'] != 'ok' ) {
             //
             // Log the message but don't exit, there might be many more to setup
             //
-            ciniki_cron_logMsg($ciniki, $rc['business_id'], array('code'=>'ciniki.sapos.205', 'msg'=>'Unable to add recurring invoice',
+            ciniki_cron_logMsg($ciniki, $rc['tnid'], array('code'=>'ciniki.sapos.205', 'msg'=>'Unable to add recurring invoice',
                 'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
                 ));
         }
-        $ciniki['business']['modules'] = array();
+        $ciniki['tenant']['modules'] = array();
     }
 
     return array('stat'=>'ok');

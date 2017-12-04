@@ -65,7 +65,7 @@ function ciniki_sapos_carts() {
     this.showList = function(cb, list) {
         if( list != null ) { this.list._list = list; }
         if( this.list._list == 'opencarts' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'status':'10', 'type':'20', 'sort':'invoice_date_desc'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

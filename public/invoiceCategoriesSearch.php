@@ -16,7 +16,7 @@ function ciniki_sapos_invoiceCategoriesSearch(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'start_needle'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Search String'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         )); 
@@ -27,10 +27,10 @@ function ciniki_sapos_invoiceCategoriesSearch(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceCategoriesSearch'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.invoiceCategoriesSearch'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -40,7 +40,7 @@ function ciniki_sapos_invoiceCategoriesSearch(&$ciniki) {
     //
     $strsql = "SELECT DISTINCT category "
         . "FROM ciniki_sapos_invoice_items "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND category <> '' "
         . "";
     if( isset($args['start_needle']) && $args['start_needle'] != '' ) {

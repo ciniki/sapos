@@ -12,12 +12,12 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id, $limit=0) {
+function ciniki_sapos_objectInvoices($ciniki, $tnid, $object, $object_id, $limit=0) {
 
-//  ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'timezoneOffset');
-//  $utc_offset = ciniki_businesses_timezoneOffset($ciniki);
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+//  ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'timezoneOffset');
+//  $utc_offset = ciniki_tenants_timezoneOffset($ciniki);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -53,14 +53,14 @@ function ciniki_sapos_objectInvoices($ciniki, $business_id, $object, $object_id,
         . "FROM ciniki_sapos_invoice_items "
         . "LEFT JOIN ciniki_sapos_invoices ON (ciniki_sapos_invoice_items.invoice_id = ciniki_sapos_invoices.id "
             . "AND ciniki_sapos_invoices.status < 60 "
-            . "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_customers ON (ciniki_sapos_invoices.customer_id = ciniki_customers.id "
-            . "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE ciniki_sapos_invoice_items.object = '" . ciniki_core_dbQuote($ciniki, $object) . "' "
         . "AND ciniki_sapos_invoice_items.object_id = '" . ciniki_core_dbQuote($ciniki, $object_id) . "' "
-        . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "ORDER BY ciniki_sapos_invoices.invoice_date DESC "
         . "";
     if( $limit > 0 ) {

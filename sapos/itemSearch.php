@@ -10,7 +10,7 @@
 // Returns
 // =======
 //
-function ciniki_sapos_sapos_itemSearch($ciniki, $business_id, $args) {
+function ciniki_sapos_sapos_itemSearch($ciniki, $tnid, $args) {
 
     if( $args['start_needle'] == '' ) {
         return array('stat'=>'ok', 'items'=>array());
@@ -31,7 +31,7 @@ function ciniki_sapos_sapos_itemSearch($ciniki, $business_id, $args) {
         . "ciniki_sapos_donation_packages.primary_image_id, "
         . "ciniki_sapos_donation_packages.synopsis "
         . "FROM ciniki_sapos_donation_packages "
-        . "WHERE ciniki_sapos_donation_packages.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_sapos_donation_packages.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND (ciniki_sapos_donation_packages.name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "OR ciniki_sapos_donation_packages.name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "OR ciniki_sapos_donation_packages.invoice_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "

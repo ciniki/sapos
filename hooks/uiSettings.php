@@ -7,12 +7,12 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:     The ID of the business to get events for.
+// tnid:     The ID of the tenant to get events for.
 //
 // Returns
 // -------
 //
-function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
+function ciniki_sapos_hooks_uiSettings($ciniki, $tnid, $args) {
 
     //
     // Setup the default 
@@ -22,7 +22,7 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
     //
     // Get the settings
     //
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', '');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', '');
     if( $rc['stat'] == 'ok' && isset($rc['settings']) ) {
         $rsp['settings'] = $rc['settings'];
     }
@@ -66,7 +66,7 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
     //
     // Show the Accounting item
     //
-    if( isset($ciniki['business']['modules']['ciniki.sapos'])
+    if( isset($ciniki['tenant']['modules']['ciniki.sapos'])
         && (isset($args['permissions']['owners'])
             || isset($args['permissions']['employees'])
             || isset($args['permissions']['resellers'])
@@ -98,7 +98,7 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $business_id, $args) {
         $rsp['menu_items'][] = $menu_item;
     } 
 
-    if( isset($ciniki['business']['modules']['ciniki.sapos'])
+    if( isset($ciniki['tenant']['modules']['ciniki.sapos'])
         && (isset($args['permissions']['owners'])
             || isset($args['permissions']['resellers'])
             || ($ciniki['session']['user']['perms']&0x01) == 0x01

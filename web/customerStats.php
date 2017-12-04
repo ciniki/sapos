@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_customerStats($ciniki, $settings, $business_id, $customer_id) {
+function ciniki_sapos_web_customerStats($ciniki, $settings, $tnid, $customer_id) {
 
     $stats = array();
 
@@ -17,7 +17,7 @@ function ciniki_sapos_web_customerStats($ciniki, $settings, $business_id, $custo
         . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS typestatus, "
         . "COUNT(id) "
         . "FROM ciniki_sapos_invoices "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND customer_id = '" . ciniki_core_dbQuote($ciniki, $customer_id) . "' "
         . "GROUP BY invoice_type, status "
         . "";

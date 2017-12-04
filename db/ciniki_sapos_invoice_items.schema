@@ -11,7 +11,7 @@
 # ------
 # id:               The invoice ID.
 # uuid:             The Universal Unique ID for the invoice.
-# business_id:      The business the invoice is for.
+# tnid:             The tenant the invoice is for.
 #
 # invoice_id:       The ID of the invoice the item is attached to.
 #
@@ -34,7 +34,7 @@
 #                   0x40 - Shipped Item
 #                   0x80 - 
 #                   0x0100 - Backordered, the item is out of stock and currently backordered
-#                   0x0200 - Forced backordered.  The item may be in stock, but business doesn't want to ship the full quantity.
+#                   0x0200 - Forced backordered.  The item may be in stock, but tenant doesn't want to ship the full quantity.
 #                   0x0400 - 
 #                   0x0800 -
 #                   0x1000 - Surcharge, display at bottom of invoice.
@@ -92,7 +92,7 @@
 create table ciniki_sapos_invoice_items (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     invoice_id int not null,
     line_number int not null,
     status tinyint unsigned not null,
@@ -118,5 +118,5 @@ create table ciniki_sapos_invoice_items (
     last_updated datetime not null,
     primary key (id),
     index (invoice_id, object, object_id, taxtype_id),
-    index sync (uuid, business_id, last_updated)
+    index sync (uuid, tnid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.06';

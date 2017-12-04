@@ -11,12 +11,12 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
+function ciniki_sapos_packingListLoad(&$ciniki, $tnid, $shipment_id) {
     //
     // Load the date formating
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -58,7 +58,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
         . "ciniki_sapos_shipments.ship_date "
         . "FROM ciniki_sapos_shipments "
         . "WHERE ciniki_sapos_shipments.id = '" . ciniki_core_dbQuote($ciniki, $shipment_id) . "' "
-        . "AND ciniki_sapos_shipments.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_shipments.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -135,7 +135,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
         . "internal_notes "
         . "FROM ciniki_sapos_invoices "
         . "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
-        . "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
@@ -180,14 +180,14 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
     //
     if( $shipment['invoice']['salesrep_id'] > 0 ) {
         $strsql = "SELECT display_name "
-            . "FROM ciniki_business_users, ciniki_users "
-            . "WHERE ciniki_business_users.user_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice']['salesrep_id']) . "' "
-            . "AND ciniki_business_users.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-            . "AND ciniki_business_users.package = 'ciniki' "
-            . "AND ciniki_business_users.permission_group = 'salesreps' "
-            . "AND ciniki_business_users.user_id = ciniki_users.id "
+            . "FROM ciniki_tenant_users, ciniki_users "
+            . "WHERE ciniki_tenant_users.user_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice']['salesrep_id']) . "' "
+            . "AND ciniki_tenant_users.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND ciniki_tenant_users.package = 'ciniki' "
+            . "AND ciniki_tenant_users.permission_group = 'salesreps' "
+            . "AND ciniki_tenant_users.user_id = ciniki_users.id "
             . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'user');
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tenants', 'user');
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -215,7 +215,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
         . "ciniki_sapos_invoice_items.notes "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
-        . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "ORDER BY ciniki_sapos_invoice_items.code, ciniki_sapos_invoice_items.description "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
@@ -242,7 +242,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $business_id, $shipment_id) {
         . "ciniki_sapos_shipment_items.quantity, "
         . "ciniki_sapos_shipment_items.notes "
         . "FROM ciniki_sapos_shipment_items "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND shipment_id = '" . ciniki_core_dbQuote($ciniki, $shipment_id) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');

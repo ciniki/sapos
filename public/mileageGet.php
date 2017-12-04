@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will return a mileage entry for a business.
+// This method will return a mileage entry for a tenant.
 //
 // Arguments
 // ---------
@@ -16,7 +16,7 @@ function ciniki_sapos_mileageGet(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'mileage_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Mileage'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -26,10 +26,10 @@ function ciniki_sapos_mileageGet(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.mileageGet'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.mileageGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -38,7 +38,7 @@ function ciniki_sapos_mileageGet(&$ciniki) {
     // Return the mileage record
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'mileageLoad');
-    $rc = ciniki_sapos_mileageLoad($ciniki, $args['business_id'], $args['mileage_id']);
+    $rc = ciniki_sapos_mileageLoad($ciniki, $args['tnid'], $args['mileage_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

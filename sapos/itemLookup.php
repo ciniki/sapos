@@ -10,7 +10,7 @@
 // Returns
 // =======
 //
-function ciniki_sapos_sapos_itemLookup($ciniki, $business_id, $args) {
+function ciniki_sapos_sapos_itemLookup($ciniki, $tnid, $args) {
 
     if( !isset($args['object']) || $args['object'] == '' || !isset($args['object_id']) || $args['object_id'] == '' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.224', 'msg'=>'No event specified.'));
@@ -37,7 +37,7 @@ function ciniki_sapos_sapos_itemLookup($ciniki, $business_id, $args) {
             . "ciniki_sapos_donation_packages.synopsis, "
             . "ciniki_sapos_donation_packages.description "
             . "FROM ciniki_sapos_donation_packages "
-            . "WHERE ciniki_sapos_donation_packages.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_sapos_donation_packages.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_sapos_donation_packages.id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
             . "AND (flags&0x01) = 0x01 "
             . "";

@@ -9,14 +9,14 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id, $cart) {
+function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $tnid, $cart) {
 
     //
     // Issue callbacks for invoice items
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartItemPaymentReceived');
     foreach($cart['items'] as $item) {
-        $rc = ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $business_id, array(
+        $rc = ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $tnid, array(
             'invoice_id'=>$cart['id'],
             'item_id'=>$item['item']['id'],
             'student_id'=>$item['item']['student_id'],
@@ -33,11 +33,11 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
     if( $cart['shipping_status'] > 0 ) {
         $cart['status'] = 30;
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'submitOrder');
-        $rc = ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id, $cart);
+        $rc = ciniki_sapos_web_submitOrder($ciniki, $settings, $tnid, $cart);
     } else {
         $cart['status'] = 50;
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'submitInvoice');
-        $rc = ciniki_sapos_web_submitInvoice($ciniki, $settings, $business_id, $cart);
+        $rc = ciniki_sapos_web_submitInvoice($ciniki, $settings, $tnid, $cart);
     }
     if( $rc['stat'] != 'ok' ) {
         $carterrors = "Oops, we seem to have had a problem with your order.";
@@ -50,23 +50,23 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
     //
     if( isset($cart['customer']['emails'][0]['email']['address'])) {
         //
-        // Load business details
+        // Load tenant details
         //
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'businessDetails');
-        $rc = ciniki_businesses_businessDetails($ciniki, $business_id);
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'tenantDetails');
+        $rc = ciniki_tenants_tenantDetails($ciniki, $tnid);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
-        $business_details = array();
+        $tenant_details = array();
         if( isset($rc['details']) && is_array($rc['details']) ) {
-            $business_details = $rc['details'];
+            $tenant_details = $rc['details'];
         }
 
         //
         // Load the invoice settings
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-        $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', '');
+        $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', '');
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -83,7 +83,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
             return $rc;
         }
         $fn = $rc['function_call'];
-        $rc = $fn($ciniki, $business_id, $cart['id'], $business_details, $sapos_settings, 'email');
+        $rc = $fn($ciniki, $tnid, $cart['id'], $tenant_details, $sapos_settings, 'email');
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -98,7 +98,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
         $subject = "Invoice #" . $invoice['invoice_number'];
         $textmsg = "Thank you for your order, please find the receipt attached.";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
-        $rc = ciniki_mail_hooks_addMessage($ciniki, $business_id, array(
+        $rc = ciniki_mail_hooks_addMessage($ciniki, $tnid, array(
             'object'=>'ciniki.sapos.invoice',
             'object_id'=>$cart['id'],
             'customer_id'=>$invoice['customer']['id'],
@@ -112,10 +112,10 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
-        $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$business_id);
+        $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$tnid);
 /*        $ciniki['emailqueue'][] = array('to'=>$invoice['customer']['emails'][0]['email']['address'],
             'to_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
-            'business_id'=>$business_id,
+            'tnid'=>$tnid,
             'subject'=>$subject,
             'textmsg'=>$textmsg,
             'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
@@ -144,12 +144,12 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
                 $email = trim($email);
 /*                $ciniki['emailqueue'][] = array('to'=>$email,
                     'to_name'=>'',
-                    'business_id'=>$business_id,
+                    'tnid'=>$tnid,
                     'subject'=>$subject,
                     'textmsg'=>$textmsg,
                     'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
                     ); */
-                $rc = ciniki_mail_hooks_addMessage($ciniki, $business_id, array(
+                $rc = ciniki_mail_hooks_addMessage($ciniki, $tnid, array(
                     'object'=>'ciniki.sapos.invoice',
                     'object_id'=>$cart['id'],
                     'customer_email'=>$email,
@@ -162,7 +162,7 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $business_id,
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
-                $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$business_id);
+                $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$tnid);
             }
 
         }

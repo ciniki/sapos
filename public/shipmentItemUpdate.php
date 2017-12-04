@@ -16,7 +16,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'sitem_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Shipment Item'),
         'quantity'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Quantity'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
@@ -28,10 +28,10 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.shipmentItemUpdate'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.shipmentItemUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -49,7 +49,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     $strsql = "SELECT id, shipment_id, item_id, quantity "
         . "FROM ciniki_sapos_shipment_items "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['sitem_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
     if( $rc['stat'] != 'ok' ) {
@@ -66,7 +66,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     $strsql = "SELECT id, invoice_id, status, shipment_number "
         . "FROM ciniki_sapos_shipments "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['shipment_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
     if( $rc['stat'] != 'ok' ) {
@@ -91,7 +91,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $item['item_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
     if( $rc['stat'] != 'ok' ) {
@@ -108,7 +108,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     $strsql = "SELECT invoice_number "
         . "FROM ciniki_sapos_invoices "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
     if( $rc['stat'] != 'ok' ) {
@@ -154,7 +154,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         if( $new_shipped_quantity < 0 ) {
             $new_shipped_quantity = 0;
         }
-        $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $invoice_item['id'], array('shipped_quantity'=>$new_shipped_quantity), 0x04);
+        $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $invoice_item['id'], array('shipped_quantity'=>$new_shipped_quantity), 0x04);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.129', 'msg'=>'Unable to update the invoice.'));
@@ -168,7 +168,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryReplace');
             if( $rc['stat'] == 'ok' ) {
                 $fn = $rc['function_call'];
-                $rc = $fn($ciniki, $args['business_id'], array(
+                $rc = $fn($ciniki, $args['tnid'], array(
                     'object'=>$invoice_item['object'],
                     'object_id'=>$invoice_item['object_id'],
                     'quantity'=>$quantity_removed,
@@ -218,7 +218,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryRemove');
             if( $rc['stat'] == 'ok' ) {
                 $fn = $rc['function_call'];
-                $rc = $fn($ciniki, $args['business_id'], array(
+                $rc = $fn($ciniki, $args['tnid'], array(
                     'object'=>$invoice_item['object'],
                     'object_id'=>$invoice_item['object_id'],
                     'quantity'=>$quantity_added,
@@ -235,7 +235,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         // Update the shipped quantity for the invoice item after adjusting inventory to make sure 
         // inventory is available
         //
-        $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', $invoice_item['id'], array('shipped_quantity'=>$new_shipped_quantity), 0x04);
+        $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $invoice_item['id'], array('shipped_quantity'=>$new_shipped_quantity), 0x04);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.135', 'msg'=>'Unable to update the invoice.'));
@@ -246,7 +246,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     //
     // Update the item
     //
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.shipment_item', $args['sitem_id'], $args, 0x04);
+    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.shipment_item', $args['sitem_id'], $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
@@ -255,7 +255,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     //
     // Update the shipment status
     //
-    $rc = ciniki_sapos_shipmentUpdateStatus($ciniki, $args['business_id'], $item['shipment_id']);
+    $rc = ciniki_sapos_shipmentUpdateStatus($ciniki, $args['tnid'], $item['shipment_id']);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
@@ -264,7 +264,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     //
     // Update the invoice status
     //
-    $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $shipment['invoice_id']);
+    $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['tnid'], $shipment['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
@@ -280,11 +280,11 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'sapos');
 
     return array('stat'=>'ok');
 }

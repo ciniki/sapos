@@ -133,10 +133,10 @@ function ciniki_sapos_shipment() {
         };
         this.edit.fieldHistoryArgs = function(s, i) {
             if( i == 'customer_notes' ) {
-                return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+                return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                     'object':'ciniki.sapos.invoice', 'object_id':this.invoice_id, 'field':i}};
             } 
-            return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.shipment', 'object_id':this.shipment_id, 'field':i}};
         };
         this.edit.sectionData = function(s) { 
@@ -253,7 +253,7 @@ function ciniki_sapos_shipment() {
             return '';
         };
         this.item.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.shipment_item', 'object_id':this.item_id, 'field':i}};
         };
         this.item.addButton('save', 'Save', 'M.ciniki_sapos_shipment.saveItem();');
@@ -279,14 +279,14 @@ function ciniki_sapos_shipment() {
             'invoice-item-fulfilled':'#E6E6E6',
         };
         for(i in this.colours) {
-            if( M.curBusiness.sapos.settings['ui-colours-' + i] != null ) {
-                this.colours[i] = M.curBusiness.sapos.settings['ui-colours-' + i];
+            if( M.curTenant.sapos.settings['ui-colours-' + i] != null ) {
+                this.colours[i] = M.curTenant.sapos.settings['ui-colours-' + i];
             }
         }
         //
         // Check if weight units should be hidden
         //
-        if( M.curBusiness.sapos.settings['shipments-hide-weight-units'] != null && M.curBusiness.sapos.settings['shipments-hide-weight-units'] == 'yes' ) {
+        if( M.curTenant.sapos.settings['shipments-hide-weight-units'] != null && M.curTenant.sapos.settings['shipments-hide-weight-units'] == 'yes' ) {
             this.edit.sections.details.fields.weight_units.visible = 'no';
         } else {
             this.edit.sections.details.fields.weight_units.visible = 'yes';
@@ -294,9 +294,9 @@ function ciniki_sapos_shipment() {
         //
         // Check what the user should see
         //
-        if( M.curBusiness.permissions.owners == null 
-            && M.curBusiness.permissions.employees == null 
-            && M.curBusiness.permissions.salesreps != null 
+        if( M.curTenant.permissions.owners == null 
+            && M.curTenant.permissions.employees == null 
+            && M.curTenant.permissions.salesreps != null 
             && (M.userPerms&0x01) == 0
             ) {
             this.showShipment(cb, args.shipment_id);
@@ -314,7 +314,7 @@ function ciniki_sapos_shipment() {
     this.showShipment = function(cb, sid) {
         if( sid != null ) { this.shipment.shipment_id = sid; }
         if( this.shipment.shipment_id > 0 ) {
-            M.api.getJSONCb('ciniki.sapos.shipmentGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.shipmentGet', {'tnid':M.curTenantID,
                 'shipment_id':this.shipment.shipment_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -334,7 +334,7 @@ function ciniki_sapos_shipment() {
         if( this.edit.shipment_id > 0 ) {
             this.edit.sections._buttons.buttons.delete.visible = 'yes';
             this.edit.sections._buttons.buttons.print.visible = 'yes';
-            M.api.getJSONCb('ciniki.sapos.shipmentGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.shipmentGet', {'tnid':M.curTenantID,
                 'shipment_id':this.edit.shipment_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -409,7 +409,7 @@ function ciniki_sapos_shipment() {
             this.edit.addClose('Cancel');
             this.edit.sections.info.active = 'no';
             this.edit.sections.details.active = 'yes';
-            M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceGet', {'tnid':M.curTenantID,
                 'invoice_id':this.edit.invoice_id, 'inventory':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -452,11 +452,11 @@ function ciniki_sapos_shipment() {
                     if( rsp.invoice.shipping_address != null && rsp.invoice.shipping_address != '' ) {
                         p.sections.invoice.list.shipping_address.visible = 'yes';
                     }
-                    if( M.curBusiness.sapos.settings['shipments-default-shipper'] != null ) {
-                        p.data['shipping_company'] = M.curBusiness.sapos.settings['shipments-default-shipper'];
+                    if( M.curTenant.sapos.settings['shipments-default-shipper'] != null ) {
+                        p.data['shipping_company'] = M.curTenant.sapos.settings['shipments-default-shipper'];
                     }
-                    if( M.curBusiness.sapos.settings['shipments-default-weight-units'] != null ) {
-                        p.data['weight_units'] = M.curBusiness.sapos.settings['shipments-default-weight-units'];
+                    if( M.curTenant.sapos.settings['shipments-default-weight-units'] != null ) {
+                        p.data['weight_units'] = M.curTenant.sapos.settings['shipments-default-weight-units'];
                     }
                     if( rsp.invoice.items != null ) {
                         for(i in rsp.invoice.items) {
@@ -473,7 +473,7 @@ function ciniki_sapos_shipment() {
     };
 
     this.updateEditItems = function() {
-        M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID,
+        M.api.getJSONCb('ciniki.sapos.invoiceGet', {'tnid':M.curTenantID,
             'invoice_id':this.edit.invoice_id, 'inventory':'yes'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -498,7 +498,7 @@ function ciniki_sapos_shipment() {
         if( this.edit.shipment_id > 0 ) {
             var c = this.edit.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.shipmentUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.shipmentUpdate', {'tnid':M.curTenantID,
                     'shipment_id':this.edit.shipment_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -511,7 +511,7 @@ function ciniki_sapos_shipment() {
             }
         } else {
             var c = this.edit.serializeForm('yes');
-            M.api.postJSONCb('ciniki.sapos.shipmentAdd', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.shipmentAdd', {'tnid':M.curTenantID,
                 'invoice_id':this.edit.invoice_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -525,7 +525,7 @@ function ciniki_sapos_shipment() {
     this.addShipmentItem = function(item_id, quantity) {
         if( this.edit.shipment_id > 0 ) {
             var c = '&item_id=' + item_id + '&quantity=' + quantity;
-            M.api.postJSONCb('ciniki.sapos.shipmentItemAdd', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.shipmentItemAdd', {'tnid':M.curTenantID,
                 'shipment_id':this.edit.shipment_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -553,7 +553,7 @@ function ciniki_sapos_shipment() {
             var c = this.edit.serializeForm('yes');
             var old_status = this.edit.formFieldValue(this.edit.sections.details.fields.status, 'status');
             c += '&status=10';  // Force status
-//          M.api.postJSONCb('ciniki.sapos.shipmentAdd', {'business_id':M.curBusinessID,
+//          M.api.postJSONCb('ciniki.sapos.shipmentAdd', {'tnid':M.curTenantID,
 //              'invoice_id':this.edit.invoice_id}, c, function(rsp) {
 //                  if( rsp.stat != 'ok' ) {
 //                      M.api.err(rsp);
@@ -561,7 +561,7 @@ function ciniki_sapos_shipment() {
 //                  }
 //                  M.ciniki_sapos_shipment.edit.shipment_id = rsp.shipment.id;
             var c = '&item_id=' + item_id + '&quantity=' + quantity;
-            M.api.postJSONCb('ciniki.sapos.shipmentItemAdd', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.shipmentItemAdd', {'tnid':M.curTenantID,
                 'invoice_id':this.edit.invoice_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -592,7 +592,7 @@ function ciniki_sapos_shipment() {
     this.deleteShipment = function() {
         if( this.edit.shipment_id <= 0 ) { return false; }
         if( confirm("Are you sure you want to remove this shipment.  All items in the shipment will be returned to inventory?") ) {
-            M.api.getJSONCb('ciniki.sapos.shipmentDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.shipmentDelete', {'tnid':M.curTenantID,
                 'shipment_id':this.edit.shipment_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -607,7 +607,7 @@ function ciniki_sapos_shipment() {
         if( this.edit.shipment_id > 0 ) {
             var c = this.edit.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.shipmentUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.shipmentUpdate', {'tnid':M.curTenantID,
                     'shipment_id':this.edit.shipment_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -615,15 +615,15 @@ function ciniki_sapos_shipment() {
                         }
                         M.ciniki_sapos_shipment.showEdit();
 //                      window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
-//                          {'business_id':M.curBusinessID, 'shipment_id':sid}));
+//                          {'tnid':M.curTenantID, 'shipment_id':sid}));
                         M.api.openPDF('ciniki.sapos.packingSlipPDF',
-                            {'business_id':M.curBusinessID, 'shipment_id':sid});
+                            {'tnid':M.curTenantID, 'shipment_id':sid});
                     }); 
             } else {
 //              window.open(M.api.getUploadURL('ciniki.sapos.packingSlipPDF',
-//                  {'business_id':M.curBusinessID, 'shipment_id':sid}));
+//                  {'tnid':M.curTenantID, 'shipment_id':sid}));
                 M.api.openPDF('ciniki.sapos.packingSlipPDF',
-                    {'business_id':M.curBusinessID, 'shipment_id':sid});
+                    {'tnid':M.curTenantID, 'shipment_id':sid});
             }
         }
     };
@@ -633,7 +633,7 @@ function ciniki_sapos_shipment() {
         if( sid != null ) { this.item.shipment_id = sid; }
         if( this.item.item_id > 0 ) {
             this.item.sections._buttons.buttons.delete.visible = 'yes';
-            M.api.getJSONCb('ciniki.sapos.shipmentItemGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.shipmentItemGet', {'tnid':M.curTenantID,
                 'sitem_id':this.item.item_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -651,7 +651,7 @@ function ciniki_sapos_shipment() {
         if( this.item.item_id > 0 ) {
             var c = this.item.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.shipmentItemUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.shipmentItemUpdate', {'tnid':M.curTenantID,
                     'sitem_id':this.item.item_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -664,7 +664,7 @@ function ciniki_sapos_shipment() {
             }
         } else {
             var c = this.item.serializeForm('yes');
-            M.api.postJSONCb('ciniki.sapos.shipmentItemAdd', {'business_id':M.curBusinessID,
+            M.api.postJSONCb('ciniki.sapos.shipmentItemAdd', {'tnid':M.curTenantID,
                 'shipment_id':this.item.shipment_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -678,7 +678,7 @@ function ciniki_sapos_shipment() {
     this.deleteItem = function(iid) {
         if( iid <= 0 ) { return false; }
         if( confirm("Are you sure you want to remove this item from the shipment?") ) {
-            M.api.getJSONCb('ciniki.sapos.shipmentItemDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.shipmentItemDelete', {'tnid':M.curTenantID,
                 'sitem_id':iid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

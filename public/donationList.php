@@ -16,7 +16,7 @@ function ciniki_sapos_donationList(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
         'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
         'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
@@ -36,16 +36,16 @@ function ciniki_sapos_donationList(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.donationList'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.donationList'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
 
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -72,7 +72,7 @@ function ciniki_sapos_donationList(&$ciniki) {
     if( isset($args['customer']) && $args['customer'] == 'yes' 
         && isset($args['customer_id']) && $args['customer_id'] != '' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'private', 'customerDetails');
-        $rc = ciniki_customers__customerDetails($ciniki, $args['business_id'], $args['customer_id'], 
+        $rc = ciniki_customers__customerDetails($ciniki, $args['tnid'], $args['customer_id'], 
             array('phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
@@ -83,7 +83,7 @@ function ciniki_sapos_donationList(&$ciniki) {
     if( isset($args['stats']) && $args['stats'] == 'yes' ) {
         $rsp['stats'] = array();
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStats');
-        $rc = ciniki_sapos__invoiceStats($ciniki, $args['business_id']);
+        $rc = ciniki_sapos__invoiceStats($ciniki, $args['tnid']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -109,17 +109,17 @@ function ciniki_sapos_donationList(&$ciniki) {
         . "INNER JOIN ciniki_sapos_invoice_items ON ("
             . "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
             . "AND (ciniki_sapos_invoice_items.flags&0x8000) = 0x8000 "
-            . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_customers ON ("
             . "ciniki_sapos_invoices.customer_id = ciniki_customers.id "
-            . "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     if( isset($args['year']) && $args['year'] != '' ) {
         //
-        // Set the start and end date for the business timezone, then convert to UTC
+        // Set the start and end date for the tenant timezone, then convert to UTC
         //
         $tz = new DateTimeZone($intl_timezone);
         if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {

@@ -7,19 +7,19 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The business ID to check the session user against.
+// tnid:         The tenant ID to check the session user against.
 // method:              The requested method.
 //
 // Returns
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_hooks_inventoryUpdated($ciniki, $business_id, $args) {
+function ciniki_sapos_hooks_inventoryUpdated($ciniki, $tnid, $args) {
     //
-    // Get the time information for business and user
+    // Get the time information for tenant and user
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -49,9 +49,9 @@ function ciniki_sapos_hooks_inventoryUpdated($ciniki, $business_id, $args) {
             . "WHERE ciniki_sapos_invoice_items.object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
             . "AND ciniki_sapos_invoice_items.object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
             . "AND ciniki_sapos_invoice_items.quantity > ciniki_sapos_invoice_items.shipped_quantity "
-            . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_sapos_invoice_items.invoice_id = ciniki_sapos_invoices.id "
-            . "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_sapos_invoices.status < 50 "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
@@ -66,7 +66,7 @@ function ciniki_sapos_hooks_inventoryUpdated($ciniki, $business_id, $args) {
             if( $args['new_inventory_level'] > 0 ) {
                 // Check if shipped, inventory and backorderable item and currently backordered
                 if( ($item['flags']&0x0146) == 0x0146 ) {
-                    $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
+                    $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item',
                         $item['id'], array('flags'=>(((int)$item['flags'])&~0x0100)), 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
@@ -75,7 +75,7 @@ function ciniki_sapos_hooks_inventoryUpdated($ciniki, $business_id, $args) {
             } elseif( $args['new_inventory_level'] <= 0 ) {
                 // Check if shipped, inventory and backorderable item and not backordered
                 if( ($item['flags']&0x0046) == 0x0046 ) {    
-                    $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
+                    $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item',
                         $item['id'], array('flags'=>(((int)$item['flags'])|0x0100)), 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;

@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_accountSessionUnload($ciniki, $settings, $business_id) {
+function ciniki_sapos_web_accountSessionUnload($ciniki, $settings, $tnid) {
 
     unset($ciniki['session']['cart']);
     unset($_SESSION['cart']);

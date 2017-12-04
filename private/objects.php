@@ -144,7 +144,7 @@ function ciniki_sapos_objects($ciniki) {
             'source'=>array(),
             'customer_amount'=>array(),
             'transaction_fees'=>array(),
-            'business_amount'=>array(),
+            'tenant_amount'=>array(),
             'user_id'=>array(),
             'notes'=>array(),
             'gateway'=>array(),

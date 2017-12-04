@@ -82,7 +82,7 @@ function ciniki_sapos_mileage() {
         };
         this.edit.liveSearchCb = function(s, i, v) {
             if( i == 'start_name' || i == 'end_name' || i == 'start_address' || i == 'end_address' ) {
-                M.api.getJSONBgCb('ciniki.sapos.mileageSearchName', {'business_id':M.curBusinessID,
+                M.api.getJSONBgCb('ciniki.sapos.mileageSearchName', {'tnid':M.curTenantID,
                     'start_needle':v, 'limit':15}, function(rsp) {
                         M.ciniki_sapos_mileage.edit.searchMileageResults = rsp.mileages;
                         M.ciniki_sapos_mileage.edit.liveSearchShow(s,i,M.gE(M.ciniki_sapos_mileage.edit.panelUID+'_'+i), rsp.mileages);
@@ -113,7 +113,7 @@ function ciniki_sapos_mileage() {
             }
         };
         this.edit.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.mileage', 'object_id':this.mileage_id, 'field':i}};
         };
         this.edit.addButton('save', 'Save', 'M.ciniki_sapos_mileage.saveMileage();');
@@ -139,7 +139,7 @@ function ciniki_sapos_mileage() {
     this.showMileage = function(cb, eid) {
         if( eid != null ) { this.mileage.mileage_id = eid; }
         if( this.mileage.mileage_id > 0 ) {
-            M.api.getJSONCb('ciniki.sapos.mileageGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.mileageGet', {'tnid':M.curTenantID,
                 'mileage_id':this.mileage.mileage_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -160,7 +160,7 @@ function ciniki_sapos_mileage() {
             this.edit.sections.details.fields.start_name.autofocus = 'no';
             this.edit.sections._buttons.buttons.delete.visible = 'yes';
             this.edit.sections._buttons.buttons.saveadd.visible = 'no';
-            M.api.getJSONCb('ciniki.sapos.mileageGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.mileageGet', {'tnid':M.curTenantID,
                 'mileage_id':this.edit.mileage_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -194,7 +194,7 @@ function ciniki_sapos_mileage() {
         if( this.edit.mileage_id > 0 ) {
             var c = this.edit.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.mileageUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.mileageUpdate', {'tnid':M.curTenantID,
                     'mileage_id':this.edit.mileage_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -208,7 +208,7 @@ function ciniki_sapos_mileage() {
         } else {
             var c = this.edit.serializeForm('yes');
             M.api.postJSONCb('ciniki.sapos.mileageAdd', 
-                {'business_id':M.curBusinessID}, c, function(rsp) {
+                {'tnid':M.curTenantID}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -222,7 +222,7 @@ function ciniki_sapos_mileage() {
     this.deleteMileage = function(mid) {
         if( mid <= 0 ) { return false; }
         if( confirm("Are you sure you want to remove this mileage?") ) {
-            M.api.getJSONCb('ciniki.sapos.mileageDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.mileageDelete', {'tnid':M.curTenantID,
                 'mileage_id':mid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

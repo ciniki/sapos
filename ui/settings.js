@@ -75,15 +75,15 @@ function ciniki_sapos_settings() {
             }},
     }
     this.menu.open = function(cb) {
-/*        this.sections.invoice.list.qi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
-        this.sections.quote.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x010000)>0?'yes':'no';
-        this.sections.invoice.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x35)>0?'yes':'no';
-        this.sections.shipments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x40)>0?'yes':'no';
-        this.sections.expenses.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x02)>0?'yes':'no';
-        this.sections.mileage.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100)>0?'yes':'no';
-        this.sections.paypalapi.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x0200)>0?'yes':'no';
-        this.sections.paypalec.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x200000)>0?'yes':'no';
-        this.sections.paypalpayments.visible=(M.curBusiness.modules['ciniki.sapos'].flags&0x100000)>0?'yes':'no'; */
+/*        this.sections.invoice.list.qi.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
+        this.sections.quote.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x010000)>0?'yes':'no';
+        this.sections.invoice.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x35)>0?'yes':'no';
+        this.sections.shipments.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x40)>0?'yes':'no';
+        this.sections.expenses.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x02)>0?'yes':'no';
+        this.sections.mileage.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x100)>0?'yes':'no';
+        this.sections.paypalapi.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x0200)>0?'yes':'no';
+        this.sections.paypalec.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x200000)>0?'yes':'no';
+        this.sections.paypalpayments.visible=(M.curTenant.modules['ciniki.sapos'].flags&0x100000)>0?'yes':'no'; */
         this.refresh();
         this.show(cb);
     }
@@ -109,7 +109,7 @@ function ciniki_sapos_settings() {
     }
     this.quote.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.settingsHistory', 
-            'args':{'business_id':M.curBusinessID, 'setting':i}};
+            'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.quote.fieldValue = function(s, i, d) {
         if( this.data[i] == null && d.default != null ) { return d.default; }
@@ -124,7 +124,7 @@ function ciniki_sapos_settings() {
         return true;
     }
     this.quote.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -138,7 +138,7 @@ function ciniki_sapos_settings() {
     this.quote.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -164,13 +164,13 @@ function ciniki_sapos_settings() {
             }},
         'header':{'label':'Header Address Options', 'fields':{
             'invoice-header-contact-position':{'label':'Position', 'type':'toggle', 'default':'center', 'toggles':this.positionOptions},
-            'invoice-header-business-name':{'label':'Business Name', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-            'invoice-header-business-address':{'label':'Address', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-            'invoice-header-business-phone':{'label':'Phone', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-            'invoice-header-business-cell':{'label':'Cell', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-            'invoice-header-business-fax':{'label':'Fax', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-            'invoice-header-business-email':{'label':'Email', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-            'invoice-header-business-website':{'label':'Website', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+            'invoice-header-tenant-name':{'label':'Tenant Name', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+            'invoice-header-tenant-address':{'label':'Address', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+            'invoice-header-tenant-phone':{'label':'Phone', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+            'invoice-header-tenant-cell':{'label':'Cell', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+            'invoice-header-tenant-fax':{'label':'Fax', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+            'invoice-header-tenant-email':{'label':'Email', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+            'invoice-header-tenant-website':{'label':'Website', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
             }},
         '_bottom_msg':{'label':'Invoice Message', 'fields':{
             'invoice-bottom-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
@@ -220,7 +220,7 @@ function ciniki_sapos_settings() {
     }
     this.invoice.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.settingsHistory', 
-            'args':{'business_id':M.curBusinessID, 'setting':i}};
+            'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.invoice.fieldValue = function(s, i, d) {
         if( this.data[i] == null && d.default != null ) { return d.default; }
@@ -235,7 +235,7 @@ function ciniki_sapos_settings() {
         return true;
     }
     this.invoice.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -249,7 +249,7 @@ function ciniki_sapos_settings() {
     this.invoice.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, 
                 c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -279,14 +279,14 @@ function ciniki_sapos_settings() {
             }},
     }
     this.invoicereports.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.sapos.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
+        return {'method':'ciniki.sapos.settingsHistory', 'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.invoicereports.fieldValue = function(s, i, d) {
         if( this.data[i] == null && d.default != null ) { return d.default; }
         return this.data[i];
     }
     this.invoicereports.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -300,7 +300,7 @@ function ciniki_sapos_settings() {
     this.invoicereports.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -337,14 +337,14 @@ function ciniki_sapos_settings() {
     }
     this.shipment.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.settingsHistory', 
-            'args':{'business_id':M.curBusinessID, 'setting':i}};
+            'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.shipment.fieldValue = function(s, i, d) {
         if( this.data[i] == null && d.default != null ) { return d.default; }
         return this.data[i];
    }
     this.shipment.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -358,7 +358,7 @@ function ciniki_sapos_settings() {
     this.shipment.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, 
                 c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -396,7 +396,7 @@ function ciniki_sapos_settings() {
         return 'M.ciniki_sapos_settings.qiedit.open(\'M.ciniki_sapos_settings.qi.open();\',\'' + d.item.id + '\');';
     }
     this.qi.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.qiItemList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.qiItemList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -438,12 +438,12 @@ function ciniki_sapos_settings() {
         return this.data[i];
     }
     this.qiedit.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+        return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
             'object':'ciniki.sapos.qi_item', 'object_id':this.item_id, 'field':i}};
     }
     this.qiedit.open = function(cb, iid) {
-        if( M.curBusiness.modules['ciniki.taxes'] != null ) {
-            M.api.getJSONCb('ciniki.taxes.typeList', {'business_id':M.curBusinessID}, function(rsp) {
+        if( M.curTenant.modules['ciniki.taxes'] != null ) {
+            M.api.getJSONCb('ciniki.taxes.typeList', {'tnid':M.curTenantID}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -463,7 +463,7 @@ function ciniki_sapos_settings() {
         if( qid != null ) { this.item_id = qid; }
         if( this.item_id > 0 ) {
             this.sections._buttons.buttons.delete.visible='yes';
-            M.api.getJSONCb('ciniki.sapos.qiItemGet', {'business_id':M.curBusinessID, 'item_id':this.item_id}, function(rsp) {
+            M.api.getJSONCb('ciniki.sapos.qiItemGet', {'tnid':M.curTenantID, 'item_id':this.item_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -485,7 +485,7 @@ function ciniki_sapos_settings() {
         if( this.item_id > 0 ) {
             var c = this.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.qiItemUpdate', {'business_id':M.curBusinessID, 'item_id':this.item_id}, c, function(rsp) {
+                M.api.postJSONCb('ciniki.sapos.qiItemUpdate', {'tnid':M.curTenantID, 'item_id':this.item_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -497,7 +497,7 @@ function ciniki_sapos_settings() {
             }
         } else {
             var c = this.serializeForm('yes');
-            M.api.postJSONCb('ciniki.sapos.qiItemAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.qiItemAdd', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -508,7 +508,7 @@ function ciniki_sapos_settings() {
     }
     this.qiedit.remove = function(cid) {
         if( confirm('Are you sure you want to remove this category?') ) {
-            M.api.getJSONCb('ciniki.sapos.qiItemDelete', {'business_id':M.curBusinessID, 'item_id':cid}, function(rsp) {
+            M.api.getJSONCb('ciniki.sapos.qiItemDelete', {'tnid':M.curTenantID, 'item_id':cid}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -542,7 +542,7 @@ function ciniki_sapos_settings() {
     }
     this.ecats.open = function(cb) {
         M.api.getJSONCb('ciniki.sapos.expenseCategoryList', 
-            {'business_id':M.curBusinessID}, function(rsp) {
+            {'tnid':M.curTenantID}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -583,7 +583,7 @@ function ciniki_sapos_settings() {
         if( cid != null ) { this.category_id = cid; }
         if( this.category_id > 0 ) {
             this.sections._buttons.buttons.delete.visible='yes';
-            M.api.getJSONCb('ciniki.sapos.expenseCategoryGet', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.expenseCategoryGet', {'tnid':M.curTenantID,
                 'category_id':this.category_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -606,7 +606,7 @@ function ciniki_sapos_settings() {
         if( this.category_id > 0 ) {
             var c = this.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.expenseCategoryUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.expenseCategoryUpdate', {'tnid':M.curTenantID,
                     'category_id':this.category_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -619,7 +619,7 @@ function ciniki_sapos_settings() {
             }
         } else {
             var c = this.serializeForm('yes');
-            M.api.postJSONCb('ciniki.sapos.expenseCategoryAdd', {'business_id':M.curBusinessID},
+            M.api.postJSONCb('ciniki.sapos.expenseCategoryAdd', {'tnid':M.curTenantID},
                 c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -631,7 +631,7 @@ function ciniki_sapos_settings() {
     }
     this.ecatedit.remove = function(cid) {
         if( confirm('Are you sure you want to remove this category?') ) {
-            M.api.getJSONCb('ciniki.sapos.expenseCategoryDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.expenseCategoryDelete', {'tnid':M.curTenantID,
                 'category_id':cid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -666,7 +666,7 @@ function ciniki_sapos_settings() {
         return 'M.ciniki_sapos_settings.mrateedit.open(\'M.ciniki_sapos_settings.mrates.open();\',\'' + d.rate.id + '\');';
     }
     this.mrates.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.mileageRateList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.mileageRateList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -702,14 +702,14 @@ function ciniki_sapos_settings() {
         return this.data[i];
     }
     this.mrateedit.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+        return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
             'object':'ciniki.sapos.mileage_rate', 'object_id':this.rate_id, 'field':i}};
     }
     this.mrateedit.open = function(cb, rid) {
         if( rid != null ) { this.rate_id = rid; }
         if( this.rate_id > 0 ) {
             this.sections._buttons.buttons.delete.visible='yes';
-            M.api.getJSONCb('ciniki.sapos.mileageRateGet', {'business_id':M.curBusinessID, 'rate_id':this.rate_id}, function(rsp) {
+            M.api.getJSONCb('ciniki.sapos.mileageRateGet', {'tnid':M.curTenantID, 'rate_id':this.rate_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -731,7 +731,7 @@ function ciniki_sapos_settings() {
         if( this.rate_id > 0 ) {
             var c = this.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.mileageRateUpdate', {'business_id':M.curBusinessID, 'rate_id':this.rate_id}, c, function(rsp) {
+                M.api.postJSONCb('ciniki.sapos.mileageRateUpdate', {'tnid':M.curTenantID, 'rate_id':this.rate_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -743,7 +743,7 @@ function ciniki_sapos_settings() {
             }
         } else {
             var c = this.serializeForm('yes');
-            M.api.postJSONCb('ciniki.sapos.mileageRateAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.mileageRateAdd', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -754,7 +754,7 @@ function ciniki_sapos_settings() {
     }
     this.mrateedit.remove = function(rid) {
         if( confirm('Are you sure you want to remove this rate?') ) {
-            M.api.getJSONCb('ciniki.sapos.mileageRateDelete', {'business_id':M.curBusinessID, 'rate_id':rid}, function(rsp) {
+            M.api.getJSONCb('ciniki.sapos.mileageRateDelete', {'tnid':M.curTenantID, 'rate_id':rid}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -790,13 +790,13 @@ function ciniki_sapos_settings() {
     }
     this.paypalapi.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.settingsHistory', 
-            'args':{'business_id':M.curBusinessID, 'setting':i}};
+            'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.paypalapi.fieldValue = function(s, i, d) {
         return this.data[i];
     }
     this.paypalapi.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -810,7 +810,7 @@ function ciniki_sapos_settings() {
     this.paypalapi.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -846,13 +846,13 @@ function ciniki_sapos_settings() {
     }
     this.paypalec.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.settingsHistory', 
-            'args':{'business_id':M.curBusinessID, 'setting':i}};
+            'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.paypalec.fieldValue = function(s, i, d) {
         return this.data[i];
     }
     this.paypalec.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -866,7 +866,7 @@ function ciniki_sapos_settings() {
     this.paypalec.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -898,13 +898,13 @@ function ciniki_sapos_settings() {
     }
     this.paypalpayments.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.settingsHistory', 
-            'args':{'business_id':M.curBusinessID, 'setting':i}};
+            'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.paypalpayments.fieldValue = function(s, i, d) {
         return this.data[i];
     }
     this.paypalpayments.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -918,7 +918,7 @@ function ciniki_sapos_settings() {
     this.paypalpayments.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -946,13 +946,13 @@ function ciniki_sapos_settings() {
             }},
     }
     this.stripe.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.sapos.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
+        return {'method':'ciniki.sapos.settingsHistory', 'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.stripe.fieldValue = function(s, i, d) {
         return this.data[i];
     }
     this.stripe.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -966,7 +966,7 @@ function ciniki_sapos_settings() {
     this.stripe.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -990,13 +990,13 @@ function ciniki_sapos_settings() {
 //            }},
 //        'header':{'label':'Header Address Options', 'fields':{
 //            'donation-receipt-header-contact-position':{'label':'Position', 'type':'toggle', 'default':'center', 'toggles':this.positionOptions},
-//            'donation-receipt-header-business-name':{'label':'Business Name', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-//            'donation-receipt-header-business-address':{'label':'Address', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-//          'donation-receipt-header-business-phone':{'label':'Phone', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-//          'donation-receipt-header-business-cell':{'label':'Cell', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-//          'donation-receipt-header-business-fax':{'label':'Fax', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-//          'donation-receipt-header-business-email':{'label':'Email', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
-//          'donation-receipt-header-business-website':{'label':'Website', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//            'donation-receipt-header-tenant-name':{'label':'Tenant Name', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//            'donation-receipt-header-tenant-address':{'label':'Address', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-tenant-phone':{'label':'Phone', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-tenant-cell':{'label':'Cell', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-tenant-fax':{'label':'Fax', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-tenant-email':{'label':'Email', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
+//          'donation-receipt-header-tenant-website':{'label':'Website', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
 //            }},
         '_charity_info':{'label':'', 'fields':{
             'donation-receipt-signing-officer':{'label':'Signing Officer', 'type':'text'},
@@ -1014,7 +1014,7 @@ function ciniki_sapos_settings() {
             }},
     }
     this.donations.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.donations.settingsHistory', 'args':{'business_id':M.curBusinessID, 'setting':i}};
+        return {'method':'ciniki.donations.settingsHistory', 'args':{'tnid':M.curTenantID, 'setting':i}};
     }
     this.donations.fieldValue = function(s, i, d) {
         if( this.data[i] == null && d.default != null ) { return d.default; }
@@ -1029,7 +1029,7 @@ function ciniki_sapos_settings() {
         return true;
     }
     this.donations.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.settingsGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -1043,7 +1043,7 @@ function ciniki_sapos_settings() {
     this.donations.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'business_id':M.curBusinessID}, 
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, 
                 c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -1078,7 +1078,7 @@ function ciniki_sapos_settings() {
     }
 /*    this.packages.liveSearchCb = function(s, i, v) {
         if( s == 'search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.donations.packageSearch', {'business_id':M.curBusinessID, 'start_needle':v, 'limit':'25'}, function(rsp) {
+            M.api.getJSONBgCb('ciniki.donations.packageSearch', {'tnid':M.curTenantID, 'start_needle':v, 'limit':'25'}, function(rsp) {
                 M.ciniki_sapos_settings.packages.liveSearchShow('search',null,M.gE(M.ciniki_sapos_settings.packages.panelUID + '_' + s), rsp.packages);
                 });
         }
@@ -1102,7 +1102,7 @@ function ciniki_sapos_settings() {
         }
     }
     this.packages.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.packageList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.packageList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -1162,12 +1162,12 @@ function ciniki_sapos_settings() {
         }
     this.package.fieldValue = function(s, i, d) { return this.data[i]; }
     this.package.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.sapos.packageHistory', 'args':{'business_id':M.curBusinessID, 'package_id':this.package_id, 'field':i}};
+        return {'method':'ciniki.sapos.packageHistory', 'args':{'tnid':M.curTenantID, 'package_id':this.package_id, 'field':i}};
     }
     this.package.open = function(cb, pid, list) {
         if( pid != null ) { this.package_id = pid; }
         if( list != null ) { this.nplist = list; }
-        M.api.getJSONCb('ciniki.sapos.packageGet', {'business_id':M.curBusinessID, 'package_id':this.package_id}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.packageGet', {'tnid':M.curTenantID, 'package_id':this.package_id}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -1185,7 +1185,7 @@ function ciniki_sapos_settings() {
         if( this.package_id > 0 ) {
             var c = this.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.packageUpdate', {'business_id':M.curBusinessID, 'package_id':this.package_id}, c, function(rsp) {
+                M.api.postJSONCb('ciniki.sapos.packageUpdate', {'tnid':M.curTenantID, 'package_id':this.package_id}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -1197,7 +1197,7 @@ function ciniki_sapos_settings() {
             }
         } else {
             var c = this.serializeForm('yes');
-            M.api.postJSONCb('ciniki.sapos.packageAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.packageAdd', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -1209,7 +1209,7 @@ function ciniki_sapos_settings() {
     }
     this.package.remove = function() {
         if( confirm('Are you sure you want to remove package?') ) {
-            M.api.getJSONCb('ciniki.sapos.packageDelete', {'business_id':M.curBusinessID, 'package_id':this.package_id}, function(rsp) {
+            M.api.getJSONCb('ciniki.sapos.packageDelete', {'tnid':M.curTenantID, 'package_id':this.package_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -1254,12 +1254,12 @@ function ciniki_sapos_settings() {
         }
     this.categories.fieldValue = function(s, i, d) { return this.data[i]; }
     this.categories.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.sapos.categoriesHistory', 'args':{'business_id':M.curBusinessID, 'field':i}};
+        return {'method':'ciniki.sapos.categoriesHistory', 'args':{'tnid':M.curTenantID, 'field':i}};
     }
     this.categories.open = function(cb, pid, list) {
         if( pid != null ) { this.categories_id = pid; }
         if( list != null ) { this.nplist = list; }
-        M.api.getJSONCb('ciniki.sapos.categoriesGet', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.categoriesGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -1279,7 +1279,7 @@ function ciniki_sapos_settings() {
         if( cb == null ) { cb = 'M.ciniki_sapos_settings.categories.close();'; }
         var c = this.serializeForm('no');
         if( c != '' ) {
-            M.api.postJSONCb('ciniki.sapos.categoriesUpdate', {'business_id':M.curBusinessID}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.categoriesUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -1313,13 +1313,13 @@ function ciniki_sapos_settings() {
         //
         // Decide what should be visible
         //
-        this.invoice.sections._salesreps.active = ((M.curBusiness.modules['ciniki.sapos'].flags&0x0800) > 0?'yes':'no');
-        this.invoice.sections._invoice_email_msg.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x01)>0?'yes':'no';
-        this.invoice.sections._invoice_email_options.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x01)>0&&(M.userPerms&0x01)==0x01?'yes':'no';
-        this.invoice.sections._cart_email_msg.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
-        this.invoice.sections._pos_email_msg.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x10)>0?'yes':'no';
-        this.invoice.sections._order_email_msg.active=M.curBusiness.modules['ciniki.mail']!=null&&(M.curBusiness.modules['ciniki.sapos'].flags&0x20)>0?'yes':'no';
-        this.quote.sections._textmsg.active=M.curBusiness.modules['ciniki.mail']!=null?'yes':'no';
+        this.invoice.sections._salesreps.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x0800) > 0?'yes':'no');
+        this.invoice.sections._invoice_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x01)>0?'yes':'no';
+        this.invoice.sections._invoice_email_options.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x01)>0&&(M.userPerms&0x01)==0x01?'yes':'no';
+        this.invoice.sections._cart_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
+        this.invoice.sections._pos_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x10)>0?'yes':'no';
+        this.invoice.sections._order_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x20)>0?'yes':'no';
+        this.quote.sections._textmsg.active=M.curTenant.modules['ciniki.mail']!=null?'yes':'no';
 
         if( args.ecats != null && args.ecats == 'yes' ) {
             this.ecats.open(cb);

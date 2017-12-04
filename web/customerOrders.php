@@ -9,11 +9,11 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_customerOrders(&$ciniki, $settings, $business_id, $customer_id, $args) {
+function ciniki_sapos_web_customerOrders(&$ciniki, $settings, $tnid, $customer_id, $args) {
 
 
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -36,7 +36,7 @@ function ciniki_sapos_web_customerOrders(&$ciniki, $settings, $business_id, $cus
         . "ciniki_sapos_invoices.po_number, "
         . "ciniki_sapos_invoices.invoice_date "
         . "FROM ciniki_sapos_invoices "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND customer_id = '" . ciniki_core_dbQuote($ciniki, $customer_id) . "' "
         . "AND (invoice_type = 40 OR invoice_type = 10) "
         . "AND status > 10 "

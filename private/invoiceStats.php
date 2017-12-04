@@ -2,7 +2,7 @@
 //
 // Description
 // -----------
-// This function will return the invoice stats for a business.
+// This function will return the invoice stats for a tenant.
 //
 // Arguments
 // ---------
@@ -10,12 +10,12 @@
 // Returns
 // -------
 //
-function ciniki_sapos__invoiceStats($ciniki, $business_id) {
+function ciniki_sapos__invoiceStats($ciniki, $tnid) {
     //
-    // Get the time information for business and user
+    // Get the time information for tenant and user
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -34,7 +34,7 @@ function ciniki_sapos__invoiceStats($ciniki, $business_id) {
     //
     $strsql = "SELECT status, COUNT(id) "
         . "FROM ciniki_sapos_shipments "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "GROUP BY status "
         . "";
     $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'stats');
@@ -49,14 +49,14 @@ function ciniki_sapos__invoiceStats($ciniki, $business_id) {
     $strsql = "SELECT IF((ciniki_sapos_invoice_items.flags&0x0340)=0x0040,'available','backordered') AS bo_status, "
         . "COUNT(DISTINCT ciniki_sapos_invoices.id) "
         . "FROM ciniki_sapos_invoices, ciniki_sapos_invoice_items "
-        . "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_sapos_invoices.status >= 20 "
         . "AND ciniki_sapos_invoices.shipping_status > 0 "
         . "AND ciniki_sapos_invoices.shipping_status < 50 "
         . "AND ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
-        . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND (ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) > 0 "
-        . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "GROUP BY bo_status "
         . "";
     $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'stats');
@@ -72,7 +72,7 @@ function ciniki_sapos__invoiceStats($ciniki, $business_id) {
         . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS typestatus, "
         . "COUNT(id) "
         . "FROM ciniki_sapos_invoices "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "GROUP BY invoice_type, status "
         . "";
     $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'stats');
@@ -90,7 +90,7 @@ function ciniki_sapos__invoiceStats($ciniki, $business_id) {
         . "MAX(invoice_date) AS max_invoice_date, "
         . "MAX(invoice_date) AS max_invoice_date_year "
         . "FROM ciniki_sapos_invoices "
-        . "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND invoice_date <> '0000-00-00 00:00:00' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
@@ -123,7 +123,7 @@ function ciniki_sapos__invoiceStats($ciniki, $business_id) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $strsql = "SELECT DISTINCT IF(category = '', 'Uncategorized', category) AS category "
             . "FROM ciniki_sapos_invoice_items "
-            . "WHERE ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array( 
             array('container'=>'categories', 'fname'=>'category', 'fields'=>array('name'=>'category')),

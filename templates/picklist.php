@@ -11,12 +11,12 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $business_details, $sapos_settings) {
+function ciniki_sapos_templates_picklist(&$ciniki, $tnid, $invoice_id, $tenant_details, $sapos_settings) {
     //
     // Get the invoice record
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-    $rc = ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id);
+    $rc = ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -28,7 +28,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
     $strsql = "SELECT MAX(shipment_number) AS shipment_number "
         . "FROM ciniki_sapos_shipments "
         . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
     if( $rc['stat'] != 'ok' ) {
@@ -65,7 +65,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryLevels');
         if( $rc['stat'] == 'ok' ) {
             $fn = $rc['function_call'];
-            $rc = $fn($ciniki, $business_id, array(
+            $rc = $fn($ciniki, $tnid, array(
                 'object'=>$object,
                 'object_ids'=>$object_ids,
                 ));
@@ -98,7 +98,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
         public $header_addr = array();
         public $header_details = array();
         public $header_height = 0;      // The height of the image and address
-        public $business_details = array();
+        public $tenant_details = array();
         public $sapos_settings = array();
 
         public function Header() {
@@ -252,81 +252,81 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
     $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
 
     //
-    // Figure out the header business name and address information
+    // Figure out the header tenant name and address information
     //
     $pdf->header_height = 0;
     $pdf->header_name = '';
     if( !isset($sapos_settings['invoice-header-contact-position'])
         || $sapos_settings['invoice-header-contact-position'] != 'off' ) {
-        if( !isset($sapos_settings['invoice-header-business-name'])
-            || $sapos_settings['invoice-header-business-name'] == 'yes' ) {
-            $pdf->header_name = $business_details['name'];
+        if( !isset($sapos_settings['invoice-header-tenant-name'])
+            || $sapos_settings['invoice-header-tenant-name'] == 'yes' ) {
+            $pdf->header_name = $tenant_details['name'];
             $pdf->header_height = 8;
         }
-        if( !isset($sapos_settings['invoice-header-business-address'])
-            || $sapos_settings['invoice-header-business-address'] == 'yes' ) {
-            if( isset($business_details['contact.address.street1']) 
-                && $business_details['contact.address.street1'] != '' ) {
-                $pdf->header_addr[] = $business_details['contact.address.street1'];
+        if( !isset($sapos_settings['invoice-header-tenant-address'])
+            || $sapos_settings['invoice-header-tenant-address'] == 'yes' ) {
+            if( isset($tenant_details['contact.address.street1']) 
+                && $tenant_details['contact.address.street1'] != '' ) {
+                $pdf->header_addr[] = $tenant_details['contact.address.street1'];
             }
-            if( isset($business_details['contact.address.street2']) 
-                && $business_details['contact.address.street2'] != '' ) {
-                $pdf->header_addr[] = $business_details['contact.address.street2'];
+            if( isset($tenant_details['contact.address.street2']) 
+                && $tenant_details['contact.address.street2'] != '' ) {
+                $pdf->header_addr[] = $tenant_details['contact.address.street2'];
             }
             $city = '';
-            if( isset($business_details['contact.address.city']) 
-                && $business_details['contact.address.city'] != '' ) {
-                $city .= $business_details['contact.address.city'];
+            if( isset($tenant_details['contact.address.city']) 
+                && $tenant_details['contact.address.city'] != '' ) {
+                $city .= $tenant_details['contact.address.city'];
             }
-            if( isset($business_details['contact.address.province']) 
-                && $business_details['contact.address.province'] != '' ) {
+            if( isset($tenant_details['contact.address.province']) 
+                && $tenant_details['contact.address.province'] != '' ) {
                 $city .= ($city!='')?', ':'';
-                $city .= $business_details['contact.address.province'];
+                $city .= $tenant_details['contact.address.province'];
             }
-            if( isset($business_details['contact.address.postal']) 
-                && $business_details['contact.address.postal'] != '' ) {
+            if( isset($tenant_details['contact.address.postal']) 
+                && $tenant_details['contact.address.postal'] != '' ) {
                 $city .= ($city!='')?'  ':'';
-                $city .= $business_details['contact.address.postal'];
+                $city .= $tenant_details['contact.address.postal'];
             }
             if( $city != '' ) {
                 $pdf->header_addr[] = $city;
             }
         }
-        if( !isset($sapos_settings['invoice-header-business-phone'])
-            || $sapos_settings['invoice-header-business-phone'] == 'yes' ) {
-            if( isset($business_details['contact.phone.number']) 
-                && $business_details['contact.phone.number'] != '' ) {
-                $pdf->header_addr[] = 'phone: ' . $business_details['contact.phone.number'];
+        if( !isset($sapos_settings['invoice-header-tenant-phone'])
+            || $sapos_settings['invoice-header-tenant-phone'] == 'yes' ) {
+            if( isset($tenant_details['contact.phone.number']) 
+                && $tenant_details['contact.phone.number'] != '' ) {
+                $pdf->header_addr[] = 'phone: ' . $tenant_details['contact.phone.number'];
             }
-            if( isset($business_details['contact.tollfree.number']) 
-                && $business_details['contact.tollfree.number'] != '' ) {
-                $pdf->header_addr[] = 'phone: ' . $business_details['contact.tollfree.number'];
-            }
-        }
-        if( !isset($sapos_settings['invoice-header-business-cell'])
-            || $sapos_settings['invoice-header-business-cell'] == 'yes' ) {
-            if( isset($business_details['contact.cell.number']) 
-                && $business_details['contact.cell.number'] != '' ) {
-                $pdf->header_addr[] = 'cell: ' . $business_details['contact.cell.number'];
+            if( isset($tenant_details['contact.tollfree.number']) 
+                && $tenant_details['contact.tollfree.number'] != '' ) {
+                $pdf->header_addr[] = 'phone: ' . $tenant_details['contact.tollfree.number'];
             }
         }
-        if( (!isset($sapos_settings['invoice-header-business-fax'])
-            || $sapos_settings['invoice-header-business-fax'] == 'yes')
-            && isset($business_details['contact.fax.number']) 
-            && $business_details['contact.fax.number'] != '' ) {
-            $pdf->header_addr[] = 'fax: ' . $business_details['contact.fax.number'];
+        if( !isset($sapos_settings['invoice-header-tenant-cell'])
+            || $sapos_settings['invoice-header-tenant-cell'] == 'yes' ) {
+            if( isset($tenant_details['contact.cell.number']) 
+                && $tenant_details['contact.cell.number'] != '' ) {
+                $pdf->header_addr[] = 'cell: ' . $tenant_details['contact.cell.number'];
+            }
         }
-        if( (!isset($sapos_settings['invoice-header-business-email'])
-            || $sapos_settings['invoice-header-business-email'] == 'yes')
-            && isset($business_details['contact.email.address']) 
-            && $business_details['contact.email.address'] != '' ) {
-            $pdf->header_addr[] = $business_details['contact.email.address'];
+        if( (!isset($sapos_settings['invoice-header-tenant-fax'])
+            || $sapos_settings['invoice-header-tenant-fax'] == 'yes')
+            && isset($tenant_details['contact.fax.number']) 
+            && $tenant_details['contact.fax.number'] != '' ) {
+            $pdf->header_addr[] = 'fax: ' . $tenant_details['contact.fax.number'];
         }
-        if( (!isset($sapos_settings['invoice-header-business-website'])
-            || $sapos_settings['invoice-header-business-website'] == 'yes')
-            && isset($business_details['contact-website-url']) 
-            && $business_details['contact-website-url'] != '' ) {
-            $pdf->header_addr[] = $business_details['contact-website-url'];
+        if( (!isset($sapos_settings['invoice-header-tenant-email'])
+            || $sapos_settings['invoice-header-tenant-email'] == 'yes')
+            && isset($tenant_details['contact.email.address']) 
+            && $tenant_details['contact.email.address'] != '' ) {
+            $pdf->header_addr[] = $tenant_details['contact.email.address'];
+        }
+        if( (!isset($sapos_settings['invoice-header-tenant-website'])
+            || $sapos_settings['invoice-header-tenant-website'] == 'yes')
+            && isset($tenant_details['contact-website-url']) 
+            && $tenant_details['contact-website-url'] != '' ) {
+            $pdf->header_addr[] = $tenant_details['contact-website-url'];
         }
     }
     $pdf->header_height += (count($pdf->header_addr)*5);
@@ -343,14 +343,14 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
     //
     if( isset($sapos_settings['invoice-header-image']) && $sapos_settings['invoice-header-image'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadImage');
-        $rc = ciniki_images_loadImage($ciniki, $business_id, 
+        $rc = ciniki_images_loadImage($ciniki, $tnid, 
             $sapos_settings['invoice-header-image'], 'original');
         if( $rc['stat'] == 'ok' ) {
             $pdf->header_image = $rc['image'];
         }
     }
 
-    $pdf->business_details = $business_details;
+    $pdf->tenant_details = $tenant_details;
     $pdf->sapos_settings = $sapos_settings;
 
     //
@@ -377,7 +377,7 @@ function ciniki_sapos_templates_picklist(&$ciniki, $business_id, $invoice_id, $b
     // Setup the PDF basics
     //
     $pdf->SetCreator('Ciniki');
-    $pdf->SetAuthor($business_details['name']);
+    $pdf->SetAuthor($tenant_details['name']);
     $pdf->SetTitle('Pick List #' . $invoice['invoice_number']);
     $pdf->SetSubject('');
     $pdf->SetKeywords('');

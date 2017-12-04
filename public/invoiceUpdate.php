@@ -15,7 +15,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'customer_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Customer'), 
         'salesrep_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Salesrep'), 
@@ -67,10 +67,10 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceUpdate'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.invoiceUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -81,7 +81,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     // Load the settings
     //
     $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 
-        'business_id', $args['business_id'], 'ciniki.sapos', 'settings', '');
+        'tnid', $args['tnid'], 'ciniki.sapos', 'settings', '');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -97,7 +97,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     $strsql = "SELECT invoice_number, customer_id, flags, salesrep_id, tax_location_id, pricepoint_id "
         . "FROM ciniki_sapos_invoices "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
     if( $rc['stat'] != 'ok' ) {
@@ -111,7 +111,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     //
     // Check to make sure the invoice belongs to the salesrep, if they aren't also owners/employees
     //
-    if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
+    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
         if( $invoice['salesrep_id'] != $ciniki['session']['user']['id'] ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.86', 'msg'=>'Permission Denied'));
         }
@@ -176,7 +176,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     // If a customer is specified, then lookup the customer details and fill out the invoice
     // based on the customer.  
     //
-    if( (!isset($ciniki['business']['user']['perms']) || ($ciniki['business']['user']['perms']&0x03) > 0 || ($ciniki['session']['user']['perms']&0x01) > 0 ) 
+    if( (!isset($ciniki['tenant']['user']['perms']) || ($ciniki['tenant']['user']['perms']&0x03) > 0 || ($ciniki['session']['user']['perms']&0x01) > 0 ) 
         && isset($args['customer_id']) && $args['customer_id'] > 0 ) {
         $strsql = "SELECT ciniki_customers.id, ciniki_customers.type, ciniki_customers.display_name, "
             . "ciniki_customers.company, "
@@ -194,10 +194,10 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
             . "ciniki_customer_addresses.phone "
             . "FROM ciniki_customers "
             . "LEFT JOIN ciniki_customer_addresses ON (ciniki_customers.id = ciniki_customer_addresses.customer_id "
-                . "AND ciniki_customer_addresses.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_customer_addresses.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "WHERE ciniki_customers.id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
-            . "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(
             array('container'=>'customers', 'fname'=>'id', 
@@ -293,7 +293,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     // Update the invoice
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.invoice', 
+    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice', 
         $args['invoice_id'], $update_args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -305,7 +305,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     //
     if( isset($update_args['pricepoint_id']) && $update_args['pricepoint_id'] != $invoice['pricepoint_id'] ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdatePrices');
-        $rc = ciniki_sapos_invoiceUpdatePrices($ciniki, $args['business_id'], $args['invoice_id'],
+        $rc = ciniki_sapos_invoiceUpdatePrices($ciniki, $args['tnid'], $args['invoice_id'],
             array('pricepoint_id'=>$update_args['pricepoint_id']));
         if( $rc['stat'] != 'ok' ) {    
             return $rc;
@@ -316,7 +316,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     // Return the invoice record
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-    $rc = ciniki_sapos_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
+    $rc = ciniki_sapos_invoiceLoad($ciniki, $args['tnid'], $args['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -333,7 +333,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
                 $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'invoiceUpdate');
                 if( $rc['stat'] == 'ok' ) {
                     $fn = $rc['function_call'];
-                    $rc = $fn($ciniki, $args['business_id'], $invoice['id'], $item);
+                    $rc = $fn($ciniki, $args['tnid'], $invoice['id'], $item);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }
@@ -346,7 +346,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     // Update the taxes/shipping incase something relavent changed
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
-    $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $args['business_id'], $args['invoice_id']);
+    $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $args['tnid'], $args['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -355,7 +355,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     // Update the status
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-    $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['business_id'], $args['invoice_id']);
+    $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['tnid'], $args['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -364,7 +364,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     // Reload the invoice record incase anything has changed
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-    $rc = ciniki_sapos_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
+    $rc = ciniki_sapos_invoiceLoad($ciniki, $args['tnid'], $args['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -380,11 +380,11 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'sapos');
 
     return array('stat'=>'ok', 'invoice'=>$invoice);
 }

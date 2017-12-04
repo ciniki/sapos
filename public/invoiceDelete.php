@@ -18,7 +18,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -28,10 +28,10 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoiceDelete'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.invoiceDelete'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -42,7 +42,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     $strsql = "SELECT COUNT(id) AS num_shipments "
         . "FROM ciniki_sapos_shipments "
         . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' " 
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' " 
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipments');
     if( $rc['stat'] != 'ok' ) {
@@ -57,7 +57,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     // Load the invoice record
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-    $rc = ciniki_sapos_invoiceLoad($ciniki, $args['business_id'], $args['invoice_id']);
+    $rc = ciniki_sapos_invoiceLoad($ciniki, $args['tnid'], $args['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -88,7 +88,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     //
     if( isset($invoice['taxes']) && count($invoice['taxes']) > 0 ) {
         foreach($invoice['taxes'] as $tid => $tax) {
-            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.invoice_tax', 
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.sapos.invoice_tax', 
                 $tax['tax']['id'], NULL, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -111,14 +111,14 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
                 $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemDelete');
                 if( $rc['stat'] == 'ok' ) {
                     $fn = $rc['function_call'];
-                    $rc = $fn($ciniki, $args['business_id'], $args['invoice_id'], $item);
+                    $rc = $fn($ciniki, $args['tnid'], $args['invoice_id'], $item);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }
                 }
             }
 
-            $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.invoice_item', 
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', 
                 $item['id'], NULL, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -130,7 +130,7 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     //
     // Remove the invoice
     //
-    $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.sapos.invoice', 
+    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.sapos.invoice', 
         $args['invoice_id'], NULL, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -147,11 +147,11 @@ function ciniki_sapos_invoiceDelete(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'sapos');
 
     return array('stat'=>'ok');
 }

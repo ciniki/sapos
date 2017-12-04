@@ -32,7 +32,7 @@ function ciniki_sapos_invoicereports() {
         switch (report) {
             case 'taxreport': method = 'ciniki.sapos.reportInvoicesTaxes'; break;
         }
-        M.api.getJSONCb(method, {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb(method, {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;

@@ -7,22 +7,22 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The business ID to check the session user against.
+// tnid:         The tenant ID to check the session user against.
 // method:              The requested method.
 //
 // Returns
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id, $object, $object_id) {
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $tnid, $invoice_id, $object, $object_id) {
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 
     //
-    // Get the time information for business and user
+    // Get the time information for tenant and user
     //
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -113,10 +113,10 @@ function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id
         . "submitted_by "
         . "FROM ciniki_sapos_invoices "
         . "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     // Check if only a sales rep
-    if( isset($ciniki['business']['user']['perms']) && ($ciniki['business']['user']['perms']&0x07) == 0x04 ) {
+    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
         $strsql .= "AND ciniki_sapos_invoices.salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' ";
     }
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -166,7 +166,7 @@ function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id
     $rsp['invoice']['customer'] = array();
     if( $rsp['invoice']['customer_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'private', 'customerDetails');
-        $rc = ciniki_customers__customerDetails($ciniki, $business_id, $rsp['invoice']['customer_id'], 
+        $rc = ciniki_customers__customerDetails($ciniki, $tnid, $rsp['invoice']['customer_id'], 
             array('phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
@@ -217,14 +217,14 @@ function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id
     //
     if( $rsp['invoice']['salesrep_id'] > 0 ) {
         $strsql = "SELECT display_name "
-            . "FROM ciniki_business_users, ciniki_users "
-            . "WHERE ciniki_business_users.user_id = '" . ciniki_core_dbQuote($ciniki, $rsp['invoice']['salesrep_id']) . "' "
-            . "AND ciniki_business_users.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-            . "AND ciniki_business_users.package = 'ciniki' "
-            . "AND ciniki_business_users.permission_group = 'salesreps' "
-            . "AND ciniki_business_users.user_id = ciniki_users.id "
+            . "FROM ciniki_tenant_users, ciniki_users "
+            . "WHERE ciniki_tenant_users.user_id = '" . ciniki_core_dbQuote($ciniki, $rsp['invoice']['salesrep_id']) . "' "
+            . "AND ciniki_tenant_users.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND ciniki_tenant_users.package = 'ciniki' "
+            . "AND ciniki_tenant_users.permission_group = 'salesreps' "
+            . "AND ciniki_tenant_users.user_id = ciniki_users.id "
             . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.businesses', 'user');
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tenants', 'user');
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -258,10 +258,10 @@ function ciniki_sapos_hooks_invoiceObjectItem($ciniki, $business_id, $invoice_id
         . "IFNULL(ciniki_tax_types.name, '') AS taxtype_name "
         . "FROM ciniki_sapos_invoice_items "
         . "LEFT JOIN ciniki_tax_types ON (ciniki_sapos_invoice_items.taxtype_id = ciniki_tax_types.id "
-            . "AND ciniki_tax_types.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_tax_types.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_sapos_invoice_items.object = '" . ciniki_core_dbQuote($ciniki, $object) . "' "
         . "AND ciniki_sapos_invoice_items.object_id = '" . ciniki_core_dbQuote($ciniki, $object_id) . "' "
         . "ORDER BY ciniki_sapos_invoice_items.line_number, ciniki_sapos_invoice_items.date_added "

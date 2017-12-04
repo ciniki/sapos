@@ -9,13 +9,13 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
+function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
 
     //
     // Load auto category settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', 'invoice-autocat');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', 'invoice-autocat');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -49,7 +49,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemLookup');
             if( $rc['stat'] == 'ok' ) {
                 $fn = $rc['function_call'];
-                $rc = $fn($ciniki, $business_id, $ciniki['session']['customer'], $args);
+                $rc = $fn($ciniki, $tnid, $ciniki['session']['customer'], $args);
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.149', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
                 }
@@ -83,7 +83,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
         $args['flags'] = isset($item['flags'])?$item['flags']:0;
         $args['invoice_id'] = $ciniki['session']['cart']['sapos_id'];
         $args['status'] = 0;
-        if( ($ciniki['business']['modules']['ciniki.sapos']['flags']&0x0400) > 0 ) {
+        if( ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x0400) > 0 ) {
             $args['code'] = (isset($item['code'])?$item['code']:'');
             $args['description'] = $item['description'];
         } else {
@@ -107,7 +107,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             $strsql = "SELECT discount_percent "
                 . "FROM ciniki_customers "
                 . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['customer']['id']) . "' "
-                . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "";
             $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.customers', 'customer');
             if( $rc['stat'] != 'ok' ) {
@@ -125,7 +125,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             $strsql = "SELECT MAX(line_number) AS maxnum "
                 . "FROM ciniki_sapos_invoice_items "
                 . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-                . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "";
             $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
             if( $rc['stat'] != 'ok' ) {
@@ -179,7 +179,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             $args['total_amount'] = $rc['total'];
 
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-            $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
+            $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.invoice_item', $args, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.152', 'msg'=>'Internal Error', 'err'=>$rc['err']));
             }
@@ -188,13 +188,13 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
             // Issue a callback to the items module
             //
             if( isset($itemAddCBfn) ) {
-                $rc = $itemAddCBfn($ciniki, $business_id, $invoice_id, $args);
+                $rc = $itemAddCBfn($ciniki, $tnid, $invoice_id, $args);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
                 // Update the invoice item with the new object and object_id
                 if( isset($rc['object']) && $rc['object'] != $args['object'] ) {
-                    $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item', 
+                    $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', 
                         $item_id, $rc, 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
@@ -226,7 +226,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
                     $args['line_number']++;
                 }
                 ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-                $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_item', $args, 0x04);
+                $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.invoice_item', $args, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.153', 'msg'=>'Internal Error', 'err'=>$rc['err']));
                 }
@@ -235,13 +235,13 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
                 // Issue a callback to the items module
                 //
                 if( isset($itemAddCBfn) ) {
-                    $rc = $itemAddCBfn($ciniki, $business_id, $invoice_id, $args);
+                    $rc = $itemAddCBfn($ciniki, $tnid, $invoice_id, $args);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }
                     // Update the invoice item with the new object and object_id
                     if( isset($rc['object']) && $rc['object'] != $args['object'] ) {
-                        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item', 
+                        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', 
                             $item_id, $rc, 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             return $rc;
@@ -255,7 +255,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
         // Update the taxes
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
-        $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $invoice_id);
+        $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_id);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -264,7 +264,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $business_id, $args) {
         // Update the invoice status
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice_id);
+        $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }

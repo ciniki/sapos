@@ -13,7 +13,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $invoice_id) {
+function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_id) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
@@ -45,7 +45,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
         . "ciniki_sapos_invoices.tax_location_id "
         . "FROM ciniki_sapos_invoices "
         . "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
     if( $rc['stat'] != 'ok' ) {
@@ -84,13 +84,13 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     //
     // Check for a customer tax location if specified
     //
-    if( isset($ciniki['business']['modules']['ciniki.taxes']['flags'])
-        && ($ciniki['business']['modules']['ciniki.taxes']['flags']&0x01) > 0
+    if( isset($ciniki['tenant']['modules']['ciniki.taxes']['flags'])
+        && ($ciniki['tenant']['modules']['ciniki.taxes']['flags']&0x01) > 0
         && $invoice['tax_location_id'] == 0 && $invoice['customer_id'] > 0 ) {
         $strsql = "SELECT tax_location_id "
             . "FROM ciniki_customers "
             . "WHERE ciniki_customers.id = '" . ciniki_core_dbQuote($ciniki, $invoice['customer_id']) . "' "
-            . "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.customers', 'customer');
         if( $rc['stat'] != 'ok' ) {
@@ -113,7 +113,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
         . "taxtype_id "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
     if( $rc['stat'] != 'ok' ) {
@@ -160,7 +160,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     if( $donation_amount > 0 && ($invoice['receipt_number'] == '' || $invoice['receipt_number'] == 0) ) {
         $strsql = "SELECT MAX(receipt_number) AS max_num "
             . "FROM ciniki_sapos_invoices "
-            . "WHERE ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
         if( $rc['stat'] != 'ok' ) {
@@ -181,7 +181,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     // Pass to the taxes module to calculate the taxes
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'taxes', 'private', 'calcInvoiceTaxes');
-    $rc = ciniki_taxes_calcInvoiceTaxes($ciniki, $business_id, $invoice);
+    $rc = ciniki_taxes_calcInvoiceTaxes($ciniki, $tnid, $invoice);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -193,7 +193,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     $strsql = "SELECT id, uuid, taxrate_id, description, amount "
         . "FROM ciniki_sapos_invoice_taxes "
         . "WHERE ciniki_sapos_invoice_taxes.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND ciniki_sapos_invoice_taxes.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoice_taxes.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashIDQuery($ciniki, $strsql, 'ciniki.sapos', 'taxes', 'taxrate_id');
     if( $rc['stat'] != 'ok' ) {
@@ -222,14 +222,14 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
                 $args['description'] = $tax['name'];
             }
             if( count($args) > 0 ) {
-                $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_tax', 
+                $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_tax', 
                     $old_taxes[$tid]['id'], $args, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
             }
         } else {
-            $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.invoice_tax', 
+            $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.invoice_tax', 
                 array(
                     'invoice_id'=>$invoice_id,
                     'taxrate_id'=>$tid,
@@ -258,7 +258,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
     foreach($old_taxes as $tid => $tax) {
         if( !isset($new_taxes[$tid]) ) {
             // Remove the tax
-            $rc = ciniki_core_objectDelete($ciniki, $business_id, 'ciniki.sapos.invoice_tax', $tax['id'], $tax['uuid'], 0x04);
+            $rc = ciniki_core_objectDelete($ciniki, $tnid, 'ciniki.sapos.invoice_tax', $tax['id'], $tax['uuid'], 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -313,7 +313,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $in
         $args['receipt_number'] = $receipt_number;
     }
     if( count($args) > 0 ) {
-        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', 
             $invoice_id, $args, 0x04);
         if( $rc['stat'] != 'ok' ) {
             return $rc;

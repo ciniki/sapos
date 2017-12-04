@@ -16,7 +16,7 @@ function ciniki_sapos_invoicePDFEnv(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -26,33 +26,33 @@ function ciniki_sapos_invoicePDFEnv(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.invoicePDFEnv'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.invoicePDFEnv'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
 
     //
-    // Load business details
+    // Load tenant details
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'businessDetails');
-    $rc = ciniki_businesses_businessDetails($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'tenantDetails');
+    $rc = ciniki_tenants_tenantDetails($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
     if( isset($rc['details']) && is_array($rc['details']) ) {    
-        $business_details = $rc['details'];
+        $tenant_details = $rc['details'];
     } else {
-        $business_details = array();
+        $tenant_details = array();
     }
 
     //
     // Load the invoice settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $args['business_id'],
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'],
         'ciniki.sapos', 'settings', 'invoice');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -78,7 +78,7 @@ function ciniki_sapos_invoicePDFEnv(&$ciniki) {
         return $rc;
     }
 
-    return ciniki_sapos_templates_envelope($ciniki, $args['business_id'], $args['invoice_id'],
-        $business_details, $sapos_settings);
+    return ciniki_sapos_templates_envelope($ciniki, $args['tnid'], $args['invoice_id'],
+        $tenant_details, $sapos_settings);
 }
 ?>

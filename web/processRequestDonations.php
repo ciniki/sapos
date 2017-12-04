@@ -2,7 +2,7 @@
 //
 // Description
 // -----------
-// This function will generate the donations page for the business.
+// This function will generate the donations page for the tenant.
 //
 // Arguments
 // ---------
@@ -12,12 +12,12 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_processRequestDonations(&$ciniki, $settings, $business_id, $args) {
+function ciniki_sapos_web_processRequestDonations(&$ciniki, $settings, $tnid, $args) {
 
     //
     // Check to make sure the module is enabled
     //
-    if( !isset($ciniki['business']['modules']['ciniki.sapos']) ) {
+    if( !isset($ciniki['tenant']['modules']['ciniki.sapos']) ) {
         return array('stat'=>'404', 'err'=>array('code'=>'ciniki.sapos.209', 'msg'=>"I'm sorry, the page you requested does not exist."));
     }
     $page = array(
@@ -50,7 +50,7 @@ function ciniki_sapos_web_processRequestDonations(&$ciniki, $settings, $business
     //
     $strsql = "SELECT id, name, subname, sequence, flags, amount, primary_image_id, synopsis "
         . "FROM ciniki_sapos_donation_packages "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND (flags&0x01) = 0x01 "
         . "ORDER BY sequence "
         . "";

@@ -16,7 +16,7 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'category_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Expense Category'),
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'),
         'sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Sequence'),
@@ -32,10 +32,10 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.expenseCategoryUpdate'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.expenseCategoryUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -52,7 +52,7 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
     //
     $strsql = "SELECT id, sequence "
         . "FROM ciniki_sapos_expense_categories "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'category');
@@ -80,7 +80,7 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
     // Update the category
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.expense_category', $args['category_id'], $args, 0x04);
+    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.expense_category', $args['category_id'], $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
@@ -91,7 +91,7 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
     //
     if( isset($args['sequence']) && $args['sequence'] != $category['sequence'] ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'expenseUpdateCategorySequences');
-        $rc = ciniki_sapos_expenseUpdateCategorySequences($ciniki, $args['business_id'], 
+        $rc = ciniki_sapos_expenseUpdateCategorySequences($ciniki, $args['tnid'], 
             $args['category_id'], $args['sequence'], $category['sequence']);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -109,11 +109,11 @@ function ciniki_sapos_expenseCategoryUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'sapos');
 
     return array('stat'=>'ok');
 }

@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_checkOrder($ciniki, $settings, $business_id, $cart) {
+function ciniki_sapos_web_checkOrder($ciniki, $settings, $tnid, $cart) {
 
     if( !isset($ciniki['session']['cart']['sapos_id']) || $ciniki['session']['cart']['sapos_id'] == 0 ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.167', 'msg'=>'No order to submit'));

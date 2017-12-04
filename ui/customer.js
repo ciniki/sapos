@@ -130,7 +130,7 @@ function ciniki_sapos_customer() {
             this.payment_status = pstatus; 
             this.sections.payment_statuses.selected = pstatus;
         }
-        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+        M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
             'customer_id':this.customer_id, 'customer':'yes', 
             'payment_status':this.payment_status}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
@@ -176,28 +176,28 @@ function ciniki_sapos_customer() {
         //
         var ct = 0;
         var default_type = 0;
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x01) > 0 ) {
             this.invoices.sections.types.tabs['10'].visible = 'yes';
             if( default_type != '' ) { default_type = 10; }
             ct++;
         } else {
             this.invoices.sections.types.tabs['10'].visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x08) > 0 ) {
             this.invoices.sections.types.tabs['20'].visible = 'yes';
             if( default_type != '' ) { default_type = 20; }
             ct++;
         } else {
             this.invoices.sections.types.tabs['20'].visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x10) > 0 ) {
             this.invoices.sections.types.tabs['30'].visible = 'yes';
             if( default_type != '' ) { default_type = 30; }
             ct++;
         } else {
             this.invoices.sections.types.tabs['30'].visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x20) > 0 ) {
             this.invoices.sections.types.tabs['40'].visible = 'yes';
             if( default_type != '' ) { default_type = 40; }
             ct++;
@@ -217,7 +217,7 @@ function ciniki_sapos_customer() {
 
 
 //  this.downloadExcel = function() {
-//      var args = {'business_id':M.curBusinessID, 'output':'excel'};
+//      var args = {'tnid':M.curTenantID, 'output':'excel'};
 //      if( this.invoices.year != null ) { args.year = this.invoices.year; }
 //      if( this.invoices.month != null ) { args.month = this.invoices.month; }
 //      if( this.invoices.status != null ) { args.status = this.invoices.status; }

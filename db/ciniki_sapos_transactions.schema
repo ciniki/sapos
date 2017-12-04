@@ -7,18 +7,18 @@
 #
 # The totals of customer_amount should add up to the total on the invoice.
 #
-# The business_amount may not add up to the invoice amount due to fees taken off by
+# The tenant_amount may not add up to the invoice amount due to fees taken off by
 # paypal or other processing fees.
 #
 # Fields
 # ------
 # id:                   The invoice ID.
 # uuid:                 The Universal Unique ID for the invoice.
-# business_id:          The business the invoice is for.
+# tnid:                 The tenant the invoice is for.
 #
 # invoice_id:           The ID of the invoice the transaction is for, if any.
 #
-# status:               The current status of the transaction. This is used to track transfers into business bank account.
+# status:               The current status of the transaction. This is used to track transfers into tenant bank account.
 #
 #                           10 - Completed
 #                           40 - Deposited
@@ -53,7 +53,7 @@
 #
 # transaction_fees:     Any fees associated with the transaction that will be removed from the amount.
 #
-# business_amount:      The amount deposited or withdrawn from the business account.
+# tenant_amount:      The amount deposited or withdrawn from the tenant account.
 #                       Paypal removes the fee before depositing the money, this will take that into account.
 #
 # user_id:              The ID of the user who processed the transaction.  If the transaction was
@@ -61,7 +61,7 @@
 #
 # notes:                Any notes or comments about the transaction.
 #
-# gateway:              The payment gateway used for this transaction.  This allows the business
+# gateway:              The payment gateway used for this transaction.  This allows the tenant
 #                       to record a sale through paypal without using API.  If the gateway is set
 #                       then the payment was processed through the API.
 #
@@ -82,7 +82,7 @@
 create table ciniki_sapos_transactions (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     invoice_id int not null,
     status tinyint unsigned not null,
     transaction_type tinyint unsigned not null,
@@ -90,7 +90,7 @@ create table ciniki_sapos_transactions (
     source smallint unsigned not null,
     customer_amount decimal(19,4) not null,
     transaction_fees decimal(19,4) not null,
-    business_amount decimal(19,4) not null,
+    tenant_amount decimal(19,4) not null,
     user_id int not null,
     notes varchar(6000) not null,
     gateway tinyint unsigned not null,
@@ -101,5 +101,5 @@ create table ciniki_sapos_transactions (
     last_updated datetime not null,
     primary key (id),
     index (invoice_id),
-    index sync (uuid, business_id, last_updated)
+    index sync (uuid, tnid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.02';

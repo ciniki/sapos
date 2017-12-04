@@ -13,7 +13,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_invoiceUpdatePrices($ciniki, $business_id, $invoice_id, $args) {
+function ciniki_sapos_invoiceUpdatePrices($ciniki, $tnid, $invoice_id, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
@@ -27,7 +27,7 @@ function ciniki_sapos_invoiceUpdatePrices($ciniki, $business_id, $invoice_id, $a
         . "unit_amount, unit_discount_amount, unit_discount_percentage "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
     if( $rc['stat'] != 'ok' ) {
@@ -51,7 +51,7 @@ function ciniki_sapos_invoiceUpdatePrices($ciniki, $business_id, $invoice_id, $a
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
             if( $rc['stat'] == 'ok' ) {
                 $fn = $rc['function_call'];
-                $rc = $fn($ciniki, $business_id, array(
+                $rc = $fn($ciniki, $tnid, array(
                     'object'=>$item['object'],
                     'object_id'=>$item['object_id'],
                     'pricepoint_id'=>$args['pricepoint_id'],
@@ -98,7 +98,7 @@ function ciniki_sapos_invoiceUpdatePrices($ciniki, $business_id, $invoice_id, $a
         // Update the item 
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item', 
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', 
             $item['id'], $update_args, 0x04);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');

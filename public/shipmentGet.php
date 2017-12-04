@@ -16,7 +16,7 @@ function ciniki_sapos_shipmentGet(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'shipment_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Shipment'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -26,10 +26,10 @@ function ciniki_sapos_shipmentGet(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.shipmentGet'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.shipmentGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -39,7 +39,7 @@ function ciniki_sapos_shipmentGet(&$ciniki) {
     // Load the shipment
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'shipmentLoad');
-    $rc = ciniki_sapos_shipmentLoad($ciniki, $args['business_id'], $args['shipment_id']); 
+    $rc = ciniki_sapos_shipmentLoad($ciniki, $args['tnid'], $args['shipment_id']); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }

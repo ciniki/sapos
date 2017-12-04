@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method searchs for a Donation Packages for a business.
+// This method searchs for a Donation Packages for a tenant.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Donation Package for.
+// tnid:        The ID of the tenant to get Donation Package for.
 // start_needle:       The search string to search for.
 // limit:              The maximum number of entries to return.
 //
@@ -21,7 +21,7 @@ function ciniki_sapos_packageSearch($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'),
         'limit'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Limit'),
         ));
@@ -31,10 +31,10 @@ function ciniki_sapos_packageSearch($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.packageSearch');
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.packageSearch');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -51,7 +51,7 @@ function ciniki_sapos_packageSearch($ciniki) {
         . "ciniki_sapos_donation_packages.category, "
         . "ciniki_sapos_donation_packages.amount "
         . "FROM ciniki_sapos_donation_packages "
-        . "WHERE ciniki_sapos_donation_packages.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_sapos_donation_packages.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ("
             . "name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "OR name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "

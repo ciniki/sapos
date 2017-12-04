@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_invoiceUpdateItem(&$ciniki, $business_id, $invoice_id, $item) {
+function ciniki_sapos_invoiceUpdateItem(&$ciniki, $tnid, $invoice_id, $item) {
 
     if( !isset($item['object']) || $item['object'] == '' || !isset($item['object_id']) && $item['object_id'] == '' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.24', 'msg'=>'No object specified for updating invoice'));
@@ -24,7 +24,7 @@ function ciniki_sapos_invoiceUpdateItem(&$ciniki, $business_id, $invoice_id, $it
         . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
         . "subtotal_amount, discount_amount, total_amount "
         . "FROM ciniki_sapos_invoice_items "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND object = '" . ciniki_core_dbQuote($ciniki, $item['object']) . "' "
         . "AND object_id ='" . ciniki_core_dbQuote($ciniki, $item['object_id']) . "' "
@@ -69,7 +69,7 @@ function ciniki_sapos_invoiceUpdateItem(&$ciniki, $business_id, $invoice_id, $it
     // Update the item
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item', 
+    $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', 
         $existing_item['id'], $item, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -84,7 +84,7 @@ function ciniki_sapos_invoiceUpdateItem(&$ciniki, $business_id, $invoice_id, $it
     // Update the taxes
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
-    $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $business_id, $invoice_id);
+    $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_id);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
@@ -94,18 +94,18 @@ function ciniki_sapos_invoiceUpdateItem(&$ciniki, $business_id, $invoice_id, $it
     // Update the invoice status
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-    $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $business_id, $invoice_id);
+    $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $business_id, 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $tnid, 'ciniki', 'sapos');
 
     return array('stat'=>'ok');
 }

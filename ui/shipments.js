@@ -114,7 +114,7 @@ function ciniki_sapos_shipments() {
     this.showInvoices = function(cb, list) {
         if( list != null ) { this.invoices._list = list; }
         if( this.invoices._list == 'packlist' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'shipping_status':'packlist', 'sort':'invoice_date'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -126,7 +126,7 @@ function ciniki_sapos_shipments() {
                     p.show(cb);
                 });
         } else if( this.invoices._list == 'onhold' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'status':'15', 'sort':'invoice_date'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -138,7 +138,7 @@ function ciniki_sapos_shipments() {
                     p.show(cb);
                 });
         } else if( this.invoices._list == 'backordered' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'shipping_status':'backordered', 'sort':'invoice_date'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -155,7 +155,7 @@ function ciniki_sapos_shipments() {
     this.showShipments = function(cb, list) {
         if( list != null ) { this.list._list = list; }
         if( this.list._list == 'pendship' ) {
-            M.api.getJSONCb('ciniki.sapos.shipmentList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.shipmentList', {'tnid':M.curTenantID,
                 'status':'20', 'sort':'invoice_date'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_taxes_checkObjectUsed($ciniki, $modules, $business_id, $object, $object_id) {
+function ciniki_sapos_taxes_checkObjectUsed($ciniki, $modules, $tnid, $object, $object_id) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
 
@@ -26,7 +26,7 @@ function ciniki_sapos_taxes_checkObjectUsed($ciniki, $modules, $business_id, $ob
         $strsql = "SELECT 'items', COUNT(*) "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE taxtype_id = '" . ciniki_core_dbQuote($ciniki, $object_id) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
         if( $rc['stat'] != 'ok' ) {
@@ -44,7 +44,7 @@ function ciniki_sapos_taxes_checkObjectUsed($ciniki, $modules, $business_id, $ob
         $strsql = "SELECT 'items', COUNT(*) "
             . "FROM ciniki_sapos_qi_items "
             . "WHERE taxtype_id = '" . ciniki_core_dbQuote($ciniki, $object_id) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
         if( $rc['stat'] != 'ok' ) {
@@ -64,7 +64,7 @@ function ciniki_sapos_taxes_checkObjectUsed($ciniki, $modules, $business_id, $ob
         $strsql = "SELECT 'items', COUNT(*) "
             . "FROM ciniki_sapos_expense_categories "
             . "WHERE taxrate_id = '" . ciniki_core_dbQuote($ciniki, $object_id) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
         if( $rc['stat'] != 'ok' ) {
@@ -83,7 +83,7 @@ function ciniki_sapos_taxes_checkObjectUsed($ciniki, $modules, $business_id, $ob
         $strsql = "SELECT 'items', COUNT(*) "
             . "FROM ciniki_sapos_invoice_taxes "
             . "WHERE taxrate_id = '" . ciniki_core_dbQuote($ciniki, $object_id) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.sapos', 'num');
         if( $rc['stat'] != 'ok' ) {

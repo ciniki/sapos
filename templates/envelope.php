@@ -11,12 +11,12 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_templates_envelope(&$ciniki, $business_id, $invoice_id, $business_details, $sapos_settings) {
+function ciniki_sapos_templates_envelope(&$ciniki, $tnid, $invoice_id, $tenant_details, $sapos_settings) {
     //
     // Get the invoice record
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
-    $rc = ciniki_sapos_invoiceLoad($ciniki, $business_id, $invoice_id);
+    $rc = ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -41,37 +41,37 @@ function ciniki_sapos_templates_envelope(&$ciniki, $business_id, $invoice_id, $b
 //  $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
     //
-    // Figure out the header business name and address information
+    // Figure out the header tenant name and address information
     //
     $return_addr_height = 0;
     $return_addr = array();
 
-//  if( !isset($sapos_settings['invoice-header-business-name'])
-//      || $sapos_settings['invoice-header-business-name'] == 'yes' ) {
-        $return_addr[] = $business_details['name'];
+//  if( !isset($sapos_settings['invoice-header-tenant-name'])
+//      || $sapos_settings['invoice-header-tenant-name'] == 'yes' ) {
+        $return_addr[] = $tenant_details['name'];
 //  }
-    if( isset($business_details['contact.address.street1']) 
-        && $business_details['contact.address.street1'] != '' ) {
-        $return_addr[] = $business_details['contact.address.street1'];
+    if( isset($tenant_details['contact.address.street1']) 
+        && $tenant_details['contact.address.street1'] != '' ) {
+        $return_addr[] = $tenant_details['contact.address.street1'];
     }
-    if( isset($business_details['contact.address.street2']) 
-        && $business_details['contact.address.street2'] != '' ) {
-        $return_addr[] = $business_details['contact.address.street2'];
+    if( isset($tenant_details['contact.address.street2']) 
+        && $tenant_details['contact.address.street2'] != '' ) {
+        $return_addr[] = $tenant_details['contact.address.street2'];
     }
     $city = '';
-    if( isset($business_details['contact.address.city']) 
-        && $business_details['contact.address.city'] != '' ) {
-        $city .= $business_details['contact.address.city'];
+    if( isset($tenant_details['contact.address.city']) 
+        && $tenant_details['contact.address.city'] != '' ) {
+        $city .= $tenant_details['contact.address.city'];
     }
-    if( isset($business_details['contact.address.province']) 
-        && $business_details['contact.address.province'] != '' ) {
+    if( isset($tenant_details['contact.address.province']) 
+        && $tenant_details['contact.address.province'] != '' ) {
         $city .= ($city!='')?', ':'';
-        $city .= $business_details['contact.address.province'];
+        $city .= $tenant_details['contact.address.province'];
     }
-    if( isset($business_details['contact.address.postal']) 
-        && $business_details['contact.address.postal'] != '' ) {
+    if( isset($tenant_details['contact.address.postal']) 
+        && $tenant_details['contact.address.postal'] != '' ) {
         $city .= ($city!='')?'  ':'';
-        $city .= $business_details['contact.address.postal'];
+        $city .= $tenant_details['contact.address.postal'];
     }
     if( $city != '' ) {
         $return_addr[] = $city;

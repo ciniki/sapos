@@ -7,19 +7,19 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The business ID to check the session user against.
+// tnid:         The tenant ID to check the session user against.
 // method:              The requested method.
 //
 // Returns
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
+function ciniki_sapos_checkAccess(&$ciniki, $tnid, $method) {
     //
-    // Check if the business is active and the module is enabled
+    // Check if the tenant is active and the module is enabled
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'checkModuleAccess');
-    $rc = ciniki_businesses_checkModuleAccess($ciniki, $business_id, 'ciniki', 'sapos');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'checkModuleAccess');
+    $rc = ciniki_tenants_checkModuleAccess($ciniki, $tnid, 'ciniki', 'sapos');
     if( $rc['stat'] != 'ok' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.13', 'msg'=>'Permission denied', 'err'=>$rc['err']));
     }
@@ -33,14 +33,14 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
     // Get the list of permission_groups the user is a part of
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
-    $strsql = "SELECT permission_group FROM ciniki_business_users "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+    $strsql = "SELECT permission_group FROM ciniki_tenant_users "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
         . "AND package = 'ciniki' "
         . "AND status = 10 "    // Active user
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
-    $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.businesses', 'groups', 'permission_group');
+    $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.tenants', 'groups', 'permission_group');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -60,7 +60,7 @@ function ciniki_sapos_checkAccess(&$ciniki, $business_id, $method) {
     if( in_array('owners', $groups) ) { $perms |= 0x01; }
     if( in_array('employees', $groups) ) { $perms |= 0x02; }
     if( in_array('salesreps', $groups) ) { $perms |= 0x04; }
-    $ciniki['business']['user']['perms'] = $perms;
+    $ciniki['tenant']['user']['perms'] = $perms;
 
     //
     // If the user is a part of owners they have access to everything

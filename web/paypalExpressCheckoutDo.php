@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $business_id, $args) {
+function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $tnid, $args) {
 
     if( !isset($_SESSION['paypal_token']) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.172', 'msg'=>'Internal Error'));
@@ -23,7 +23,7 @@ function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $business_id, $args)
     // Load paypal settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'business_id', $business_id, 'ciniki.sapos', 'settings', 'paypal');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', 'paypal');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -115,7 +115,7 @@ function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $business_id, $args)
                 'source'=>'10',
                 'customer_amount'=>$nvpResArray['PAYMENTINFO_0_AMT'],
                 'transaction_fees'=>$nvpResArray['PAYMENTINFO_0_FEEAMT'],
-                'business_amount'=>BCSUB($nvpResArray['PAYMENTINFO_0_AMT'], $nvpResArray['PAYMENTINFO_0_FEEAMT'], 4),
+                'tenant_amount'=>BCSUB($nvpResArray['PAYMENTINFO_0_AMT'], $nvpResArray['PAYMENTINFO_0_FEEAMT'], 4),
                 'user_id'=>0,
                 'notes'=>'',
                 'gateway'=>10,
@@ -124,7 +124,7 @@ function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $business_id, $args)
                 'gateway_response'=>serialize($nvpResArray),
                 );
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-            $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.sapos.transaction', $transaction_args);
+            $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.transaction', $transaction_args);
             if( $rc['stat'] != 'ok' ) {
                 error_log("PAYPAL-ERR: Unable to record transaction: " . print_r($rc['err'], true));
             }

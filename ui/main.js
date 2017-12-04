@@ -110,7 +110,7 @@ function ciniki_sapos_main() {
         }
     this.menu.liveSearchCb = function(s, i, v) {
         if( s == 'invoice_search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'tnid':M.curTenantID,
                 'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
                     M.ciniki_sapos_main.menu.liveSearchShow('invoice_search',null,M.gE(M.ciniki_sapos_main.menu.panelUID + '_' + s), rsp.invoices);
                 });
@@ -282,7 +282,7 @@ function ciniki_sapos_main() {
                 case 'quarterlyinvoices': this.invoice_type = 16; break;
                 case 'yearlyinvoices': this.invoice_type = 19; break;
             }
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID, 'sort':'date', 'type':this.invoice_type}, function(rsp) {
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID, 'sort':'date', 'type':this.invoice_type}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -305,7 +305,7 @@ function ciniki_sapos_main() {
             this.payment_status = pstatus;
             this.sections.payment_statuses.selected = pstatus;
         }
-        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
+        M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
             'payment_status':this.payment_status, 'type':this.invoice_type, 'sort':'invoice_date'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -333,7 +333,7 @@ function ciniki_sapos_main() {
             });
     }
     this.menu.downloadExcel = function() {
-        var args = {'business_id':M.curBusinessID, 'output':'excel'};
+        var args = {'tnid':M.curTenantID, 'output':'excel'};
         if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
         if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
         if( this.invoice_type != null ) { args.type = this.invoice_type; }
@@ -373,7 +373,7 @@ function ciniki_sapos_main() {
                 case 3: return d.customer_display_name;
                 case 4: return d.customer_amount_display;
                 case 5: return d.transaction_fees_display;
-                case 6: return d.business_amount_display;
+                case 6: return d.tenant_amount_display;
                 case 7: return d.status_text;
             }
         }
@@ -392,7 +392,7 @@ function ciniki_sapos_main() {
                 case 3: return '';
                 case 4: return this.data.totals.customer_amount_display;
                 case 5: return this.data.totals.transaction_fees_display;
-                case 6: return this.data.totals.business_amount_display;
+                case 6: return this.data.totals.tenant_amount_display;
                 case 7: return '';
             }
         }
@@ -409,7 +409,7 @@ function ciniki_sapos_main() {
         this.sections.months.panel = 'transactions';
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
-        M.api.getJSONCb('ciniki.sapos.transactionList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
+        M.api.getJSONCb('ciniki.sapos.transactionList', {'tnid':M.curTenantID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
             'sort':'transaction_date'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -453,7 +453,7 @@ function ciniki_sapos_main() {
             'source':{'label':'Source', 'type':'select', 'options':this.transactionSources},
             'customer_amount':{'label':'Customer Amount', 'type':'text', 'size':'small'},
             'transaction_fees':{'label':'Fees', 'type':'text', 'size':'small'},
-            'business_amount':{'label':'Business Amount', 'type':'text', 'size':'small'},
+            'tenant_amount':{'label':'Tenant Amount', 'type':'text', 'size':'small'},
             }},
         '_notes':{'label':'Notes', 'fields':{
             'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -468,14 +468,14 @@ function ciniki_sapos_main() {
         return '';
     }
     this.transaction.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.sapos.history', 'args':{'business_id':M.curBusinessID,
+        return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
             'object':'ciniki.sapos.transaction', 'object_id':this.transaction_id, 'field':i}};
     }
     this.transaction.open = function(cb, tid, inid, date, amount) {
         if( tid != null ) { this.transaction_id = tid; }
         if( inid != null ) { this.invoice_id = inid; }
         if( this.transaction_id > 0 ) {
-            M.api.getJSONCb('ciniki.sapos.transactionGet', {'business_id':M.curBusinessID, 'transaction_id':this.transaction_id}, function(rsp) {
+            M.api.getJSONCb('ciniki.sapos.transactionGet', {'tnid':M.curTenantID, 'transaction_id':this.transaction_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -508,7 +508,7 @@ function ciniki_sapos_main() {
         if( this.transaction_id > 0 ) {
             var c = this.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.sapos.transactionUpdate', {'business_id':M.curBusinessID,
+                M.api.postJSONCb('ciniki.sapos.transactionUpdate', {'tnid':M.curTenantID,
                     'transaction_id':this.transaction_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -521,7 +521,7 @@ function ciniki_sapos_main() {
             }
         } else {
             var c = this.serializeForm('yes');
-            M.api.postJSONCb('ciniki.sapos.transactionAdd', {'business_id':M.curBusinessID, 'invoice_id':this.invoice_id}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.transactionAdd', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -533,7 +533,7 @@ function ciniki_sapos_main() {
     this.transaction.remove = function(tid) {
         if( tid <= 0 ) { return false; }
         if( confirm("Are you sure you want to remove this transaction?") ) {
-            M.api.getJSONCb('ciniki.sapos.transactionDelete', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.transactionDelete', {'tnid':M.curTenantID,
                 'transaction_id':tid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -604,7 +604,7 @@ function ciniki_sapos_main() {
         this.sections.months.panel = 'donations';
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
-        M.api.getJSONCb('ciniki.sapos.donationList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 
+        M.api.getJSONCb('ciniki.sapos.donationList', {'tnid':M.curTenantID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 
             'type':'10', 'payment_status':'50', 'stats':'yes', 'sort':'invoice_date'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -703,7 +703,7 @@ function ciniki_sapos_main() {
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
         this.sections.years.visible = 'no';
-        M.api.getJSONCb('ciniki.sapos.invoiceCategories', {'business_id':M.curBusinessID, 'year':M.ciniki_sapos_main._years.selected, 'month':M.ciniki_sapos_main._months.selected, 'stats':'yes'}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.invoiceCategories', {'tnid':M.curTenantID, 'year':M.ciniki_sapos_main._years.selected, 'month':M.ciniki_sapos_main._months.selected, 'stats':'yes'}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -742,7 +742,7 @@ function ciniki_sapos_main() {
         });
     }
     this.categories.downloadExcel = function() {
-        var args = {'business_id':M.curBusinessID, 'output':'excel'};
+        var args = {'tnid':M.curTenantID, 'output':'excel'};
         if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
         if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
         M.api.openFile('ciniki.sapos.invoiceCategories', args);
@@ -776,7 +776,7 @@ function ciniki_sapos_main() {
             }},
     }
     this.ic.liveSearchCb = function(s, i, v) {
-        M.api.getJSONBgCb('ciniki.sapos.invoiceCategoriesSearch', {'business_id':M.curBusinessID, 'field':i, 'start_needle':'', 'limit':15}, function(rsp) {
+        M.api.getJSONBgCb('ciniki.sapos.invoiceCategoriesSearch', {'tnid':M.curTenantID, 'field':i, 'start_needle':'', 'limit':15}, function(rsp) {
             M.ciniki_sapos_main.ic.liveSearchShow(s,i,M.gE(M.ciniki_sapos_main.ic.panelUID + '_' + i), rsp.categories);
         });
     }
@@ -824,7 +824,7 @@ function ciniki_sapos_main() {
     }
     this.ic.open = function(cb, iid) {
         if( iid != null ) { this.invoice_id = iid; }
-        M.api.getJSONCb('ciniki.sapos.invoiceGet', {'business_id':M.curBusinessID, 'invoice_id':this.invoice_id}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.invoiceGet', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -849,7 +849,7 @@ function ciniki_sapos_main() {
         var c = this.serializeForm('no');
         if( c != '' ) {
             console.log(c);
-            M.api.postJSONCb('ciniki.sapos.invoiceCategoriesUpdate', {'business_id':M.curBusinessID, 'invoice_id':this.invoice_id}, c, function(rsp) {
+            M.api.postJSONCb('ciniki.sapos.invoiceCategoriesUpdate', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -908,7 +908,7 @@ function ciniki_sapos_main() {
     };
     this.expenses.liveSearchCb = function(s, i, v) {
         if( s == 'search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'business_id':M.curBusinessID,
+            M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'tnid':M.curTenantID,
                 'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
                     M.ciniki_sapos_main.expenses.liveSearchShow('search',null,M.gE(M.ciniki_sapos_main.expenses.panelUID + '_' + s), rsp.expenses);
                 });
@@ -972,7 +972,7 @@ function ciniki_sapos_main() {
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
         this.sections.years.visible = 'no';
-        M.api.getJSONCb('ciniki.sapos.expenseGrid', {'business_id':M.curBusinessID, 'year':M.ciniki_sapos_main._years.selected, 'month':M.ciniki_sapos_main._months.selected, 'stats':'yes'}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.expenseGrid', {'tnid':M.curTenantID, 'year':M.ciniki_sapos_main._years.selected, 'month':M.ciniki_sapos_main._months.selected, 'stats':'yes'}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -1000,7 +1000,7 @@ function ciniki_sapos_main() {
         });
     };
     this.expenses.download = function() {
-        var args = {'business_id':M.curBusinessID, 'output':'excel'};
+        var args = {'tnid':M.curTenantID, 'output':'excel'};
         if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
         if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
         M.api.openFile('ciniki.sapos.expenseGrid', args);
@@ -1039,7 +1039,7 @@ function ciniki_sapos_main() {
     };
     this.mileage.liveSearchCb = function(s, i, v) {
         if( s == 'search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.mileageSearch', {'business_id':M.curBusinessID,
+            M.api.getJSONBgCb('ciniki.sapos.mileageSearch', {'tnid':M.curTenantID,
                 'start_needle':v, 'sort':'reverse', 'limit':'10'}, function(rsp) {
                     M.ciniki_sapos_main.mileage.liveSearchShow('search',null,M.gE(M.ciniki_sapos_main.mileage.panelUID + '_' + s), rsp.mileages);
                 });
@@ -1078,7 +1078,7 @@ function ciniki_sapos_main() {
         this.sections.months.panel = 'expenses';
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
-        M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID, 'limit':'10', 'sort':'latest', 'type':'mileage'}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.latest', {'tnid':M.curTenantID, 'limit':'10', 'sort':'latest', 'type':'mileage'}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -1129,7 +1129,7 @@ function ciniki_sapos_main() {
     };
     this.quotes.liveSearchCb = function(s, i, v) {
         if( s == 'search' && v != '' ) {
-            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+            M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'tnid':M.curTenantID,
                 'start_needle':v, 'sort':'reverse', 'invoice_type':'90', 'limit':'10'}, function(rsp) {
                     M.ciniki_sapos_main.quotes.liveSearchShow('search',null,M.gE(M.ciniki_sapos_main.quotes.panelUID + '_' + s), rsp.invoices);
                 });
@@ -1205,7 +1205,7 @@ function ciniki_sapos_main() {
         this.sections.months.panel = 'quotes';
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
-        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
+        M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
             'sort':'invoice_date', 'type':90}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -1270,7 +1270,7 @@ function ciniki_sapos_main() {
         switch (report) {
             case 'taxes': method = 'ciniki.sapos.reportInvoicesTaxes'; break;
         }
-        M.api.getJSONCb(method, {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb(method, {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -1353,7 +1353,7 @@ function ciniki_sapos_main() {
         } 
 
         this._tabs.tabs.reports.visible = 'no';
-        if( M.curBusiness.modules['ciniki.taxes'] != null ) {
+        if( M.curTenant.modules['ciniki.taxes'] != null ) {
             this._tabs.tabs.reports.visible = 'yes';
         }
         

@@ -12,7 +12,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_getReservedQuantities(&$ciniki, $business_id, $object, $object_ids, $invoice_id) {
+function ciniki_sapos_getReservedQuantities(&$ciniki, $tnid, $object, $object_ids, $invoice_id) {
     //
     // Get the quantity of each object that has been ordered by not shipped.
     //
@@ -21,12 +21,12 @@ function ciniki_sapos_getReservedQuantities(&$ciniki, $business_id, $object, $ob
         . "SUM(ciniki_sapos_invoice_items.quantity - ciniki_sapos_invoice_items.shipped_quantity) "
             . "AS quantity "
         . "FROM ciniki_sapos_invoice_items, ciniki_sapos_invoices "
-        . "WHERE ciniki_sapos_invoice_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_sapos_invoice_items.object = '" . ciniki_core_dbQuote($ciniki, $object) . "' "
         . "AND ciniki_sapos_invoice_items.object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $object_ids) . ") "
         . "AND ciniki_sapos_invoice_items.invoice_id = ciniki_sapos_invoices.id "
         . "AND ciniki_sapos_invoice_items.invoice_id <> '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-        . "AND ciniki_sapos_invoices.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_sapos_invoices.status < 50 " // any incomplete invoices
         . "GROUP BY object_id "
         . "";

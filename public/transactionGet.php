@@ -16,7 +16,7 @@ function ciniki_sapos_transactionGet(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'transaction_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice Transaction'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -26,20 +26,20 @@ function ciniki_sapos_transactionGet(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.transactionGet'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.transactionGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
     $modules = $rc['modules'];
 
     //
-    // Get business/user settings
+    // Get tenant/user settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -60,17 +60,17 @@ function ciniki_sapos_transactionGet(&$ciniki) {
         . "source, "
         . "customer_amount, "
         . "transaction_fees, "
-        . "business_amount, "
+        . "tenant_amount, "
         . "notes "
         . "FROM ciniki_sapos_transactions "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['transaction_id']) . "' "
         . "ORDER BY transaction_date ASC "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
-            'fields'=>array('id', 'status', 'transaction_type', 'transaction_date', 'source', 'customer_amount', 'transaction_fees', 'business_amount'),
+            'fields'=>array('id', 'status', 'transaction_type', 'transaction_date', 'source', 'customer_amount', 'transaction_fees', 'tenant_amount'),
             'utctotz'=>array('transaction_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)), 
             ),
         ));
@@ -83,7 +83,7 @@ function ciniki_sapos_transactionGet(&$ciniki) {
     $transaction = $rc['transactions'][0]['transaction'];
     $transaction['customer_amount'] = numfmt_format_currency($intl_currency_fmt, $transaction['customer_amount'], $intl_currency);
     $transaction['transaction_fees'] = numfmt_format_currency($intl_currency_fmt, $transaction['transaction_fees'], $intl_currency);
-    $transaction['business_amount'] = numfmt_format_currency($intl_currency_fmt, $transaction['business_amount'], $intl_currency);
+    $transaction['tenant_amount'] = numfmt_format_currency($intl_currency_fmt, $transaction['tenant_amount'], $intl_currency);
 
     return array('stat'=>'ok', 'transaction'=>$transaction);
 }

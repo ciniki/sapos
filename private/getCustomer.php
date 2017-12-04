@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
+function ciniki_sapos_getCustomer(&$ciniki, $tnid, $args) {
     if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
         $strsql = "SELECT ciniki_customers.id, type, display_name, "
             . "ciniki_customers.parent_id, "
@@ -31,10 +31,10 @@ function ciniki_sapos_getCustomer(&$ciniki, $business_id, $args) {
             . "ciniki_customer_addresses.phone "
             . "FROM ciniki_customers "
             . "LEFT JOIN ciniki_customer_addresses ON (ciniki_customers.id = ciniki_customer_addresses.customer_id "
-                . "AND ciniki_customer_addresses.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_customer_addresses.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "WHERE ciniki_customers.id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
-            . "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(

@@ -2,7 +2,7 @@
 //
 // Description
 // ===========
-// This method will update and existing mileage rate for a business.
+// This method will update and existing mileage rate for a tenant.
 //
 // Arguments
 // ---------
@@ -16,7 +16,7 @@ function ciniki_sapos_mileageRateUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'rate_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Mileage Rate'), 
         'rate'=>array('required'=>'no', 'blank'=>'no', 'type'=>'currency', 'name'=>'New Rate'),
         'start_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Start Date'),
@@ -29,10 +29,10 @@ function ciniki_sapos_mileageRateUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['business_id'], 'ciniki.sapos.mileageRateUpdate'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.mileageRateUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -52,7 +52,7 @@ function ciniki_sapos_mileageRateUpdate(&$ciniki) {
     // Update the mileage rate
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.sapos.mileage_rate', 
+    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.mileage_rate', 
         $args['rate_id'], $args, 0x07);
     if( $rc['stat'] != 'ok' ) {
         return $rc;

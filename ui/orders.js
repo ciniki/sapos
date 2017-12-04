@@ -59,7 +59,7 @@ function ciniki_sapos_orders() {
             };
         this.menu.liveSearchCb = function(s, i, v) {
             if( s == 'order_search' && v != '' ) {
-                M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+                M.api.getJSONBgCb('ciniki.sapos.invoiceSearch', {'tnid':M.curTenantID,
                     'start_needle':v, 'invoice_type':'40', 'sort':'reverse', 'limit':'10'}, function(rsp) {
                         M.ciniki_sapos_orders.menu.liveSearchShow('order_search',null,M.gE(M.ciniki_sapos_orders.menu.panelUID + '_' + s), rsp.invoices);
                     });
@@ -320,13 +320,13 @@ function ciniki_sapos_orders() {
         } 
 
         // Orders enabled
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x20) > 0 ) {
             this.menu.sections.reports.visible = 'yes';
         } else {
             this.menu.sections.reports.visible = 'no';
         }
         // Carts enabled
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x08) > 0 ) {
             this.menu.sections.carts.visible = 'yes';
         } else {
             this.menu.sections.carts.visible = 'no';
@@ -338,7 +338,7 @@ function ciniki_sapos_orders() {
     };
 
     //
-    // Grab the stats for the business from the database and present the list of orders.
+    // Grab the stats for the tenant from the database and present the list of orders.
     //
     this.showMenu = function(cb, list, title) {
         if( cb != null ) { this.menu.cb = cb; }
@@ -347,33 +347,33 @@ function ciniki_sapos_orders() {
         this.menu.sections.invoices.visible = 'yes';
         this.menu.sections.shipments.visible = 'no';
         if( this.menu.invoice_list == 'recent' ) {
-            M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.latest', {'tnid':M.curTenantID,
                 'limit':'25', 'sort':'latest', 'type':'40', 'stats':'yes'}, 
                 M.ciniki_sapos_orders.showMenuFinish);
         } else if( this.menu.invoice_list == 'packlist' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'shipping_status':'packlist', 'sort':'invoice_date', 'stats':'yes'}, 
                 M.ciniki_sapos_orders.showMenuFinish);
         } else if( this.menu.invoice_list == 'pendship' ) {
             this.menu.sections.invoices.visible = 'no';
             this.menu.sections.shipments.visible = 'yes';
-            M.api.getJSONCb('ciniki.sapos.shipmentList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.shipmentList', {'tnid':M.curTenantID,
                 'status':'20', 'sort':'invoice_date', 'stats':'yes'}, 
                 M.ciniki_sapos_orders.showMenuFinish);
         } else if( this.menu.invoice_list == 'incomplete' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'status':'10', 'type':'40', 'sort':'invoice_date', 'stats':'yes'}, 
                 M.ciniki_sapos_orders.showMenuFinish);
         } else if( this.menu.invoice_list == 'onhold' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'status':'15', 'type':'40', 'sort':'invoice_date', 'stats':'yes'}, 
                 M.ciniki_sapos_orders.showMenuFinish);
         } else if( this.menu.invoice_list == 'backordered' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'shipping_status':'backordered', 'type':'40', 'sort':'invoice_date', 'stats':'yes'}, 
                 M.ciniki_sapos_orders.showMenuFinish);
         } else if( this.menu.invoice_list == 'opencarts' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'status':'10', 'type':'20', 'sort':'invoice_date_desc', 'stats':'yes'}, 
                 M.ciniki_sapos_orders.showMenuFinish);
         }
@@ -402,7 +402,7 @@ function ciniki_sapos_orders() {
         if( title != null ) { this.invoices.title = title; }
         if( search_str != null ) { this.invoices.search_str = search_str; }
         if( this.invoices._list == 'packlist' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'shipping_status':'packlist', 'sort':'invoice_date'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -414,7 +414,7 @@ function ciniki_sapos_orders() {
                     p.show(cb);
                 });
         } else if( this.invoices._list == 'incomplete' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'status':'10', 'type':'40', 'sort':'invoice_date'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -426,7 +426,7 @@ function ciniki_sapos_orders() {
                     p.show(cb);
                 });
         } else if( this.invoices._list == 'onhold' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'status':'15', 'type':'40', 'sort':'invoice_date'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -438,7 +438,7 @@ function ciniki_sapos_orders() {
                     p.show(cb);
                 });
         } else if( this.invoices._list == 'backordered' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
                 'shipping_status':'backordered', 'sort':'invoice_date'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -450,7 +450,7 @@ function ciniki_sapos_orders() {
                     p.show(cb);
                 });
         } else if( this.invoices._list = '_search' ) {
-            M.api.getJSONCb('ciniki.sapos.invoiceSearch', {'business_id':M.curBusinessID,
+            M.api.getJSONCb('ciniki.sapos.invoiceSearch', {'tnid':M.curTenantID,
                 'invoice_type':'40', 'sort':'reverse', 'start_needle':this.invoices.search_str}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -478,7 +478,7 @@ function ciniki_sapos_orders() {
             this.orders.sections.statuses.selected = status;
         }
 //      this.orders.sections.months.visible = (this.orders.month>0)?'yes':'yes';
-        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+        M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
             'year':this.orders.year, 'month':this.orders.month,
             'status':this.orders.order_status, 'type':'40', 'shipments':'yes', 
             'sort':'invoice_date', 'stats':'yes'}, function(rsp) {
@@ -507,7 +507,7 @@ function ciniki_sapos_orders() {
     };
 
     this.downloadExcel = function() {
-        var args = {'business_id':M.curBusinessID, 'output':'excel'};
+        var args = {'tnid':M.curTenantID, 'output':'excel'};
         if( this.orders.year != null ) { args.year = this.orders.year; }
         if( this.orders.month != null ) { args.month = this.orders.month; }
         if( this.orders.order_status != null ) { args.status = this.orders.status; }

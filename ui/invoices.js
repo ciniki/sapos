@@ -137,25 +137,25 @@ function ciniki_sapos_invoices() {
         //
         var ct = 0;
         var default_type = 0;
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
             this.invoices.sections.types.tabs['90'].visible = 'yes';
             if( default_type != '' ) { default_type = 90; }
             ct++;
         } else {
             this.invoices.sections.types.tabs['90'].visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
             this.invoices.sections.types.tabs['90'].visible = 'yes';
             if( default_type != '' ) { default_type = 90; }
             ct++;
         } else {
             this.invoices.sections.types.tabs['90'].visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x01) > 0 ) {
             this.invoices.sections.types.tabs['10'].visible = 'yes';
             if( default_type != '' ) { default_type = 10; }
             ct++;
-//          if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
+//          if( (M.curTenant.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
 //              this.invoices.sections.types.tabs['11'].visible = 'yes';
 //              ct++;
 //              this.invoices.sections.types.tabs['19'].visible = 'yes';
@@ -164,21 +164,21 @@ function ciniki_sapos_invoices() {
         } else {
             this.invoices.sections.types.tabs['10'].visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x08) > 0 ) {
             this.invoices.sections.types.tabs['20'].visible = 'yes';
             if( default_type != '' ) { default_type = 20; }
             ct++;
         } else {
             this.invoices.sections.types.tabs['20'].visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x10) > 0 ) {
             this.invoices.sections.types.tabs['30'].visible = 'yes';
             if( default_type != '' ) { default_type = 30; }
             ct++;
         } else {
             this.invoices.sections.types.tabs['30'].visible = 'no';
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x20) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x20) > 0 ) {
             this.invoices.sections.types.tabs['40'].visible = 'yes';
             if( default_type != '' ) { default_type = 40; }
             ct++;
@@ -197,7 +197,7 @@ function ciniki_sapos_invoices() {
             default_type = args.invoice_type;
         }
 
-        M.api.getJSONCb('ciniki.sapos.invoiceStats', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.invoiceStats', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -236,36 +236,36 @@ function ciniki_sapos_invoices() {
         this.invoices.sections.types.visible = 'no';
         var tc = 0;
         this.invoices.sections.types.tabs['0'] = {'label':'All', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,0);'};
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x010000) > 0 ) {
             this.invoices.sections.types.tabs['90'] = {'label':'Quotes', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,90);'};
             tc++;
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x01) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x01) > 0 ) {
             this.invoices.sections.types.tabs['10'] = {'label':'Invoices', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,10);'};
             tc++;
-//          if( (M.curBusiness.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
+//          if( (M.curTenant.modules['ciniki.sapos'].flags&0x1000) > 0 ) {
 //              this.invoices.sections.types.tabs['11'] = {'label':'Monthly', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,11);'};
 //              tc++;
 //              this.invoices.sections.types.tabs['19'] = {'label':'Yearly', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,19);'};
 //              tc++;
 //          }
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x08) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x08) > 0 ) {
             this.invoices.sections.types.tabs['20'] = {'label':'Carts', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,20);'};
             tc++;
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x10) > 0 ) {
             this.invoices.sections.types.tabs['30'] = {'label':'POS', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,30);'};
             tc++;
         }
-        if( (M.curBusiness.modules['ciniki.sapos'].flags&0x10) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x10) > 0 ) {
             this.invoices.sections.types.tabs['40'] = {'label':'Orders', 'fn':'M.ciniki_sapos_invoices.showInvoices(null,null,null,40);'};
             tc++;
         }
         if( tc > 1 ) {
             this.invoices.sections.types.visible = 'yes';
         }
-        M.api.getJSONCb('ciniki.sapos.invoiceList', {'business_id':M.curBusinessID,
+        M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID,
             'year':this.invoices.year, 'month':this.invoices.month,
             'payment_status':this.invoices.payment_status, 'type':this.invoices.invoice_type,
             'sort':'invoice_date'}, function(rsp) {
@@ -284,7 +284,7 @@ function ciniki_sapos_invoices() {
     };
 
     this.downloadExcel = function() {
-        var args = {'business_id':M.curBusinessID, 'output':'excel'};
+        var args = {'tnid':M.curTenantID, 'output':'excel'};
         if( this.invoices.year != null ) { args.year = this.invoices.year; }
         if( this.invoices.month != null ) { args.month = this.invoices.month; }
         if( this.invoices.payment_status != null ) { args.payment_status = this.invoices.payment_status; }

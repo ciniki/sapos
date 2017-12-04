@@ -13,7 +13,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) {
+function ciniki_sapos_shipmentUpdateStatus($ciniki, $tnid, $shipment_id) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
@@ -24,7 +24,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
     //
     $strsql = "SELECT id, invoice_id, ship_date, status "
         . "FROM ciniki_sapos_shipments "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $shipment_id) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'shipment');
@@ -48,7 +48,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
     $strsql = "SELECT id, flags, object, object_id, quantity-shipped_quantity AS remaining_quantity "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "HAVING remaining_quantity > 0 "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
@@ -77,7 +77,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'inventoryLevels');
             if( $rc['stat'] == 'ok' ) {
                 $fn = $rc['function_call'];
-                $rc = $fn($ciniki, $business_id, array(
+                $rc = $fn($ciniki, $tnid, array(
                     'object'=>$object,
                     'object_ids'=>$object_ids,
                     ));
@@ -98,7 +98,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
                             if( ($item['flags']&0x04) == 0x04 && ($item['flags']&0x0100) == 0x0100 ) {
                                 // Update to set backordered flag on invoice item
                                 $item['flags'] = ((int)$item['flags']) &~ 0x0100;
-                                $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
+                                $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item',
                                     $item['id'], array('flags'=>$item['flags']), 0x04);
                                 if( $rc['stat'] != 'ok' ) {
                                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.43', 'msg'=>'Unable to remove backorder flag on invoice item', 'err'=>$rc['err']));
@@ -114,7 +114,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
                             ) {
                             // Update to set backordered flag on invoice item
                             $item['flags'] = ((int)$item['flags']|0x0100);
-                            $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice_item',
+                            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item',
                                 $item['id'], array('flags'=>$item['flags']), 0x04);
                             if( $rc['stat'] != 'ok' ) {
                                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.44', 'msg'=>'Unable to update backorder flag on invoice item', 'err'=>$rc['err']));
@@ -143,7 +143,7 @@ function ciniki_sapos_shipmentUpdateStatus($ciniki, $business_id, $shipment_id) 
     }
 
     if( count($args) > 0 ) {
-        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.shipment', 
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.shipment', 
             $shipment_id, $args, 0x04);
         if( $rc['stat'] != 'ok' ) {
             return $rc;

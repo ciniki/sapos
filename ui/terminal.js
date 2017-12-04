@@ -216,7 +216,7 @@ function ciniki_sapos_terminal() {
 
     this.processPaypal = function() {
         var c = this.paypal.serializeForm('yes');
-        M.api.postJSONCb('ciniki.sapos.paypalProcess', {'business_id':M.curBusinessID,
+        M.api.postJSONCb('ciniki.sapos.paypalProcess', {'tnid':M.curTenantID,
             'invoice_id':this.paypal.invoice_id}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);

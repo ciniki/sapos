@@ -49,7 +49,7 @@ function ciniki_sapos_qi() {
                 },
             };
         this.add.liveSearchCb = function(s, i, v) {
-            M.api.getJSONBgCb('ciniki.customers.searchQuick', {'business_id':M.curBusinessID, 
+            M.api.getJSONBgCb('ciniki.customers.searchQuick', {'tnid':M.curTenantID, 
                 'start_needle':v, 'limit':11}, function(rsp) {
                     M.ciniki_sapos_qi.add.liveSearchShow(s,i,M.gE(M.ciniki_sapos_qi.add.panelUID + '_' + i), rsp.customers);
                 });
@@ -87,7 +87,7 @@ function ciniki_sapos_qi() {
             return false;
         }
 
-        M.api.getJSONCb('ciniki.sapos.qiItemList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.qiItemList', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -107,7 +107,7 @@ function ciniki_sapos_qi() {
     };
 
     this.showAdd = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.latest', {'business_id':M.curBusinessID, 
+        M.api.getJSONCb('ciniki.sapos.latest', {'tnid':M.curTenantID, 
             'limit':'10', 'sort':'latest'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -125,7 +125,7 @@ function ciniki_sapos_qi() {
         if( this.add.formValue('customer_id') == 0 ) {
             c += 'name=' + encodeURIComponent(M.gE(this.add.panelUID + '_customer_id_fkidstr').value) + '&';
         }
-        M.api.postJSONCb('ciniki.sapos.qiAdd', {'business_id':M.curBusinessID, 'limit':'10'},
+        M.api.postJSONCb('ciniki.sapos.qiAdd', {'tnid':M.curTenantID, 'limit':'10'},
             c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);

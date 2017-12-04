@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_cartUpdate($ciniki, $settings, $business_id, $args) {
+function ciniki_sapos_web_cartUpdate($ciniki, $settings, $tnid, $args) {
 
     //
     // Check that a cart does not exist
@@ -26,7 +26,7 @@ function ciniki_sapos_web_cartUpdate($ciniki, $settings, $business_id, $args) {
         $strsql = "SELECT id, po_number, customer_notes "
             . "FROM ciniki_sapos_invoices "
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['cart']['sapos_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
         if( $rc['stat'] != 'ok' ) { 
@@ -50,7 +50,7 @@ function ciniki_sapos_web_cartUpdate($ciniki, $settings, $business_id, $args) {
         //
         if( count($update_args) > 0 ) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-            $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', $ciniki['session']['cart']['sapos_id'], $update_args, 0x04);
+            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', $ciniki['session']['cart']['sapos_id'], $update_args, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

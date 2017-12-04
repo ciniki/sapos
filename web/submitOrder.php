@@ -9,10 +9,10 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id, $cart) {
+function ciniki_sapos_web_submitOrder($ciniki, $settings, $tnid, $cart) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'checkOrder');
-    $rc = ciniki_sapos_web_checkOrder($ciniki, $settings, $business_id, $cart);
+    $rc = ciniki_sapos_web_checkOrder($ciniki, $settings, $tnid, $cart);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -23,7 +23,7 @@ function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id, $cart) {
     $strsql = "SELECT invoice_type, status, customer_id, payment_status, shipping_status "
         . "FROM ciniki_sapos_invoices "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['cart']['sapos_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.products', 'invoice');
     if( $rc['stat'] != 'ok' ) {
@@ -39,7 +39,7 @@ function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id, $cart) {
     //
     if( isset($invoice['customer_id']) && $invoice['customer_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'customerStatus');
-        $rc = ciniki_customers_hooks_customerStatus($ciniki, $business_id, 
+        $rc = ciniki_customers_hooks_customerStatus($ciniki, $tnid, 
             array('customer_id'=>$invoice['customer_id']));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
@@ -79,7 +79,7 @@ function ciniki_sapos_web_submitOrder($ciniki, $settings, $business_id, $cart) {
 //      $args['shipping_status'] = 10;
 //  }
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.sapos.invoice', 
+    $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', 
         $ciniki['session']['cart']['sapos_id'], $args, 0x07);
     if( $rc['stat'] != 'ok' ) {
         return $rc;

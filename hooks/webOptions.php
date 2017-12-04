@@ -8,7 +8,7 @@
 // ---------
 // ciniki:
 // settings:        The web settings structure.
-// business_id:     The ID of the business to get donations for.
+// tnid:     The ID of the tenant to get donations for.
 //
 // args:            The possible arguments for posts
 //
@@ -16,12 +16,12 @@
 // Returns
 // -------
 //
-function ciniki_sapos_hooks_webOptions(&$ciniki, $business_id, $args) {
+function ciniki_sapos_hooks_webOptions(&$ciniki, $tnid, $args) {
 
     //
     // Check to make sure the module is enabled
     //
-    if( !isset($ciniki['business']['modules']['ciniki.sapos']) ) {
+    if( !isset($ciniki['tenant']['modules']['ciniki.sapos']) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.46', 'msg'=>"I'm sorry, the page you requested does not exist."));
     }
 
@@ -29,7 +29,7 @@ function ciniki_sapos_hooks_webOptions(&$ciniki, $business_id, $args) {
     // Get the settings from the database
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_web_settings', 'business_id', $business_id, 'ciniki.web', 'settings', 'sapos');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_web_settings', 'tnid', $tnid, 'ciniki.web', 'settings', 'sapos');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
