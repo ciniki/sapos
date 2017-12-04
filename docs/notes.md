@@ -1,19 +1,19 @@
 Hooks into other modules:
-- sapos/itemPaid($ciniki, $business_id, $object, $object_id)
+- sapos/itemPaid($ciniki, $tnid, $object, $object_id)
     - This can be called in other modules to mark items as paid
     - In events this will mark the participant as paid
-- sapos/itemSold($ciniki, $business_id, $object, $object_id)
+- sapos/itemSold($ciniki, $tnid, $object, $object_id)
     - This can be called in other modules to mark items as sale pending, reduce inventory
     - in artcatalog this will mark the piece with sold flag
-- sapos/itemShipped($ciniki, $business_id, $object, $object_id)
+- sapos/itemShipped($ciniki, $tnid, $object, $object_id)
     - This can be called in other modules to mark item as shipped, reduce inventory
-- sapos/itemCancelled($ciniki, $business_id, $object, $object_id)
+- sapos/itemCancelled($ciniki, $tnid, $object, $object_id)
     - This is call when an invoice is cancelled, and inventory should be adjusted
 
 - invoices can be joined (invoice_items moved from one invoice to another)
     - this allows customers to pay one invoice instead of multiple transactions
 
-- all transactions are assumed to be in the currency of the business
+- all transactions are assumed to be in the currency of the tenant
 
 Invoice Status
 ==============
@@ -22,7 +22,7 @@ Invoice Status
     - this status should not be used for account purposes, it's not officially an invoice yet
 
 - 20 - Creating
-    - The invoice is being created by a user of the business.  It's not yet officially
+    - The invoice is being created by a user of the tenant.  It's not yet officially
       an invoice in the system, and should not be considered for accounting purposes.
     - typically invoices will not stay in this state a long time, just while the user adds items.
 
@@ -59,7 +59,7 @@ Taxes
 
 - The taxes available are stored in the ciniki_sapos_taxes table.
     - name, percentage, taxtypes, flags
-    - the taxtypes corresponds to taxtypes setup for the business
+    - the taxtypes corresponds to taxtypes setup for the tenant
 
 - Tax Types are used to map which types of taxes are applicable to which products
     - example would be food/non-food products
@@ -73,8 +73,8 @@ Taxes
 
 - Each item on an invoice has the bit field(32bit) for taxtypes
 
-- The reason to separate taxes and taxtypes, is to allow businesses to setup their
-  business products once with the tax types, and then alter taxes in the future.
+- The reason to separate taxes and taxtypes, is to allow tenants to setup their
+  tenant products once with the tax types, and then alter taxes in the future.
 
 - If a region introduces a new tax, it can be added to the taxes table, without having
   to update the tax types and update all products.
@@ -123,7 +123,7 @@ An example of Quebec, Canada:
 
 Shopping Carts
 ==============
-- There will be a need for shopping cart feature on businesses website in the future.
+- There will be a need for shopping cart feature on tenants website in the future.
 - Invoice will be used a shopping cart, with the status of 10 while the user is still shopping.
 - When the user checks out and pays, the invoice status will go to 50.
 
@@ -135,13 +135,13 @@ Future Shipping Tables
 create table ciniki_sapos_shippers (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     name varchar(200) not null,
     shipment_tracking_url varchar(250) not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
-    index sync (uuid, business_id, last_updated)
+    index sync (uuid, tnid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
     
 #
@@ -151,7 +151,7 @@ create table ciniki_sapos_shippers (
 create table ciniki_sapos_shipments (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     status tinyint not null,
     shipper int not null,
     tracking_code varchar(200) not null,
@@ -160,13 +160,13 @@ create table ciniki_sapos_shipments (
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
-    index sync (uuid, business_id, last_updated)
+    index sync (uuid, tnid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
 
 create table ciniki_sapos_shipment_items (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     shipment_id int not null,
     invoice_id int not null,
     item_id int not null,
@@ -174,5 +174,5 @@ create table ciniki_sapos_shipment_items (
     last_updated datetime not null,
     primary key (id),
     index (shipment_id, invoice_id, item_id),
-    index sync (uuid, business_id, last_updated)
+    index sync (uuid, tnid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
