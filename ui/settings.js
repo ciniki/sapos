@@ -94,6 +94,9 @@ function ciniki_sapos_settings() {
     //
     this.quote = new M.panel('Quote Settings', 'ciniki_sapos_settings', 'quote', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.quote');
     this.quote.sections = {
+        '_options':{'label':'Quote Options', 'fields':{
+            'quote-notes-product-synopsis':{'label':'Include Product Synopsis in Notes', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
+            }},
         '_bottom_msg':{'label':'Quote Message', 'fields':{
             'quote-bottom-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},

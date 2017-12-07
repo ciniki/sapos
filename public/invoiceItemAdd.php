@@ -158,11 +158,20 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
                 if( isset($rc['item']['flags']) && ($rc['item']['flags']&0x08) > 0 ) {
                     // Each line must only contain one item
                     $num_lines = $args['quantity'];
-                    $args['quantity'] = 1;        
+                    $args['quantity'] = 1;
                     // Force each on it's own invoice line
                     $existing_id = 0;             
                 }
                 $args['flags'] |= $rc['item']['flags'];
+                
+                //
+                // Check if synopsis should be notes
+                //
+                if( isset($settings['quote-notes-product-synopsis']) && $settings['quote-notes-product-synopsis'] != '' 
+                    && isset($rc['item']['synopsis']) 
+                    ) {
+                    $args['notes'] = $rc['item']['synopsis'];
+                }
             }
         }
     }

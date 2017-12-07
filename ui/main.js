@@ -63,7 +63,6 @@ function ciniki_sapos_main() {
             '12':{'label':'Dec', 'fn':'M.ciniki_sapos_main.monthSwitch(12);'},
         }};
     this.monthSwitch = function(m) {
-        console.log(this._months.panel);
         this[this._months.panel].monthSwitch(m);
     }
 
@@ -848,7 +847,6 @@ function ciniki_sapos_main() {
     this.ic.save = function() {
         var c = this.serializeForm('no');
         if( c != '' ) {
-            console.log(c);
             M.api.postJSONCb('ciniki.sapos.invoiceCategoriesUpdate', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -1232,7 +1230,7 @@ function ciniki_sapos_main() {
                 p.show(cb);
             });
     }
-    this.quotes.addButton('add', 'Quote', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.quotes.open();\',\'mc\',{\'invoice_type\':\'90\'});');
+    this.quotes.addButton('add', 'Quote', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.quotes.open();\',\'mc\',{\'type\':\'90\'});');
 
     //
     // The reports panel

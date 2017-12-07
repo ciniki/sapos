@@ -112,6 +112,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'rules-salesreps-invoice-billing',
         'rules-salesreps-invoice-shipping',
         'rules-salesreps-invoice-notes',
+        'quote-notes-product-synopsis',
         'quote-bottom-message',
         'quote-footer-message',
         'quote-email-message',

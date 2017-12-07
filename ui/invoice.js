@@ -625,7 +625,7 @@ function ciniki_sapos_invoice() {
                 'force_backorder':{'label':'Backorder', 'active':'no', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
                 }},
             '_notes':{'label':'Notes', 'fields':{
-                'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
+                'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'medium'},
                 }},
             '_buttons':{'label':'', 'buttons':{
                 'save':{'label':'Save', 'fn':'M.ciniki_sapos_invoice.saveItem();'},
@@ -654,6 +654,9 @@ function ciniki_sapos_invoice() {
                     if( d.item.code != null && d.item.code != '' ) {
                         mt = d.item.code + ' - ' + d.item.description;
                     }
+                }
+                if( M.curTenant.sapos.settings != null && M.curTenant.sapos.settings['quote-notes-product-synopsis'] == 'yes' ) {
+                    d.item.notes = d.item.synopsis;
                 }
                 if( d.item.notes != '' ) {
                     return '<span class="maintext">' + mt + '</span><span class="subtext">' + d.item.notes + '</span>';
@@ -1117,7 +1120,7 @@ function ciniki_sapos_invoice() {
             this.showInvoice(cb, args.invoice_id, (args.list!=null?args.list:[]));
         } else {
             // Add blank invoice
-            this.createInvoice(cb, 0, null, null, null);
+            this.createInvoice(cb, 0, null, null, args);
         }
     };
 
