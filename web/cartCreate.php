@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_web_cartCreate($ciniki, $settings, $tnid) {
+function ciniki_sapos_web_cartCreate(&$ciniki, $settings, $tnid) {
 
     //
     // Check that a cart does not exist
@@ -111,6 +111,9 @@ function ciniki_sapos_web_cartCreate($ciniki, $settings, $tnid) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.146', 'msg'=>'Internal error', 'err'=>$rc['err']));
         }
         $invoice_id = $rc['id'];
+        $cart_args['sapos_id'] = $rc['id'];
+        $ciniki['session']['cart'] = $cart_args;
+        $_SESSION['cart'] = $ciniki['session']['cart'];
 
         return array('stat'=>'ok', 'sapos_id'=>$invoice_id);
     }

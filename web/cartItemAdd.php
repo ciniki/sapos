@@ -98,7 +98,9 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         $args['unit_discount_amount'] = $item['unit_discount_amount'];
         $args['unit_discount_percentage'] = $item['unit_discount_percentage'];
         $args['taxtype_id'] = $item['taxtype_id'];
-        $args['notes'] = '';
+        if( !isset($args['notes']) ) {
+            $args['notes'] = '';
+        }
 
         //
         // Check if a global customer discount
