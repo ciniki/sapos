@@ -72,7 +72,8 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         . "i.total_amount, "
         . "m.category, m.code, m.description, "
         . "IF(IFNULL(m.category, '') = '', 'Uncategorized', category) AS category, "
-        . "m.total_amount AS amount "
+        . "m.total_amount AS amount, "
+        . "t.source "
         . "FROM ciniki_sapos_invoices AS i "
         . "LEFT JOIN ciniki_customers AS c ON ("
             . "i.customer_id = c.id "
@@ -81,6 +82,10 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         . "LEFT JOIN ciniki_sapos_invoice_items AS m ON ("
             . "i.id = m.invoice_id "
             . "AND m.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . ") "
+        . "LEFT JOIN ciniki_sapos_transactions AS t ON ("
+            . "i.id = t.invoice_id "
+            . "AND t.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND i.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
@@ -92,8 +97,10 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'categories', 'fname'=>'category', 'fields'=>array('name'=>'category')),
         array('container'=>'items', 'fname'=>'id', 
-            'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'category', 'code', 'description', 'amount'),
-            'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
+            'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'category', 'code', 'description', 'amount', 'source'),
+            'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status'],
+                'source'=>$maps['transaction']['source'],
+                ),
             ),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -131,13 +138,15 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
                 'type' => 'table',
                 'columns' => array(
                     array('label'=>'#', 'pdfwidth'=>'10%', 'field'=>'invoice_number'),
-                    array('label'=>'Name', 'pdfwidth'=>'30%', 'field'=>'display_name'),
-                    array('label'=>'Item', 'pdfwidth'=>'50%', 'field'=>'code_desc'),
+                    array('label'=>'Name', 'pdfwidth'=>'28%', 'field'=>'display_name'),
+                    array('label'=>'Item', 'pdfwidth'=>'40%', 'field'=>'code_desc'),
                     array('label'=>'Amount', 'pdfwidth'=>'10%', 'type'=>'dollar', 'field'=>'amount'),
+                    array('label'=>'Payment', 'pdfwidth'=>'12%', 'field'=>'source'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'pdfwidth'=>'90%'),
+                    array('value'=>'Total', 'pdfwidth'=>'78%'),
                     array('value'=>$category['total'], 'pdfwidth'=>'10%', 'type'=>'dollar'),
+                    array('value'=>'', 'pdfwidth'=>'12%'),
                     ),
                 'data' => $category['items'],
                 'textlist' => $category['textlist'],
