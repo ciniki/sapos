@@ -138,14 +138,14 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
                 'type' => 'table',
                 'columns' => array(
                     array('label'=>'#', 'pdfwidth'=>'10%', 'field'=>'invoice_number'),
-                    array('label'=>'Name', 'pdfwidth'=>'28%', 'field'=>'display_name'),
+                    array('label'=>'Name', 'pdfwidth'=>'26%', 'field'=>'display_name'),
                     array('label'=>'Item', 'pdfwidth'=>'40%', 'field'=>'code_desc'),
-                    array('label'=>'Amount', 'pdfwidth'=>'10%', 'type'=>'dollar', 'field'=>'amount'),
+                    array('label'=>'Amount', 'pdfwidth'=>'12%', 'type'=>'dollar', 'field'=>'amount'),
                     array('label'=>'Payment', 'pdfwidth'=>'12%', 'field'=>'source'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'colspan'=>3, 'pdfwidth'=>'78%'),
-                    array('value'=>$category['total'], 'pdfwidth'=>'10%', 'type'=>'dollar'),
+                    array('value'=>'Total', 'colspan'=>3, 'pdfwidth'=>'76%'),
+                    array('value'=>$category['total'], 'pdfwidth'=>'12%', 'type'=>'dollar'),
                     array('value'=>'', 'pdfwidth'=>'12%'),
                     ),
                 'data' => $category['items'],
