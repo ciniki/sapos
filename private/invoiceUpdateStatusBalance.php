@@ -290,6 +290,16 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
     $args = array();
     if( $new_status != $invoice['status'] ) {
         $args['status'] = $new_status;
+        if( $args['status'] == 50 ) {
+            //
+            // Payment received
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoicePaymentReceived');
+            $rc = ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice_id);
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.236', 'msg'=>'Error updating the invoice', 'err'=>$rc['err']));
+            }
+        }
     }
     if( $new_payment_status != $invoice['payment_status'] ) {
         $args['payment_status'] = $new_payment_status;
