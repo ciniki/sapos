@@ -195,7 +195,7 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
                 ));
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.mail');
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.84', 'msg'=>'Unable to create mail message.', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.234', 'msg'=>'Unable to create mail message.', 'err'=>$rc['err']));
             }
             $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$args['tnid']);
         }

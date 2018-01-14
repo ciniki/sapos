@@ -99,7 +99,7 @@ function ciniki_sapos_web_submitInvoice($ciniki, $settings, $tnid, $cart) {
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.225', 'msg'=>'Unable to find next available receipt number', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.229', 'msg'=>'Unable to find next available receipt number', 'err'=>$rc['err']));
         }
         if( isset($rc['num']['max_num']) ) {
             $args['receipt_number'] = $rc['num']['max_num'] + 1;

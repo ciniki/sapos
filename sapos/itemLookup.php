@@ -44,10 +44,10 @@ function ciniki_sapos_sapos_itemLookup($ciniki, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'package');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.221', 'msg'=>'Donation Package not found', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.230', 'msg'=>'Donation Package not found', 'err'=>$rc['err']));
         }
         if( !isset($rc['package']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.222', 'msg'=>'Unable to find Donation Package'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.231', 'msg'=>'Unable to find Donation Package'));
         }
         $package = $rc['package'];
 

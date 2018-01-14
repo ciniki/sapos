@@ -115,7 +115,7 @@ function ciniki_sapos_shipmentItemUpdate(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['invoice']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.103', 'msg'=>'Invoice does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.232', 'msg'=>'Invoice does not exist.'));
     }
     $invoice = $rc['invoice'];
 
