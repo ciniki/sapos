@@ -63,7 +63,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     //
     $strsql = "SELECT m.id, "
         . "i.invoice_number, "
-        . "i.invoice_date, "
+        . "DATE_FORMAT(i.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
         . "i.payment_status, "
         . "i.payment_status AS payment_status_text, "
         . "i.po_number, "
@@ -138,7 +138,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
                 'type' => 'table',
                 'columns' => array(
                     array('label'=>'#', 'pdfwidth'=>'10%', 'field'=>'invoice_number'),
-                    array('label'=>'Name', 'pdfwidth'=>'26%', 'field'=>'display_name'),
+                    array('label'=>'Name', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
                     array('label'=>'Item', 'pdfwidth'=>'40%', 'field'=>'code_desc'),
                     array('label'=>'Amount', 'pdfwidth'=>'12%', 'type'=>'dollar', 'field'=>'amount'),
                     array('label'=>'Payment', 'pdfwidth'=>'12%', 'field'=>'source'),
