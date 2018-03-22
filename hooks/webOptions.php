@@ -43,7 +43,7 @@ function ciniki_sapos_hooks_webOptions(&$ciniki, $tnid, $args) {
     // FIXME: Add settings
     //
     $pages = array();
-    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x0200000) ) {
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x02000000) ) {
         $options = array();
         $options[] = array(
             'label'=>'Introduction',

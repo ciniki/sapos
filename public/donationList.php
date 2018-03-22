@@ -173,6 +173,7 @@ function ciniki_sapos_donationList(&$ciniki) {
             'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
             ));
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', $container);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
