@@ -565,7 +565,7 @@ function ciniki_sapos_invoice() {
                 }
                 this.sections.details.fields.po_number.visible = 'yes';
                 this.sections.details.fields.status.visible = 'yes';
-                this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x0200)>0||this.data.payment_status>0)?'yes':'no';
+                this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x800200)>0||this.data.payment_status>0)?'yes':'no';
                 this.sections.details.fields.shipping_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x40)>0||this.data.shipping_status>0)?'yes':'no';
                 this.sections.details.fields.manufacturing_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x80)>0||this.data.manufacturing_status>0)?'yes':'no';
                 this.sections.details.fields.due_date.visible = 'yes';

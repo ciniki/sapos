@@ -83,9 +83,9 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
     //
     // Check if payment_status is used
     //
-    if( ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x0200) > 0 ) {
-        if( $args['payment_status'] == '0' ) {
-            $args['payment_status'] == '10';
+    if( ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x800200) > 0 ) {
+        if( $args['payment_status'] == '0' || $args['payment_status'] == '') {
+            $args['payment_status'] == 10;
         }
     }
 
