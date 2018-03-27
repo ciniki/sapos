@@ -648,6 +648,8 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         ) {
         $pdf->header_details = array();
         $pdf->AddPage();
+        $pdf->setY(($pdf->header_height)+15);
+
         //
         // Determine the billing address information
         //
