@@ -1001,7 +1001,9 @@ function ciniki_sapos_settings() {
 //          'donation-receipt-header-tenant-email':{'label':'Email', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
 //          'donation-receipt-header-tenant-website':{'label':'Website', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
 //            }},
-        '_charity_info':{'label':'', 'fields':{
+        '_charity_info':{'label':'Donation Receipts', 'fields':{
+            'donation-receipt-minimum-amount':{'label':'Minimum for receipt', 'type':'text', 'size':'small'},
+            'donation-receipt-invoice-include':{'label':'Include on invoices', 'type':'toggle', 'default':'no', 'toggles':this.yesNoOptions},
             'donation-receipt-signing-officer':{'label':'Signing Officer', 'type':'text'},
             'donation-receipt-charity-number':{'label':'Charity Number', 'type':'text'},
             'donation-receipt-location-issued':{'label':'Location Issued', 'type':'text'},

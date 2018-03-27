@@ -639,7 +639,13 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     //
     // Check if there is a donation receipt to attached
     //
-    if( $donation_amount >= 25 ) {
+    $donation_minimum = 25;
+    if( isset($sapos_settings['donation-receipt-minimum-amount']) && $sapos_settings['donation-receipt-minimum-amount'] != '' ) {
+        $donation_minimum = $sapos_settings['donation-receipt-minimum-amount'];
+    }
+    if( $donation_amount >= $donation_minimum
+        && (!isset($sapos_settings['donation-receipt-invoice-include']) || $sapos_settings['donation-receipt-invoice-include'] == 'yes')
+        ) {
         $pdf->header_details = array();
         $pdf->AddPage();
         //

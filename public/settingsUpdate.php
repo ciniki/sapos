@@ -127,6 +127,8 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'donation-receipt-header-tenant-fax',
         'donation-receipt-header-tenant-email',
         'donation-receipt-header-tenant-website',
+        'donation-receipt-minimum-amount',
+        'donation-receipt-invoice-include',
         'donation-receipt-signing-officer',
         'donation-receipt-charity-number',
         'donation-receipt-location-issued',
