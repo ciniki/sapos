@@ -23,6 +23,7 @@ function ciniki_sapos_donationList(&$ciniki) {
         'type'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Type'), 
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
         'payment_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Payment Status'), 
+        'donationreceipt_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Donation Receipt Status'), 
         'sort'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Sort Order'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
         'output'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Output Format'), 
@@ -104,6 +105,8 @@ function ciniki_sapos_donationList(&$ciniki) {
         . "ciniki_customers.type AS customer_type, "
         . "ciniki_customers.display_name AS customer_display_name, "
         . "ciniki_sapos_invoices.total_amount, "
+        . "ciniki_sapos_invoices.donationreceipt_status, "
+        . "ciniki_sapos_invoices.donationreceipt_status AS donationreceipt_status_text, "
         . "SUM(ciniki_sapos_invoice_items.total_amount) AS donation_amount "
         . "FROM ciniki_sapos_invoices "
         . "INNER JOIN ciniki_sapos_invoice_items ON ("
@@ -147,6 +150,9 @@ function ciniki_sapos_donationList(&$ciniki) {
     if( isset($args['payment_status']) && $args['payment_status'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.payment_status = '" . ciniki_core_dbQuote($ciniki, $args['payment_status']) . "' ";
     }
+    if( isset($args['donationreceipt_status']) && $args['donationreceipt_status'] > 0 ) {
+        $strsql .= "AND ciniki_sapos_invoices.donationreceipt_status = '" . ciniki_core_dbQuote($ciniki, $args['donationreceipt_status']) . "' ";
+    }
     if( isset($args['type']) && $args['type'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.invoice_type = '" . ciniki_core_dbQuote($ciniki, $args['type']) . "' ";
     }
@@ -169,8 +175,12 @@ function ciniki_sapos_donationList(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $container = array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-            'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'po_number', 'status_text', 'customer_type', 'customer_display_name', 'donation_amount', 'total_amount'),
-            'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
+            'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'po_number', 'status_text', 
+                'donationreceipt_status', 'donationreceipt_status_text',
+                'customer_type', 'customer_display_name', 'donation_amount', 'total_amount',),
+            'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
+                'donationreceipt_status_text'=>$maps['invoice']['donationreceipt_status'],
+                ),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)), 
             ));
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
@@ -198,7 +208,6 @@ function ciniki_sapos_donationList(&$ciniki) {
     $rsp['totals']['donation_amount'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['donation_amount'], $intl_currency);
     $rsp['totals']['num_invoices'] = count($rsp['invoices']);
 
-    
     //
     // Check if output should be excel
     //

@@ -75,6 +75,15 @@
 #                       30 - In Progress
 #                       50 - Completed
 #
+# donationreceipt_status:   The current status for the donation receipts. This is only used
+#                           when there is a donation item on the invoice.
+#           
+#                               0 - Not Applicable
+#                               20 - Pending
+#                               40 - Printed
+#                               60 - Mailed
+#                               90 - Received
+#
 # flags:                The flags for the invoice to control shipping/pickup, etc.
 #
 #                       0x01 - Don't show discounts/savings, only show the final price with quantity.
@@ -159,6 +168,7 @@ create table ciniki_sapos_invoices (
     payment_status tinyint unsigned not null,
     shipping_status tinyint unsigned not null,
     manufacturing_status tinyint unsigned not null,
+    donationreceipt_status tinyint unsigned not null,
     flags int unsigned not null,
     invoice_date datetime not null,
     due_date datetime not null,
@@ -206,4 +216,4 @@ create table ciniki_sapos_invoices (
     index (customer_id, status, invoice_date),
     unique index (tnid, invoice_number),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.11';
+) ENGINE='InnoDB', COMMENT='v1.12';

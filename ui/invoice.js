@@ -44,6 +44,13 @@ function ciniki_sapos_invoice() {
         '30':'In Progress',
         '50':'Completed',
         };
+    this.donationreceiptStatuses = {
+        '0':'N/A',
+        '20':'Pending',
+        '40':'Printed',
+        '60':'Mailed',
+        '80':'Received',
+        };
     this.taxTypeOptions = {};
     this.transactionTypes = {
         '10':'Deposit',
@@ -90,6 +97,7 @@ function ciniki_sapos_invoice() {
                 'payment_status_text':{'label':'Payment'},
                 'shipping_status_text':{'label':'Shipping'},
                 'manufacturing_status_text':{'label':'Manufacturing'},
+//                'donationreceipt_status_text':{'label':'Donation Receipt'},
                 'invoice_date':{'label':'Invoice Date'},
                 'due_date':{'label':'Due Date'},
                 'flags_text':{'label':'Options', 'visible':'no'},
@@ -487,6 +495,9 @@ function ciniki_sapos_invoice() {
                 'payment_status':{'label':'Payment', 'active':'yes', 'type':'select', 'options':M.ciniki_sapos_invoice.paymentStatuses},
                 'shipping_status':{'label':'Shipping', 'active':'yes', 'type':'select', 'options':M.ciniki_sapos_invoice.shippingStatuses},
                 'manufacturing_status':{'label':'Manufacturing', 'active':'yes', 'type':'select', 'options':M.ciniki_sapos_invoice.manufacturingStatuses},
+                'donationreceipt_status':{'label':'Donation Receipt', 'active':'yes', 'type':'select', 
+                    'active':function() { M.ciniki_sapos_invoice.edit.data.donation != null && M.ciniki_sapos_invoice.edit.data.donation == 'yes' ? 'yes' : 'no'},
+                    'options':M.ciniki_sapos_invoice.donationreceiptStatuses},
                 'invoice_date':{'label':'Date', 'type':'text', 'size':'medium', 'type':'date'},
                 'due_date':{'label':'Due Date', 'type':'text', 'size':'medium', 'type':'date'},
                 'flags':{'label':'Options', 'type':'flags', 'flags':this.invoiceFlags},

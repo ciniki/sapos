@@ -201,7 +201,7 @@ function ciniki_sapos_main() {
         }
     };
     this.menu.rowFn = function(s, i, d) {
-        if( s == 'invoices' ) {
+        if( s == 'invoices' || s == 'donations' ) {
             return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
         }
         return '';
@@ -554,13 +554,13 @@ function ciniki_sapos_main() {
     this.donations.sections = {
         'years':this._years,
         'months':this._months,
-        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':4,
-            'headerValues':['Invoice #', 'Date', 'Customer', 'Amount'],
-            'headerClasses':['', '', '', 'alignright'],
-            'cellClasses':['', '', '', 'alignright'],
+        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':6,
+            'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status', 'Receipt'],
+            'headerClasses':['', '', '', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', 'alignright', 'alignright'],
             'sortable':'yes',
-            'sortTypes':['date', 'text', 'number', 'text', 'number', 'number', 'number'],
-            'noData':'No Invoices',
+            'sortTypes':['date', 'text', 'number', 'text', 'text', 'text', 'number'],
+            'noData':'No donations',
             },
         }
     this.donations.noData = function(s) {
@@ -573,6 +573,8 @@ function ciniki_sapos_main() {
                 case 1: return d.invoice_date;
                 case 2: return d.customer_display_name;
                 case 3: return d.donation_amount_display;
+                case 4: return d.status_text;
+                case 5: return d.donationreceipt_status_text;
             }
         }
     }

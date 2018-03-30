@@ -115,6 +115,13 @@ function ciniki_sapos_maps($ciniki) {
             '30'=>'Manufacturing In Progress',
             '50'=>'Manufactured',
             ),
+        'donationreceipt_status'=>array(
+            '0'=>'Not Applicable',
+            '20'=>'Pending',
+            '40'=>'Printed',
+            '60'=>'Mailed',
+            '80'=>'Received',
+            ),
         );
     $maps['transaction'] = array(
         'status'=>array(
@@ -129,6 +136,7 @@ function ciniki_sapos_maps($ciniki) {
         'source'=>array(
             '10'=>'Paypal',
             '20'=>'Square',
+            '30'=>'Stripe',
             '50'=>'Visa',
             '55'=>'Mastercard',
             '60'=>'Discover',

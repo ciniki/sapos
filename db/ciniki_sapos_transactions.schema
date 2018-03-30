@@ -53,7 +53,7 @@
 #
 # transaction_fees:     Any fees associated with the transaction that will be removed from the amount.
 #
-# tenant_amount:      The amount deposited or withdrawn from the tenant account.
+# tenant_amount:        The amount deposited or withdrawn from the tenant account.
 #                       Paypal removes the fee before depositing the money, this will take that into account.
 #
 # user_id:              The ID of the user who processed the transaction.  If the transaction was
@@ -65,7 +65,8 @@
 #                       to record a sale through paypal without using API.  If the gateway is set
 #                       then the payment was processed through the API.
 #
-#                       10 - paypal
+#                           10 - paypal
+#                           30 - stripe
 #
 # gateway_token:        The ID for the transaction with the external payment system.
 #                       This was added to track the paypal ID of in the response.

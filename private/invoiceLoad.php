@@ -67,6 +67,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "shipping_status AS shipping_status_text, "
         . "manufacturing_status, "
         . "manufacturing_status AS manufacturing_status_text, "
+        . "donationreceipt_status, "
+        . "donationreceipt_status AS donationreceipt_status_text, "
         . "flags, "
         . "invoice_date, "
         . "invoice_date AS donation_year, "
@@ -127,6 +129,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 'payment_status', 'payment_status_text',
                 'shipping_status', 'shipping_status_text',
                 'manufacturing_status', 'manufacturing_status_text',
+                'donationreceipt_status', 'donationreceipt_status_text',
                 'flags', 'invoice_date', 'donation_year', 'invoice_time', 'invoice_datetime', 'due_date',
                 'billing_name', 'billing_address1', 'billing_address2', 'billing_city', 
                 'billing_province', 'billing_postal', 'billing_country',
@@ -151,6 +154,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 'payment_status_text'=>$maps['invoice']['payment_status'],
                 'shipping_status_text'=>$maps['invoice']['shipping_status'],
                 'manufacturing_status_text'=>$maps['invoice']['manufacturing_status'],
+                'donationreceipt_status_text'=>$maps['invoice']['donationreceipt_status'],
                 )),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -312,6 +316,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         $invoice['items'] = $rc['items'];
         $objects = array();
         foreach($invoice['items'] as $iid => $item) {
+            if( ($item['item']['flags']&0x8000) == 0x8000 ) {
+                $invoice['donations'] = 'yes';
+            }
             $invoice['total_quantity'] += $item['item']['quantity'];
             if( ($item['item']['flags']&0x4000) == 0 ) {
                 $invoice['total_nopromo_quantity'] += $item['item']['quantity'];
