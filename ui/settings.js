@@ -1008,7 +1008,10 @@ function ciniki_sapos_settings() {
             'donation-receipt-charity-number':{'label':'Charity Number', 'type':'text'},
             'donation-receipt-location-issued':{'label':'Location Issued', 'type':'text'},
             }},
-        '_thank_you_msg':{'label':'Thank You Message', 'fields':{
+        '_invoice_msg':{'label':'Invoice Message', 'fields':{
+            'donation-invoice-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
+            }},
+        '_thank_you_msg':{'label':'Receipt Thank You Message', 'fields':{
             'donation-receipt-thankyou-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
             }},
         'image':{'label':'Signature Image', 'fields':{

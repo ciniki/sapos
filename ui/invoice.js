@@ -170,6 +170,10 @@ function ciniki_sapos_invoice() {
                 'applydiscount':{'label':'Apply Discount', 'fn':'M.ciniki_sapos_invoice.applyDiscount(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'picklist':{'label':'Print Pick/Pack', 'fn':'M.ciniki_sapos_invoice.printPickList(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
+                'printdonationreceipt':{'label':'Print Donation Receipt', 
+                    'visible':function() { return M.ciniki_sapos_invoice.invoice.data.donations != null && M.ciniki_sapos_invoice.invoice.data.donations == 'yes' ? 'yes' : 'no'; },
+                    'fn':'M.ciniki_sapos_invoice.printDonationReceipt(M.ciniki_sapos_invoice.invoice.invoice_id);',
+                    },
                 'printquote':{'label':'Print Quote', 'fn':'M.ciniki_sapos_invoice.printQuote(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'printenv':{'label':'Print Envelope', 'fn':'M.ciniki_sapos_invoice.printEnvelope(M.ciniki_sapos_invoice.invoice.invoice_id);'},
     //              'email':{'label':'Email Customer', 'fn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);'},
@@ -1723,6 +1727,11 @@ function ciniki_sapos_invoice() {
                     M.ciniki_sapos_invoice.invoice.close();
                 });
         }
+    };
+
+    this.printDonationReceipt = function(iid) {
+        if( iid <= 0 ) { return false; }
+        M.showPDF('ciniki.sapos.donationPDF', {'tnid':M.curTenantID, 'invoice_id':iid});
     };
 
     this.printInvoice = function(iid) {
