@@ -434,7 +434,7 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $invoice_id, $t
         $pdf->Ln();
 
         $pdf->Cell($w[0], $lh, 'Location Issued:', 0, 0, 'R', 1);
-        $pdf->Cell($w[1], $lh, $invoice['location_issued'], 0, 0, 'L', 1);
+        $pdf->Cell($w[1], $lh, $sapos_settings['donation-receipt-location-issued'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[4])?$addr[4]:''), 0, 0, 'L', 1);
         $pdf->Ln();
         
