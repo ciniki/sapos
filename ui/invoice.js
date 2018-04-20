@@ -815,10 +815,10 @@ function ciniki_sapos_invoice() {
         return this.data[i];
     }
     this.addorder.liveSearchResultValue = function(s, f, i, j, d) {
-        return d.customer.display_name;
+        return d.display_name;
     }
     this.addorder.liveSearchResultRowFn = function(s, f, i, j, d) { 
-        return 'M.ciniki_sapos_invoice.addorder.updateCustomer(\'' + s + '\',\'' + d.customer.id + '\',\'' + escape(d.customer.display_name) + '\');'; 
+        return 'M.ciniki_sapos_invoice.addorder.updateCustomer(\'' + s + '\',\'' + d.id + '\',\'' + escape(d.display_name) + '\');'; 
     }
     this.addorder.updateCustomer = function(s, id, n) {
         M.gE(this.panelUID + '_customer_id').value = id;
