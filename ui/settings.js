@@ -696,7 +696,7 @@ function ciniki_sapos_settings() {
             'end_date':{'label':'End Date', 'type':'date', 'size':'medium'},
             }},
         '_buttons':{'label':'', 'buttons':{
-            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.mrateedit.open();'},
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.mrateedit.save();'},
             'delete':{'label':'Delete', 'fn':'M.ciniki_sapos_settings.mrateedit.remove(M.ciniki_sapos_settings.mrateedit.rate_id);'},
             }},
     }
@@ -730,7 +730,7 @@ function ciniki_sapos_settings() {
             this.show(cb);
         }
     }
-    this.mrateedit.open = function() {
+    this.mrateedit.save = function() {
         if( this.rate_id > 0 ) {
             var c = this.serializeForm('no');
             if( c != '' ) {
