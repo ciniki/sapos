@@ -117,7 +117,7 @@ function ciniki_sapos_expense() {
         this.edit.liveSearchCb = function(s, i, v) {
             if( i == 'name' ) {
                 M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'tnid':M.curTenantID,
-                    'items':'yes', 'start_needle':v, 'limit':15}, function(rsp) {
+                    'items':'yes', 'sort':'reverse', 'start_needle':v, 'limit':15}, function(rsp) {
                         M.ciniki_sapos_expense.edit.searchExpenseResults = rsp.expenses;
                         M.ciniki_sapos_expense.edit.liveSearchShow(s,i,M.gE(M.ciniki_sapos_expense.edit.panelUID+'_'+i), rsp.expenses);
                     });
@@ -125,7 +125,7 @@ function ciniki_sapos_expense() {
         }
         this.edit.liveSearchResultValue = function(s,f,i,j,d) {
             if( f == 'name' && d.expense != null ) {
-                return d.expense.name + ' <span class="subdue">' + d.expense.description + '</span>';
+                return d.expense.name + ' [' + d.expense.total_amount_display + '] <span class="subdue">' + d.expense.description + '</span>';
             }
             return '';
         };

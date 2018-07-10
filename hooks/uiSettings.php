@@ -98,6 +98,28 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $tnid, $args) {
         $rsp['menu_items'][] = $menu_item;
     } 
 
+    //
+    // Show the POS Terminal
+    //
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x10)
+        && (isset($args['permissions']['owners'])
+            || isset($args['permissions']['employees'])
+            || isset($args['permissions']['retail'])
+            || isset($args['permissions']['resellers'])
+            || ($ciniki['session']['user']['perms']&0x01) == 0x01
+            )
+        ) {
+        $menu_item = array(
+            'priority'=>4000,
+            'label'=>'Point of Sale', 
+            'edit'=>array('app'=>'ciniki.sapos.pos'),
+            );
+        $rsp['menu_items'][] = $menu_item;
+    } 
+
+    //
+    // Accounting Settings
+    //
     if( isset($ciniki['tenant']['modules']['ciniki.sapos'])
         && (isset($args['permissions']['owners'])
             || isset($args['permissions']['resellers'])

@@ -29,7 +29,7 @@ function ciniki_sapos_main() {
             'transactions':{'label':'Transactions', 'visible':'no', 'fn':'M.ciniki_sapos_main.transactions.open(M.ciniki_sapos_main._tabs.cb);'},
             'donations':{'label':'Donations', 'visible':'no', 'fn':'M.ciniki_sapos_main.donations.open(M.ciniki_sapos_main._tabs.cb);'},
             'categories':{'label':'Categories', 'visible':'no', 'fn':'M.ciniki_sapos_main.categories.open(M.ciniki_sapos_main._tabs.cb);'},
-            'pos':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"pos");'},
+//            'pos':{'label':'POS', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"pos");'},
             'orders':{'label':'Orders', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"orders");'},
             'carts':{'label':'Carts', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"carts");'},
             'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.expenses.open(M.ciniki_sapos_main._tabs.cb);'},
@@ -1380,13 +1380,13 @@ function ciniki_sapos_main() {
             this._tabs.tabs.quarterlyinvoices.visible = 'no';
             this._tabs.tabs.yearlyinvoices.visible = 'no';
         }
-        if( M.modFlagOn('ciniki.sapos', 0x10) ) {
+/*        if( M.modFlagOn('ciniki.sapos', 0x10) ) {
             this._tabs.tabs.pos.visible = 'yes';
             if( sp == '' ) { sp = 'pos'; }
             ct++;
         } else {
             this._tabs.tabs.pos.visible = 'no';
-        }
+        } */
         if( M.modFlagOn('ciniki.sapos', 0x20) ) {
             this._tabs.tabs.orders.visible = 'yes';
             if( sp == '' ) { sp = 'orders'; }

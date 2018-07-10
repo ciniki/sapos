@@ -17,7 +17,7 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'start_needle'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'), 
-        'sort'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Search String'), 
+        'sort'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Sort'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'default'=>'15', 'name'=>'Limit'), 
         'items'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Items'), 
         )); 
@@ -78,16 +78,17 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
         } elseif( $args['sort'] == 'reverse' ) {
             $strsql .= "ORDER BY ciniki_sapos_expenses.invoice_date DESC ";
         } else {
-            $strsql .= "ORDER BY ciniki_sapos_expenses.invoice_date DESC ";
+            $strsql .= "ORDER BY ciniki_sapos_expenses.invoice_date ";
         }
     }
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
         $strsql .= "LIMIT " . intval($args['limit']) . " ";
     }
+    error_log($strsql);
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     if( isset($args['items']) && $args['items'] == 'yes' ) {
         $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-            array('container'=>'expenses', 'fname'=>'name', 'name'=>'expense',
+            array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
                 'fields'=>array('id', 'invoice_date', 'name', 'description', 'total_amount')),
             array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
                 'fields'=>array('id'=>'item_id', 'category_id', 'amount')),
@@ -113,6 +114,7 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
             }
         }
     }
+
 
     return array('stat'=>'ok', 'expenses'=>$rc['expenses']);
 }
