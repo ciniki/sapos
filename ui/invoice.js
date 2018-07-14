@@ -620,6 +620,11 @@ function ciniki_sapos_invoice() {
         this.item.object_id = 0;
         this.item.price_id = 0;
         this.item.data = {};
+        this.item.liveSearchRN = 0;
+        this.item.search_timer = null;
+        this.item.search_section = '';
+        this.item.search_field = '';
+        this.item.search_value = '';
         this.item.sections = {
             'details':{'label':'', 'fields':{
                 'code':{'label':'Code', 'type':'text', 'livesearch':'yes', 
@@ -648,10 +653,14 @@ function ciniki_sapos_invoice() {
                 }},
             };
         this.item.liveSearchCb = function(s, i, v) {
+            this.liveSearchRN++;
+            var sN = this.liveSearchRN;
             if( i == 'code' || i == 'description' ) {
                 M.api.getJSONBgCb('ciniki.sapos.invoiceItemSearch', {'tnid':M.curTenantID,
                     'field':i, 'pricepoint_id':M.ciniki_sapos_invoice.invoice.pricepoint_id, 'invoice_id':M.ciniki_sapos_invoice.invoice.invoice_id, 'start_needle':v, 'limit':15}, function(rsp) {
-                        M.ciniki_sapos_invoice.item.liveSearchShow(s,i,M.gE(M.ciniki_sapos_invoice.item.panelUID + '_' + i), rsp.items);
+                        if( sN == M.ciniki_sapos_invoice.item.liveSearchRN ) {
+                            M.ciniki_sapos_invoice.item.liveSearchShow(s,i,M.gE(M.ciniki_sapos_invoice.item.panelUID + '_' + i), rsp.items);
+                        }
                     });
             }
         };
