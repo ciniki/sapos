@@ -128,7 +128,6 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
             $update_args['submitted_by'] = $ciniki['session']['user']['display_name'];
         }
     } elseif( isset($args['action']) && $args['action'] == 'discount' && isset($args['unit_discount_percentage']) ) {
-        error_log('discount');
         $strsql = "SELECT id, uuid, quantity, unit_amount, unit_discount_amount, unit_discount_percentage "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
