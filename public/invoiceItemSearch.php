@@ -64,6 +64,9 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
     // Check for modules which have searchable items
     //
     foreach($modules as $module => $m) {
+        if( $m['module_status'] != 1 && $m['module_status'] != 2 ) {
+            continue;
+        }
         list($pkg, $mod) = explode('.', $module);
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemSearch');
         if( $rc['stat'] != 'ok' ) {

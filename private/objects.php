@@ -17,7 +17,7 @@ function ciniki_sapos_objects($ciniki) {
         'sync'=>'yes',
         'table'=>'ciniki_sapos_invoices',
         'fields'=>array(
-            'source_id'=>array('name'=>'Source', 'ref'=>'ciniki.sapos.invoice'),
+            'source_id'=>array('name'=>'Source', 'ref'=>'ciniki.sapos.invoice', 'default'=>'0'),
             'invoice_number'=>array('name'=>'Invoice Number', 'default'=>''),
             'invoice_type'=>array('name'=>'Invoice Type', 'default'=>'10'),
             'po_number'=>array('name'=>'Purchase Order Number', 'default'=>''),

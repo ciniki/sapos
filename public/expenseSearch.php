@@ -84,7 +84,6 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
         $strsql .= "LIMIT " . intval($args['limit']) . " ";
     }
-    error_log($strsql);
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     if( isset($args['items']) && $args['items'] == 'yes' ) {
         $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(

@@ -81,7 +81,7 @@ function ciniki_sapos_maps($ciniki) {
             '30.20'=>'Pending Manufacturing',
             '30.30'=>'Pending Shipping',
             '30.40'=>'Payment Required',
-            '30.50'=>'Fulfilled',
+            '30.50'=>'Paid',
             '30.55'=>'Refund Required',
             '30.60'=>'Refunded',
             '30.65'=>'Void',

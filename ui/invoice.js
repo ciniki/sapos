@@ -60,6 +60,7 @@ function ciniki_sapos_invoice() {
     this.transactionSources = {
         '10':'Paypal',
         '20':'Square',
+        '30':'Stripe',
         '50':'Visa',
         '55':'Mastercard',
         '60':'Discover',

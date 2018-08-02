@@ -20,9 +20,9 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'),
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'),
         'transaction_type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'),
-        'transaction_date'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'datetimetoutc', 'name'=>'Date'),
-        'source'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'source',
-            'validlist'=>array('10','20','50','55','60','65','90','100','105','110','120')),
+        'transaction_date'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetimetoutc', 'name'=>'Date'),
+        'source'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'payment type',
+            'validlist'=>array('10','20','30','50','55','60','65','90','100','105','110','120')),
         'customer_amount'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'currency', 
             'name'=>'Customer Amount'),
         'transaction_fees'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'type'=>'currency', 
@@ -46,6 +46,10 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
         return $rc;
     }
 
+    if( !isset($args['transaction_date']) || $args['transaction_date'] == '' ) {
+        $args['transaction_date'] = new DateTime('now', new DateTimezone('UTC'));
+    }
+
     //
     // Set the user id who created the invoice
     //
@@ -57,6 +61,21 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
     if( $args['transaction_fees'] == '' ) {
         $args['transaction_fees'] = 0;
     }
+
+    //
+    // FIXME: Check if square, can calculate fees
+    //
+    if( isset($args['source']) && $args['source'] == 20 ) {
+        
+    }
+
+    //
+    // FIXME: Check if stripe, can calculate fees
+    //
+    if( isset($args['source']) && $args['source'] == 30 && $args['transaction_fees'] == 0 ) {
+        $args['transaction_fees'] = round(bcadd(bcmul($args['customer_amount'], 0.029, 6), 0.30, 6), 2);
+    }
+
     //
     // Check if tenant amount not specified, then set the same as customer_amount
     //

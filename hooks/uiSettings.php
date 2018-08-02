@@ -111,7 +111,7 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $tnid, $args) {
         ) {
         $menu_item = array(
             'priority'=>4000,
-            'label'=>'Point of Sale', 
+            'label'=>'Checkout', 
             'edit'=>array('app'=>'ciniki.sapos.pos'),
             );
         $rsp['menu_items'][] = $menu_item;
