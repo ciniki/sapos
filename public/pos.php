@@ -88,7 +88,7 @@ function ciniki_sapos_pos(&$ciniki) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAdd');
             $rc = ciniki_sapos_invoiceAdd($ciniki, $args['tnid'], $invoice);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.247', 'msg'=>'Unable to create new invoice', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.255', 'msg'=>'Unable to create new invoice', 'err'=>$rc['err']));
             }
             $args['invoice_id'] = $rc['id'];
         } else {
