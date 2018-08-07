@@ -43,7 +43,7 @@ function ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice_id) {
     //
     // Get the items on the invoice
     //
-    $strsql = "SELECT id, object, object_id, price_id, student_id, quantity, invoice_id "
+    $strsql = "SELECT id, object, object_id, price_id, student_id, quantity, invoice_id, total_amount "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -73,6 +73,7 @@ function ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice_id) {
                     'quantity'=>$item['quantity'],
                     'customer_id'=>$invoice['customer_id'],
                     'invoice_id'=>$item['invoice_id'],
+                    'total_amount'=>$item['total_amount'],
                     ));
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;

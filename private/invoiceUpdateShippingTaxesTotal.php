@@ -159,7 +159,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
     //
     // Check if invoice should have a receipt_number
     //
-    if( $donation_amount > 0 && $invoice['invoice_type'] == 10 
+    if( $donation_amount > 0 && ($invoice['invoice_type'] == 10 || $invoice['invoice_type'] == 30)
         && ($invoice['receipt_number'] == '' || $invoice['receipt_number'] == 0) 
         ) {
         $strsql = "SELECT MAX(CAST(receipt_number AS UNSIGNED)) AS max_num "

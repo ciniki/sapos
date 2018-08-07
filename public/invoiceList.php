@@ -21,6 +21,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
         'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
         'type'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Type'), 
+        'types'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Types'), 
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
         'shipping_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Status'), 
         'payment_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Payment Status'), 
@@ -94,6 +95,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         }
     }
 
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
     //
     // Build the query to get the list of invoices
     //
@@ -180,6 +182,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
     }
     if( isset($args['type']) && $args['type'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.invoice_type = '" . ciniki_core_dbQuote($ciniki, $args['type']) . "' ";
+    }
+    if( isset($args['types']) ) {
+        $strsql .= "AND ciniki_sapos_invoices.invoice_type IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['types']) . ") ";
     }
     if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
