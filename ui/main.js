@@ -304,32 +304,43 @@ function ciniki_sapos_main() {
             this.payment_status = pstatus;
             this.sections.payment_statuses.selected = pstatus;
         }
-        M.api.getJSONCb('ciniki.sapos.invoiceList', {'tnid':M.curTenantID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 'stats':'yes',
-            'payment_status':this.payment_status, 'type':this.invoice_type, 'sort':'invoice_date'}, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
+        var args = {'tnid':M.curTenantID, 
+            'year':this.sections.years.selected, 
+            'month':this.sections.months.selected, 
+            'stats':'yes',
+            'payment_status':this.payment_status, 
+            'sort':'invoice_date',
+            }; 
+        if( this.invoice_type == 10 ) {
+            args['types'] = '10,30';
+        } else {
+            args['type'] = this.invoice_type;
+        }
+        M.api.getJSONCb('ciniki.sapos.invoiceList', args, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_main.menu;
+            p.data.invoices = rsp.invoices;
+            p.data.totals = rsp.totals;
+            if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
+                var year = new Date().getFullYear();
+                p.sections.years.tabs = {};
+                p.sections.years.visible = 'no';
+                if( year != rsp.stats.min_invoice_date_year ) {
+                    p.sections.years.visible = 'yes';
                 }
-                var p = M.ciniki_sapos_main.menu;
-                p.data.invoices = rsp.invoices;
-                p.data.totals = rsp.totals;
-                if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
-                    var year = new Date().getFullYear();
-                    p.sections.years.tabs = {};
-                    p.sections.years.visible = 'no';
-                    if( year != rsp.stats.min_invoice_date_year ) {
-                        p.sections.years.visible = 'yes';
-                    }
-                    if( p.sections.years.selected == '' ) {
-                        p.sections.years.selected = year;
-                    }
-                    for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
-                        p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.menu.invoices(null,' + i + ',null);'};
-                    }
+                if( p.sections.years.selected == '' ) {
+                    p.sections.years.selected = year;
                 }
-                p.refresh();
-                p.show(cb);
-            });
+                for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
+                    p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.menu.invoices(null,' + i + ',null);'};
+                }
+            }
+            p.refresh();
+            p.show(cb);
+        });
     }
     this.menu.downloadExcel = function() {
         var args = {'tnid':M.curTenantID, 'output':'excel'};
@@ -606,7 +617,7 @@ function ciniki_sapos_main() {
         if( year != null ) { this.sections.years.selected = year; }
         if( month != null ) { this.sections.months.selected = month; }
         M.api.getJSONCb('ciniki.sapos.donationList', {'tnid':M.curTenantID, 'year':this.sections.years.selected, 'month':this.sections.months.selected, 
-            'type':'10', 'payment_status':'50', 'stats':'yes', 'sort':'invoice_date'}, function(rsp) {
+            'types':'10,30', 'payment_status':'50', 'stats':'yes', 'sort':'invoice_date'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;

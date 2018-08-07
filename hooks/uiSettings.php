@@ -110,7 +110,7 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $tnid, $args) {
             )
         ) {
         $menu_item = array(
-            'priority'=>4000,
+            'priority'=>5500,
             'label'=>'Checkout', 
             'edit'=>array('app'=>'ciniki.sapos.pos'),
             );
