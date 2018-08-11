@@ -46,6 +46,7 @@
 #                       100 - Cash
 #                       105 - Check
 #                       110 - Email Transfer
+#                       115 - Gift Certificate
 #                       120 - Other
 #
 # customer_amount:      The amount of the transaction from the customer perspective.  This is how much

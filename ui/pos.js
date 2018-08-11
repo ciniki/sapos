@@ -130,7 +130,7 @@ function ciniki_sapos_pos() {
             'cellClasses':['', '', 'alignright'],
             },
         'messages':{'label':'Messages', 'type':'simplegrid', 'num_cols':2,
-            'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 ?'yes':'no'},
+            'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.customer_id > 0 ?'yes':'no'},
             'cellClasses':['multiline', 'multiline'],
             'addTxt':'Email Receipt',
             'addFn':'M.ciniki_sapos_pos.email.open(\'M.ciniki_sapos_pos.checkout.open();\',M.ciniki_sapos_pos.checkout.data);',
@@ -377,11 +377,11 @@ function ciniki_sapos_pos() {
             'code':{'label':'Code', 'type':'text', 'livesearch':'yes', 
                 'livesearchcols':3,
                 },
-            'description':{'label':'Description', 'type':'text', 'livesearch':'yes', 
+            'description':{'label':'Description', 'required':'yes', 'type':'text', 'livesearch':'yes', 
                 'livesearchcols':3,
                 },
-            'quantity':{'label':'Quantity', 'type':'text', 'size':'small'},
-            'unit_amount':{'label':'Price', 'type':'text', 'size':'small'},
+            'quantity':{'label':'Quantity', 'required':'yes', 'type':'text', 'size':'small'},
+            'unit_amount':{'label':'Price', 'required':'yes', 'type':'text', 'size':'small'},
             'unit_discount_amount':{'label':'Discount Amount', 'type':'text', 'size':'small'},
             'unit_discount_percentage':{'label':'Discount %', 'type':'text', 'size':'small'},
             'flags1':{'label':'Donation', 'type':'flagtoggle', 'field':'flags', 'bit':0x8000, 'default':'off', 
@@ -514,6 +514,7 @@ function ciniki_sapos_pos() {
     };
 
     this.item.save = function() {
+        if( !this.checkForm() ) { return false; }
         if( this.item_id > 0 ) {
             var c = this.serializeForm('no');
             if( this.object != this.data.object ) {
@@ -578,13 +579,13 @@ function ciniki_sapos_pos() {
     //
     // The transaction panel
     //
-    this.transaction = new M.panel('Transaction', 'ciniki_sapos_pos', 'transaction', 'mc', 'medium', 'sectioned', 'ciniki.sapos.pos.transaction');
+    this.transaction = new M.panel('Payment', 'ciniki_sapos_pos', 'transaction', 'mc', 'medium', 'sectioned', 'ciniki.sapos.pos.transaction');
     this.transaction.transaction_id = 0;
     this.transaction.data = {};
     this.transaction.sections = {
         'details':{'label':'', 'fields':{
-            'source':{'label':'Payment Type', 'type':'toggle', 'required':'yes', 'toggles':{}},
-            'customer_amount':{'label':'Payment Amount', 'type':'text', 'size':'small'},
+            'source':{'label':'Type', 'type':'toggle', 'required':'yes', 'toggles':{}},
+            'customer_amount':{'label':'Amount', 'type':'text', 'size':'small'},
             }},
         '_notes':{'label':'Notes', 'fields':{
             'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -593,7 +594,7 @@ function ciniki_sapos_pos() {
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_pos.transaction.save();'},
             'delete':{'label':'Delete', 
                 'visible':function() { return M.ciniki_sapos_pos.transaction.transaction_id > 0 ? 'yes' : 'no';},
-                'fn':'M.ciniki_sapos_pos.deleteTransaction(M.ciniki_sapos_pos.transaction.transaction_id);',
+                'fn':'M.ciniki_sapos_pos.transaction.remove(M.ciniki_sapos_pos.transaction.transaction_id);',
                 },
             }},
     }
@@ -757,8 +758,17 @@ function ciniki_sapos_pos() {
             'cellClasses':['', 'multiline', 'alignright', 'alignright'],
             },
     }
-    this.searchresults.cellValue = function(s, f, i, j, d) {
-        return M.ciniki_sapos_pos.checkout.liveSearchResultValue(s,f,i,j,d);
+    this.searchresults.cellValue = function(s, i, j, d) {
+        switch(j) {
+            case 0: return d.item.code;
+            case 1: 
+                if( d.item.notes != null && d.item.notes != '' ) {
+                    return '<span class="maintext">' + d.item.description + '</span><span class="subtext">' + d.item.notes.replace(/\n/g, '<br/>') + '</span>';
+                }
+                return d.item.description;
+            case 2: return d.item.unit_amount;
+            case 3: return '<button onclick="M.ciniki_sapos_pos.checkout.addItem(event,\'' + d.item.object + '\',\'' + d.item.object_id + '\');">Add</button>';
+        }
     }
     this.searchresults.open = function(cb, v) {
         M.api.getJSONCb('ciniki.sapos.invoiceItemSearch', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id, 'start_needle':v}, function(rsp) {
@@ -829,6 +839,7 @@ function ciniki_sapos_pos() {
             '100':'Cash',
             '105':'Check',
             '110':'Email Transfer',
+            '115':'Gift Certificate',
             '120':'Other',
         }
         this.transaction.sections.details.fields.source.toggles = this.transactionSources;

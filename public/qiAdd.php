@@ -22,7 +22,7 @@ function ciniki_sapos_qiAdd(&$ciniki) {
         'name'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer Name'), 
         'items'=>array('required'=>'yes', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Items'),
         'transaction_source'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Source',
-            'validlist'=>array('10','20','50','55','60','65','90','100','105','110','120')),
+            'validlist'=>array('10','20','50','55','60','65','90','100','105','110','115','120')),
         'limit'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'10', 'name'=>'Limit'),
         // Option args
         'invoice_number'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Invoice Number'),

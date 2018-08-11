@@ -17,6 +17,7 @@ function ciniki_sapos_main() {
         '100':'Cash',
         '105':'Check',
         '110':'Email Transfer',
+        '115':'Gift Certificate',
         '120':'Other',
         };
 

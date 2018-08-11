@@ -69,6 +69,7 @@ function ciniki_sapos_invoice() {
         '100':'Cash',
         '105':'Check',
         '110':'Email Transfer',
+        '115':'Gift Certificate',
         '120':'Other',
         };
     this.invoiceFlags = {
