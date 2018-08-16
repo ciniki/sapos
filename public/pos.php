@@ -240,6 +240,29 @@ function ciniki_sapos_pos(&$ciniki) {
             );
 
         //
+        // Check if invoice is to be delete, that it doesn't have any items or transactions
+        //
+        if( isset($args['action']) && $args['action'] == 'deleteempty' ) {
+            if( isset($invoice['items']) && count($invoice['items']) > 0 ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.256', 'msg'=>'Unable to remove sale with items.'));
+            }
+            if( isset($invoice['transactions']) && count($invoice['transactions']) > 0 ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.257', 'msg'=>'Unable to remove sale with transactions.'));
+            }
+
+            //
+            // Remove the invoice
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
+            $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.sapos.invoice', $args['invoice_id'], NULL, 0x04);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+
+            return array('stat'=>'ok');
+        }
+
+        //
         // Check if there are any messages for this invoice
         //
         if( isset($ciniki['tenant']['modules']['ciniki.mail']) ) {

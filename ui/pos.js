@@ -148,6 +148,11 @@ function ciniki_sapos_pos() {
                 'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.donations != null && M.ciniki_sapos_pos.checkout.data.donations == 'yes' ? 'yes' : 'no'; },
                 'fn':'M.ciniki_sapos_pos.checkout.printDonationReceipt();',
                 },
+            'delete':{'label':'Delete Sale', 
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount == 0 && M.ciniki_sapos_pos.checkout.data.items.length == 0 ? 'yes' : 'no'; },
+                'fn':'M.ciniki_sapos_pos.checkout.deleteInvoice();',
+                },
+
             }},
         };
     this.checkout.liveSearchCb = function(s, i, v) {
@@ -297,6 +302,15 @@ function ciniki_sapos_pos() {
         if( cb != null ) { this.cb = cb; }
         if( iid != null ) { this.invoice_id = iid; }
         M.api.getJSONCb('ciniki.sapos.pos', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id}, this.processOpen);
+    }
+    this.checkout.deleteInvoice = function() {
+        M.api.getJSONCb('ciniki.sapos.pos', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id, 'action':'deleteempty'}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            M.ciniki_sapos_pos.checkout.close(); 
+        });
     }
     this.checkout.processOpen = function(rsp) {
         if( rsp.stat != 'ok' ) {
