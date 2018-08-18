@@ -47,7 +47,7 @@ function ciniki_sapos_main() {
         'tabs':{},
         };
     this._months = {'label':'', 'type':'paneltabs', 'selected':'0', 'panel':'invoices',
-        'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'transactions' || s == 'expenses' || s == 'quotes' || s == 'categories' || s == 'donations' ) ? 'yes' : 'no');},
+        'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'transactions' || s == 'expenses' || s == 'quotes' || s == 'categories' || s == 'donations' || s == 'pos' ) ? 'yes' : 'no');},
         'tabs':{
             '0':{'label':'All', 'fn':'M.ciniki_sapos_main.monthSwitch(0);'},
             '1':{'label':'Jan', 'fn':'M.ciniki_sapos_main.monthSwitch(1);'},
@@ -82,7 +82,7 @@ function ciniki_sapos_main() {
         'years':this._years,
         'months':this._months,
         'payment_statuses':{'label':'', 'type':'paneltabs', 'selected':'0', 
-            'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'invoices' ? 'yes' : 'no');},
+            'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'invoices' || M.ciniki_sapos_main._tabs.selected == 'pos' ? 'yes' : 'no');},
             'tabs':{
                 '0':{'label':'All', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,0);'},
                 '10':{'label':'Payment Required', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,10);'},
@@ -92,7 +92,7 @@ function ciniki_sapos_main() {
                 '60':{'label':'Refunded', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,60);'},
             }},
         'invoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'monthlyinvoices' || s == 'quarterlyinvoices' || s == 'yearlyinvoices') ? 'yes' : 'no');},
+            'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'monthlyinvoices' || s == 'quarterlyinvoices' || s == 'yearlyinvoices' || s == 'pos' ) ? 'yes' : 'no');},
             'headerValues':['Invoice #','Date','Customer','Amount','Status'],
             'headerClasses':['', '', '', 'alignright', 'alignright'],
             'cellClasses':['', '', '', 'alignright', 'alignright'],
