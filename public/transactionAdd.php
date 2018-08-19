@@ -47,7 +47,8 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
     }
 
     if( !isset($args['transaction_date']) || $args['transaction_date'] == '' ) {
-        $args['transaction_date'] = new DateTime('now', new DateTimezone('UTC'));
+        $dt = new DateTime('now', new DateTimezone('UTC'));
+        $args['transaction_date'] = $dt->format('Y-m-d H:i:s');
     }
 
     //
