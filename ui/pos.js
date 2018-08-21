@@ -82,6 +82,7 @@ function ciniki_sapos_pos() {
             p.show(cb);
         });
     }
+    this.menu.addButton('add', 'Add', 'M.ciniki_sapos_pos.checkout.open(\'M.ciniki_sapos_pos.menu.open();\',0);');
     this.menu.addClose('Back');
 
     //
