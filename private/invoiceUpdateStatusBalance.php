@@ -204,7 +204,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
             }
         }
     }
-    elseif( $invoice['invoice_type'] == '40' && $invoice['status'] > 15 ) {
+    elseif( $invoice['invoice_type'] == '40' && $invoice['status'] > 15 && $invoice['status'] < 65 ) {
         //
         // Only update order status if status > 10, otherwise it's considered still entered
         //
