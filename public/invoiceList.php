@@ -206,7 +206,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
     }
     if( isset($args['shipping_status']) 
         && ($args['shipping_status'] == 'packlist' || $args['shipping_status'] == 'backordered') ) {
-        $strsql .= "HAVING items_to_be_shipped > 0 ";
+        $strsql .= "HAVING ciniki_sapos_invoices.status < 65 AND items_to_be_shipped > 0 ";
     }
     if( isset($args['sort']) ) {
         if( $args['sort'] == 'latest' ) {
