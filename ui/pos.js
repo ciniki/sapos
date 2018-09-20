@@ -598,8 +598,10 @@ function ciniki_sapos_pos() {
     this.transaction.transaction_id = 0;
     this.transaction.data = {};
     this.transaction.sections = {
-        'details':{'label':'', 'fields':{
-            'source':{'label':'Type', 'type':'toggle', 'required':'yes', 'toggles':{}},
+        'details':{'label':'Payment Type', 'fields':{
+            'source':{'label':'', 'hidelabel':'yes', 'join':'no', 'type':'toggle', 'size':'7.5', 'required':'yes', 'toggles':{}},
+            }},
+        '_amount':{'label':'', 'fields':{
             'customer_amount':{'label':'Amount', 'type':'text', 'size':'small'},
             }},
         '_notes':{'label':'Notes', 'fields':{
@@ -849,8 +851,9 @@ function ciniki_sapos_pos() {
         //
         // FIXME: This needs to be changed to settings so list can be updated by tenant
         this.transactionSources = {
-            '20':'Square',
-            '90':'Interac',
+//            '20':'Square',
+            '80':'Credit Card',
+            '90':'Debit Card',
             '100':'Cash',
             '105':'Check',
             '110':'Email Transfer',
