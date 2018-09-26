@@ -112,9 +112,9 @@ function ciniki_sapos_invoice() {
             'customer_details':{'label':'', 'aside':'yes', 'type':'simplegrid', 'num_cols':2,
                 'cellClasses':['label',''],
                 'addTxt':'Edit',
-                'addFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'customer_id\':M.ciniki_sapos_invoice.invoice.data.customer_id});',
+                'addFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'action\':\'edit\',\'customer_id\':M.ciniki_sapos_invoice.invoice.data.customer_id});',
                 'changeTxt':'Change customer',
-                'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'customer_id\':0});',
+                'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'action\':\'change\',\'customer_id\':0});',
                 },
             'shipping':{'label':'', 'aside':'yes', 'visible':'no', 'list':{
     //              'shipping_name':{'label':'Ship To'},
