@@ -104,7 +104,7 @@ function ciniki_sapos_pos() {
             'addTxt':'Edit',
             'addFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'next\':\'M.ciniki_sapos_pos.checkout.updateCustomer\',\'action\':\'edit\',\'customer_id\':M.ciniki_sapos_pos.checkout.data.customer_id});',
             'changeTxt':'Change customer',
-            'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'next\':\'M.ciniki_sapos_pos.checkout.updateCustomer\',\'action\':\'change\',\'customer_id\':0});',
+            'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'next\':\'M.ciniki_sapos_pos.checkout.updateCustomer\',\'action\':\'change\',\'current_id\':M.ciniki_sapos_pos.checkout.data.customer_id,\'customer_id\':0});',
             },
         'item_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':4,
             'headerValues':['Code', 'Description', 'Price', ''],
