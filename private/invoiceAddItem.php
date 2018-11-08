@@ -123,8 +123,8 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
                     // Force each on it's own invoice line
                     $existing_id = 0;             
                 }
-                if( isset($rc['item']['flags']) ) {
-                    if( !isset($args['flags']) ) {
+                if( isset($rc['item']['flags']) && is_numeric($rc['item']['flags']) ) {
+                    if( !isset($args['flags']) || $args['flags'] == '' ) {
                         $args['flags'] = $rc['item']['flags'];
                     } else {
                         $args['flags'] |= $rc['item']['flags'];
