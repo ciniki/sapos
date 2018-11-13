@@ -1209,7 +1209,11 @@ function ciniki_sapos_invoice() {
                     }
                     var p = M.ciniki_sapos_invoice.invoice;
                     p.invoice_id = args.invoice_id;
-                    M.ciniki_sapos_invoice.showInvoiceFinish(cb, rsp);
+                    if( rsp.object != null && rsp.object_id != null && args.regOpenFn != null && args.regOpenFn != '' ) {
+                        eval(args.regOpenFn + '(' + args.invoice_id + ',\'' + rsp.object + '\',\'' + rsp.object_id + '\');');
+                    } else {
+                        M.ciniki_sapos_invoice.showInvoiceFinish(cb, rsp);
+                    }
                 });
         } else {
             // Create the new invoice, and then display it
@@ -1221,7 +1225,11 @@ function ciniki_sapos_invoice() {
                     }
                     var p = M.ciniki_sapos_invoice.invoice;
                     p.invoice_id = rsp.invoice.id;
-                    M.ciniki_sapos_invoice.showInvoiceFinish(cb, rsp);
+                    if( rsp.object != null && rsp.object_id != null && args.regOpenFn != null && args.regOpenFn != '' ) {
+                        eval(args.regOpenFn + '(' + rsp.invoice.id + ',\'' + rsp.object + '\',\'' + rsp.object_id + '\');');
+                    } else {
+                        M.ciniki_sapos_invoice.showInvoiceFinish(cb, rsp);
+                    }
                 });
          }
     };

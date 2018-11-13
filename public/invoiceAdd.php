@@ -242,6 +242,8 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
     // Add the items to the invoice
     //
     $line_number = 1;
+    $object_added = '';
+    $object_id_added = 0;
     foreach($invoice_items as $i => $item) {
         $item['invoice_id'] = $invoice_id;
         $item['line_number'] = $line_number++;
@@ -290,6 +292,10 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
                 }
                 // Update the invoice item with the new object and object_id
                 if( isset($rc['object']) && $rc['object'] != $item['object'] ) {
+                    $object_added = $rc['object'];
+                    if( isset($rc['object_id']) ) {
+                        $object_id_added = $rc['object_id'];
+                    }
                     $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', 
                         $item_id, $rc, 0x04);
                     if( $rc['stat'] != 'ok' ) {
@@ -345,6 +351,13 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
         return $rc;
     }
 
-    return array('stat'=>'ok', 'invoice'=>$rc['invoice']);
+    $rsp = array('stat'=>'ok', 'invoice'=>$rc['invoice']);
+
+    if( isset($object_added) && $object_added != '' && isset($object_id_added) && $object_id_added != 0 ) {
+        $rsp['object'] = $object_added;
+        $rsp['object_id'] = $object_id_added;
+    }
+
+    return $rsp;
 }
 ?>

@@ -68,6 +68,9 @@ function ciniki_sapos_pos(&$ciniki) {
         //
         // Check to make sure both object and object_id were passed
         //
+        if( !isset($args['quantity']) ) {
+            $args['quantity'] = 1;
+        }
         if( !isset($args['object']) || $args['object'] == ''
             || !isset($args['object_id']) || $args['object_id'] == '' 
             ) {
@@ -82,7 +85,7 @@ function ciniki_sapos_pos(&$ciniki) {
                 'status' => 10,
                 'customer_id' => 0,
                 'objects' => array(
-                    array('object' => $args['object'], 'id' => $args['object_id']),
+                    array('object' => $args['object'], 'id' => $args['object_id'], 'quantity' => $args['quantity']),
                     ),
                 );
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAdd');
