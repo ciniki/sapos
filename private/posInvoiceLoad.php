@@ -158,7 +158,7 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
         return $rc;
     }
     if( !isset($rc['invoices']) || !isset($rc['invoices'][0]['invoice']) ) {
-        return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.22', 'msg'=>'Invoice does not exist'));
+        return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.260', 'msg'=>'Invoice does not exist'));
     }
     $invoice = $rc['invoices'][0]['invoice'];
     $invoice['subtotal_discount_percentage'] = (float)$invoice['subtotal_discount_percentage'];
@@ -351,7 +351,7 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
                     'object_ids'=>$object_ids,
                     ));
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.23', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.261', 'msg'=>'Unable to get inventory levels.', 'err'=>$rc['err']));
                 }
                 //
                 // Update the inventory levels for the invoice items

@@ -54,7 +54,7 @@ function ciniki_sapos_pos(&$ciniki) {
             return $rc;
         }
         if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.85', 'msg'=>'Unable to find invoice'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.264', 'msg'=>'Unable to find invoice'));
         }
         $invoice = $rc['invoice'];
     } else {
