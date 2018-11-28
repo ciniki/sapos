@@ -26,6 +26,10 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
     }   
     $args = $rc['args'];
 
+    if( isset($args['unit_discount_percentage']) ) {
+        $args['unit_discount_percentage'] = preg_replace('/[^0-9\.]/', '', $args['unit_discount_percentage']);
+    }
+
     //  
     // Make sure this module is activated, and
     // check permission to run this function for this tenant
