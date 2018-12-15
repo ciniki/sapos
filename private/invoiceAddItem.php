@@ -14,7 +14,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     //
     // Load the settings
     //
-    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', '');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', '');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -30,7 +30,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     $strsql = "SELECT id, customer_id, salesrep_id "
         . "FROM ciniki_sapos_invoices "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
     if( $rc['stat'] != 'ok' ) {
@@ -57,7 +57,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
         $strsql = "SELECT MAX(line_number) AS maxnum "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
         if( $rc['stat'] != 'ok' ) {
@@ -84,7 +84,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
             . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
             . "AND object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
             . "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
         if( $rc['stat'] != 'ok' ) {
@@ -108,7 +108,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
         if( $rc['stat'] == 'ok' ) {
             $fn = $rc['function_call'];
-            $rc = $fn($ciniki, $args['tnid'], $args);
+            $rc = $fn($ciniki, $tnid, $args);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -158,7 +158,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
         $strsql = "SELECT discount_percent "
             . "FROM ciniki_customers "
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $invoice['customer_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.customers', 'customer');
         if( $rc['stat'] != 'ok' ) {
@@ -201,7 +201,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
             // Add the item
             //
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-            $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $args, 0x04);
+            $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.invoice_item', $args, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -215,7 +215,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
                 $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemAdd');
                 if( $rc['stat'] == 'ok' ) {
                     $fn = $rc['function_call'];
-                    $rc = $fn($ciniki, $args['tnid'], $args['invoice_id'], $args);
+                    $rc = $fn($ciniki, $tnid, $args['invoice_id'], $args);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }
@@ -224,7 +224,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
                         || (isset($rc['flags']) && $rc['flags'] != $args['flags'])
                         ) {
                         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-                        $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', 
+                        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', 
                             $item_id, $rc, 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             return $rc;
@@ -260,7 +260,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
             // Update the item
             //
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', 
+            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', 
                 $item['id'], $new_args, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
@@ -282,7 +282,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
                 $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemUpdate');
                 if( $rc['stat'] == 'ok' ) {
                     $fn = $rc['function_call'];
-                    $rc = $fn($ciniki, $args['tnid'], $item['invoice_id'], $item);
+                    $rc = $fn($ciniki, $tnid, $item['invoice_id'], $item);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }
@@ -297,7 +297,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     // Update the taxes
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
-    $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $args['tnid'], $args['invoice_id']);
+    $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $args['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -306,7 +306,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     // Update the invoice status
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-    $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $args['tnid'], $args['invoice_id']);
+    $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $args['invoice_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

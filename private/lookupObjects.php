@@ -29,7 +29,11 @@ function ciniki_sapos_lookupObjects(&$ciniki, $tnid, $objects) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.32', 'msg'=>'Unable to load invoice item details'));
         }
 
-        $rc = $lookup_function($ciniki, $tnid, array('object'=>$object['object'], 'object_id'=>$object['id']));
+        //
+        // sapos functions in other modules require object_id field
+        //
+        $object['object_id'] = $object['id'];
+        $rc = $lookup_function($ciniki, $tnid, $object);
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.33', 'msg'=>'Unable to load invoice item details', 'err'=>$rc['err']));
         }
