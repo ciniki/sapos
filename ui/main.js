@@ -101,8 +101,8 @@ function ciniki_sapos_main() {
             },
         'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
             'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status'],
-            'headerClasses':['', '', '', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', 'alignright', 'alignright'],
+            'headerClasses':['', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
             'sortable':'yes',
             'sortTypes':['text', 'date', 'text', 'number', 'text'],
             'noData':'No Invoices',
@@ -141,7 +141,17 @@ function ciniki_sapos_main() {
         return this.sections[s].noData;
     };
     this.menu.cellValue = function(s, i, j, d) {
-        if( s == 'invoices' ) {
+        if( s == 'invoices' && this.sections[s].num_cols == 7 ) {
+            switch(j) {
+                case 0: return d.invoice.invoice_number;
+                case 1: return d.invoice.invoice_date;
+                case 2: return d.invoice.customer_display_name;
+                case 3: return d.invoice.subtotal_amount_display;
+                case 4: return d.invoice.taxes_amount_display;
+                case 5: return d.invoice.total_amount_display;
+                case 6: return d.invoice.status_text;
+            }
+        } else if( s == 'invoices' ) {
             switch(j) {
                 case 0: return d.invoice.invoice_number;
                 case 1: return d.invoice.invoice_date;
@@ -209,12 +219,24 @@ function ciniki_sapos_main() {
     }
     this.menu.footerValue = function(s, i, j, d) {
         if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'invoices' && this.data.totals != null ) {
-            switch(i) {
-                case 0: return this.data.totals.num_invoices;
-                case 1: return '';
-                case 2: return '';
-                case 3: return this.data.totals.total_amount;
-                case 4: return '';
+            if( this.sections[s].num_cols == 7 ) {
+                switch(i) {
+                    case 0: return this.data.totals.num_invoices;
+                    case 1: return '';
+                    case 2: return '';
+                    case 3: return this.data.totals.subtotal_amount;
+                    case 4: return this.data.totals.taxes_amount;
+                    case 5: return this.data.totals.total_amount;
+                    case 6: return '';
+                }
+            } else {
+                switch(i) {
+                    case 0: return this.data.totals.num_invoices;
+                    case 1: return '';
+                    case 2: return '';
+                    case 3: return this.data.totals.total_amount;
+                    case 4: return '';
+                }
             }
         } 
         if( s == 'items' && M.ciniki_sapos_main._tabs.selected == 'categories' && this.data.totals != null ) {
@@ -1454,7 +1476,16 @@ function ciniki_sapos_main() {
             this._tabs.visible = 'no';
         }
         this._years.selected = new Date().getFullYear();
-        
+       
+        if( M.modOn('ciniki.taxes') ) {
+            this.menu.sections.invoices.num_cols = 7;
+            this.menu.sections.invoices.headerValues = ['Invoice #', 'Date', 'Customer', 'Amount', 'Taxes', 'Total', 'Status'];
+            this.menu.sections.invoices.sortTypes = ['text', 'date', 'text', 'number', 'number', 'number', 'text'];
+        } else {
+            this.menu.sections.invoices.num_cols = 5;
+            this.menu.sections.invoices.headerValues = ['Invoice #', 'Date', 'Customer', 'Amount', 'Status'];
+            this.menu.sections.invoices.sortTypes = ['text', 'date', 'text', 'number', 'text'];
+        }
         this._tabs.cb = cb;
         this.menu.menutabSwitch(sp);
     }

@@ -244,9 +244,13 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         $rsp['invoices'] = $rc['invoices'];
     }
     $rsp['totals'] = array(
+        'subtotal_amount'=>0,
+        'taxes_amount'=>0,
         'total_amount'=>0,
         );
+    $invoice_ids = array();
     foreach($rsp['invoices'] as $iid => $invoice) {
+        $invoice_ids[] = $invoice['invoice']['id'];
         $rsp['invoices'][$iid]['invoice']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
             $invoice['invoice']['total_amount'], $intl_currency);
         $rsp['totals']['total_amount'] = bcadd($rsp['totals']['total_amount'], $invoice['invoice']['total_amount'], 2);
@@ -262,6 +266,44 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         }
     }
 
+    //
+    // Check if taxes module is enabled, and add tax information to invoices
+    //
+    if( isset($ciniki['tenant']['modules']['ciniki.taxes']) && count($invoice_ids) > 0 ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
+        $strsql = "SELECT invoice_id, SUM(amount) "
+            . "FROM ciniki_sapos_invoice_taxes "
+            . "WHERE invoice_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $invoice_ids) . ") "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "GROUP BY invoice_id "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList2');
+        $rc = ciniki_core_dbQueryList2($ciniki, $strsql, 'ciniki.sapos', 'taxes');
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.267', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+        }
+        if( isset($rc['taxes']) ) {
+            $taxes = $rc['taxes'];
+            foreach($rsp['invoices'] as $iid => $invoice) {
+                if( isset($taxes[$invoice['invoice']['id']]) ) {
+                    $rsp['invoices'][$iid]['invoice']['taxes_amount'] = round($taxes[$invoice['invoice']['id']], 2);
+                    $rsp['invoices'][$iid]['invoice']['subtotal_amount'] = bcsub($invoice['invoice']['total_amount'], round($taxes[$invoice['invoice']['id']], 2), 6);
+                    $rsp['invoices'][$iid]['invoice']['subtotal_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+                        $rsp['invoices'][$iid]['invoice']['subtotal_amount'], $intl_currency);
+                    $rsp['invoices'][$iid]['invoice']['taxes_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+                        $rsp['invoices'][$iid]['invoice']['taxes_amount'], $intl_currency);
+                } else {
+                    $rsp['invoices'][$iid]['invoice']['subtotal_amount'] = 0;
+                    $rsp['invoices'][$iid]['invoice']['taxes_amount'] = 0;
+                    $rsp['invoices'][$iid]['invoice']['subtotal_amount_display'] = '';
+                    $rsp['invoices'][$iid]['invoice']['taxes_amount_display'] = '';
+                }
+                $rsp['totals']['subtotal_amount'] = bcadd($rsp['totals']['subtotal_amount'], $rsp['invoices'][$iid]['invoice']['subtotal_amount'], 6);
+                $rsp['totals']['taxes_amount'] = bcadd($rsp['totals']['taxes_amount'], $taxes[$invoice['invoice']['id']], 6);
+            }
+        }
+    }
+
     if( isset($args['type']) && $args['type'] == '11' && $rsp['totals']['total_amount'] > 0 ) {
         $rsp['totals']['yearly_amount'] = numfmt_format_currency($intl_currency_fmt,
             bcmul($rsp['totals']['total_amount'], 12, 4), $intl_currency);
@@ -271,8 +313,11 @@ function ciniki_sapos_invoiceList(&$ciniki) {
             bcdiv($rsp['totals']['total_amount'], 12, 4), $intl_currency);
     }
 
-    $rsp['totals']['total_amount'] = numfmt_format_currency($intl_currency_fmt,
-        $rsp['totals']['total_amount'], $intl_currency);
+    // Remove rounding errors, but calculating subtotal amount
+    $rsp['totals']['subtotal_amount'] = bcsub($rsp['totals']['total_amount'], $rsp['totals']['taxes_amount'], 2);
+    $rsp['totals']['subtotal_amount'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['subtotal_amount'], $intl_currency);
+    $rsp['totals']['taxes_amount'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['taxes_amount'], $intl_currency);
+    $rsp['totals']['total_amount'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['total_amount'], $intl_currency);
     $rsp['totals']['num_invoices'] = count($rsp['invoices']);
 
     
