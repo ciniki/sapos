@@ -260,7 +260,7 @@ function ciniki_sapos_main() {
         return null;
     }
     this.menu.footerClass = function(s, i, d) {
-        if( s == 'invoices' && i == 4 ) { return 'alignright'; }
+        if( s == 'invoices' && i > 2 ) { return 'alignright'; }
         if( s == 'transactions' && i > 1 ) { return 'alignright'; }
         return '';
     }
