@@ -299,7 +299,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
                     $rsp['invoices'][$iid]['invoice']['taxes_amount_display'] = '';
                 }
                 $rsp['totals']['subtotal_amount'] = bcadd($rsp['totals']['subtotal_amount'], $rsp['invoices'][$iid]['invoice']['subtotal_amount'], 6);
-                $rsp['totals']['taxes_amount'] = bcadd($rsp['totals']['taxes_amount'], $taxes[$invoice['invoice']['id']], 6);
+                if( isset($taxes[$invoice['invoice']['id']]) ) {
+                    $rsp['totals']['taxes_amount'] = bcadd($rsp['totals']['taxes_amount'], $taxes[$invoice['invoice']['id']], 6);
+                }
             }
         }
     }
