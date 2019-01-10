@@ -55,6 +55,10 @@
 #                               is returned from sapos/objectList hooks, and should be in the format:
 #                               ciniki.events.registration, ciniki.courses.offering_registration, etc.
 #
+# Transactions
+# ------------
+# transaction-gateway-delete:   (yes|no) Is the tenant allowed to remove transactions processed via gateway.
+#
 # Fields
 # ======
 # tnid:         The id of the tenant the detail is for.

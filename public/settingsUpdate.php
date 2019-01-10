@@ -135,6 +135,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'donation-invoice-message',
         'donation-receipt-thankyou-message',
         'donation-receipt-signature-image',
+        'transaction-gateway-delete',
         );
     //
     // Check each valid setting and see if a new value was passed in the arguments for it.

@@ -36,6 +36,16 @@ function ciniki_sapos_transactionDelete(&$ciniki) {
     }
 
     //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', '');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.268', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+
+    //
     // Get the details of the transaction
     //
     $strsql = "SELECT uuid, invoice_id, gateway "
@@ -52,7 +62,9 @@ function ciniki_sapos_transactionDelete(&$ciniki) {
     }
     $transaction = $rc['transaction'];
 
-    if( $transaction['gateway'] > 0 ) {
+    if( $transaction['gateway'] > 0 
+        && (!isset($settings['transaction-gateway-delete']) || $settings['transaction-gateway-delete'] != 'yes') 
+        ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.143', 'msg'=>'Unable to remove transaction that was processed through a payment service.'));
     }
 

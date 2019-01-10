@@ -27,10 +27,15 @@ function ciniki_sapos_settings() {
                 'rules':{'label':'Rules', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showRules(\'M.ciniki_sapos_settings.menu.open();\',\'invoice\');'},
                 'reports':{'label':'Reports', 
                     'visible':function() {return ((M.userPerms&0x01)>0?'yes':'no');},
-                    'fn':'M.ciniki_sapos_settings.invoicereports.open(\'M.ciniki_sapos_settings.menu.open();\',\'invoicereports\');'},
+                    'fn':'M.ciniki_sapos_settings.invoicereports.open(\'M.ciniki_sapos_settings.menu.open();\',\'invoicereports\');',
+                    },
                 'categories':{'label':'Categories',
                     'visible':function() {return (M.modFlagOn('ciniki.sapos', 0x01000000) && (M.userPerms&0x01)>0?'yes':'no');},
-                    'fn':'M.ciniki_sapos_settings.categories.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+                    'fn':'M.ciniki_sapos_settings.categories.open(\'M.ciniki_sapos_settings.menu.open();\');',
+                    },
+                'transactions':{'label':'Transactions',
+                    'fn':'M.ciniki_sapos_settings.transactions.open(\'M.ciniki_sapos_settings.menu.open();\');',
+                    },
             }},
         'shipments':{'label':'Shipments', 'visible':'no', 
             'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40); },
@@ -1299,6 +1304,54 @@ function ciniki_sapos_settings() {
         }
     }
     this.categories.addClose('Cancel');
+
+    //
+    // The panel to manage transaction settings
+    //
+    this.transactions = new M.panel('Transaction Settings', 'ciniki_sapos_settings', 'transactions', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.transactions');
+    this.transactions.sections = {
+        '_options':{'label':'Transaction Options', 'fields':{
+            'transaction-gateway-delete':{'label':'Delete transactions processed via gateway', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.transactions.save();'},
+            }},
+    }
+    this.transactions.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.settingsHistory', 'args':{'tnid':M.curTenantID, 'setting':i}};
+    }
+    this.transactions.fieldValue = function(s, i, d) {
+        if( this.data[i] == null && d.default != null ) { return d.default; }
+        return this.data[i];
+    }
+    this.transactions.open = function(cb) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.transactions;
+            p.data = rsp.settings;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.transactions.save = function() {
+        var c = this.serializeForm('no');
+        if( c != '' ) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.transactions.close();
+            });
+        } else {
+            this.close();
+        }
+    }
+    this.transactions.addButton('save', 'Save', 'M.ciniki_sapos_settings.transactions.save();');
+    this.transactions.addClose('Cancel');
 
     //
     // Arguments:
