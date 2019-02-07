@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table to version 1.06.
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN unit_donation_amount decimal(19,4) not null AFTER total_amount;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.07';

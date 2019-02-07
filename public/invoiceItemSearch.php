@@ -99,6 +99,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
         ) {
         $strsql = "SELECT DISTINCT "    
             . "CONCAT_WS('-', ciniki_sapos_invoice_items.description, ciniki_sapos_invoice_items.unit_amount) AS id, "
+            . "ciniki_sapos_invoice_items.flags, "
             . "ciniki_sapos_invoice_items.object, "
             . "ciniki_sapos_invoice_items.object_id, "
             . "ciniki_sapos_invoice_items.description, "
@@ -106,6 +107,7 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
             . "ciniki_sapos_invoice_items.unit_amount, "
             . "ciniki_sapos_invoice_items.unit_discount_amount, "
             . "ciniki_sapos_invoice_items.unit_discount_percentage, "
+            . "ciniki_sapos_invoice_items.unit_donation_amount, "
             . "ciniki_sapos_invoice_items.taxtype_id, "
             . "ciniki_sapos_invoice_items.notes "
             . "FROM ciniki_sapos_invoice_items "
@@ -123,8 +125,8 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
         $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
             array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-                'fields'=>array('object', 'object_id', 'description', 'quantity',
-                    'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'taxtype_id', 'notes')),
+                'fields'=>array('id', 'flags', 'object', 'object_id', 'description', 'quantity',
+                    'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'unit_donation_amount', 'taxtype_id', 'notes')),
             ));
         if( $rc['stat'] != 'ok' ) {    
             return $rc;
@@ -139,6 +141,10 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
             $item['item']['unit_amount'], $intl_currency);
         $items[$i]['item']['unit_discount_amount'] = numfmt_format_currency($intl_currency_fmt, 
             $item['item']['unit_discount_amount'], $intl_currency);
+        if( isset($items[$i]['item']['unit_donation_amount']) && $items[$i]['item']['unit_donation_amount'] > 0 ) {
+            $items[$i]['item']['unit_donation_amount'] = numfmt_format_currency($intl_currency_fmt, 
+                $item['item']['unit_donation_amount'], $intl_currency);
+        }
         $items[$i]['item']['quantity'] = (float)$item['item']['quantity'];
         if( !isset($item['item']['flags']) ) {
             $items[$i]['item']['flags'] = 0;

@@ -285,6 +285,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "ROUND(ciniki_sapos_invoice_items.subtotal_amount, 2) AS subtotal_amount, "
         . "ROUND(ciniki_sapos_invoice_items.discount_amount, 2) AS discount_amount, "
         . "ROUND(ciniki_sapos_invoice_items.total_amount, 2) AS total_amount, "
+        . "ROUND(ciniki_sapos_invoice_items.unit_donation_amount, 2) AS unit_donation_amount, "
         . "ciniki_sapos_invoice_items.notes, "
         . "IFNULL(ciniki_tax_types.name, '') AS taxtype_name "
         . "FROM ciniki_sapos_invoice_items "
@@ -301,7 +302,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 'object', 'object_id', 'price_id', 'student_id', 
                 'code', 'description', 'quantity', 'shipped_quantity', 'required_quantity', 
                 'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
-                'subtotal_amount', 'discount_amount', 'total_amount', 'notes', 'taxtype_name')),
+                'subtotal_amount', 'discount_amount', 'total_amount', 'unit_donation_amount', 'notes', 'taxtype_name')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -317,6 +318,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         $objects = array();
         foreach($invoice['items'] as $iid => $item) {
             if( ($item['item']['flags']&0x8000) == 0x8000 ) {
+                $invoice['donations'] = 'yes';
+            }
+            if( ($item['item']['flags']&0x0800) == 0x0800 ) {
                 $invoice['donations'] = 'yes';
             }
             $invoice['total_quantity'] += $item['item']['quantity'];
@@ -368,6 +372,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 $intl_currency_fmt, $item['item']['discount_amount'], $intl_currency);
             $invoice['items'][$iid]['item']['total_amount_display'] = numfmt_format_currency(
                 $intl_currency_fmt, $item['item']['total_amount'], $intl_currency);
+            $invoice['items'][$iid]['item']['unit_donation_amount_display'] = numfmt_format_currency(
+                $intl_currency_fmt, $item['item']['unit_donation_amount'], $intl_currency);
         }
     }
     if( $invoice['shipping_status'] > 0 && isset($objects) ) {

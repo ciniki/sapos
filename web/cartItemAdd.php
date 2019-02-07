@@ -97,6 +97,10 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         $args['unit_amount'] = $item['unit_amount'];
         $args['unit_discount_amount'] = $item['unit_discount_amount'];
         $args['unit_discount_percentage'] = $item['unit_discount_percentage'];
+        if( isset($item['unit_donation_amount']) && $item['unit_donation_amount'] > 0 ) {
+            $args['unit_donation_amount'] = $item['unit_donation_amount'];
+            $args['flags'] |= 0x0800;
+        }
         $args['taxtype_id'] = $item['taxtype_id'];
         if( !isset($args['notes']) ) {
             $args['notes'] = '';

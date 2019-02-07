@@ -109,11 +109,12 @@ function ciniki_sapos_donationList(&$ciniki) {
         . "ciniki_sapos_invoices.total_amount, "
         . "ciniki_sapos_invoices.donationreceipt_status, "
         . "ciniki_sapos_invoices.donationreceipt_status AS donationreceipt_status_text, "
-        . "SUM(ciniki_sapos_invoice_items.total_amount) AS donation_amount "
+        // Decide if partial or full donation amount
+        . "SUM(IF((ciniki_sapos_invoice_items.flags&0x0800)=0x0800, (ciniki_sapos_invoice_items.quantity*ciniki_sapos_invoice_items.unit_donation_amount), ciniki_sapos_invoice_items.total_amount)) AS donation_amount "
         . "FROM ciniki_sapos_invoices "
         . "INNER JOIN ciniki_sapos_invoice_items ON ("
             . "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
-            . "AND (ciniki_sapos_invoice_items.flags&0x8000) = 0x8000 "
+            . "AND (ciniki_sapos_invoice_items.flags&0x8800) > 0 " // Either Partial or Full Donation amount
             . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_customers ON ("

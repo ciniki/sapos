@@ -186,7 +186,6 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     $args['discount_amount'] = $rc['discount'];
     $args['total_amount'] = $rc['total'];
 
-
     $item_id = 0;
     for($line_num = 1; $line_num<=$num_lines; $line_num++) {
         if( $existing_id == 0 ) {

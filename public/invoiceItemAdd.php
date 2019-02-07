@@ -35,6 +35,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
             'name'=>'Discount Amount'),
         'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 
             'name'=>'Discount Percentage'),
+        'unit_donation_amount'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Donation Portion'),
         'taxtype_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Tax Type'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'),
         )); 
@@ -51,6 +52,13 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
     $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.invoiceItemAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
+    }
+    
+    //
+    // Set the flags for the item if partial donation
+    //
+    if( isset($args['unit_donation_amount']) && $args['unit_donation_amount'] > 0 ) {
+        $args['flags'] = (isset($args['flags']) ? $args['flags'] | 0x0800 : 0x0800);
     }
 
     //

@@ -72,6 +72,7 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
         . "subtotal_amount, "
         . "discount_amount, "
         . "total_amount, "
+        . "unit_donation_amount, "
         . "taxtype_id, "
         . "notes "
         . "FROM ciniki_sapos_invoice_items "
@@ -98,6 +99,8 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
         $item['subtotal_amount'], $intl_currency);
     $item['total_amount'] = numfmt_format_currency($intl_currency_fmt, 
         $item['total_amount'], $intl_currency);
+    $item['unit_donation_amount'] = numfmt_format_currency($intl_currency_fmt, 
+        $item['unit_donation_amount'], $intl_currency);
 
     //
     // Check to make sure the invoice belongs to the salesrep

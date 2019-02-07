@@ -277,6 +277,8 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $invoice_id, $t
         //
         if( ($item['item']['flags']&0x8000) == 0x8000 ) {
             $donation_amount = bcadd($donation_amount, $item['item']['total_amount'], 6);
+        } elseif( ($item['item']['flags']&0x0800) == 0x0800 ) {
+            $donation_amount = bcadd($donation_amount, ($item['item']['quantity'] * $item['item']['unit_donation_amount']), 6);
         }
         $discount = '';
     }

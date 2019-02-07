@@ -45,7 +45,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
         // 0x01000000
         array('flag'=>array('bit'=>'25', 'name'=>'Item Categories')), 
         array('flag'=>array('bit'=>'26', 'name'=>'Donations')),
-//        array('flag'=>array('bit'=>'27', 'name'=>'')), 
+        array('flag'=>array('bit'=>'27', 'name'=>'Donation Portions')), 
 //        array('flag'=>array('bit'=>'28', 'name'=>'')),
 
         );

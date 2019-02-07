@@ -32,6 +32,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         'unit_discount_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 
             'name'=>'Discount Amount'),
         'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Percentage'),
+        'unit_donation_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Donation Amount'),
         'taxtype_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Tax Type'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
         )); 
@@ -57,8 +58,8 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
     //
     // Get the existing item details
     //
-    $strsql = "SELECT id, invoice_id, object, object_id, "
-        . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, price_id, "
+    $strsql = "SELECT id, invoice_id, flags, object, object_id, "
+        . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, unit_donation_amount, price_id, "
         . "subtotal_amount, discount_amount, total_amount "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
@@ -72,6 +73,21 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.74', 'msg'=>'Unable to locate the invoice item'));
     }
     $item = $rc['item'];
+
+    //
+    // Set the flags for the item if partial donation
+    //
+    if( isset($args['unit_donation_amount']) ) {
+        if( $args['unit_donation_amount'] > 0 ) {
+            $args['flags'] = (isset($args['flags']) ? $args['flags'] | 0x0800 : $item['flags'] | 0x0800);
+        } else {
+            $args['flags'] = (isset($args['flags']) ? $args['flags'] & 0xF7FF : $item['flags'] & 0xF7FF);
+        }
+    } 
+
+    //
+    // FIXME: Add check that donation cannot be larger than unit amount
+    //
 
     //
     // Check to make sure the invoice belongs to the salesrep

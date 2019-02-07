@@ -192,6 +192,9 @@ function ciniki_sapos_invoiceObjectsAdd(&$ciniki) {
             $item['subtotal_amount'] = $rc['subtotal'];
             $item['discount_amount'] = $rc['discount'];
             $item['total_amount'] = $rc['total'];
+            if( isset($item['unit_donation_amount']) && $item['unit_donation_amount'] > 0 ) {
+                $item['donation_amount'] = ($item['quantity'] * $item['unit_donation_amount']);
+            }
         }
         $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $item, 0x04);
         if( $rc['stat'] != 'ok' ) {

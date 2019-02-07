@@ -66,6 +66,7 @@ function ciniki_sapos_web_submitInvoice($ciniki, $settings, $tnid, $cart) {
         . "shipped_quantity, "
         . "discount_amount, "
         . "total_amount, "
+        . "unit_donation_amount, "
         . "taxtype_id "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['cart']['sapos_id']) . "' "
@@ -81,6 +82,8 @@ function ciniki_sapos_web_submitInvoice($ciniki, $settings, $tnid, $cart) {
         foreach($items as $iid => $item) {
             if( ($item['flags']&0x8000) == 0x8000 ) {
                 $donation_amount = bcadd($donation_amount, $item['total_amount'], 6);
+            } elseif( ($item['flags']&0x0800) == 0x0800 ) {
+                $donation_amount = bcadd($donation_amount, ($item['quantity'] * $item['unit_donation_amount']), 6);
             }
         }
     } else {

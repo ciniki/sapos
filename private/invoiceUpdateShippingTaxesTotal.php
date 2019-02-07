@@ -112,6 +112,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
         . "shipped_quantity, "
         . "discount_amount, "
         . "total_amount, "
+        . "unit_donation_amount, "
         . "taxtype_id "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
@@ -139,6 +140,9 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
         foreach($items as $iid => $item) {
             if( ($item['flags']&0x8000) == 0x8000 ) {
                 $donation_amount = bcadd($donation_amount, $item['total_amount'], 6);
+            }
+            if( ($item['flags']&0x0800) == 0x0800 && $item['unit_donation_amount'] > 0 ) {
+                $donation_amount = bcadd($donation_amount, ($item['quantity'] * $item['unit_donation_amount']), 6);
             }
             $invoice['items'][] = array(
                 'id'=>$item['id'],

@@ -643,6 +643,10 @@ function ciniki_sapos_invoice() {
                 'unit_discount_percentage':{'label':'Discount %', 'type':'text', 'size':'small'},
                 'flags1':{'label':'Donation', 'type':'flagtoggle', 'field':'flags', 'bit':0x8000, 'default':'off', 
                     'active':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
+                    'onchange':'M.ciniki_sapos_invoice.item.donationToggle',
+                    },
+                'unit_donation_amount':{'label':'Donation Portion', 'type':'text', 'size':'small',
+                    'visible':function() {return (M.modFlagOn('ciniki.sapos', 0x04000000) && M.ciniki_sapos_invoice.item.formValue('flags1') == 'off' ? 'yes' : 'no');},
                     },
                 'taxtype_id':{'label':'Taxes', 'type':'select', 'options':{}},
                 'force_backorder':{'label':'Backorder', 'active':'no', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
@@ -674,6 +678,16 @@ function ciniki_sapos_invoice() {
             }
             return 'multiline';
         };
+        this.item.donationToggle = function() {
+            if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
+                var v = this.formValue('flags1');
+                if( v == 'on' ) {
+                    this.showHideFormField('details', 'unit_donation_amount');
+                } else {
+                    this.showHideFormField('details', 'unit_donation_amount');    
+                }
+            }
+        }
         this.item.liveSearchResultValue = function(s,f,i,j,d) {
             if( j == 0 ) {
                 var mt = d.item.description;
@@ -711,11 +725,11 @@ function ciniki_sapos_invoice() {
         };
         this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
             if( (f == 'code' || f == 'description') && d.item != null ) {
-                return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\',\'' + d.item.flags + '\',\'' + escape(d.item.notes) + '\');';
+                return 'M.ciniki_sapos_invoice.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + escape(d.item.unit_donation_amount) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\',\'' + d.item.flags + '\',\'' + escape(d.item.notes) + '\');';
             }
         };
 
-        this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, t, pid, flags, n) {
+        this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, udo, t, pid, flags, n) {
             this.object = o;
             this.object_id = oid;
             if( this.sections.details.fields.code.active == 'yes' ) {
@@ -729,6 +743,9 @@ function ciniki_sapos_invoice() {
             this.setFieldValue('unit_amount', unescape(u));
             this.setFieldValue('unit_discount_amount', unescape(uda));
             this.setFieldValue('unit_discount_percentage', unescape(udp));
+            if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
+                this.setFieldValue('unit_donation_amount', unescape(udo));
+            }
             if( M.curTenant.modules['ciniki.taxes'] != null ) {
                 this.setFieldValue('taxtype_id', t);
             }
@@ -738,6 +755,7 @@ function ciniki_sapos_invoice() {
             }
             this.setFieldValue('notes', unescape(n));
             this.removeLiveSearch(s, fid);
+            this.donationToggle();
         };
         this.item.fieldValue = function(s, i, d) {
             if( this.data != null && this.data[i] != null ) { return this.data[i]; }
