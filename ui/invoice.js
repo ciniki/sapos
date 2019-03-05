@@ -744,7 +744,11 @@ function ciniki_sapos_invoice() {
             this.setFieldValue('unit_discount_amount', unescape(uda));
             this.setFieldValue('unit_discount_percentage', unescape(udp));
             if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
-                this.setFieldValue('unit_donation_amount', unescape(udo));
+                if( udo != null && udo != 'undefined' ) {
+                    this.setFieldValue('unit_donation_amount', unescape(udo));
+                } else {
+                    this.setFieldValue('unit_donation_amount', '');
+                }
             }
             if( M.curTenant.modules['ciniki.taxes'] != null ) {
                 this.setFieldValue('taxtype_id', t);
