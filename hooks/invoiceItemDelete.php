@@ -111,6 +111,21 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $tnid, $args) {
     }
 
     //
+    // Check for a callback for the item object
+    //
+    if( $item['object'] != '' && $item['object_id'] != '' ) {
+        list($pkg,$mod,$obj) = explode('.', $item['object']);
+        $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemDelete');
+        if( $rc['stat'] == 'ok' ) {
+            $fn = $rc['function_call'];
+            $rc = $fn($ciniki, $tnid, $item['invoice_id'], $item);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+        }
+    }
+
+    //
     // Remove the item
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
