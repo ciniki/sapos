@@ -57,6 +57,13 @@ function ciniki_sapos_web_submitInvoice($ciniki, $settings, $tnid, $cart) {
         $args['status'] = $cart['status'];
     }
 
+    if( isset($cart['paid_amount']) ) {
+        $args['paid_amount'] = $cart['paid_amount'];
+    }
+    if( isset($cart['balance_amount']) ) {
+        $args['balance_amount'] = $cart['balance_amount'];
+    }
+
     //
     // Get the items for the invoice so they can be checked for donations
     //

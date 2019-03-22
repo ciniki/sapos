@@ -36,6 +36,8 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $tnid, $cart)
         $rc = ciniki_sapos_web_submitOrder($ciniki, $settings, $tnid, $cart);
     } else {
         $cart['status'] = 50;
+        $cart['paid_amount'] = $cart['total_amount'];
+        $cart['balance_amount'] = 0;
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'submitInvoice');
         $rc = ciniki_sapos_web_submitInvoice($ciniki, $settings, $tnid, $cart);
     }
