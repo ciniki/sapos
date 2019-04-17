@@ -57,6 +57,9 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
     //
     // Set the flags for the item if partial donation
     //
+    if( isset($args['flags']) && $args['flags'] == '' ) {
+        $args['flags'] = 0;
+    }
     if( isset($args['unit_donation_amount']) && $args['unit_donation_amount'] > 0 ) {
         $args['flags'] = (isset($args['flags']) ? $args['flags'] | 0x0800 : 0x0800);
     }
