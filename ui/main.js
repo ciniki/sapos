@@ -242,19 +242,40 @@ function ciniki_sapos_main() {
         if( s == 'items' && M.ciniki_sapos_main._tabs.selected == 'categories' && this.data.totals != null ) {
             switch(i) {
                 case 0: return this.data.totals.num_transactions;
-                case 3: return this.data.totals.total;
+                case (this.sections[s].num_cols - 2): return this.data.totals.total;
             }
         }
         if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'monthlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
-            if( i == 3 ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
+            if( this.sections[s].num_cols == 7 && i == 3 ) {
+                return this.data.totals.subtotal_amount;
+            }
+            if( this.sections[s].num_cols == 7 && i == 4 ) {
+                return this.data.totals.taxes_amount;
+            }
+            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount;  }
+//            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
             return '';
         }
         if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'quarterlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
-            if( i == 3 ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
+            if( this.sections[s].num_cols == 7 && i == 3 ) {
+                return this.data.totals.subtotal_amount;
+            }
+            if( this.sections[s].num_cols == 7 && i == 4 ) {
+                return this.data.totals.taxes_amount;
+            }
+            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount;  }
+//            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
             return '';
         }
         if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'yearlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
-            if( i == 3 ) { return this.data.totals.monthly_amount + ' (' + this.data.totals.total_amount + ')';  }
+            if( this.sections[s].num_cols == 7 && i == 3 ) {
+                return this.data.totals.subtotal_amount;
+            }
+            if( this.sections[s].num_cols == 7 && i == 4 ) {
+                return this.data.totals.taxes_amount;
+            }
+            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount;  }
+//            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.monthly_amount + ' (' + this.data.totals.total_amount + ')';  }
             return '';
         }
         return null;
@@ -273,7 +294,13 @@ function ciniki_sapos_main() {
 
         this.sections.years.visible = 'no';
         this.size = 'full';
-        this.sections.invoices.headerValues = ['Invoice #', 'Date', 'Customer', 'Amount', 'Status'];
+        if( M.modOn('ciniki.taxes') ) {
+            this.sections.invoices.num_cols = 7;
+            this.sections.invoices.headerValues = ['Invoice #', 'Date', 'Customer', 'Amount', 'Taxes', 'Total', 'Status'];
+        } else {
+            this.sections.invoices.num_cols = 5;
+            this.sections.invoices.headerValues = ['Invoice #', 'Date', 'Customer', 'Amount', 'Status'];
+        }
         if( M.ciniki_sapos_main._tabs.selected == 'invoices' ) {
             this.invoice_type = 10;
             M.ciniki_sapos_main.menu.invoices(cb);
@@ -282,17 +309,20 @@ function ciniki_sapos_main() {
         else if( M.ciniki_sapos_main._tabs.selected == 'carts' || M.ciniki_sapos_main._tabs.selected == 'pos' || M.ciniki_sapos_main._tabs.selected == 'orders' ) {
             switch(M.ciniki_sapos_main._tabs.selected) {
                 case 'carts': 
-                    this.sections.invoices.headerValues = ['Cart #', 'Date', 'Customer', 'Amount', 'Status'];
+                    this.sections.invoices.headerValues[0] = 'Cart #';
+//                    this.sections.invoices.headerValues = ['Cart #', 'Date', 'Customer', 'Amount', 'Status'];
                     this.sections.invoices.noData = 'No open shopping carts';
                     M.ciniki_sapos_main.menu.invoices(cb,null,null,20, 0);
                     break;
                 case 'pos': 
-                    this.sections.invoices.headerValues = ['POS #', 'Date', 'Customer', 'Amount', 'Status'];
+                    this.sections.invoices.headerValues[0] = 'POS #';
+//                    this.sections.invoices.headerValues = ['POS #', 'Date', 'Customer', 'Amount', 'Status'];
                     this.sections.invoices.noData = 'No open sales';
                     M.ciniki_sapos_main.menu.invoices(cb,null,null,30, 0);
                     break;
                 case 'orders': 
-                    this.sections.invoices.headerValues = ['Order #', 'Date', 'Customer', 'Amount', 'Status'];
+                    this.sections.invoices.headerValues[0] = 'Order #';
+//                    this.sections.invoices.headerValues = ['Order #', 'Date', 'Customer', 'Amount', 'Status'];
                     this.sections.invoices.noData = 'No open orders';
                     M.ciniki_sapos_main.menu.invoices(cb,null,null,40, 0);
                     break;

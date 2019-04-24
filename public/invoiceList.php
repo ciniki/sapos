@@ -310,7 +310,11 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         $rsp['totals']['yearly_amount'] = numfmt_format_currency($intl_currency_fmt,
             bcmul($rsp['totals']['total_amount'], 12, 4), $intl_currency);
     }
-    if( isset($args['type']) && $args['type'] == '12' && $rsp['totals']['total_amount'] > 0 ) {
+    if( isset($args['type']) && $args['type'] == '16' && $rsp['totals']['total_amount'] > 0 ) {
+        $rsp['totals']['yearly_amount'] = numfmt_format_currency($intl_currency_fmt,
+            bcmul($rsp['totals']['total_amount'], 4, 4), $intl_currency);
+    }
+    if( isset($args['type']) && $args['type'] == '19' && $rsp['totals']['total_amount'] > 0 ) {
         $rsp['totals']['monthly_amount'] = numfmt_format_currency($intl_currency_fmt,
             bcdiv($rsp['totals']['total_amount'], 12, 4), $intl_currency);
     }
