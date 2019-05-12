@@ -47,6 +47,11 @@ function ciniki_sapos_flags($ciniki, $modules) {
         array('flag'=>array('bit'=>'26', 'name'=>'Donations')),
         array('flag'=>array('bit'=>'27', 'name'=>'Donation Portions')), 
 //        array('flag'=>array('bit'=>'28', 'name'=>'')),
+        // 0x10000000
+        array('flag'=>array('bit'=>'29', 'name'=>'Simple Shipping')), 
+//        array('flag'=>array('bit'=>'30', 'name'=>'')),
+//        array('flag'=>array('bit'=>'31', 'name'=>'')), 
+//        array('flag'=>array('bit'=>'32', 'name'=>'')), // Do NOT USE
 
         );
 
