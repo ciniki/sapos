@@ -145,6 +145,27 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         }
 
         //
+        // Check if there is only one allowed of this price on each invoice
+        //
+        if( isset($args['flags']) && ($args['flags']&0x80) == 0x80 ) {
+            $strsql = "SELECT count(id) AS num_id "
+                . "FROM ciniki_sapos_invoice_items "
+                . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+                . "AND object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
+                . "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+                . "AND price_id = '" . ciniki_core_dbQuote($ciniki, $args['price_id']) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['num']['num_id']) && $rc['num']['num_id'] > 0 ) {
+                return array('stat'=>'exists');
+            }
+        }
+
+        //
         // Check for a callback to the object
         //
         if( $args['object'] != '' && $args['object_id'] != '' ) {
@@ -275,7 +296,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
             return $rc;
         }
 
-        return array('stat'=>'ok');
+        return array('stat'=>'ok', 'id'=>$item_id);
     }
 
     return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.154', 'msg'=>'Cart does not exist'));

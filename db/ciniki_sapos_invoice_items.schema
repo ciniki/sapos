@@ -32,7 +32,7 @@
 #                   0x10 - Downloaded Item
 #                   0x20 - Registration Item
 #                   0x40 - Shipped Item
-#                   0x80 - 
+#                   0x80 - Single item per price, do not allow duplicates
 #                   0x0100 - Backordered, the item is out of stock and currently backordered
 #                   0x0200 - Forced backordered.  The item may be in stock, but tenant doesn't want to ship the full quantity.
 #                   0x0400 - 
