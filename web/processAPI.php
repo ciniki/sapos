@@ -54,6 +54,19 @@ function ciniki_sapos_web_processAPI(&$ciniki, $settings, $tnid, $args) {
     }
     
     //
+    // cartItemAdd - Add an item to the cart
+    //
+    elseif( isset($args['uri_split'][0]) && $args['uri_split'][0] == 'cartItemUpdate' 
+        && isset($ciniki['request']['args']['item_id'])
+        && isset($ciniki['request']['args']['quantity']) ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartItemUpdate');
+        return ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $tnid, array(
+            'item_id'=>($ciniki['request']['args']['item_id'] ? $ciniki['request']['args']['item_id'] : '0'),
+            'quantity'=>($ciniki['request']['args']['quantity'] ? $ciniki['request']['args']['quantity'] : '1'),
+            ));
+    }
+    
+    //
     // cartItemRemove - Remove an item to the cart
     //
     elseif( isset($args['uri_split'][0]) && $args['uri_split'][0] == 'cartItemDelete' ) {
@@ -63,61 +76,6 @@ function ciniki_sapos_web_processAPI(&$ciniki, $settings, $tnid, $args) {
             'item_id'=>($ciniki['request']['args']['item_id'] ? $ciniki['request']['args']['item_id'] : '0'),
             ));
     }
-    
-/*    //
-    // repeatObjectUpdate/object/object_id
-    //
-    elseif( isset($args['uri_split'][2]) && $args['uri_split'][0] == 'repeatObjectUpdate' ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'web', 'apiRepeatObjectUpdate');
-        return ciniki_poma_web_apiRepeatObjectUpdate($ciniki, $settings, $tnid, array(
-            'object'=>$args['uri_split'][1],
-            'object_id'=>$args['uri_split'][2],
-            ));
-    }
-    
-    //
-    // orderItemUpdate/item_id
-    //
-    elseif( isset($args['uri_split'][1]) && $args['uri_split'][0] == 'orderItemUpdate' ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'web', 'apiOrderItemUpdate');
-        return ciniki_poma_web_apiOrderItemUpdate($ciniki, $settings, $tnid, array(
-            'item_id'=>$args['uri_split'][1],
-            ));
-    }
-
-    //
-    // orderSubstitutionAdd/item_id/object/object_id
-    //
-    elseif( isset($args['uri_split'][3]) && $args['uri_split'][0] == 'orderSubstitutionAdd' ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'web', 'apiOrderSubstitutionAdd');
-        return ciniki_poma_web_apiOrderSubstitutionAdd($ciniki, $settings, $tnid, array(
-            'item_id'=>$args['uri_split'][1],
-            'object'=>$args['uri_split'][2],
-            'object_id'=>$args['uri_split'][3],
-            ));
-    }
-
-    //
-    // orderSubstitutionUpdate/item_id/subitem_id
-    //
-    elseif( isset($args['uri_split'][2]) && $args['uri_split'][0] == 'orderSubstitutionUpdate' ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'web', 'apiOrderSubstitutionUpdate');
-        return ciniki_poma_web_apiOrderSubstitutionUpdate($ciniki, $settings, $tnid, array(
-            'item_id'=>$args['uri_split'][1],
-            'subitem_id'=>$args['uri_split'][2],
-            ));
-    }
-
-    //
-    // queueObjectUpdate/object/object_id
-    //
-    elseif( isset($args['uri_split'][2]) && $args['uri_split'][0] == 'queueObjectUpdate' ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'web', 'apiQueueObjectUpdate');
-        return ciniki_poma_web_apiQueueObjectUpdate($ciniki, $settings, $tnid, array(
-            'object'=>$args['uri_split'][1],
-            'object_id'=>$args['uri_split'][2],
-            ));
-    } */
     
     return array('stat'=>'ok');
 }
