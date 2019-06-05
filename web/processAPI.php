@@ -33,11 +33,48 @@ function ciniki_sapos_web_processAPI(&$ciniki, $settings, $tnid, $args) {
     } */
 
     //
+    // If no cart created, then create one now
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartLoad');
+    $rc = ciniki_sapos_web_cartLoad($ciniki, $settings, $tnid);
+    if( $rc['stat'] == 'noexist' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartCreate');
+        $rc = ciniki_sapos_web_cartCreate($ciniki, $settings, $ciniki['request']['tnid'], array());
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.271', 'msg'=>'Unable to create shopping cart. Please try again or contact us for help.'));
+        }
+        $cart = $rc['cart'];
+        $_SESSION['cart']['num_items'] = 0;
+        $ciniki['session']['cart']['num_items'] = 0;
+    } elseif( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.271', 'msg'=>'Unable to load cart. Please try again or contact us for help.', 'err'=>$rc['err']));
+    } else {
+        $cart = $rc['cart'];
+        $_SESSION['cart']['num_items'] = count($cart['items']);
+        $ciniki['session']['cart']['num_items'] = count($cart['items']);
+    }
+
+    //
+    // Check if no customer, create dummy information
+    //
+    if( !isset($ciniki['session']['customer']) ) {
+        $_SESSION['customer'] = array(
+            'price_flags'=>0x01,
+            'pricepoint_id'=>0,
+            'first'=>'',
+            'last'=>'',
+            'display_name'=>'',
+            'email'=>'',
+            );
+        $ciniki['session']['customer'] = $_SESSION['customer'];
+    }
+
+
+    //
     // cartLoad - Load the cart for the customer/session
     //
     if( isset($args['uri_split'][0]) && $args['uri_split'][0] == 'cartLoad' ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartLoad');
-        return ciniki_sapos_web_cartLoad($ciniki, $settings, $tnid);
+        return array('stat'=>'ok', 'cart'=>$cart);
     }
 
     //
