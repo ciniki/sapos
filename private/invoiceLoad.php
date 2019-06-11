@@ -518,9 +518,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     //
     // Get the list of shipments for the invoice
     //
-    if( ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x40) > 0 
-        && $invoice['shipping_status'] > 0
-        ) {
+    if( $invoice['shipping_status'] > 0) {
         $strsql = "SELECT id, shipment_number, status, status AS status_text, ship_date, pack_date "
             . "FROM ciniki_sapos_shipments "
             . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "

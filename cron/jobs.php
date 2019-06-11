@@ -38,37 +38,71 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['rows']) ) {
-        return array('stat'=>'ok');
-    }
-    $recurring = $rc['rows'];
-    
-    foreach($recurring as $ri) {
-        //
-        // We need the modules that are enabled for this tenant
-        //
-        $ciniki['tenant']['modules'] = array();
-        $rc = ciniki_tenants_checkModuleAccess($ciniki, $ri['tnid'], 'ciniki', 'sapos');
-        if( $rc['stat'] != 'ok' ) {
-            ciniki_cron_logMsg($ciniki, $rc['tnid'], array('code'=>'ciniki.sapos.206', 'msg'=>'Unable to check module access.',
-                'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
-                ));
-            return $rc;
-        }
-        //
-        // Add the missing recurring invoices
-        //
-        $rc = ciniki_sapos_invoiceAddFromRecurring($ciniki, $ri['tnid'], $ri['recurring_id']);
-        if( $rc['stat'] != 'ok' ) {
+    if( isset($rc['rows']) ) {
+        $recurring = $rc['rows'];
+        
+        foreach($recurring as $ri) {
             //
-            // Log the message but don't exit, there might be many more to setup
+            // We need the modules that are enabled for this tenant
             //
-            ciniki_cron_logMsg($ciniki, $rc['tnid'], array('code'=>'ciniki.sapos.205', 'msg'=>'Unable to add recurring invoice',
-                'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
-                ));
+            $ciniki['tenant']['modules'] = array();
+            $rc = ciniki_tenants_checkModuleAccess($ciniki, $ri['tnid'], 'ciniki', 'sapos');
+            if( $rc['stat'] != 'ok' ) {
+                ciniki_cron_logMsg($ciniki, $rc['tnid'], array('code'=>'ciniki.sapos.206', 'msg'=>'Unable to check module access.',
+                    'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
+                    ));
+                return $rc;
+            }
+            //
+            // Add the missing recurring invoices
+            //
+            $rc = ciniki_sapos_invoiceAddFromRecurring($ciniki, $ri['tnid'], $ri['recurring_id']);
+            if( $rc['stat'] != 'ok' ) {
+                //
+                // Log the message but don't exit, there might be many more to setup
+                //
+                ciniki_cron_logMsg($ciniki, $rc['tnid'], array('code'=>'ciniki.sapos.205', 'msg'=>'Unable to add recurring invoice',
+                    'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
+                    ));
+            }
+            $ciniki['tenant']['modules'] = array();
         }
-        $ciniki['tenant']['modules'] = array();
     }
+
+    //
+    // Check for carts that should be expired
+    //
+    $strsql = "SELECT id, tnid, customer_id, DATEDIFF(UTC_TIMESTAMP(), last_updated) AS age "
+        . "FROM ciniki_sapos_invoices "
+        . "WHERE invoice_type = 20 "
+        . "AND status = 10 "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'cart');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( isset($rc['rows']) ) {
+        $carts = $rc['rows'];
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'cartDelete');
+        foreach($carts as $cart) {
+            // 
+            // Expire customer carts after 30 days
+            // OR Expire non-customer carts after 1 days
+            //
+            if( ($cart['customer_id'] > 0 && $cart['age'] > 30) 
+                || ($cart['customer_id'] == 0 && $cart['age'] > 1) 
+                ) {
+                error_log('removing cart: ' . $cart['tnid'] . '-' . $cart['id']);
+                $rc = ciniki_sapos_cartDelete($ciniki, $cart['tnid'], $cart['id']);
+                if( $rc['stat'] != 'ok' ) {
+                    ciniki_cron_logMsg($ciniki, $cart['tnid'], array('code'=>'ciniki.sapos.273', 'msg'=>'Unable to remove cart',
+                        'cron_id'=>0, 'severity'=>50, 'err'=>$rc['err'],
+                        ));
+                }
+            }
+        }
+    }
+
 
     return array('stat'=>'ok');
 }
