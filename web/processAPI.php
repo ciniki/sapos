@@ -43,7 +43,7 @@ function ciniki_sapos_web_processAPI(&$ciniki, $settings, $tnid, $args) {
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.271', 'msg'=>'Unable to create shopping cart. Please try again or contact us for help.'));
         }
-        $cart = $rc['cart'];
+        $cart = $_SESSION['cart'];
         $_SESSION['cart']['num_items'] = 0;
         $ciniki['session']['cart']['num_items'] = 0;
     } elseif( $rc['stat'] != 'ok' ) {
