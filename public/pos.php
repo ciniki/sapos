@@ -203,6 +203,36 @@ function ciniki_sapos_pos(&$ciniki) {
                     if( $rc['stat'] != 'ok' ) {
                         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.251', 'msg'=>'Unable to find customer', 'err'=>$rc['err']));
                     }
+
+                    //
+                    // Check for callbacks
+                    //
+                    $strsql = "SELECT id, object, object_id "
+                        . "FROM ciniki_sapos_invoice_items "
+                        . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+                        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                        . "";
+                    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+                    if( $rc['stat'] != 'ok' ) {
+                        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.272', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+                    }
+                    if( isset($rc['rows']) ) {
+                        $items = $rc['rows'];
+                        foreach($items as $item) {
+                            if( $item['object'] != '' && $item['object_id'] != '' ) {
+                                list($pkg,$mod,$obj) = explode('.', $item['object']);
+                                $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'invoiceUpdate');
+                                if( $rc['stat'] == 'ok' ) {
+                                    $fn = $rc['function_call'];
+                                    $rc = $fn($ciniki, $args['tnid'], $args['invoice_id'], $item);
+                                    if( $rc['stat'] != 'ok' ) {
+                                        return $rc;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                 } else {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.252', 'msg'=>'Unable to find customer'));
                 }

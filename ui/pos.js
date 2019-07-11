@@ -257,8 +257,12 @@ function ciniki_sapos_pos() {
     };
     this.checkout.rowFn = function(s, i, d) {
         if( s == 'customer_details' ) { return ''; }
-        if( s == 'items' && M.ciniki_sapos_pos.checkout.data.status < 50 ) {
-            return 'M.ciniki_sapos_pos.item.open(\'M.ciniki_sapos_pos.checkout.open();\',\'' + d.id + '\');';
+        if( s == 'items' ) {
+            if( d.object == 'ciniki.courses.offering_registration' ) {
+                return 'M.startApp(\'ciniki.courses.sapos\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'item_object\':\'' + d.object + '\',\'item_object_id\':\'' + d.object_id + '\',\'source\':\'pos\'});';
+            } else if( M.ciniki_sapos_pos.checkout.data.status < 50 ) {
+                return 'M.ciniki_sapos_pos.item.open(\'M.ciniki_sapos_pos.checkout.open();\',\'' + d.id + '\');';
+            }
         }
         if( s == 'tallies' ) {
             return '';
