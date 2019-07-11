@@ -12,6 +12,10 @@
 // -------
 //
 function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+
     //
     // Load settings for tenant
     //
@@ -26,8 +30,6 @@ function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
     $date_format = ciniki_users_dateFormat($ciniki, 'php');
-
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
     //
     // Load auto category settings
@@ -130,12 +132,13 @@ function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
     //
     // Create the invoice
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
     $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.invoice', $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
     $invoice_id = $rc['id'];
+
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
 
     //
     // Add the items to the invoice
@@ -154,7 +157,6 @@ function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
             //
             // Calculate the final amount for each item in the invoice
             //
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
             $rc = ciniki_sapos_itemCalcAmount($ciniki, $item);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
