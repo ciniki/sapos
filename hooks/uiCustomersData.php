@@ -94,11 +94,6 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['types']) ) {
-        return array('stat'=>'ok', 'types'=>array());
-    }
-    $types = $rc['types'];
-
     if( isset($args['customer_ids']) ) {
         $sections = array(
             'ciniki.sapos.invoices' => array(
@@ -142,6 +137,15 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
                 ),
             );
     }
+    if( !isset($rc['types']) ) {
+        return array('stat'=>'ok', 'tabs'=>array(array(
+            'id' => 'ciniki.sapos.invoices',
+            'label' => 'Invoices',
+            'sections' => $sections,
+            )));
+    }
+    $types = $rc['types'];
+
     foreach($types as $tid => $type) {
         foreach($type['invoices'] as $iid => $invoice) {
             $invoice['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $invoice['total_amount'], $intl_currency);
