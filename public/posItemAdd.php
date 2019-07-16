@@ -54,6 +54,16 @@ function ciniki_sapos_posItemAdd(&$ciniki) {
     }
 
     //
+    // Load auto category settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', 'invoice-autocat');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+
+    //
     // Start the transaction
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
@@ -80,6 +90,13 @@ function ciniki_sapos_posItemAdd(&$ciniki) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.253', 'msg'=>'Unable to create new invoice', 'err'=>$rc['err']));
         }
         $args['invoice_id'] = $rc['id'];
+    }
+
+    //
+    // Check for auto categories
+    //
+    if( isset($settings['invoice-autocat-' . $item['object']]) ) {
+        $args['category'] = $settings['invoice-autocat-' . $item['object']];
     }
 
     //

@@ -27,7 +27,7 @@ function ciniki_sapos_cartDelete(&$ciniki, $tnid, $invoice_id) {
     }
     if( isset($rc['shipments']) && $rc['shipments']['num_shipments'] > 0 ) {
         $n = $rc['shipments']['num_shipments'];
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.276', 'msg'=>"Unable to remove, you have " . $n . " shipment" . ($n>1?'s':'') ."."));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.278', 'msg'=>"Unable to remove, you have " . $n . " shipment" . ($n>1?'s':'') ."."));
     }
 
     //

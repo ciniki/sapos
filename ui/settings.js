@@ -30,7 +30,7 @@ function ciniki_sapos_settings() {
                     'fn':'M.ciniki_sapos_settings.invoicereports.open(\'M.ciniki_sapos_settings.menu.open();\',\'invoicereports\');',
                     },
                 'categories':{'label':'Categories',
-                    'visible':function() {return (M.modFlagOn('ciniki.sapos', 0x01000000) && (M.userPerms&0x01)>0?'yes':'no');},
+                    'visible':function() {return (M.modFlagOn('ciniki.sapos', 0x01000000) ?'yes':'no');},
                     'fn':'M.ciniki_sapos_settings.categories.open(\'M.ciniki_sapos_settings.menu.open();\');',
                     },
                 'transactions':{'label':'Transactions',
