@@ -114,7 +114,7 @@ create table ciniki_sapos_invoice_items (
     subtotal_amount decimal(19,4) not null,
     discount_amount decimal(19,4) not null,
     total_amount decimal(19,4) not null,
-    donation_amount decimal(19,4) not null,
+    unit_donation_amount decimal(19,4) not null,
     taxtype_id int not null,
     notes varchar(6000) not null,
     date_added datetime not null,
