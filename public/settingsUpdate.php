@@ -83,6 +83,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'invoice-header-tenant-fax',
         'invoice-header-tenant-email',
         'invoice-header-tenant-website',
+        'invoice-tallies-payment-type',
         'invoice-bottom-message',
         'packingslip-bottom-message',
         'invoice-footer-message',

@@ -186,6 +186,9 @@ function ciniki_sapos_settings() {
         '_packingslip_bottom_msg':{'label':'Packing Slip Message', 'fields':{
             'packingslip-bottom-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
+        '_tallies':{'label':'Other Options', 'fields':{
+            'invoice-tallies-payment-type':{'label':'Include Payment Type', 'type':'toggle', 'default':'no', 'toggles':this.yesNoOptions},
+            }},
         '_footer_msg':{'label':'Footer Message', 'fields':{
             'invoice-footer-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
             }},

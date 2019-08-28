@@ -598,7 +598,20 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
 
         $pdf->SetFont('', '');
         $pdf->Cell($w[0], $lh, '', $blank_border);
-        $pdf->Cell($w[1], $lh, 'Paid:', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+        if( isset($sapos_settings['invoice-tallies-payment-type']) 
+            && $sapos_settings['invoice-tallies-payment-type'] == 'yes' 
+            && isset($invoice['transactions'][0]) 
+            ) {
+            $sources = '';
+            foreach($invoice['transactions'] as $transaction) {
+                if( isset($transaction['transaction']['source_text']) && $transaction['transaction']['source_text'] != '' ) {
+                    $sources .= ($sources != '' ? ', ' : '') . $transaction['transaction']['source_text'];
+                }
+            }
+            $pdf->Cell($w[1], $lh, 'Paid (' . $sources . '):', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+        } else {
+            $pdf->Cell($w[1], $lh, 'Paid:', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+        }
         $pdf->Cell($w[2], $lh, $invoice['paid_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
         $pdf->Ln();
         $fill=!$fill;
