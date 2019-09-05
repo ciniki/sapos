@@ -22,6 +22,11 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
     $sapos_settings = isset($rc['settings']) ? $rc['settings'] : array();
 
     //
+    // Incase case there is a message we want displayed to the user when the cart displays
+    //
+    $error_message = '';
+
+    //
     // Check that a cart does not exist
     //
     if( isset($ciniki['session']['cart']['sapos_id']) && $ciniki['session']['cart']['sapos_id'] > 0 ) {
@@ -62,16 +67,44 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         if( isset($item['object_id']) ) { $args['object_id'] = $item['object_id']; }
         if( isset($item['price_id']) ) { $args['price_id'] = $item['price_id']; }
         
+        $args['invoice_id'] = $ciniki['session']['cart']['sapos_id'];
+
         //
         // Check quantity available
         //
         if( isset($item['limited_units']) && $item['limited_units'] == 'yes' 
             && isset($item['units_available']) && $item['units_available'] != '' ) {
+            //
+            // Check how many already are on invoice
+            //
+            if( isset($args['object']) && isset($args['object_id']) ) {
+                $strsql = "SELECT SUM(quantity) AS cart_quantity "
+                    . "FROM ciniki_sapos_invoice_items "
+                    . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+                    . "AND object = '" . ciniki_core_dbQuote($ciniki, $args['object']) . "' "
+                    . "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+                    . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                    . "";
+                $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+                if( $rc['stat'] != 'ok' ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.279', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+                }
+                if( isset($rc['item']['cart_quantity']) ) {
+                    $units_available = $item['units_available'] - $rc['item']['cart_quantity'];
+                    if( $units_available <= 0 ) {
+                        return array('stat'=>'soldout', 'err'=>array('code'=>'ciniki.sapos.279', 'msg'=>"We're sorry, this item is now sold out."));
+                    } elseif( $args['quantity'] > $units_available ) {
+                        $error_message = "There are only " . $units_available . " available, we have add " . $units_available . " to your cart.";
+                        $args['quantity'] = $units_available;
+                    }
+                }
+            }
+            
             if( $args['quantity'] > $item['units_available'] ) {
                 if( $item['units_available'] > 0 ) {
                     $args['quantity'] = $item['units_available'];
                 } else {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.151', 'msg'=>"I'm sorry there are no more available."));
+                    return array('stat'=>'soldout', 'err'=>array('code'=>'ciniki.sapos.151', 'msg'=>"We're sorry, this item is now sold out."));
                 }
             }
         }
@@ -81,7 +114,6 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         //
         $args['shipped_quantity'] = 0;
         $args['flags'] = isset($item['flags'])?$item['flags']:0;
-        $args['invoice_id'] = $ciniki['session']['cart']['sapos_id'];
         $args['status'] = 0;
         if( ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x0400) > 0 ) {
             $args['code'] = (isset($item['code'])?$item['code']:'');
@@ -296,7 +328,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
             return $rc;
         }
 
-        return array('stat'=>'ok', 'id'=>$item_id);
+        return array('stat'=>'ok', 'id'=>$item_id, 'error_message'=>$error_message);
     }
 
     return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.154', 'msg'=>'Cart does not exist'));
