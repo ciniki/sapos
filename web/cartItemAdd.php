@@ -94,7 +94,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
                     if( $units_available <= 0 ) {
                         return array('stat'=>'soldout', 'err'=>array('code'=>'ciniki.sapos.279', 'msg'=>"We're sorry, this item is now sold out."));
                     } elseif( $args['quantity'] > $units_available ) {
-                        $error_message = "There are only " . $units_available . " available, we have add " . $units_available . " to your cart.";
+                        $error_message = "There are only " . $units_available . " available, we have added " . $units_available . " to your cart.";
                         $args['quantity'] = $units_available;
                     }
                 }
