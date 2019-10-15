@@ -78,6 +78,27 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
         return array('stat'=>'ok', 'item'=>$product);
     }
 
+    //
+    // Check for basic donations
+    //
+    if( $args['object'] == 'ciniki.sapos.cartdonation' ) {
+        $product = array(
+            'flags'=>0x8000,
+            'price_id'=>0,
+            'code'=>'',
+            'description'=>'Donation',
+            'quantity'=>1,
+            'object'=>'ciniki.sapos.donation',
+            'object_id'=>$args['object_id'],
+            'unit_amount' => $args['user_amount'],
+            'unit_discount_amount'=>0,
+            'unit_discount_percentage'=>0,
+            'taxtype_id'=>0,
+            );
+
+        return array('stat'=>'ok', 'item'=>$product);
+    }
+
     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.211', 'msg'=>'No product specified.'));        
 }
 ?>

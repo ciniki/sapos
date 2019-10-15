@@ -59,6 +59,9 @@
 # ------------
 # transaction-gateway-delete:   (yes|no) Is the tenant allowed to remove transactions processed via gateway.
 #
+# Donation Settings
+# -----------------
+#
 # Fields
 # ======
 # tnid:         The id of the tenant the detail is for.
