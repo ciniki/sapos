@@ -119,6 +119,9 @@ function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
     //
     // Set the defaults for the invoice
     //
+    $args['preorder_subtotal_amount'] = 0;
+    $args['preorder_shipping_amount'] = 0;
+    $args['preorder_total_amount'] = 0;
     $args['subtotal_amount'] = 0;
     $args['subtotal_discount_amount'] = 0;
     $args['subtotal_discount_percentage'] = 0;
@@ -161,6 +164,7 @@ function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
+            $item['preorder_amount'] = $rc['preorder'];
             $item['subtotal_amount'] = $rc['subtotal'];
             $item['discount_amount'] = $rc['discount'];
             $item['total_amount'] = $rc['total'];

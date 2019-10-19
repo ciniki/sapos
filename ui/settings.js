@@ -41,6 +41,10 @@ function ciniki_sapos_settings() {
             'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40); },
             'list':{
                 'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.shipment.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+                'simpleshiprates':{'label':'Shipping Rates', 
+                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40); },
+                    'fn':'M.ciniki_sapos_settings.simpleshiprates.open(\'M.ciniki_sapos_settings.menu.open();\');',
+                    },
             }},
         'expenses':{'label':'Expenses', 'visible':'no', 
             'visible':function() { return M.modFlagSet('ciniki.sapos', 0x02); },
@@ -165,12 +169,12 @@ function ciniki_sapos_settings() {
     //
     this.invoice = new M.panel('Invoice Settings',
         'ciniki_sapos_settings', 'invoice',
-        'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.invoice');
+        'mc', 'medium mediumaside', 'sectioned', 'ciniki.sapos.settings.invoice');
     this.invoice.sections = {
-        'image':{'label':'Header Image', 'fields':{
+        'image':{'label':'Header Image', 'aside':'yes', 'fields':{
             'invoice-header-image':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'controls':'all', 'history':'no'},
             }},
-        'header':{'label':'Header Address Options', 'fields':{
+        'header':{'label':'Header Address Options', 'aside':'yes', 'fields':{
             'invoice-header-contact-position':{'label':'Position', 'type':'toggle', 'default':'center', 'toggles':this.positionOptions},
             'invoice-header-tenant-name':{'label':'Tenant Name', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
             'invoice-header-tenant-address':{'label':'Address', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
@@ -180,10 +184,15 @@ function ciniki_sapos_settings() {
             'invoice-header-tenant-email':{'label':'Email', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
             'invoice-header-tenant-website':{'label':'Website', 'type':'toggle', 'default':'yes', 'toggles':this.toggleOptions},
             }},
-        '_bottom_msg':{'label':'Invoice Message', 'fields':{
+        '_bottom_msg':{'label':'Invoice Message', 'aside':'yes', 'fields':{
             'invoice-bottom-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
-        '_packingslip_bottom_msg':{'label':'Packing Slip Message', 'fields':{
+        '_preorder_msg':{'label':'Pre-Order Message', 'aside':'yes', 
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x400000); },
+            'fields':{
+                'invoice-preorder-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+            }},
+        '_packingslip_bottom_msg':{'label':'Packing Slip Message', 'aside':'yes', 'fields':{
             'packingslip-bottom-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
         '_tallies':{'label':'Other Options', 'fields':{
@@ -1355,6 +1364,175 @@ function ciniki_sapos_settings() {
     }
     this.transactions.addButton('save', 'Save', 'M.ciniki_sapos_settings.transactions.save();');
     this.transactions.addClose('Cancel');
+
+    //
+    // The panel to list the simpleshiprate
+    //
+    this.simpleshiprates = new M.panel('simpleshiprate', 'ciniki_sapos_settings', 'simpleshiprates', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.simpleshiprates');
+    this.simpleshiprates.data = {};
+    this.simpleshiprates.nplist = [];
+    this.simpleshiprates.sections = {
+        'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5,
+            'cellClasses':[''],
+            'hint':'Search simpleshiprate',
+            'noData':'No simpleshiprate found',
+            },
+        'simpleshiprates':{'label':'Shipping Rate', 'type':'simplegrid', 'num_cols':5,
+            'headerValues':['Country', 'Province', 'City', 'Invoice Amount', 'Shipping Rate'],
+            'headerClasses':['', '', '', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', 'alignright', 'alignright'],
+            'noData':'No simpleshiprate',
+            'addTxt':'Add Shipping Rate',
+            'addFn':'M.ciniki_sapos_settings.simpleshiprate.open(\'M.ciniki_sapos_settings.simpleshiprates.open();\',0,null);'
+            },
+    }
+    this.simpleshiprates.liveSearchCb = function(s, i, v) {
+        if( s == 'search' && v != '' ) {
+            M.api.getJSONBgCb('ciniki.sapos.simpleshiprateSearch', {'tnid':M.curTenantID, 'start_needle':v, 'limit':'25'}, function(rsp) {
+                M.ciniki_sapos_settings.simpleshiprates.liveSearchShow('search',null,M.gE(M.ciniki_sapos_settings.simpleshiprates.panelUID + '_' + s), rsp.simpleshiprates);
+                });
+        }
+    }
+    this.simpleshiprates.liveSearchResultValue = function(s, f, i, j, d) {
+        switch(j) {
+            case 0: return d.country;
+            case 1: return d.province;
+            case 2: return d.city;
+            case 3: return d.minimum_amount_display;
+            case 4: return d.rate_display;
+        }
+    }
+    this.simpleshiprates.liveSearchResultRowFn = function(s, f, i, j, d) {
+        return 'M.ciniki_sapos_settings.simpleshiprate.open(\'M.ciniki_sapos_settings.simpleshiprates.open();\',\'' + d.id + '\');';
+    }
+    this.simpleshiprates.cellValue = function(s, i, j, d) {
+        if( s == 'simpleshiprates' ) {
+            switch(j) {
+                case 0: return d.country;
+                case 1: return d.province;
+                case 2: return d.city;
+                case 3: return d.minimum_amount_display;
+                case 4: return d.rate_display;
+            }
+        }
+    }
+    this.simpleshiprates.rowFn = function(s, i, d) {
+        if( s == 'simpleshiprates' ) {
+            return 'M.ciniki_sapos_settings.simpleshiprate.open(\'M.ciniki_sapos_settings.simpleshiprates.open();\',\'' + d.id + '\',M.ciniki_sapos_settings.simpleshiprate.nplist);';
+        }
+    }
+    this.simpleshiprates.open = function(cb) {
+        M.api.getJSONCb('ciniki.sapos.simpleshiprateList', {'tnid':M.curTenantID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.simpleshiprates;
+            p.data = rsp;
+            p.nplist = (rsp.nplist != null ? rsp.nplist : null);
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.simpleshiprates.addClose('Back');
+
+    //
+    // The panel to edit Shipping Rate
+    //
+    this.simpleshiprate = new M.panel('Shipping Rate', 'ciniki_sapos_settings', 'simpleshiprate', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.simpleshiprate');
+    this.simpleshiprate.data = null;
+    this.simpleshiprate.rate_id = 0;
+    this.simpleshiprate.nplist = [];
+    this.simpleshiprate.sections = {
+        'general':{'label':'', 'fields':{
+            'country':{'label':'Country', 'type':'text'},
+            'province':{'label':'Province', 'type':'text'},
+            'city':{'label':'City', 'type':'text'},
+            'minimum_amount':{'label':'Invoice Total', 'type':'text'},
+            'rate':{'label':'Shipping Rate', 'required':'yes', 'type':'text'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.simpleshiprate.save();'},
+            'delete':{'label':'Delete', 
+                'visible':function() {return M.ciniki_sapos_settings.simpleshiprate.rate_id > 0 ? 'yes' : 'no'; },
+                'fn':'M.ciniki_sapos_settings.simpleshiprate.remove();'},
+            }},
+        };
+    this.simpleshiprate.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.simpleshiprate.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.simpleshiprateHistory', 'args':{'tnid':M.curTenantID, 'rate_id':this.rate_id, 'field':i}};
+    }
+    this.simpleshiprate.open = function(cb, rid, list) {
+        if( rid != null ) { this.rate_id = rid; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('ciniki.sapos.simpleshiprateGet', {'tnid':M.curTenantID, 'rate_id':this.rate_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.simpleshiprate;
+            p.data = rsp.simpleshiprate;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.simpleshiprate.save = function(cb) {
+        if( cb == null ) { cb = 'M.ciniki_sapos_settings.simpleshiprate.close();'; }
+        if( !this.checkForm() ) { return false; }
+        if( this.rate_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('ciniki.sapos.simpleshiprateUpdate', {'tnid':M.curTenantID, 'rate_id':this.rate_id}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    eval(cb);
+                });
+            } else {
+                eval(cb);
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('ciniki.sapos.simpleshiprateAdd', {'tnid':M.curTenantID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.simpleshiprate.rate_id = rsp.id;
+                eval(cb);
+            });
+        }
+    }
+    this.simpleshiprate.remove = function() {
+        if( confirm('Are you sure you want to remove simpleshiprate?') ) {
+            M.api.getJSONCb('ciniki.sapos.simpleshiprateDelete', {'tnid':M.curTenantID, 'rate_id':this.rate_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.simpleshiprate.close();
+            });
+        }
+    }
+    this.simpleshiprate.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.rate_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_sapos_settings.simpleshiprate.save(\'M.ciniki_sapos_settings.simpleshiprate.open(null,' + this.nplist[this.nplist.indexOf('' + this.rate_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.simpleshiprate.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.rate_id) > 0 ) {
+            return 'M.ciniki_sapos_settings.simpleshiprate.save(\'M.ciniki_sapos_settings.simpleshiprate.open(null,' + this.nplist[this.nplist.indexOf('' + this.rate_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.simpleshiprate.addButton('save', 'Save', 'M.ciniki_sapos_settings.simpleshiprate.save();');
+    this.simpleshiprate.addClose('Cancel');
+    this.simpleshiprate.addButton('next', 'Next');
+    this.simpleshiprate.addLeftButton('prev', 'Prev');
+
+
 
     //
     // Arguments:

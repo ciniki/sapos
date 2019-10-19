@@ -129,13 +129,14 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         $args['unit_amount'] = $item['unit_amount'];
         $args['unit_discount_amount'] = $item['unit_discount_amount'];
         $args['unit_discount_percentage'] = $item['unit_discount_percentage'];
+        $args['unit_preorder_amount'] = (isset($item['unit_preorder_amount']) ? $item['unit_preorder_amount'] : 0);
         if( isset($item['unit_donation_amount']) && $item['unit_donation_amount'] > 0 ) {
             $args['unit_donation_amount'] = $item['unit_donation_amount'];
             $args['flags'] |= 0x0800;
         }
         $args['taxtype_id'] = $item['taxtype_id'];
         if( !isset($args['notes']) ) {
-            $args['notes'] = '';
+            $args['notes'] = (isset($item['notes']) ? $item['notes'] : '');
         }
 
         //
@@ -229,6 +230,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
                 'unit_amount'=>$item['unit_amount'],
                 'unit_discount_amount'=>$item['unit_discount_amount'],
                 'unit_discount_percentage'=>$item['unit_discount_percentage'],
+                'unit_preorder_amount'=>(isset($item['unit_preorder_amount']) ? $item['unit_preorder_amount'] : 0),
                 ));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
@@ -272,6 +274,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
                 'unit_amount'=>$item['unit_amount'],
                 'unit_discount_amount'=>$item['unit_discount_amount'],
                 'unit_discount_percentage'=>$item['unit_discount_percentage'],
+                'unit_preorder_amount'=>(isset($item['unit_preorder_amount']) ? $item['unit_preorder_amount'] : 0),
                 ));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;

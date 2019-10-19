@@ -28,7 +28,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $tnid, $args) {
         //
         $strsql = "SELECT id, invoice_id, object, object_id, price_id, "
             . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
-            . "subtotal_amount, discount_amount, total_amount, unit_donation_amount "
+            . "unit_preorder_amount, subtotal_amount, discount_amount, total_amount, unit_donation_amount "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
             . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -101,6 +101,7 @@ function ciniki_sapos_web_cartItemUpdate($ciniki, $settings, $tnid, $args) {
                 'unit_amount'=>(isset($args['unit_amount'])?$args['unit_amount']:$item['unit_amount']),
                 'unit_discount_amount'=>(isset($args['unit_discount_amount'])?$args['unit_discount_amount']:$item['unit_discount_amount']),
                 'unit_discount_percentage'=>(isset($args['unit_discount_percentage'])?$args['unit_discount_percentage']:$item['unit_discount_percentage']),
+                'unit_preorder_amount'=>(isset($args['unit_preorder_amount'])?$args['unit_preorder_amount']:$item['unit_preorder_amount']),
                 ));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;

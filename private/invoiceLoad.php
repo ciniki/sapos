@@ -101,6 +101,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "work_country, "
         . "tax_location_id, "
         . "pricepoint_id, "
+        . "preorder_subtotal_amount, "
+        . "preorder_shipping_amount, "
+        . "preorder_total_amount, "
         . "shipping_amount, "
         . "subtotal_amount, "
         . "subtotal_discount_percentage, "
@@ -137,6 +140,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_phone', 'shipping_notes',
                 'work_address1', 'work_address2', 'work_city', 'work_province', 'work_postal', 'work_country',
                 'tax_location_id', 'pricepoint_id', 
+                'preorder_subtotal_amount', 'preorder_shipping_amount', 'preorder_total_amount',
                 'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
                 'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
                 'paid_amount', 'balance_amount',
@@ -282,6 +286,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "ROUND(ciniki_sapos_invoice_items.unit_amount, 2) AS unit_amount, "
         . "ROUND(ciniki_sapos_invoice_items.unit_discount_amount, 2) AS unit_discount_amount, "
         . "ciniki_sapos_invoice_items.unit_discount_percentage, "
+        . "ROUND(ciniki_sapos_invoice_items.unit_preorder_amount, 2) AS unit_preorder_amount, "
         . "ROUND(ciniki_sapos_invoice_items.subtotal_amount, 2) AS subtotal_amount, "
         . "ROUND(ciniki_sapos_invoice_items.discount_amount, 2) AS discount_amount, "
         . "ROUND(ciniki_sapos_invoice_items.total_amount, 2) AS total_amount, "
@@ -301,7 +306,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
             'fields'=>array('id', 'line_number', 'flags', 'status', 'category',
                 'object', 'object_id', 'price_id', 'student_id', 
                 'code', 'description', 'quantity', 'shipped_quantity', 'required_quantity', 
-                'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 
+                'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'unit_preorder_amount', 
                 'subtotal_amount', 'discount_amount', 'total_amount', 'unit_donation_amount', 'notes', 'taxtype_name')),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -354,6 +359,10 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 $percentage = bcdiv($item['item']['unit_discount_percentage'], 100, 4);
                 $unit_discounted_amount = bcsub($unit_discounted_amount, bcmul($unit_discounted_amount, $percentage, 4), 4);
             }
+            $item['item']['preorder_amount'] = 0;
+            if( $item['item']['unit_preorder_amount'] > 0 ) {
+                $item['item']['preorder_amount'] = bcmul($item['item']['unit_preorder_amount'], $item['item']['quantity'], 2);
+            }
             $invoice['items'][$iid]['item']['unit_discounted_amount_display'] = numfmt_format_currency(
                 $intl_currency_fmt, $unit_discounted_amount, $intl_currency);
 
@@ -370,6 +379,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 $intl_currency_fmt, $item['item']['subtotal_amount'], $intl_currency);
             $invoice['items'][$iid]['item']['discount_amount_display'] = numfmt_format_currency(
                 $intl_currency_fmt, $item['item']['discount_amount'], $intl_currency);
+            $invoice['items'][$iid]['item']['preorder_amount_display'] = numfmt_format_currency(
+                $intl_currency_fmt, $item['item']['preorder_amount'], $intl_currency);
             $invoice['items'][$iid]['item']['total_amount_display'] = numfmt_format_currency(
                 $intl_currency_fmt, $item['item']['total_amount'], $intl_currency);
             $invoice['items'][$iid]['item']['unit_donation_amount_display'] = numfmt_format_currency(
@@ -434,6 +445,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "FROM ciniki_sapos_invoice_taxes "
         . "WHERE ciniki_sapos_invoice_taxes.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND ciniki_sapos_invoice_taxes.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND (flags&0x02) = 0 "
         . "ORDER BY line_number, date_added "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -454,6 +466,41 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 $invoice['taxes_amount'] = bcadd($invoice['taxes_amount'], $tax['tax']['amount'], 2);
             } 
             $invoice['taxes'][$tid]['tax']['amount_display'] = numfmt_format_currency(
+                $intl_currency_fmt, $tax['tax']['amount'], $intl_currency);
+        }
+    }
+
+    // 
+    // Get the pre-order taxes
+    //
+    $strsql = "SELECT id, " 
+        . "line_number, "
+        . "description, "
+        . "ROUND(amount, 2) AS amount "
+        . "FROM ciniki_sapos_invoice_taxes "
+        . "WHERE ciniki_sapos_invoice_taxes.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+        . "AND ciniki_sapos_invoice_taxes.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND (flags&0x02) = 0x02 "
+        . "ORDER BY line_number, date_added "
+        . "";
+    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'taxes', 'fname'=>'id', 'name'=>'tax',
+            'fields'=>array('id', 'line_number', 'description', 'amount')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( !isset($rc['taxes']) ) {
+        $invoice['preorder_taxes'] = array();
+        $invoice['preorder_taxes_amount'] = 0;
+    } else {
+        $invoice['preorder_taxes'] = $rc['taxes'];
+        $invoice['preorder_taxes_amount'] = 0;
+        foreach($rc['taxes'] as $tid => $tax) {
+            if( $tax['tax']['amount'] > 0 ) {
+                $invoice['preorder_taxes_amount'] = bcadd($invoice['preorder_taxes_amount'], $tax['tax']['amount'], 2);
+            } 
+            $invoice['preorder_taxes'][$tid]['tax']['amount_display'] = numfmt_format_currency(
                 $intl_currency_fmt, $tax['tax']['amount'], $intl_currency);
         }
     }
@@ -546,6 +593,12 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     //
     // Format the currency numbers
     //
+    $invoice['preorder_subtotal_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+        $invoice['preorder_subtotal_amount'], $intl_currency);
+    $invoice['preorder_shipping_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+        $invoice['preorder_shipping_amount'], $intl_currency);
+    $invoice['preorder_total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
+        $invoice['preorder_total_amount'], $intl_currency);
     $invoice['subtotal_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
         $invoice['subtotal_amount'], $intl_currency);
     $invoice['subtotal_discount_amount_display'] = numfmt_format_currency($intl_currency_fmt, 

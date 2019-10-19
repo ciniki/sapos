@@ -56,6 +56,9 @@ function ciniki_sapos_objects($ciniki) {
             'work_country'=>array('default'=>''),
             'tax_location_id'=>array('ref'=>'ciniki.taxes.location', 'default'=>'0'),
             'pricepoint_id'=>array('ref'=>'ciniki.customers.pricepoint', 'default'=>'0'),
+            'preorder_subtotal_amount'=>array('name'=>'Pre-Order Subtotal', 'default'=>'0'),
+            'preorder_shipping_amount'=>array('name'=>'Pre-Order Shipping', 'default'=>'0'),
+            'preorder_total_amount'=>array('name'=>'Pre-Order Total', 'default'=>'0'),
             'subtotal_amount'=>array('default'=>'0'),
             'subtotal_discount_amount'=>array('default'=>'0'),
             'subtotal_discount_percentage'=>array('default'=>'0'),
@@ -94,6 +97,7 @@ function ciniki_sapos_objects($ciniki) {
             'unit_amount'=>array('name'=>'Unit Amount'),
             'unit_discount_amount'=>array('name'=>'Unit Discount Amount', 'default'=>'0'),
             'unit_discount_percentage'=>array('name'=>'Unit Discount Percentage', 'default'=>'0'),
+            'unit_preorder_amount'=>array('name'=>'Unit Pre-Order Amount', 'default'=>'0'),
             'subtotal_amount'=>array('name'=>'Subtotal Amount'),
             'discount_amount'=>array('name'=>'Discount Amount'),
             'total_amount'=>array('name'=>'Total Amount'),
@@ -108,11 +112,12 @@ function ciniki_sapos_objects($ciniki) {
         'sync'=>'yes',
         'table'=>'ciniki_sapos_invoice_taxes',
         'fields'=>array(
-            'invoice_id'=>array('ref'=>'ciniki.sapos.invoice'),
-            'taxrate_id'=>array('ref'=>'ciniki.taxes.rate'),
-            'line_number'=>array(),
-            'description'=>array(),
-            'amount'=>array(),
+            'invoice_id'=>array('name'=>'Invoice', 'ref'=>'ciniki.sapos.invoice'),
+            'taxrate_id'=>array('name'=>'Tax Rate', 'ref'=>'ciniki.taxes.rate'),
+            'flags'=>array('name'=>'Options', 'default'=>'0'),
+            'line_number'=>array('name'=>'Line Number'),
+            'description'=>array('name'=>'Description'),
+            'amount'=>array('name'=>'Tax Amount'),
             ),
         'history_table'=>'ciniki_sapos_history',
         );
@@ -288,6 +293,21 @@ function ciniki_sapos_objects($ciniki) {
             'description'=>array('name'=>'Description', 'default'=>''),
             ),
         'history_table'=>'ciniki_donation_history',
+        );
+    $objects['simpleshiprate'] = array(
+        'name' => 'Shipping Rate',
+        'sync' => 'yes',
+        'o_name' => 'simpleshiprate',
+        'o_container' => 'simpleshiprates',
+        'table' => 'ciniki_sapos_simpleshiprates',
+        'fields' => array(
+            'country' => array('name'=>'Country', 'default'=>''),
+            'province' => array('name'=>'Province', 'default'=>''),
+            'city' => array('name'=>'City', 'default'=>''),
+            'minimum_amount' => array('name'=>'Invoice Total', 'default'=>'0'),
+            'rate' => array('name'=>'Shipping Rate'),
+            ),
+        'history_table' => 'ciniki_sapos_history',
         );
 //  $objects['rule'] = array(
 //      'name'=>'Rules',

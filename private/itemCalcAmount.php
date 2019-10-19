@@ -49,6 +49,17 @@ function ciniki_sapos_itemCalcAmount($ciniki, $item) {
     //
     $discount = bcsub(bcmul($item['quantity'], $item['unit_amount'], 2), $total, 2);
 
-    return array('stat'=>'ok', 'subtotal'=>$subtotal, 'discount'=>$discount, 'total'=>$total);
+    //
+    // Calculate the preorder_amount, after all discount calculations because this amount will be paid later
+    //
+    $preorder = 0;
+    if( isset($item['unit_preorder_amount']) ) {
+        $preorder = bcmul($item['quantity'], $item['unit_preorder_amount'], 2);
+        if( $preorder > 0 ) {
+            $total = bcsub($total, $preorder, 2);
+        }
+    }
+
+    return array('stat'=>'ok', 'subtotal'=>$subtotal, 'preorder'=>$preorder, 'discount'=>$discount, 'total'=>$total);
 }
 ?>

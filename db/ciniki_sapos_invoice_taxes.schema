@@ -18,6 +18,9 @@
 # flags:            Any flags from the tax rate
 #
 #                       0x01 - Tax Included, do not add to total.
+#                       0x02 - Pre-order Taxes
+#                       0x04 - 
+#                       0x08 - 
 #
 # line_number:      The line number of the taxes portion.
 #

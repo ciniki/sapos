@@ -23,6 +23,9 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     if( !isset($args['unit_discount_percentage']) || $args['unit_discount_percentage'] == '' ) {
         $args['unit_discount_percentage'] = 0;
     }
+    if( !isset($args['unit_preorder_amount']) || $args['unit_preorder_amount'] == '' ) {
+        $args['unit_preorder_amount'] = 0;
+    }
 
     //
     // Load the invoice salesrep
@@ -78,7 +81,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
         && $settings['rules-invoice-duplicate-items'] == 'no' 
         ) {
         $strsql = "SELECT id, invoice_id, object, object_id, "
-            . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, price_id, "
+            . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, unit_preorder_amount, price_id, "
             . "subtotal_amount, discount_amount, total_amount "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
@@ -178,6 +181,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
         'unit_amount'=>$args['unit_amount'],
         'unit_discount_amount'=>$args['unit_discount_amount'],
         'unit_discount_percentage'=>$args['unit_discount_percentage'],
+        'unit_preorder_amount'=>$args['unit_preorder_amount'],
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -247,6 +251,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
                 'unit_amount'=>(isset($args['unit_amount'])?$args['unit_amount']:$item['unit_amount']),
                 'unit_discount_amount'=>(isset($args['unit_discount_amount'])?$args['unit_discount_amount']:$item['unit_discount_amount']),
                 'unit_discount_percentage'=>(isset($args['unit_discount_percentage'])?$args['unit_discount_percentage']:$item['unit_discount_percentage']),
+                'unit_preorder_amount'=>(isset($args['unit_preorder_amount'])?$args['unit_preorder_amount']:$item['unit_preorder_amount']),
                 ));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;

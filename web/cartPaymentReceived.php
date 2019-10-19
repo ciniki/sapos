@@ -30,12 +30,19 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $tnid, $cart)
     // Update the cart status
     //
     $cart['payment_status'] = 50;
-    if( $cart['shipping_status'] > 0 ) {
+    if( isset($ciniki['session']['customer']['dealer_status']) 
+        && $ciniki['session']['customer']['dealer_status'] > 0 
+        && $cart['shipping_status'] > 0 
+        ) {
         $cart['status'] = 30;
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'submitOrder');
         $rc = ciniki_sapos_web_submitOrder($ciniki, $settings, $tnid, $cart);
     } else {
-        $cart['status'] = 50;
+        if( $cart['shipping_status'] > 0 ) {
+            $cart['status'] = 30;
+        } else {
+            $cart['status'] = 50;
+        }
         $cart['paid_amount'] = $cart['total_amount'];
         $cart['balance_amount'] = 0;
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'submitInvoice');

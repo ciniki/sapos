@@ -32,6 +32,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         'unit_discount_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 
             'name'=>'Discount Amount'),
         'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Percentage'),
+        'unit_preorder_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Preorder Amount'),
         'unit_donation_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Donation Amount'),
         'taxtype_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Tax Type'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
@@ -54,12 +55,16 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
     if( isset($args['unit_discount_percentage']) && $args['unit_discount_percentage'] == '' ) {
         $args['unit_discount_percentage'] = 0;
     }
+    if( isset($args['unit_preorder_amount']) && $args['unit_preorder_amount'] == '' ) {
+        $args['unit_preorder_amount'] = 0;
+    }
 
     //
     // Get the existing item details
     //
     $strsql = "SELECT id, invoice_id, flags, object, object_id, "
-        . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, unit_donation_amount, price_id, "
+        . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, unit_donation_amount, "
+        . "unit_preorder_amount, price_id, "
         . "subtotal_amount, discount_amount, total_amount "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "
@@ -115,6 +120,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         || isset($args['unit_amount']) 
         || isset($args['unit_discount_amount']) 
         || isset($args['unit_discount_percentage']) 
+        || isset($args['unit_preorder_amount']) 
         ) {
 
         //
@@ -126,6 +132,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
             'unit_amount'=>(isset($args['unit_amount'])?$args['unit_amount']:$item['unit_amount']),
             'unit_discount_amount'=>(isset($args['unit_discount_amount'])?$args['unit_discount_amount']:$item['unit_discount_amount']),
             'unit_discount_percentage'=>(isset($args['unit_discount_percentage'])?$args['unit_discount_percentage']:$item['unit_discount_percentage']),
+            'unit_preorder_amount'=>(isset($args['unit_preorder_amount'])?$args['unit_preorder_amount']:$item['unit_preorder_amount']),
             ));
         if( $rc['stat'] != 'ok' ) {
             return $rc;

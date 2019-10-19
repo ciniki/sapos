@@ -71,26 +71,33 @@ function ciniki_sapos_web_stripeCustomerCharge(&$ciniki, $tnid, $args) {
     //
     // Process the charge
     //
-    try {
-        $charge = \Stripe\Charge::create(array(
-            'customer' => $customer->id,
-            'amount'   => number_format($args['charge-amount'] * 100, 0, '', ''),
-            'currency' => $intl_currency,
-            ));
-    } catch( Exception $e) {
-        error_log("STRIPE-ERR: Unable to charge customer: " . $e->getMessage());
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.245', 'msg'=>$e->getMessage()));
-    }
-
-    //
-    // Check for a balance transaction
-    //
-    if( isset($charge['balance_transaction']) ) {
+    if( $args['charge-amount'] > 0 ) {
         try {
-            $balance = \Stripe\BalanceTransaction::retrieve($charge['balance_transaction']);
+            $charge = \Stripe\Charge::create(array(
+                'customer' => $customer->id,
+                'amount'   => number_format($args['charge-amount'] * 100, 0, '', ''),
+                'currency' => $intl_currency,
+                ));
         } catch( Exception $e) {
-            error_log("STRIPE-ERR: Unable to get balance: " . $e->getMessage());
+            error_log("STRIPE-ERR: Unable to charge customer: " . $e->getMessage());
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.245', 'msg'=>$e->getMessage()));
         }
+
+        //
+        // Check for a balance transaction
+        //
+        if( isset($charge['balance_transaction']) ) {
+            try {
+                $balance = \Stripe\BalanceTransaction::retrieve($charge['balance_transaction']);
+            } catch( Exception $e) {
+                error_log("STRIPE-ERR: Unable to get balance: " . $e->getMessage());
+            }
+        }
+    } else {
+        //
+        // If nothing to charge, store the customer details as part of the transaction.
+        //
+        $charge = $customer;
     }
 
     //

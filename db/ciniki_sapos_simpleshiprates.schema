@@ -1,0 +1,40 @@
+#
+# Description
+# -----------
+# This table stores the simple shipping rates.
+#
+# Fields
+# ------
+# id:                       The ID assigned to the record.
+# uuid:                     The Universal Unique ID.
+# tnid:                     The Tenant ID the record belongs to.
+#
+# country:                  The country for the shipping rate, or blank.
+# province:                 The province for the shipping rate, or blank.
+# city:                     The city for the shipping rate, or blank.
+#
+# minimum_amount:           The minimum amount of the order for the rate to be in effect.
+#
+# rate:                     The amount of shipping to the area.
+#
+# date_added:               The UTC date and time the record was added.
+# last_updated:             The UTC date and time the record was last update.
+#
+create table ciniki_sapos_simpleshiprates (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+
+    country varchar(250) not null,
+    province varchar(250) not null,
+    city varchar(250) not null,
+    minimum_amount decimal(19,6) not null,
+    rate decimal(19,6) not null,
+
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    unique index (country, province, city, minimum_amount),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

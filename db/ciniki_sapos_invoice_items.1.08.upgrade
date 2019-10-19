@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table to version 1.08.
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN unit_preorder_amount decimal(19,4) not null AFTER unit_discount_percentage;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.08';

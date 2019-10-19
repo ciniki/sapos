@@ -88,7 +88,7 @@
 #
 #                       0x01 - Don't show discounts/savings, only show the final price with quantity.
 #                       0x02 - Drop ship
-#                       0x04 -
+#                       0x04 - Preorder Items
 #                       0x08 - 
 #
 # invoice_date:         The UTC date and time for the invoice.  When returning to the tenant,
@@ -196,6 +196,9 @@ create table ciniki_sapos_invoices (
     work_country varchar(50) not null,
     tax_location_id int not null,
     pricepoint_id int not null,
+    preorder_subtotal_amount decimal(19,4) not null,
+    preorder_shipping_amount decimal(19,4) not null,
+    preorder_total_amount decimal(19,4) not null,
     subtotal_amount decimal(19,4) not null,
     subtotal_discount_amount decimal(19,4) not null,
     subtotal_discount_percentage decimal(19,4) not null,
@@ -216,4 +219,4 @@ create table ciniki_sapos_invoices (
     index (customer_id, status, invoice_date),
     unique index (tnid, invoice_number),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.12';
+) ENGINE='InnoDB', COMMENT='v1.13';

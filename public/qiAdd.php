@@ -249,6 +249,7 @@ function ciniki_sapos_qiAdd(&$ciniki) {
     //
     // Set the defaults for the invoice
     //
+    $args['preorder_amount'] = 0;
     $args['subtotal_amount'] = 0;
     $args['subtotal_discount_amount'] = 0;
     $args['subtotal_discount_percentage'] = 0;

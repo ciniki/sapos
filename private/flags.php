@@ -40,7 +40,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
         // 0x100000
         array('flag'=>array('bit'=>'21', 'name'=>'Paypal Payments')), 
         array('flag'=>array('bit'=>'22', 'name'=>'Paypal Express Checkout')),
-//        array('flag'=>array('bit'=>'23', 'name'=>'')), 
+        array('flag'=>array('bit'=>'23', 'name'=>'Pre-Orders')), 
         array('flag'=>array('bit'=>'24', 'name'=>'Stripe Checkout')),
         // 0x01000000
         array('flag'=>array('bit'=>'25', 'name'=>'Item Categories')), 

@@ -132,7 +132,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
             $update_args['submitted_by'] = $ciniki['session']['user']['display_name'];
         }
     } elseif( isset($args['action']) && $args['action'] == 'discount' && isset($args['unit_discount_percentage']) ) {
-        $strsql = "SELECT id, uuid, quantity, unit_amount, unit_discount_amount, unit_discount_percentage "
+        $strsql = "SELECT id, uuid, quantity, unit_amount, unit_discount_amount, unit_discount_percentage, unit_preorder_amount "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
             . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
@@ -153,6 +153,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
                         'unit_amount'=>$item['unit_amount'],
                         'unit_discount_amount'=>$item['unit_discount_amount'],
                         'unit_discount_percentage'=>$args['unit_discount_percentage'],
+                        'unit_preorder_amount'=>$args['unit_preorder_amount'],
                         ));
                     if( $rc['stat'] != 'ok' ) {
                         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');

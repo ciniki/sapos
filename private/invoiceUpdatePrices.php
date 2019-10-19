@@ -24,7 +24,7 @@ function ciniki_sapos_invoiceUpdatePrices($ciniki, $tnid, $invoice_id, $args) {
     // Get the items from the invoice that have an object defined
     //
     $strsql = "SELECT id, object, object_id, price_id, quantity, "
-        . "unit_amount, unit_discount_amount, unit_discount_percentage "
+        . "unit_amount, unit_discount_amount, unit_discount_percentage, unit_preorder_amount "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -74,6 +74,10 @@ function ciniki_sapos_invoiceUpdatePrices($ciniki, $tnid, $invoice_id, $args) {
                         && $rc['item']['unit_discount_percentage'] != $item['unit_discount_percentage'] ) {
                         $update_args['unit_discount_percentage'] = $rc['item']['unit_discount_percentage'];
                     }
+                    if( $rc['item']['unit_preorder_amount'] > 0 
+                        && $rc['item']['unit_preorder_amount'] != $item['unit_preorder_amount'] ) {
+                        $update_args['unit_preorder_amount'] = $rc['item']['unit_preorder_amount'];
+                    }
                 }
             }
         }
@@ -86,6 +90,7 @@ function ciniki_sapos_invoiceUpdatePrices($ciniki, $tnid, $invoice_id, $args) {
             'unit_amount'=>(isset($update_args['unit_amount'])?$update_args['unit_amount']:$item['unit_amount']),
             'unit_discount_amount'=>(isset($update_args['unit_discount_amount'])?$update_args['unit_discount_amount']:$item['unit_discount_amount']),
             'unit_discount_percentage'=>(isset($update_args['unit_discount_percentage'])?$update_args['unit_discount_percentage']:$item['unit_discount_percentage']),
+            'unit_preorder_amount'=>(isset($update_args['unit_preorder_amount'])?$update_args['unit_preorder_amount']:$item['unit_preorder_amount']),
             ));
         if( $rc['stat'] != 'ok' ) {
             return $rc;

@@ -26,11 +26,10 @@ function ciniki_sapos_hooks_uiSettings($ciniki, $tnid, $args) {
     if( $rc['stat'] == 'ok' && isset($rc['settings']) ) {
         $rsp['settings'] = $rc['settings'];
     }
-
+/*
     //
     // Check if orders should be shown
     //
-/*  Moved to customer package
     if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x60) 
         && (isset($args['permissions']['owners'])
             || isset($args['permissions']['employees'])
