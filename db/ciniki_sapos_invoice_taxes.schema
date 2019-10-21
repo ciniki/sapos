@@ -47,4 +47,4 @@ create table ciniki_sapos_invoice_taxes (
     primary key (id),
     unique index (invoice_id, taxrate_id),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.02';
+) ENGINE='InnoDB', COMMENT='v1.03';
