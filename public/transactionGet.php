@@ -70,7 +70,7 @@ function ciniki_sapos_transactionGet(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
-            'fields'=>array('id', 'status', 'transaction_type', 'transaction_date', 'source', 'customer_amount', 'transaction_fees', 'tenant_amount'),
+            'fields'=>array('id', 'status', 'transaction_type', 'transaction_date', 'source', 'customer_amount', 'transaction_fees', 'tenant_amount', 'notes'),
             'utctotz'=>array('transaction_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)), 
             ),
         ));
