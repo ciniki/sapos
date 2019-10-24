@@ -240,6 +240,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
         $new_ship = ($shipping_required == 'yes' ? ($invoice_subtotal_amount == 0 ? 0 : 99999.99) : 0);
         $new_preorder_ship = ($preorder_shipping_required == 'yes' ? ($invoice_preorder_subtotal_amount == 0 ? 0 : 99999.99) : 0);
         foreach($rates as $rate) {
+            
             if( $rate['minimum_amount'] <= $invoice_subtotal_amount && $rate['rate'] < $new_ship ) {
                 $new_ship = $rate['rate'];
             }

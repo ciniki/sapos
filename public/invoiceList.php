@@ -275,6 +275,7 @@ function ciniki_sapos_invoiceList(&$ciniki) {
             . "FROM ciniki_sapos_invoice_taxes "
             . "WHERE invoice_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $invoice_ids) . ") "
             . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND (flags&0x02) = 0 "
             . "GROUP BY invoice_id "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList2');

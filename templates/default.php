@@ -307,6 +307,9 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     }
     $pdf->header_details[] = array('label'=>'Status', 'value'=>$invoice['status_text']);
     $pdf->header_details[] = array('label'=>'Balance', 'value'=>$invoice['balance_amount_display']);
+    if( isset($invoice['preorder_total_amount']) && $invoice['preorder_total_amount'] > 0 ) {
+        $pdf->header_details[] = array('label'=>'Pre-Order Balance', 'value'=>$invoice['preorder_total_amount_display']);
+    }
 
     //
     // Setup the PDF basics
@@ -492,13 +495,13 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             $item['item']['description'] = $item['item']['code'] . ' - ' . $item['item']['description'];
         }
         if( isset($item['item']['notes']) && $item['item']['notes'] != '' ) {
-            $item['item']['description'] .= "\n    " . $item['item']['notes'];
+            $item['item']['description'] .= "\n    " . preg_replace('/\n/', "\n    ", $item['item']['notes']);
         }
         $nlines = $pdf->getNumLines($item['item']['description'], $w[0]);
         if( $nlines == 2 ) {
             $lh = 3+($nlines*5);
         } elseif( $nlines > 2 ) {
-            $lh = 2+($nlines*5);
+            $lh = 3+($nlines*5);
         }
         // Check if we need a page break
         if( $pdf->getY() > ($pdf->getPageHeight() - 30) ) {
@@ -539,9 +542,51 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     }
 
     //
+    // Output the Pre-Order tallies
+    //
+    if( isset($invoice['preorder_total_amount']) && $invoice['preorder_total_amount'] > 0 ) {
+        $lh = 6;
+        $blank_border = '';
+        $pdf->Cell($w[0], $lh, '', $blank_border);
+        $pdf->Cell($w[1], $lh, 'Pre-Order Subtotal', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+        $pdf->Cell($w[2], $lh, $invoice['preorder_subtotal_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+        $pdf->Ln();
+        $fill=!$fill;
+
+        if( $invoice['shipping_status'] > 0 ) {
+            $pdf->Cell($w[0], $lh, '', $blank_border);
+            $pdf->Cell($w[1], $lh, 'Shipping & Handling', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+            $pdf->Cell($w[2], $lh, ((isset($invoice['preorder_shipping_amount'])&&$invoice['preorder_shipping_amount']>0)?$invoice['preorder_shipping_amount_display']:'0.00'), 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+            $pdf->Ln();
+            $fill=!$fill;
+        }
+
+        //
+        // Add taxes
+        //
+        if( isset($invoice['preorder_taxes']) && count($invoice['preorder_taxes']) > 0 ) {
+            foreach($invoice['preorder_taxes'] as $tax) {
+                $pdf->Cell($w[0], $lh, '', $blank_border);
+                $pdf->Cell($w[1], $lh, $tax['tax']['description'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+                $pdf->Cell($w[2], $lh, $tax['tax']['amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+                $pdf->Ln();
+                $fill=!$fill;
+            }
+        }
+
+        $pdf->SetFont('', 'B');
+        $pdf->Cell($w[0], $lh, '', (($blank_border!='')?'LB':''));
+        $pdf->Cell($w[1], $lh, 'Pre-Order Total:', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+        $pdf->Cell($w[2], $lh, $invoice['preorder_total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+        $pdf->Ln();
+        $fill=!$fill;
+    }
+
+    //
     // Output the invoice tallies
     //
     $lh = 6;
+    $pdf->SetFont('', '');
     $blank_border = '';
     $pdf->Cell($w[0], $lh, '', $blank_border);
     $pdf->Cell($w[1], $lh, 'Subtotal', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
@@ -583,7 +628,6 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             $fill=!$fill;
         }
     }
-
 
     //
     // If paid_amount > 0
@@ -639,6 +683,17 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         $pdf->Ln();
         $pdf->SetFont('');
         $pdf->MultiCell(180, 5, $invoice['customer_notes'], 0, 'L');
+    }
+
+    //
+    // Check if there is a donation message to be displayed
+    //
+    if( isset($invoice['preorder_total_amount']) && $invoice['preorder_total_amount'] > 0 
+        && isset($sapos_settings['invoice-preorder-message']) && $sapos_settings['invoice-preorder-message'] != '' 
+        ) {
+        $pdf->Ln();
+        $pdf->SetFont('');
+        $pdf->MultiCell(180, 5, $sapos_settings['invoice-preorder-message'], 0, 'L');
     }
 
     //
