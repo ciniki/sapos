@@ -109,6 +109,9 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $tnid, $args
                     } else {
                         $content .= ($codes == 'yes' && $item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
                     }
+                    if( isset($item['notes']) && $item['notes'] != '' ) {
+                        $content .= "<span class='notes'>" . preg_replace("/\n/", '<br/>', $item['notes']) . "</span>";
+                    }
                     $content .= "</td>";
                     $content .= "<td class='alignright'>" . $item['quantity'] . "</td>";
                     if( $customer_invoice['invoice_type'] == '40' ) {
@@ -133,42 +136,86 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $tnid, $args
                 }
                 $content .= "</tbody>";
                 $content .= "<tfoot>";
+
                 if( $customer_invoice['invoice_type'] == '40' ) {
                     $num_cols = 4;
                 } else {
                     $num_cols = 3;
                 }
-                if( $customer_invoice['shipping_amount'] > 0 || (isset($customer_invoice['taxes']) && count($customer_invoice['taxes']) > 0) ) {
+
+                $separator = '';
+                $duenow = '';
+                if( isset($customer_invoice['preorder_subtotal_amount']) && $customer_invoice['preorder_subtotal_amount'] > 0 ) {
+                    $separator = 'separator ';
+                    $duenow = ' (Due Now)';
                     $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>";
+                    $content .= "<td colspan='$num_cols' class='alignright'>Pre-Order Subtotal:</td>"
+                        . "<td class='alignright'>"
+                        . numfmt_format_currency($intl_currency_fmt, $customer_invoice['preorder_subtotal_amount'], $intl_currency)
+                        . "</td></tr>";
+                    $count++;
+                    $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>";
+                    $content .= "<td colspan='$num_cols' class='alignright'>Shipping:</td>"
+                        . "<td class='alignright'>";
+                        $content .= numfmt_format_currency($intl_currency_fmt, $customer_invoice['preorder_shipping_amount'], $intl_currency);
+                    $content .= "</td></tr>";
+                    $count++;
+
+                    if( isset($customer_invoice['preorder_taxes']) ) {
+                        foreach($customer_invoice['preorder_taxes'] as $tax) {
+                            $tax = $tax['tax'];
+                            $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>";
+                            $content .= "<td colspan='$num_cols' class='alignright'>" . $tax['description'] . ":</td>"
+                                . "<td class='alignright'>"
+                                . numfmt_format_currency($intl_currency_fmt, $tax['amount'], $intl_currency)
+                                . "</td></tr>";
+                            $count++;
+                        }
+                    }
+
+                    $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>";
+                    $content .= "<td colspan='$num_cols' class='alignright'><b>Pre-Order Total (Due On Shipment):</b></td>"
+                        . "<td class='alignright'>"
+                        . numfmt_format_currency($intl_currency_fmt, $customer_invoice['preorder_total_amount'], $intl_currency)
+                        . "</td></tr>";
+                    $count++;
+                } 
+
+
+                if( $customer_invoice['shipping_status'] > 0 || (isset($customer_invoice['taxes']) && count($customer_invoice['taxes']) > 0) ) {
+                    $content .= "<tr class='{$separator}" . (($count%2)==0?'item-even':'item-odd') . "'>";
                     $content .= "<td colspan='$num_cols' class='alignright'>Sub-Total:</td>"
                         . "<td class='alignright'>"
                         . numfmt_format_currency($intl_currency_fmt, $customer_invoice['subtotal_amount'], $intl_currency)
                         . "</td>"
                         . "</tr>";
                     $count++;
+                    $separator = '';
                 }
-                if( isset($customer_invoice['shipping_amount']) && $customer_invoice['shipping_amount'] > 0 ) {
-                    $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>";
+                if( isset($customer_invoice['shipping_amount']) && $customer_invoice['shipping_status'] > 0 ) {
+                    $content .= "<tr class='{$separator}" . (($count%2)==0?'item-even':'item-odd') . "'>";
                     $content .= "<td colspan='$num_cols' class='alignright'>Shipping:</td>"
                         . "<td class='alignright'>"
                         . numfmt_format_currency($intl_currency_fmt, $customer_invoice['shipping_amount'], $intl_currency)
                         . "</td>"
                         . "</tr>";
                     $count++;
+                    $separator = '';
                 }
                 if( isset($customer_invoice['taxes']) ) {
                     foreach($customer_invoice['taxes'] as $tax) {
                         $tax = $tax['tax'];
-                        $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>";
+                        $content .= "<tr class='{$separator}" . (($count%2)==0?'item-even':'item-odd') . "'>";
                         $content .= "<td colspan='$num_cols' class='alignright'>" . $tax['description'] . ":</td>"
                             . "<td class='alignright'>"
                             . numfmt_format_currency($intl_currency_fmt, $tax['amount'], $intl_currency)
                             . "</td>"
                             . "</tr>";
                         $count++;
+                        $separator = '';
                     }
                 }
-                $content .= "<tr class='" . (($count%2)==0?'item-even':'item-odd') . "'>";
+                $content .= "<tr class='{$separator}" . (($count%2)==0?'item-even':'item-odd') . "'>";
                 $content .= "<td colspan='$num_cols' class='alignright'><b>Total:</b></td>"
                     . "<td class='alignright'>" . $customer_invoice['total_amount_display'] . "</td>"
                     . "</tr>";
