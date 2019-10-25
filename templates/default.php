@@ -545,16 +545,23 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     // Output the Pre-Order tallies
     //
     if( isset($invoice['preorder_total_amount']) && $invoice['preorder_total_amount'] > 0 ) {
+        $old_fill = $fill;
+        $old_y = $pdf->getY();
         $lh = 6;
         $blank_border = '';
-        $pdf->Cell($w[0], $lh, '', $blank_border);
+        $pdf->SetFont('', 'B');
+        $pdf->Cell($w[1], $lh, 'Pre-Order Due On Shipment', 0, 0, 'L', 0, '', 0, false, 'T', 'T');
+        $pdf->SetFont('', '');
+        $fill=!$fill;
+        $pdf->Ln();
+//        $pdf->Cell($w[0], $lh, '', $blank_border);
         $pdf->Cell($w[1], $lh, 'Pre-Order Subtotal', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
         $pdf->Cell($w[2], $lh, $invoice['preorder_subtotal_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
         $pdf->Ln();
         $fill=!$fill;
 
         if( $invoice['shipping_status'] > 0 ) {
-            $pdf->Cell($w[0], $lh, '', $blank_border);
+//            $pdf->Cell($w[0], $lh, '', $blank_border);
             $pdf->Cell($w[1], $lh, 'Shipping & Handling', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
             $pdf->Cell($w[2], $lh, ((isset($invoice['preorder_shipping_amount'])&&$invoice['preorder_shipping_amount']>0)?$invoice['preorder_shipping_amount_display']:'0.00'), 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
             $pdf->Ln();
@@ -566,7 +573,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         //
         if( isset($invoice['preorder_taxes']) && count($invoice['preorder_taxes']) > 0 ) {
             foreach($invoice['preorder_taxes'] as $tax) {
-                $pdf->Cell($w[0], $lh, '', $blank_border);
+//                $pdf->Cell($w[0], $lh, '', $blank_border);
                 $pdf->Cell($w[1], $lh, $tax['tax']['description'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
                 $pdf->Cell($w[2], $lh, $tax['tax']['amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
                 $pdf->Ln();
@@ -575,11 +582,12 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         }
 
         $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, '', (($blank_border!='')?'LB':''));
+//        $pdf->Cell($w[0], $lh, '', (($blank_border!='')?'LB':''));
         $pdf->Cell($w[1], $lh, 'Pre-Order Total:', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
         $pdf->Cell($w[2], $lh, $invoice['preorder_total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
         $pdf->Ln();
-        $fill=!$fill;
+        $fill=$old_fill;
+        $pdf->setY($old_y);
     }
 
     //
