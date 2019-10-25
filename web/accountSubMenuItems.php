@@ -33,7 +33,9 @@ function ciniki_sapos_web_accountSubMenuItems($ciniki, $settings, $tnid) {
     //
     // If there are orders, add the orders submenu
     //
-    if( isset($rc['stats']['40.15']) || isset($rc['stats']['40.30']) || isset($rc['stats']['40.50']) || isset($rc['stats']['10.50']) || isset($rc['stats']['10.30']) ) {
+    if( isset($settings['page-account-invoices-list']) && $settings['page-account-invoices-list'] == 'yes' ) {
+//    if( isset($rc['stats']['40.15']) || isset($rc['stats']['40.30']) || isset($rc['stats']['40.50']) || isset($rc['stats']['10.50']) 
+//        || isset($rc['stats']['10.30']) ) {
         $submenu[] = array('name'=>'Orders', 'priority'=>350, 'package'=>'ciniki', 'module'=>'sapos', 'url'=>$ciniki['request']['base_url'] . '/account/orders');
     }
 
