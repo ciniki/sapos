@@ -35,6 +35,6 @@ create table ciniki_sapos_simpleshiprates (
     last_updated datetime not null,
     primary key (id),
     unique index (uuid),
-    unique index (country, province, city, minimum_amount),
+    unique index (tnid, country, province, city, minimum_amount),
     index sync (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

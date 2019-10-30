@@ -44,6 +44,15 @@ function ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $tnid) {
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.147', 'msg'=>'Internal error', 'err'=>$rc['err']));
             }
+
+            //
+            // Update the invoice
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
+            $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $ciniki['session']['cart']['sapos_id']);
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.292', 'msg'=>'Unable to update cart', 'err'=>$rc['err']));
+            }
         }
 
         return array('stat'=>'ok');

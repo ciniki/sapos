@@ -213,7 +213,10 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
     //
     // Calculate shipping costs, using simple ship rates
     //
-    if( $invoice['shipping_status'] > 0 && ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x10000000) ) {
+    if( $invoice['shipping_status'] > 0 
+        && ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x10000000) 
+        && $invoice['customer_id'] > 0 
+        ) {
         //
         // Load the shipping rates
         //
@@ -237,8 +240,10 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
 
         $rates = isset($rc['rows']) ? $rc['rows'] : array();
 
-        $new_ship = ($shipping_required == 'yes' ? ($invoice_subtotal_amount == 0 ? 0 : 99999.99) : 0);
-        $new_preorder_ship = ($preorder_shipping_required == 'yes' ? ($invoice_preorder_subtotal_amount == 0 ? 0 : 99999.99) : 0);
+//        $new_ship = ($shipping_required == 'yes' ? ($invoice_subtotal_amount == 0 ? 0 : 99999.99) : 0);
+//        $new_preorder_ship = ($preorder_shipping_required == 'yes' ? ($invoice_preorder_subtotal_amount == 0 ? 0 : 99999.99) : 0);
+        $new_ship = 99999.99;
+        $new_preorder_ship = 99999.99;
         foreach($rates as $rate) {
             
             if( $rate['minimum_amount'] <= $invoice_subtotal_amount && $rate['rate'] < $new_ship ) {
