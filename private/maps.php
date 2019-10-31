@@ -122,6 +122,12 @@ function ciniki_sapos_maps($ciniki) {
             '60'=>'Mailed',
             '80'=>'Received',
             ),
+        'preorder_status'=>array(
+            '0'=>'Not Applicable',
+            '10'=>'Ordered',
+            '30'=>'Shipped',
+            '50'=>'Completed',
+            ),
         );
     $maps['transaction'] = array(
         'status'=>array(

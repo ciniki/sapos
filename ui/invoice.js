@@ -51,6 +51,12 @@ function ciniki_sapos_invoice() {
         '60':'Mailed',
         '80':'Received',
         };
+    this.preorderStatuses = {
+        '0':'N/A',
+        '10':'Ordered',
+        '30':'Shipped',
+        '50':'Completed',
+        };
     this.taxTypeOptions = {};
     this.transactionTypes = {
         '10':'Deposit',
@@ -505,6 +511,9 @@ function ciniki_sapos_invoice() {
                 'donationreceipt_status':{'label':'Donation Receipt', 'active':'yes', 'type':'select', 
                     'active':function() { M.ciniki_sapos_invoice.edit.data.donation != null && M.ciniki_sapos_invoice.edit.data.donation == 'yes' ? 'yes' : 'no'},
                     'options':M.ciniki_sapos_invoice.donationreceiptStatuses},
+                'preorder_status':{'label':'Pre-Order Status', 'active':'yes', 'type':'select', 
+                    'active':function() { return M.modFlagSet('ciniki.sapos', 0x400000); },
+                    'options':M.ciniki_sapos_invoice.preorderStatuses},
                 'invoice_date':{'label':'Date', 'type':'text', 'size':'medium', 'type':'date'},
                 'due_date':{'label':'Due Date', 'type':'text', 'size':'medium', 'type':'date'},
                 'flags':{'label':'Options', 'type':'flags', 'flags':this.invoiceFlags},
@@ -584,7 +593,7 @@ function ciniki_sapos_invoice() {
                 this.sections.details.fields.po_number.visible = 'yes';
                 this.sections.details.fields.status.visible = 'yes';
                 this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x800200)>0||this.data.payment_status>0)?'yes':'no';
-                this.sections.details.fields.shipping_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x40)>0||this.data.shipping_status>0)?'yes':'no';
+                this.sections.details.fields.shipping_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x400040)>0||this.data.shipping_status>0||this.data.preorder_status>0)?'yes':'no';
                 this.sections.details.fields.manufacturing_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x80)>0||this.data.manufacturing_status>0)?'yes':'no';
                 this.sections.details.fields.due_date.visible = 'yes';
                 if( e_po != null && this.sections.details.fields.po_number.visible == 'yes' ) {
@@ -956,7 +965,7 @@ function ciniki_sapos_invoice() {
         this.orderStatuses['65'] = 'Void';
 
         this.edit.sections.details.fields.status.options = this.invoiceStatuses;
-        this.edit.sections.shipping.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x40)>0)?'yes':'no';
+        this.edit.sections.shipping.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x400040)>0)?'yes':'no';
         this.edit.sections.work.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x020000)>0)?'yes':'no';
 
         //
@@ -1502,7 +1511,7 @@ function ciniki_sapos_invoice() {
             p.sections.work.visible = 'no';
         }
 //      p.sections.shipping.visible=(rsp.invoice.shipping_status>0&&(rsp.invoice.shipping_name!=''||rsp.invoice.shipping_address1!=''))?'yes':'no';
-        p.sections.shipping.visible=(rsp.invoice.shipping_status>0||rsp.invoice.invoice_type==40)?'yes':'no';
+        p.sections.shipping.visible=(rsp.invoice.shipping_status>0||rsp.invoice.preorder_status>0||rsp.invoice.invoice_type==40)?'yes':'no';
         p.sections.tallies.visible='yes';
         p.data.tallies = {};
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x0800) > 0 ) {

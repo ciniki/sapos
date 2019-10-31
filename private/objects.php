@@ -29,6 +29,7 @@ function ciniki_sapos_objects($ciniki) {
             'shipping_status'=>array('default'=>'0'),
             'manufacturing_status'=>array('default'=>'0'),
             'donationreceipt_status'=>array('name'=>'Donation Receipt Status', 'default'=>'0'),
+            'preorder_status'=>array('name'=>'Pre-Order Status', 'default'=>'0'),
             'flags'=>array('default'=>'0'),
             'invoice_date'=>array(),
             'due_date'=>array('default'=>'',),

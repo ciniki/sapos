@@ -29,6 +29,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
         'payment_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Payment Status'),
         'shipping_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Shipping Status'),
         'manufacturing_status'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Manufacturing Status'),
+        'preorder_status'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Pre-Order Status'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Options'),
         'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'now', 'type'=>'datetimetoutc', 'name'=>'Invoice Date'),
         'due_date'=>array('required'=>'no', 'blank'=>'no', 'default'=>'', 'type'=>'datetimetoutc', 'name'=>'Due Date'),

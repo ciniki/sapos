@@ -84,6 +84,13 @@
 #                               60 - Mailed
 #                               90 - Received
 #
+# preorder_status:      The current status for the preorder portion of the order
+#
+#                           0 - No Preorder
+#                           10 - Queued
+#                           30 - Shipped
+#                           50 - Completed
+#
 # flags:                The flags for the invoice to control shipping/pickup, etc.
 #
 #                       0x01 - Don't show discounts/savings, only show the final price with quantity.
@@ -169,6 +176,7 @@ create table ciniki_sapos_invoices (
     shipping_status tinyint unsigned not null,
     manufacturing_status tinyint unsigned not null,
     donationreceipt_status tinyint unsigned not null,
+    preorder_status tinyint unsigned not null,
     flags int unsigned not null,
     invoice_date datetime not null,
     due_date datetime not null,

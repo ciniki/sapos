@@ -4,4 +4,5 @@
 ALTER TABLE ciniki_sapos_invoices ADD COLUMN preorder_subtotal_amount decimal(19,4) not null AFTER pricepoint_id;
 ALTER TABLE ciniki_sapos_invoices ADD COLUMN preorder_shipping_amount decimal(19,4) not null AFTER preorder_subtotal_amount;
 ALTER TABLE ciniki_sapos_invoices ADD COLUMN preorder_total_amount decimal(19,4) not null AFTER preorder_shipping_amount;
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN preorder_status tinyint unsigned not null AFTER donationreceipt_status;
 ALTER TABLE ciniki_sapos_invoices COMMENT='v1.13';

@@ -15,6 +15,7 @@
 //
 function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_id) {
 
+error_log('updateShippingTaxes');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
@@ -34,6 +35,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
         . "ciniki_sapos_invoices.preorder_subtotal_amount, "
         . "ciniki_sapos_invoices.preorder_shipping_amount, "
         . "ciniki_sapos_invoices.preorder_total_amount, "
+        . "ciniki_sapos_invoices.preorder_status, "
         . "ciniki_sapos_invoices.subtotal_amount, "
         . "ciniki_sapos_invoices.subtotal_discount_percentage, "
         . "ciniki_sapos_invoices.subtotal_discount_amount, "
@@ -71,6 +73,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
         'preorder_subtotal_amount'=>$rc['invoice']['preorder_subtotal_amount'],
         'preorder_shipping_amount'=>$rc['invoice']['preorder_shipping_amount'],
         'preorder_total_amount'=>$rc['invoice']['preorder_total_amount'],
+        'preorder_status'=>$rc['invoice']['preorder_status'],
         'subtotal_amount'=>$rc['invoice']['subtotal_amount'],
         'subtotal_discount_amount'=>$rc['invoice']['subtotal_discount_amount'],
         'subtotal_discount_percentage'=>$rc['invoice']['subtotal_discount_percentage'],
@@ -145,6 +148,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
     //
     // Build the hash of invoice details and items to pass to ciniki.taxes for tax calculations
     //
+    $preorder_status = $invoice['preorder_status'];
     $shipping_status = $invoice['shipping_status'];
     $donation_amount = 0;
     $shipping_required = 'no';
@@ -152,6 +156,10 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
     $invoice_taxtype_id = 0;
     if( count($items) > 0 ) {
         foreach($items as $iid => $item) {
+            if( ($item['flags']&0x0400) == 0x0400 && $preorder_status < 30 ) {
+                error_log('preorder-set');
+                $preorder_status = 10;
+            }
             if( ($item['flags']&0x0440) == 0x0440 ) {
                 $preorder_shipping_required = 'yes';
             } elseif( ($item['flags']&0x0440) == 0x0040 ) {
@@ -476,6 +484,9 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
     }
     if( $shipping_status != $invoice['shipping_status'] ) {
         $args['shipping_status'] = $shipping_status;
+    }
+    if( $preorder_status != $invoice['preorder_status'] ) {
+        $args['preorder_status'] = $preorder_status;
     }
     if( isset($receipt_number) && $receipt_number != $invoice['receipt_number'] ) {
         $args['receipt_number'] = $receipt_number;

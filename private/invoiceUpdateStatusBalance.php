@@ -14,7 +14,7 @@
 // <rsp stat='ok' />
 //
 function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
-
+    
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
@@ -29,7 +29,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
     //
     $strsql = "SELECT customer_id, invoice_type, status, "
         . "receipt_number, "
-        . "payment_status, shipping_status, manufacturing_status, "
+        . "payment_status, shipping_status, manufacturing_status, preorder_status, "
         . "ROUND(total_amount, 2) AS total_amount, "
         . "ROUND(paid_amount, 2) AS paid_amount, "
         . "ROUND(balance_amount, 2) AS balance_amount "
@@ -184,7 +184,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
             if( $invoice['payment_status'] < 55 ) {
                 $new_payment_status = 55;
             }
-        } elseif( $amount_paid == 0 ) {
+        } elseif( $amount_paid == 0 && $invoice['total_amount'] > 0 ) {
             $new_payment_status = 10;
         }
     }
@@ -202,6 +202,13 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
             } elseif( $new_payment_status == 55 ) {
                 $new_status = 55;
             }
+        }
+        error_log('test');
+        if( $invoice['preorder_status'] == 10 && $new_status != 30 ) {
+            error_log('preorder');
+            $new_status = 30;
+        } elseif( $invoice['preorder_status'] == 30 && $new_status == 30 ) {
+            $new_status = 50;
         }
     }
     elseif( $invoice['invoice_type'] == '40' && $invoice['status'] > 15 && $invoice['status'] < 65 ) {
@@ -227,10 +234,14 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
         elseif( $new_payment_status > 0 && $new_payment_status < 50 ) {
             $new_status = 40;
         } 
+        elseif( $new_preorder_status > 0 && $new_preorder_status < 50 ) {
+            $new_status = 30;
+        } 
         // Each status is either ignored, or completed
         elseif( ($new_manufacturing_status == 0 || $new_manufacturing_status >= 50) 
             && ($new_shipping_status == 0 || $new_shipping_status >= 50) 
             && ($new_payment_status == 0 || $new_payment_status >= 50) 
+            && ($new_preorder_status == 0 || $new_preorder_status >= 50) 
             ) {
             $new_status = 50;
         }
