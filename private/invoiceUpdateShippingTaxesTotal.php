@@ -152,17 +152,13 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
     $invoice_taxtype_id = 0;
     if( count($items) > 0 ) {
         foreach($items as $iid => $item) {
-            if( ($item['flags']&0x0440) == 0x0040 ) {
-                $shipping_required = 'yes';
-                if( $item['taxtype_id'] != 0 && $item['taxtype_id'] != $invoice_taxtype_id ) {
-                    $invoice_taxtype_id = $item['taxtype_id'];
-                }
-            }
             if( ($item['flags']&0x0440) == 0x0440 ) {
                 $preorder_shipping_required = 'yes';
-                if( $item['taxtype_id'] != 0 && $item['taxtype_id'] != $invoice_taxtype_id ) {
-                    $invoice_taxtype_id = $item['taxtype_id'];
-                }
+            } elseif( ($item['flags']&0x0440) == 0x0040 ) {
+                $shipping_required = 'yes';
+            }
+            if( $item['taxtype_id'] != 0 && $item['taxtype_id'] != $invoice_taxtype_id ) {
+                $invoice_taxtype_id = $item['taxtype_id'];
             }
             if( ($item['flags']&0x8000) == 0x8000 ) {
                 $donation_amount = bcadd($donation_amount, $item['total_amount'], 6);
@@ -181,7 +177,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
             $invoice_subtotal_amount = bcadd($invoice_subtotal_amount, $item['total_amount'], 4);
             $invoice_total_savings = bcadd($invoice_total_savings, $item['discount_amount'], 4);
             // Check if shipping item
-            if( ($item['flags']&0x40) > 0 ) {
+            if( ($item['flags']&0x0440) == 0x0040 ) {
                 if( $item['shipped_quantity'] < $item['quantity'] ) {   
                     $shipping_status = 10;
                 }
@@ -240,12 +236,9 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
 
         $rates = isset($rc['rows']) ? $rc['rows'] : array();
 
-//        $new_ship = ($shipping_required == 'yes' ? ($invoice_subtotal_amount == 0 ? 0 : 99999.99) : 0);
-//        $new_preorder_ship = ($preorder_shipping_required == 'yes' ? ($invoice_preorder_subtotal_amount == 0 ? 0 : 99999.99) : 0);
-        $new_ship = 99999.99;
-        $new_preorder_ship = 99999.99;
+        $new_ship = ($shipping_required == 'yes' ? 99999.99 : 0);
+        $new_preorder_ship = ($preorder_shipping_required == 'yes' ? 99999.99 : 0);
         foreach($rates as $rate) {
-            
             if( $rate['minimum_amount'] <= $invoice_subtotal_amount && $rate['rate'] < $new_ship ) {
                 $new_ship = $rate['rate'];
             }
