@@ -209,7 +209,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
     //
     // Calculate shipping costs, using simple ship rates
     //
-    if( $invoice['shipping_status'] > 0 
+    if( ($shipping_required == 'yes' || $preorder_shipping_required == 'yes') 
         && ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x10000000) 
         && $invoice['customer_id'] > 0 
         ) {
