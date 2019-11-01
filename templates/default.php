@@ -563,7 +563,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         if( $invoice['shipping_status'] > 0 || $invoice['preorder_status'] > 0 ) {
 //            $pdf->Cell($w[0], $lh, '', $blank_border);
             $pdf->Cell($w[1], $lh, 'Shipping & Handling', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-            $pdf->Cell($w[2], $lh, ((isset($invoice['preorder_shipping_amount'])&&$invoice['preorder_shipping_amount']>0)?$invoice['preorder_shipping_amount_display']:'0.00'), 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+            $pdf->Cell($w[2], $lh, ((isset($invoice['preorder_shipping_amount'])&&$invoice['preorder_shipping_amount']>0)?$invoice['preorder_shipping_amount_display']:'$0.00'), 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
             $pdf->Ln();
             $fill=!$fill;
         }
@@ -619,7 +619,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     if( $invoice['shipping_status'] > 0 || $invoice['preorder_status'] > 0 ) {
         $pdf->Cell($w[0], $lh, '', $blank_border);
         $pdf->Cell($w[1], $lh, 'Shipping & Handling', 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-        $pdf->Cell($w[2], $lh, ((isset($invoice['shipping_amount'])&&$invoice['shipping_amount']>0)?$invoice['shipping_amount_display']:'0.00'), 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
+        $pdf->Cell($w[2], $lh, ((isset($invoice['shipping_amount'])&&$invoice['shipping_amount']>0)?$invoice['shipping_amount_display']:'$0.00'), 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
         $pdf->Ln();
         $fill=!$fill;
     }
