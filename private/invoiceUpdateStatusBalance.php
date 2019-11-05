@@ -203,9 +203,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
                 $new_status = 55;
             }
         }
-        error_log('test');
         if( $invoice['preorder_status'] == 10 && $new_status != 30 ) {
-            error_log('preorder');
             $new_status = 30;
         } elseif( $invoice['preorder_status'] == 30 && $new_status == 30 ) {
             $new_status = 50;

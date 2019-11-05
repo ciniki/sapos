@@ -15,7 +15,6 @@
 //
 function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_id) {
 
-error_log('updateShippingTaxes');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashIDQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
@@ -157,7 +156,6 @@ error_log('updateShippingTaxes');
     if( count($items) > 0 ) {
         foreach($items as $iid => $item) {
             if( ($item['flags']&0x0400) == 0x0400 && $preorder_status < 30 ) {
-                error_log('preorder-set');
                 $preorder_status = 10;
             }
             if( ($item['flags']&0x0440) == 0x0440 ) {
