@@ -108,7 +108,6 @@ function ciniki_sapos_web_processAPI(&$ciniki, $settings, $tnid, $args) {
     //
     elseif( isset($args['uri_split'][0]) && $args['uri_split'][0] == 'cartItemDelete' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartItemDelete');
-        error_log($ciniki['request']['args']['item_id']);
         return ciniki_sapos_web_cartItemDelete($ciniki, $settings, $tnid, array(
             'item_id'=>($ciniki['request']['args']['item_id'] ? $ciniki['request']['args']['item_id'] : '0'),
             ));
