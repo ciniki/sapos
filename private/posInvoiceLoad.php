@@ -170,7 +170,7 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
     if( $invoice['customer_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'customerDetails2');
         $rc = ciniki_customers_hooks_customerDetails2($ciniki, $tnid, array( 'customer_id'=>$invoice['customer_id'], 
-            'phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
+            'phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no', 'membership'=>'yes'));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
