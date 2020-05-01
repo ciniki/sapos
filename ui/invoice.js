@@ -1304,11 +1304,11 @@ function ciniki_sapos_invoice() {
         } else if( rsp.invoice.customer != null && rsp.invoice.customer.pricepoint_id > 0 ) {
             p.pricepoint_id = rsp.invoice.customer.pricepoint_id;
         }
-        if( rsp.invoice.status < 50 ) {
+//        if( rsp.invoice.status < 50 ) {
             p.sections._buttons.buttons.record.visible='yes';
-        } else {
-            p.sections._buttons.buttons.record.visible='no';
-        }
+//        } else {
+//            p.sections._buttons.buttons.record.visible='no';
+//        }
         p.data.flags_text = '';
         for(i in this.invoiceFlags) {
             if( (rsp.invoice.flags&Math.pow(2,i-1)) > 0 ) {
