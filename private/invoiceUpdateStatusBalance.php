@@ -83,11 +83,12 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
     if( isset($rc['rows']) ) {
         $transactions = $rc['rows'];
         $amount_paid = 0;
+        $amount_refunded = 0;
         foreach($transactions as $rid => $ta) {
             if( $ta['transaction_type'] == 10 || $ta['transaction_type'] == 20 ) {
                 $amount_paid = bcadd($amount_paid, $ta['customer_amount'], 2);
             } elseif( $ta['transaction_type'] == 60 ) {
-                $amount_paid = bcsub($amount_paid, $ta['customer_amount'], 2);
+                $amount_refunded = bcadd($amount_refunded, $ta['customer_amount'], 2);
             }
         }
     } else {
@@ -171,10 +172,16 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
     //
     // Check if status should change for invoice, but only if payments are enabled
     //
+    error_log('Check payments ' . $amount_paid . '--' . $amount_refunded . ':' . $invoice['total_amount']);
     if( ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x800200) > 0 || $invoice['payment_status'] > 0 ) {
         if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
             if( $invoice['payment_status'] == 10 || $invoice['payment_status'] == 50 ) {
                 $new_payment_status = 40;
+            }
+        } elseif( $amount_paid > 0 && $amount_paid == $amount_refunded && $amount_paid == $invoice['total_amount'] ) {
+            error_log('new payment status');
+            if( $invoice['payment_status'] < 60 ) {
+                $new_payment_status = 60;
             }
         } elseif( $amount_paid > 0 && $amount_paid == $invoice['total_amount'] ) {
             if( $invoice['payment_status'] < 50 ) {
@@ -201,6 +208,8 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
                 $new_status = 50;
             } elseif( $new_payment_status == 55 ) {
                 $new_status = 55;
+            } elseif( $new_payment_status == 60 ) {
+                $new_status = 60;
             }
         }
         if( $invoice['preorder_status'] == 10 && $new_status != 30 ) {

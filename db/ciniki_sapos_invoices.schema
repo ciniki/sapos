@@ -49,6 +49,9 @@
 #                       30 - Pending Shipping
 #                       40 - Pending Payment
 #                       50 - Fulfilled/Paid/Shipped/Done
+#                       55 - Refund Required
+#                       60 - Refunded
+#                       65 - Voided
 #
 #                       Old Status
 #                       10 - Shopping Cart, the invoice is still a shopping cart for online ecommerce
@@ -63,7 +66,8 @@
 #                       10 - Payment Required
 #                       40 - Partial Payment
 #                       50 - Paid
-#                       55 - Refunded
+#                       55 - Refund Required
+#                       60 - Refunded
 # 
 # shipping_status:      0 - no shipping
 #                       10 - Required
