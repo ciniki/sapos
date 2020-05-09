@@ -172,7 +172,6 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
     //
     // Check if status should change for invoice, but only if payments are enabled
     //
-    error_log('Check payments ' . $amount_paid . '--' . $amount_refunded . ':' . $invoice['total_amount']);
     if( ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x800200) > 0 || $invoice['payment_status'] > 0 ) {
         if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
             if( $invoice['payment_status'] == 10 || $invoice['payment_status'] == 50 ) {
