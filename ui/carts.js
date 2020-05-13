@@ -32,6 +32,9 @@ function ciniki_sapos_carts() {
             }
         };
         this.list.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'invoices' ) {
                 return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_carts.showList();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
             }

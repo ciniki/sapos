@@ -64,6 +64,9 @@ function ciniki_sapos_pos() {
         }
     }
     this.menu.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         return 'M.ciniki_sapos_pos.checkout.open(\'M.ciniki_sapos_pos.menu.open();\',\'' + d.id + '\');';
     }
     this.menu.footerValue = function(s, i, d) {
@@ -256,6 +259,9 @@ function ciniki_sapos_pos() {
         }
     };
     this.checkout.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'customer_details' ) { return ''; }
         if( s == 'items' ) {
             if( d.object == 'ciniki.courses.offering_registration' ) {

@@ -212,6 +212,9 @@ function ciniki_sapos_main() {
         }
     };
     this.menu.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'invoices' || s == 'donations' ) {
             return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
         }
@@ -442,6 +445,9 @@ function ciniki_sapos_main() {
         }
     }
     this.transactions.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'transactions' ) {
             return 'M.ciniki_sapos_main.transaction.open(\'M.ciniki_sapos_main.transactions.open();\',\'' + d.id + '\');';
         }
@@ -643,6 +649,9 @@ function ciniki_sapos_main() {
         }
     }
     this.donations.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'invoices' ) {
             return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.donations.open();\',\'mc\',{\'invoice_id\':\'' + d.id + '\'});';
         }
@@ -743,6 +752,9 @@ function ciniki_sapos_main() {
         }
     }
     this.categories.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'invoices' ) {
             return 'M.ciniki_sapos_main.ic.open(\'M.ciniki_sapos_main.categories.open();\',\'' + d.id + '\');';
         }
@@ -1024,6 +1036,9 @@ function ciniki_sapos_main() {
         if( j > 1 ) { return 'alignright'; }
     };
     this.expenses.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'expenses' ) {
             return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
         }
@@ -1241,6 +1256,9 @@ function ciniki_sapos_main() {
         }
     };
     this.quotes.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'invoices' ) {
             return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.quotes.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
         }

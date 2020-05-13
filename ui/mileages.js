@@ -61,6 +61,9 @@ function ciniki_sapos_mileages() {
             if( j > 1 ) { return 'alignright'; }
         };
         this.mileages.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'mileages' ) {
                 return 'M.startApp(\'ciniki.sapos.mileage\',null,\'M.ciniki_sapos_mileages.showMileages();\',\'mc\',{\'mileage_id\':\'' + d.mileage.id + '\'});';
             }

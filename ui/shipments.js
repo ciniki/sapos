@@ -32,6 +32,9 @@ function ciniki_sapos_shipments() {
             }
         };
         this.invoices.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'invoices' ) {
                 return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_shipments.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
             }
@@ -70,6 +73,9 @@ function ciniki_sapos_shipments() {
             }
         };
         this.list.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'shipments' ) {
                 return 'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_shipments.showShipments();\',\'mc\',{\'shipment_id\':\'' + d.shipment.id + '\'});';
             }

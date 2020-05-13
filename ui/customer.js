@@ -119,6 +119,9 @@ function ciniki_sapos_customer() {
     };
     
     this.invoices.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'invoices' ) {
             return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_customer.invoices.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
         }

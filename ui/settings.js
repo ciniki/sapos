@@ -413,6 +413,9 @@ function ciniki_sapos_settings() {
         }
     }
     this.qi.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         return 'M.ciniki_sapos_settings.qiedit.open(\'M.ciniki_sapos_settings.qi.open();\',\'' + d.item.id + '\');';
     }
     this.qi.open = function(cb) {
@@ -558,6 +561,9 @@ function ciniki_sapos_settings() {
         }
     }
     this.ecats.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         return 'M.ciniki_sapos_settings.ecatedit.open(\'M.ciniki_sapos_settings.ecats.open();\',\'' + d.category.id + '\');';
     }
     this.ecats.open = function(cb) {
@@ -683,6 +689,9 @@ function ciniki_sapos_settings() {
         }
     }
     this.mrates.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         return 'M.ciniki_sapos_settings.mrateedit.open(\'M.ciniki_sapos_settings.mrates.open();\',\'' + d.rate.id + '\');';
     }
     this.mrates.open = function(cb) {
@@ -1122,6 +1131,9 @@ function ciniki_sapos_settings() {
         }
     }
     this.packages.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'packages' ) {
             return 'M.ciniki_sapos_settings.package.open(\'M.ciniki_sapos_settings.packages.open();\',\'' + d.id + '\',M.ciniki_sapos_settings.package.nplist);';
         }
@@ -1417,6 +1429,9 @@ function ciniki_sapos_settings() {
         }
     }
     this.simpleshiprates.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
         if( s == 'simpleshiprates' ) {
             return 'M.ciniki_sapos_settings.simpleshiprate.open(\'M.ciniki_sapos_settings.simpleshiprates.open();\',\'' + d.id + '\',M.ciniki_sapos_settings.simpleshiprate.nplist);';
         }

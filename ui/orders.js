@@ -157,6 +157,9 @@ function ciniki_sapos_orders() {
             }
         };
         this.menu.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'invoices' ) {
                 return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showMenu();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
             }
@@ -199,6 +202,9 @@ function ciniki_sapos_orders() {
             }
         };
         this.invoices.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'invoices' ) {
                 return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\',\'list\':M.ciniki_sapos_orders.invoices.data.invoices});';
             }
@@ -292,6 +298,9 @@ function ciniki_sapos_orders() {
         };
         
         this.orders.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'invoices' ) {
                 return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_orders.showOrders();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
             }

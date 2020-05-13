@@ -190,6 +190,9 @@ function ciniki_sapos_shipment() {
             }
         };
         this.edit.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'invoice_items' ) {
                 if( d.item.object == 'ciniki.products.product' ) {
                     return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_shipment.updateEditItems();\',\'mc\',{\'invoice_id\':M.ciniki_sapos_shipment.edit.invoice_id,\'item_id\':\'' + d.item.id + '\'});';

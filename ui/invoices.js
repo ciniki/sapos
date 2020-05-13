@@ -106,6 +106,9 @@ function ciniki_sapos_invoices() {
         };
         
         this.invoices.rowFn = function(s, i, d) {
+            if( d == null ) {
+                return '';
+            }
             if( s == 'invoices' ) {
                 return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_invoices.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
             }
