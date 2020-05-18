@@ -601,16 +601,15 @@ function ciniki_sapos_main() {
     }
     this.transaction.remove = function(tid) {
         if( tid <= 0 ) { return false; }
-        if( confirm("Are you sure you want to remove this transaction?") ) {
-            M.api.getJSONCb('ciniki.sapos.transactionDelete', {'tnid':M.curTenantID,
-                'transaction_id':tid}, function(rsp) {
-                    if( rsp.stat != 'ok' ) {
-                        M.api.err(rsp);
-                        return false;
-                    }
-                    M.ciniki_sapos_main.transaction.close();
-                });
-        }
+        M.confirm("Are you sure you want to remove this transaction?",null,function() {
+            M.api.getJSONCb('ciniki.sapos.transactionDelete', {'tnid':M.curTenantID, 'transaction_id':tid}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_main.transaction.close();
+            });
+        });
     }
     this.transaction.addButton('save', 'Save', 'M.ciniki_sapos_main.transaction.save();');
     this.transaction.addClose('Cancel');

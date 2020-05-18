@@ -221,15 +221,14 @@ function ciniki_sapos_mileage() {
 
     this.deleteMileage = function(mid) {
         if( mid <= 0 ) { return false; }
-        if( confirm("Are you sure you want to remove this mileage?") ) {
-            M.api.getJSONCb('ciniki.sapos.mileageDelete', {'tnid':M.curTenantID,
-                'mileage_id':mid}, function(rsp) {
-                    if( rsp.stat != 'ok' ) {
-                        M.api.err(rsp);
-                        return false;
-                    }
-                    M.ciniki_sapos_mileage.mileage.close();
-                });
-        }
+        M.confirm("Are you sure you want to remove this mileage?",null,function() {
+            M.api.getJSONCb('ciniki.sapos.mileageDelete', {'tnid':M.curTenantID, 'mileage_id':mid}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_mileage.mileage.close();
+            });
+        });
     };
 }

@@ -594,16 +594,16 @@ function ciniki_sapos_shipment() {
 
     this.deleteShipment = function() {
         if( this.edit.shipment_id <= 0 ) { return false; }
-        if( confirm("Are you sure you want to remove this shipment.  All items in the shipment will be returned to inventory?") ) {
+        M.confirm("Are you sure you want to remove this shipment.  All items in the shipment will be returned to inventory?",null,function() {
             M.api.getJSONCb('ciniki.sapos.shipmentDelete', {'tnid':M.curTenantID,
-                'shipment_id':this.edit.shipment_id}, function(rsp) {
+                'shipment_id':M.ciniki_sapos_shipment.edit.shipment_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
                     }
                     M.ciniki_sapos_shipment.edit.close();
                 });
-        }
+        });
     };
 
     this.printPackingSlip = function(sid) {
@@ -680,15 +680,14 @@ function ciniki_sapos_shipment() {
 
     this.deleteItem = function(iid) {
         if( iid <= 0 ) { return false; }
-        if( confirm("Are you sure you want to remove this item from the shipment?") ) {
-            M.api.getJSONCb('ciniki.sapos.shipmentItemDelete', {'tnid':M.curTenantID,
-                'sitem_id':iid}, function(rsp) {
-                    if( rsp.stat != 'ok' ) {
-                        M.api.err(rsp);
-                        return false;
-                    }
-                    M.ciniki_sapos_shipment.item.close();
-                });
-        }
+        M.confirm("Are you sure you want to remove this item from the shipment?",null,function() {
+            M.api.getJSONCb('ciniki.sapos.shipmentItemDelete', {'tnid':M.curTenantID, 'sitem_id':iid}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_shipment.item.close();
+            });
+        });
     };
 }

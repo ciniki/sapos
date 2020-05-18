@@ -1770,7 +1770,7 @@ function ciniki_sapos_invoice() {
 
     this.deleteInvoice = function(iid) {
         if( iid <= 0 ) { return false; }
-        if( confirm("Are you sure you want to remove this invoice from the system?") ) {
+        M.confirm("Are you sure you want to remove this invoice from the system?",null,function() {
             M.api.getJSONCb('ciniki.sapos.invoiceDelete', {'tnid':M.curTenantID,
                 'invoice_id':iid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -1779,7 +1779,7 @@ function ciniki_sapos_invoice() {
                     }
                     M.ciniki_sapos_invoice.invoice.close();
                 });
-        }
+        });
     };
 
     this.printDonationReceipt = function(iid) {
@@ -2050,7 +2050,7 @@ function ciniki_sapos_invoice() {
 
     this.deleteItem = function(iid) {
         if( iid <= 0 ) { return false; }
-        if( confirm("Are you sure you want to remove this item?") ) {
+        M.confirm("Are you sure you want to remove this item?",null,function() {
             M.api.getJSONCb('ciniki.sapos.invoiceItemDelete', {'tnid':M.curTenantID,
                 'item_id':iid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -2059,7 +2059,7 @@ function ciniki_sapos_invoice() {
                     }
                     M.ciniki_sapos_invoice.item.close();
                 });
-        }
+        });
     };
 
     this.editTransaction = function(cb, tid, inid, date, amount) {
@@ -2127,7 +2127,7 @@ function ciniki_sapos_invoice() {
 
     this.deleteTransaction = function(tid) {
         if( tid <= 0 ) { return false; }
-        if( confirm("Are you sure you want to remove this transaction?") ) {
+        M.confirm("Are you sure you want to remove this transaction?",null,function() {
             M.api.getJSONCb('ciniki.sapos.transactionDelete', {'tnid':M.curTenantID,
                 'transaction_id':tid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -2136,6 +2136,6 @@ function ciniki_sapos_invoice() {
                     }
                     M.ciniki_sapos_invoice.transaction.close();
                 });
-        }
+        });
     };
 }

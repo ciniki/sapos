@@ -279,15 +279,14 @@ function ciniki_sapos_expense() {
 
     this.deleteExpense = function(eid) {
         if( eid <= 0 ) { return false; }
-        if( confirm("Are you sure you want to remove this expense?") ) {
-            M.api.getJSONCb('ciniki.sapos.expenseDelete', {'tnid':M.curTenantID,
-                'expense_id':eid}, function(rsp) {
-                    if( rsp.stat != 'ok' ) {
-                        M.api.err(rsp);
-                        return false;
-                    }
-                    M.ciniki_sapos_expense.expense.close();
-                });
-        }
+        M.confirm("Are you sure you want to remove this expense?",null,function() {
+            M.api.getJSONCb('ciniki.sapos.expenseDelete', {'tnid':M.curTenantID, 'expense_id':eid}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_expense.expense.close();
+            });
+        });
     };
 }
