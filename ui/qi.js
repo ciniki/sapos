@@ -86,7 +86,7 @@ function ciniki_sapos_qi() {
         if( aG != null ) { args = eval(aG); }
         var aC = M.createContainer(aP, 'ciniki_sapos_qi', 'yes');
         if( aC == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         }
 

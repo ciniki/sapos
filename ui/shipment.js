@@ -268,7 +268,7 @@ function ciniki_sapos_shipment() {
         if( aG != null ) { args = eval(aG); }
         var aC = M.createContainer(aP, 'ciniki_sapos_shipment', 'yes');
         if( aC == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         }
 

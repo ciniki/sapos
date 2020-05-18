@@ -52,7 +52,7 @@ function ciniki_sapos_expenseimages() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_sapos_expenseimages', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         }
 
@@ -124,15 +124,15 @@ function ciniki_sapos_expenseimages() {
     };
 
     this.deleteImage = function() {
-        if( confirm('Are you sure you want to delete this image?') ) {
+        M.confirm('Are you sure you want to delete this image?',null,function() {
             var rsp = M.api.getJSONCb('ciniki.sapos.expenseImageDelete', {'tnid':M.curTenantID, 
-                'expense_image_id':this.edit.expense_image_id}, function(rsp) {
+                'expense_image_id':M.ciniki_sapos_expenseimages.edit.expense_image_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
                     }
                     M.ciniki_sapos_expenseimages.edit.close();
                 });
-        }
+        });
     };
 }

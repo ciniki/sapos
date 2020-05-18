@@ -59,7 +59,7 @@ function ciniki_sapos_hooks_customerAddressUpdate($ciniki, $tnid, $args) {
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.289', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.308', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
     }
     $invoices = isset($rc['rows']) ? $rc['rows'] : array();
         

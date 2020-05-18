@@ -97,7 +97,7 @@ function ciniki_sapos_shipments() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_sapos_shipments', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
 

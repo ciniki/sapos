@@ -40,10 +40,14 @@ function ciniki_sapos_settings() {
         'shipments':{'label':'Shipments', 'visible':'no', 
             'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40); },
             'list':{
-                'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.shipment.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+//                'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.shipment.open(\'M.ciniki_sapos_settings.menu.open();\');'},
                 'simpleshiprates':{'label':'Shipping Rates', 
-                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40); },
+                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x20000040); },
                     'fn':'M.ciniki_sapos_settings.simpleshiprates.open(\'M.ciniki_sapos_settings.menu.open();\');',
+                    },
+                'profiles':{'label':'Shipping Profiles', 
+                    'visible':function() { return (M.modFlags('ciniki.sapos')&0x20000040) == 0x40 ? 'yes' : 'no'; },
+                    'fn':'M.ciniki_sapos_settings.profiles.open(\'M.ciniki_sapos_settings.menu.open();\');',
                     },
             }},
         'expenses':{'label':'Expenses', 'visible':'no', 
@@ -530,7 +534,7 @@ function ciniki_sapos_settings() {
         }
     }
     this.qiedit.remove = function(cid) {
-        if( confirm('Are you sure you want to remove this category?') ) {
+        M.confirm('Are you sure you want to remove this category?',null,function() {
             M.api.getJSONCb('ciniki.sapos.qiItemDelete', {'tnid':M.curTenantID, 'item_id':cid}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -538,7 +542,7 @@ function ciniki_sapos_settings() {
                 }
                 M.ciniki_sapos_settings.qiedit.close();
             });
-        }
+        });
     }
     this.qiedit.addClose('Cancel');
 
@@ -656,7 +660,7 @@ function ciniki_sapos_settings() {
         }
     }
     this.ecatedit.remove = function(cid) {
-        if( confirm('Are you sure you want to remove this category?') ) {
+        M.confirm('Are you sure you want to remove this category?',null,function() {
             M.api.getJSONCb('ciniki.sapos.expenseCategoryDelete', {'tnid':M.curTenantID,
                 'category_id':cid}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
@@ -665,7 +669,7 @@ function ciniki_sapos_settings() {
                     }
                     M.ciniki_sapos_settings.ecatedit.close();
                 });
-        }
+        });
     }
     this.ecatedit.addClose('Cancel');
 
@@ -782,7 +786,7 @@ function ciniki_sapos_settings() {
         }
     }
     this.mrateedit.remove = function(rid) {
-        if( confirm('Are you sure you want to remove this rate?') ) {
+        M.confirm('Are you sure you want to remove this rate?',null,function() {
             M.api.getJSONCb('ciniki.sapos.mileageRateDelete', {'tnid':M.curTenantID, 'rate_id':rid}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -790,7 +794,7 @@ function ciniki_sapos_settings() {
                 }
                 M.ciniki_sapos_settings.mrateedit.close();
             });
-        }
+        });
     }
     this.mrateedit.addClose('Cancel');
 
@@ -1245,15 +1249,15 @@ function ciniki_sapos_settings() {
         }
     }
     this.package.remove = function() {
-        if( confirm('Are you sure you want to remove package?') ) {
-            M.api.getJSONCb('ciniki.sapos.packageDelete', {'tnid':M.curTenantID, 'package_id':this.package_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove package?',null,function() {
+            M.api.getJSONCb('ciniki.sapos.packageDelete', {'tnid':M.curTenantID, 'package_id':M.ciniki_sapos_settings.package.package_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.ciniki_sapos_settings.package.close();
             });
-        }
+        });
     }
     this.package.nextButtonFn = function() {
         if( this.nplist != null && this.nplist.indexOf('' + this.package_id) < (this.nplist.length - 1) ) {
@@ -1520,15 +1524,15 @@ function ciniki_sapos_settings() {
         }
     }
     this.simpleshiprate.remove = function() {
-        if( confirm('Are you sure you want to remove simpleshiprate?') ) {
-            M.api.getJSONCb('ciniki.sapos.simpleshiprateDelete', {'tnid':M.curTenantID, 'rate_id':this.rate_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove simpleshiprate?',null,function() {
+            M.api.getJSONCb('ciniki.sapos.simpleshiprateDelete', {'tnid':M.curTenantID, 'rate_id':M.ciniki_sapos_settings.simpleshiprate.rate_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.ciniki_sapos_settings.simpleshiprate.close();
             });
-        }
+        });
     }
     this.simpleshiprate.nextButtonFn = function() {
         if( this.nplist != null && this.nplist.indexOf('' + this.rate_id) < (this.nplist.length - 1) ) {
@@ -1547,6 +1551,289 @@ function ciniki_sapos_settings() {
     this.simpleshiprate.addButton('next', 'Next');
     this.simpleshiprate.addLeftButton('prev', 'Prev');
 
+    //
+    // The panel to list the manage the shipping profiles
+    //
+    this.profiles = new M.panel('Shipping Profiles', 'ciniki_sapos_settings', 'profiles', 'mc', 'large narrowaside', 'sectioned', 'ciniki.sapos.main.profiles');
+    this.profiles.profile_id = 0;
+    this.profiles.data = {};
+    this.profiles.nplist = [];
+    this.profiles.sections = {
+        'profiles':{'label':'Profiles', 'type':'simplegrid', 'num_cols':1, 'aside':'yes',
+            'noData':'No profiles',
+            'editFn':function(s, i, d) {
+                return 'M.ciniki_sapos_settings.profile.open(\'M.ciniki_sapos_settings.profiles.open();\',' + d.id + ',0);'
+                },
+            'addTxt':'Add Profile',
+            'addFn':'M.ciniki_sapos_settings.profile.open(\'M.ciniki_sapos_settings.profiles.open();\',0,null);'
+            },
+        'rates':{'label':'Rates', 'type':'simplegrid', 'num_cols':6, 
+            'visible':function() { 
+                return (M.ciniki_sapos_settings.profiles.profile_id > 0 ? 'yes' : 'no');
+                },
+            'headerValues':['Min Qty', 'Max Qty', 'Canada', 'US', 'International', ''],
+            'headerClasses':['alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
+            'cellClasses':['alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
+            'noData':'No profile rates',
+            'addTxt':'Add Rate',
+            'addFn':'M.ciniki_sapos_settings.rate.open(\'M.ciniki_sapos_settings.profiles.open();\',0,M.ciniki_sapos_settings.profiles.profile_id,null);'
+            },
+    }
+    this.profiles.cellValue = function(s, i, j, d) {
+        if( s == 'profiles' ) {
+            switch(j) {
+                case 0: return d.name;
+            }
+        }
+        if( s == 'rates' ) {
+            switch(j) {
+                case 0: return d.min_quantity_display;
+                case 1: return d.max_quantity_display;
+                case 2: return d.shipping_amount_ca_display;
+                case 3: return d.shipping_amount_us_display;
+                case 4: return d.shipping_amount_intl_display;
+                case 5: return d.options_display;
+            }
+        }
+    }
+    this.profiles.rowClass = function(s, i, d) {
+        if( s == 'profiles' && this.profile_id == d.id ) {
+            return 'highlight';
+        }
+        return '';
+    }
+    this.profiles.rowFn = function(s, i, d) {
+        if( s == 'profiles' ) {
+            return 'M.ciniki_sapos_settings.profiles.openProfile(' + d.id + ');';
+        }
+        if( s == 'rates' ) {
+            return 'M.ciniki_sapos_settings.rate.open(\'M.ciniki_sapos_settings.profiles.open();\',\'' + d.id + '\',null,M.ciniki_sapos_settings.profiles.nplist);';
+        }
+    }
+    this.profiles.openProfile = function(id) {
+        this.profile_id = id;
+        this.open();
+    }
+    this.profiles.open = function(cb) {
+        M.api.getJSONCb('ciniki.sapos.shippingProfilesGet', {'tnid':M.curTenantID, 'profile_id':this.profile_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.profiles;
+            p.data = rsp;
+            p.nplist = (rsp.nplist != null ? rsp.nplist : null);
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.profiles.addClose('Back');
+
+    //
+    // The panel to edit Shipping Profile
+    //
+    this.profile = new M.panel('Shipping Profile', 'ciniki_sapos_settings', 'profile', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.profile');
+    this.profile.data = null;
+    this.profile.profile_id = 0;
+    this.profile.nplist = [];
+    this.profile.sections = {
+        'general':{'label':'', 'fields':{
+            'name':{'label':'Name', 'required':'yes', 'type':'text'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.profile.save();'},
+            'delete':{'label':'Delete', 
+                'visible':function() {return M.ciniki_sapos_settings.profile.profile_id > 0 ? 'yes' : 'no'; },
+                'fn':'M.ciniki_sapos_settings.profile.remove();'},
+            }},
+        };
+    this.profile.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.profile.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.shippingProfileHistory', 'args':{'tnid':M.curTenantID, 'profile_id':this.profile_id, 'field':i}};
+    }
+    this.profile.open = function(cb, pid, list) {
+        if( pid != null ) { this.profile_id = pid; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('ciniki.sapos.shippingProfileGet', {'tnid':M.curTenantID, 'profile_id':this.profile_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.profile;
+            p.data = rsp.profile;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.profile.save = function(cb) {
+        if( cb == null ) { cb = 'M.ciniki_sapos_settings.profile.close();'; }
+        if( !this.checkForm() ) { return false; }
+        if( this.profile_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('ciniki.sapos.shippingProfileUpdate', {'tnid':M.curTenantID, 'profile_id':this.profile_id}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    eval(cb);
+                });
+            } else {
+                eval(cb);
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('ciniki.sapos.shippingProfileAdd', {'tnid':M.curTenantID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.profile.profile_id = rsp.id;
+                eval(cb);
+            });
+        }
+    }
+    this.profile.remove = function() {
+        M.confirm('Are you sure you want to remove this shipping profile?',null,function() {
+            M.ciniki_sapos_settings.profile.removeConfirmed();
+            });
+    }
+    this.profile.removeConfirmed = function() {
+        M.api.getJSONCb('ciniki.sapos.shippingProfileDelete', {'tnid':M.curTenantID, 'profile_id':this.profile_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            M.ciniki_sapos_settings.profile.close();
+        });
+    }
+    this.profile.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.profile_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_sapos_settings.profile.save(\'M.ciniki_sapos_settings.profile.open(null,' + this.nplist[this.nplist.indexOf('' + this.profile_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.profile.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.profile_id) > 0 ) {
+            return 'M.ciniki_sapos_settings.profile.save(\'M.ciniki_sapos_settings.profile.open(null,' + this.nplist[this.nplist.indexOf('' + this.profile_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.profile.addButton('save', 'Save', 'M.ciniki_sapos_settings.profile.save();');
+    this.profile.addClose('Cancel');
+//    this.profile.addButton('next', 'Next');
+//    this.profile.addLeftButton('prev', 'Prev');
+
+    //
+    // The panel to edit Shipping Profile Rate
+    //
+    this.rate = new M.panel('Shipping Profile Rate', 'ciniki_sapos_settings', 'rate', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.rate');
+    this.rate.data = null;
+    this.rate.profile_id = 0;
+    this.rate.rate_id = 0;
+    this.rate.nplist = [];
+    this.rate.sections = {
+        'general':{'label':'', 'fields':{
+            'flags1':{'label':'Minimum Quantity', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x01, 'on_fields':['min_quantity']},
+            'min_quantity':{'label':'', 'type':'text'},
+            'flags2':{'label':'Maximum Quantity', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x02, 'on_fields':['max_quantity']},
+            'max_quantity':{'label':'', 'type':'text'},
+            'flags5':{'label':'Multi-item Rate', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x10},
+            'flags8':{'label':'Instore Pickup Only', 'type':'flagtoggle', 'default':'off', 'field':'flags', 'bit':0x80, 'off_sections':['rates']},
+            }},
+        'rates':{'label':'Shipping Amounts', 'fields':{
+            'shipping_amount_ca':{'label':'Shipping to Canada', 'type':'text'},
+            'shipping_amount_us':{'label':'Shipping to US', 'type':'text'},
+            'shipping_amount_intl':{'label':'Shipping International', 'type':'text'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.rate.save();'},
+            'delete':{'label':'Delete', 
+                'visible':function() {return M.ciniki_sapos_settings.rate.rate_id > 0 ? 'yes' : 'no'; },
+                'fn':'M.ciniki_sapos_settings.rate.remove();'},
+            }},
+        };
+    this.rate.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.rate.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.shippingRateHistory', 'args':{'tnid':M.curTenantID, 'rate_id':this.rate_id, 'field':i}};
+    }
+    this.rate.open = function(cb, rid, pid, list) {
+        if( rid != null ) { this.rate_id = rid; }
+        if( pid != null ) { this.profile_id = pid; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('ciniki.sapos.shippingRateGet', {'tnid':M.curTenantID, 'rate_id':this.rate_id, 'profile_id':this.profile_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.rate;
+            p.data = rsp.rate;
+            if( rsp.rate.profile_id != null && rsp.rate.profile_id > 0 ) {
+                p.profile_id = rsp.rate.profile_id;
+            }
+            p.sections.general.fields.min_quantity.visible = ((p.data.flags&0x01) > 0 ? 'yes' : 'no');
+            p.sections.general.fields.max_quantity.visible = ((p.data.flags&0x02) > 0 ? 'yes' : 'no');
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.rate.save = function(cb) {
+        if( cb == null ) { cb = 'M.ciniki_sapos_settings.rate.close();'; }
+        if( !this.checkForm() ) { return false; }
+        if( this.rate_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('ciniki.sapos.shippingRateUpdate', {'tnid':M.curTenantID, 'rate_id':this.rate_id}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    eval(cb);
+                });
+            } else {
+                eval(cb);
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('ciniki.sapos.shippingRateAdd', {'tnid':M.curTenantID, 'profile_id':this.profile_id}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.rate.rate_id = rsp.id;
+                eval(cb);
+            });
+        }
+    }
+    this.rate.remove = function() {
+        M.confirm('Are you sure you want to remove shipping rate?',null,function() {
+            M.api.getJSONCb('ciniki.sapos.shippingRateDelete', {'tnid':M.curTenantID, 'rate_id':M.ciniki_sapos_settings.rate.rate_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.rate.close();
+            });
+        });
+    }
+    this.rate.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.rate_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_sapos_settings.rate.save(\'M.ciniki_sapos_settings.rate.open(null,' + this.nplist[this.nplist.indexOf('' + this.rate_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.rate.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.rate_id) > 0 ) {
+            return 'M.ciniki_sapos_settings.rate.save(\'M.ciniki_sapos_settings.rate.open(null,' + this.nplist[this.nplist.indexOf('' + this.rate_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.rate.addButton('save', 'Save', 'M.ciniki_sapos_settings.rate.save();');
+    this.rate.addClose('Cancel');
+    this.rate.addButton('next', 'Next');
+    this.rate.addLeftButton('prev', 'Prev');
+
+
 
 
     //
@@ -1563,7 +1850,7 @@ function ciniki_sapos_settings() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_sapos_settings', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
 

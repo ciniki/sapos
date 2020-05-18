@@ -328,6 +328,37 @@ function ciniki_sapos_objects($ciniki) {
 //          ),
 //      'history_table'=>'ciniki_sapos_history',
 //      );
+    
+    $objects['shippingprofile'] = array(
+        'name' => 'Shipping Profile',
+        'sync' => 'yes',
+        'o_name' => 'profile',
+        'o_container' => 'profiles',
+        'table' => 'ciniki_sapos_shipping_profiles',
+        'fields' => array(
+            'name' => array('name'=>'Name'),
+            ),
+        'history_table' => 'ciniki_sapos_history',
+        );
+    $objects['shippingrate'] = array(
+        'name' => 'Shipping Profile Rate',
+        'sync' => 'yes',
+        'o_name' => 'rate',
+        'o_container' => 'rates',
+        'table' => 'ciniki_sapos_shipping_rates',
+        'fields' => array(
+            'profile_id' => array('name'=>'Profile', 'ref'=>'ciniki.sapos.shippingprofile'),
+            'flags' => array('name'=>'Options', 'default'=>'0'),
+            'min_quantity' => array('name'=>'Minimum Quantity', 'default'=>'0'),
+            'max_quantity' => array('name'=>'Maximum Quantity', 'default'=>'0'),
+            'min_amount' => array('name'=>'Minimum $ Amount', 'default'=>'0'),
+            'max_amount' => array('name'=>'Maximum $ Amount', 'default'=>'0'),
+            'shipping_amount_us' => array('name'=>'Shipping to US', 'default'=>''),
+            'shipping_amount_ca' => array('name'=>'Shipping to Canada', 'default'=>''),
+            'shipping_amount_intl' => array('name'=>'Shipping International', 'default'=>''),
+            ),
+        'history_table' => 'ciniki_sapos_history',
+        );
     $objects['setting'] = array(
         'type'=>'settings',
         'name'=>'SAPOS Settings',

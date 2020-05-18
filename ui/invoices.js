@@ -131,7 +131,7 @@ function ciniki_sapos_invoices() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_sapos_invoices', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
 

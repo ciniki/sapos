@@ -324,7 +324,7 @@ function ciniki_sapos_orders() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_sapos_orders', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
 
