@@ -94,46 +94,84 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( isset($args['customer_ids']) ) {
-        $sections = array(
-            'ciniki.sapos.invoices' => array(
-                'label' => 'Invoices',
-                'type' => 'simplegrid', 
-                'num_cols' => 4,
-                'headerValues' => array('Invoice #', 'Date', 'Amount', 'Status'),
-                'cellClasses' => array('', ''),
-                'noData' => 'No invoices',
-                'addTxt' => 'Add Invoice',
-                'addApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('customer_id'=>$args['customer_ids'][0],'invoice_type'=>'10')),
-                'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
-                'data' => array(),
-                'cellValues' => array(
-                    '0' => 'd.invoice_number;',
-                    '1' => 'd.invoice_date;',
-                    '2' => 'd.total_amount_display;',
-                    '3' => 'd.status_text;',
-                    ),
+
+    //
+    // Setup the section for invoices
+    //
+    $sections = array();
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x01) ) {
+        $sections['ciniki.sapos.invoices'] = array(
+            'label' => 'Invoices',
+            'type' => 'simplegrid', 
+            'num_cols' => 4,
+            'headerValues' => array('Invoice #', 'Date', 'Amount', 'Status'),
+            'cellClasses' => array('', ''),
+            'noData' => 'No invoices',
+            'addTxt' => 'Add Invoice',
+            'addApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array(
+                'customer_id'=>(isset($args['customer_ids'][0]) ? $args['customer_ids'][0] : $args['customer_id']),
+                'invoice_type'=>'10',
+                )),
+            'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
+            'data' => array(),
+            'cellValues' => array(
+                '0' => 'd.invoice_number;',
+                '1' => 'd.invoice_date;',
+                '2' => 'd.total_amount_display;',
+                '3' => 'd.status_text;',
                 ),
             );
-    } else {
-        $sections = array(
-            'ciniki.sapos.invoices' => array(
-                'label' => 'Invoices',
-                'type' => 'simplegrid', 
-                'num_cols' => 4,
-                'headerValues' => array('Invoice #', 'Date', 'Amount', 'Status'),
-                'cellClasses' => array('', ''),
-                'noData' => 'No invoices',
-                'addTxt' => 'Add Invoice',
-                'addApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('customer_id'=>$args['customer_id'],'invoice_type'=>'10')),
-                'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
-                'data' => array(),
-                'cellValues' => array(
-                    '0' => 'd.invoice_number;',
-                    '1' => 'd.invoice_date;',
-                    '2' => 'd.total_amount_display;',
-                    '3' => 'd.status_text;',
-                    ),
+    }
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x08) ) {
+        $carts['ciniki.sapos.carts'] = array(
+            'label' => 'Carts',
+            'type' => 'simplegrid', 
+            'num_cols' => 4,
+            'headerValues' => array('Invoice #', 'Date', 'Amount', 'Status'),
+            'cellClasses' => array('', ''),
+            'noData' => 'No carts',
+            'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
+            'data' => array(),
+            'cellValues' => array(
+                '0' => 'd.invoice_number;',
+                '1' => 'd.invoice_date;',
+                '2' => 'd.total_amount_display;',
+                '3' => 'd.status_text;',
+                ),
+            );
+    }
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x20) ) {
+        $sections['ciniki.sapos.orders'] = array(
+            'label' => 'Orders',
+            'type' => 'simplegrid', 
+            'num_cols' => 4,
+            'headerValues' => array('Order #', 'Date', 'Amount', 'Status'),
+            'cellClasses' => array('', ''),
+            'noData' => 'No carts',
+            'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
+            'data' => array(),
+            'cellValues' => array(
+                '0' => 'd.invoice_number;',
+                '1' => 'd.invoice_date;',
+                '2' => 'd.total_amount_display;',
+                '3' => 'd.status_text;',
+                ),
+            );
+    }
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x010000) ) {
+        $quotes['ciniki.sapos.quotes'] = array(
+            'label' => 'Quotes',
+            'type' => 'simplegrid', 
+            'num_cols' => 3,
+            'headerValues' => array('Quote #', 'Date', 'Amount'),
+            'cellClasses' => array('', ''),
+            'noData' => 'No carts',
+            'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
+            'data' => array(),
+            'cellValues' => array(
+                '0' => 'd.invoice_number;',
+                '1' => 'd.invoice_date;',
+                '2' => 'd.total_amount_display;',
                 ),
             );
     }
@@ -149,7 +187,17 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
     foreach($types as $tid => $type) {
         foreach($type['invoices'] as $iid => $invoice) {
             $invoice['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $invoice['total_amount'], $intl_currency);
-            $sections['ciniki.sapos.invoices']['data'][] = $invoice;
+            if( $type['type'] == 10 && isset($sections['ciniki.sapos.invoices']) ) {
+                $sections['ciniki.sapos.invoices']['data'][] = $invoice;
+            } elseif( $type['type'] == 20 && isset($carts['ciniki.sapos.carts']) ) {
+                $carts['ciniki.sapos.carts']['data'][] = $invoice;
+            } elseif( $type['type'] == 30 && isset($sections['ciniki.sapos.invoices']) ) {
+                $sections['ciniki.sapos.invoices']['data'][] = $invoice;
+            } elseif( $type['type'] == 40 && isset($sections['ciniki.sapos.orders']) ) {
+                $sections['ciniki.sapos.orders']['data'][] = $invoice;
+            } elseif( $type['type'] == 90 && isset($quotes['ciniki.sapos.quotes']) ) {
+                $quotes['ciniki.sapos.quotes']['data'][] = $invoice;
+            }
         }
     }
 
@@ -161,6 +209,20 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         'label' => 'Invoices',
         'sections' => $sections,
         );
+    if( isset($carts) ) {
+        $rsp['tabs'][] = array(
+            'id' => 'ciniki.sapos.carts',
+            'label' => 'Carts',
+            'sections' => $carts,
+            );
+    }
+    if( isset($quotes) ) {
+        $rsp['tabs'][] = array(
+            'id' => 'ciniki.sapos.quotes',
+            'label' => 'Quotes',
+            'sections' => $quotes,
+            );
+    }
 
     return $rsp;
 }
