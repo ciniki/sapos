@@ -16,9 +16,7 @@ function ciniki_sapos_getCustomer(&$ciniki, $tnid, $args) {
         $strsql = "SELECT ciniki_customers.id, type, display_name, "
             . "ciniki_customers.parent_id, "
             . "ciniki_customers.status, "
-            . "ciniki_customers.salesrep_id, "
             . "ciniki_customers.tax_location_id, "
-            . "ciniki_customers.pricepoint_id, "
             . "ciniki_customers.company, "
             . "ciniki_customer_addresses.id AS address_id, "
             . "ciniki_customer_addresses.flags, "
@@ -40,7 +38,7 @@ function ciniki_sapos_getCustomer(&$ciniki, $tnid, $args) {
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.customers', array(
             array('container'=>'customers', 'fname'=>'id', 
                 'fields'=>array('id', 'display_name', 'company', 
-                    'status', 'salesrep_id', 'tax_location_id', 'pricepoint_id')),
+                    'status', 'tax_location_id')),
             array('container'=>'addresses', 'fname'=>'address_id',
                 'fields'=>array('id'=>'address_id', 'flags', 'address1', 'address2', 
                     'city', 'province', 'postal', 'country', 'phone')),
@@ -50,14 +48,8 @@ function ciniki_sapos_getCustomer(&$ciniki, $tnid, $args) {
         }
         if( isset($rc['customers']) && isset($rc['customers'][$args['customer_id']]) ) {
             $customer = $rc['customers'][$args['customer_id']];
-            if( isset($customer['salesrep_id']) && (!isset($args['salesrep_id']) || $args['salesrep_id'] == 0 || $args['salesrep_id'] == '') ) {
-                $args['salesrep_id'] = $customer['salesrep_id'];
-            }
             if( isset($customer['tax_location_id']) && (!isset($args['tax_location_id']) || $args['tax_location_id'] == 0 || $args['tax_location_id'] == '') ) {
                 $args['tax_location_id'] = $customer['tax_location_id'];
-            }
-            if( isset($customer['pricepoint_id']) && (!isset($args['pricepoint_id']) || $args['pricepoint_id'] == 0 || $args['pricepoint_id'] == '') ) {
-                $args['pricepoint_id'] = $customer['pricepoint_id'];
             }
             if( !isset($args['billing_name']) || $args['billing_name'] == '' ) {
                 $args['billing_name'] = $customer['display_name'];

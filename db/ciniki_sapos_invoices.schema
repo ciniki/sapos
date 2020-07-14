@@ -26,7 +26,7 @@
 #
 # customer_id:          The ID of the customer the invoice is for.
 #
-# salesrep_id:          The ID of the salesrep for this invoice, 0 if no rep.
+# salesrep_id:          (DEPRECATED) The ID of the salesrep for this invoice, 0 if no rep.
 #
 # invoice_type:         The type of invoice
 #
@@ -139,7 +139,7 @@
 # tax_location_id:      The ID of the tax location for the invoice.  If set to 0, then
 #                       use the customers tax location if specified.
 # 
-# pricepoint_id:        The ID of the pricepoint for this invoice, from customers.
+# pricepoint_id:        (DEPRECATED) The ID of the pricepoint for this invoice, from customers.
 #
 # subtotal_amount:              The amount before taxes, NOT including shipping amount.
 # subtotal_discount_percentage: The percent discount to apply to the subtotal amount.

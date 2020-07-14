@@ -46,7 +46,6 @@ function ciniki_sapos_invoiceAddFromExisting($ciniki, $tnid, $invoice_id) {
         . "invoice_number, "
         . "po_number, "
         . "customer_id, "
-        . "salesrep_id, "
         . "invoice_type, "
         . "status, "
         . "payment_status, "
@@ -72,7 +71,6 @@ function ciniki_sapos_invoiceAddFromExisting($ciniki, $tnid, $invoice_id) {
         . "shipping_phone, "
         . "shipping_notes, "
         . "tax_location_id, "
-        . "pricepoint_id, "
         . "shipping_amount, "
         . "subtotal_amount, "
         . "subtotal_discount_percentage, "
@@ -91,20 +89,16 @@ function ciniki_sapos_invoiceAddFromExisting($ciniki, $tnid, $invoice_id) {
         . "WHERE ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
-    // Check if only a sales rep
-    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
-        $strsql .= "AND ciniki_sapos_invoices.salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' ";
-    }
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-            'fields'=>array('id', 'invoice_number', 'invoice_type', 'po_number', 'customer_id', 'salesrep_id',
+            'fields'=>array('id', 'invoice_number', 'invoice_type', 'po_number', 'customer_id',
                 'status', 'payment_status', 'shipping_status', 'manufacturing_status',
                 'flags', 'invoice_date', 'due_date',
                 'billing_name', 'billing_address1', 'billing_address2', 'billing_city', 
                 'billing_province', 'billing_postal', 'billing_country',
                 'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
                 'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_phone', 'shipping_notes',
-                'tax_location_id', 'pricepoint_id', 
+                'tax_location_id',
                 'subtotal_amount', 'subtotal_discount_amount', 'subtotal_discount_percentage', 
                 'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
                 'paid_amount', 'balance_amount', 'user_id',

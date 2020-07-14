@@ -20,7 +20,6 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'inventory'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Inventory'), 
-        'salesreps'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Sales Reps'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -39,25 +38,6 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
     $modules = $rc['modules'];
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
-
-    //
-    // Check to make sure the invoice belongs to the salesrep
-    //
-    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
-        $strsql = "SELECT id "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.66', 'msg'=>'Permission denied'));
-        }
-    }
 
     //
     // Return the invoice record
@@ -127,37 +107,6 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
     }
 */
     $rsp = array('stat'=>'ok', 'invoice'=>$invoice);
-
-    //
-    // Check if we need to return the list of sales reps
-    //
-    if( ($modules['ciniki.sapos']['flags']&0x0800) > 0
-        && isset($args['salesreps']) && $args['salesreps'] == 'yes' 
-        ) {
-        //
-        // Get the active sales reps
-        //
-        $strsql = "SELECT ciniki_users.id, ciniki_users.display_name "
-            . "FROM ciniki_tenant_users, ciniki_users "
-            . "WHERE ciniki_tenant_users.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "AND ciniki_tenant_users.package = 'ciniki' "
-            . "AND ciniki_tenant_users.permission_group = 'salesreps' "
-            . "AND ciniki_tenant_users.status < 60 "
-            . "AND ciniki_tenant_users.user_id = ciniki_users.id "
-            . "";
-        $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.customers', array(
-            array('container'=>'salesreps', 'fname'=>'id', 'name'=>'user',
-                'fields'=>array('id', 'name'=>'display_name')),
-            ));
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( isset($rc['salesreps']) ) {
-            $rsp['salesreps'] = $rc['salesreps'];
-        } else {
-            $rsp['salesreps'] = array();
-        }
-    }
 
     return $rsp;
 }

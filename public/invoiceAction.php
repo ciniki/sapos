@@ -78,10 +78,6 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
             . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
-        // Check if only a sales rep
-        if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
-            $strsql .= "AND ciniki_sapos_invoices.salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' ";
-        }
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');

@@ -215,13 +215,6 @@ function ciniki_sapos_settings() {
             'rules-invoice-paid-change-items':{'label':'Change Paid Invoice Items', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
             'rules-invoice-submit-require-po_number':{'label':'Require PO Number', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
             }},
-        '_salesreps':{'label':'Sales Rep Rules', 'active':'no', 'fields':{
-            'rules-salesreps-invoice-po_number':{'label':'PO Number', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
-            'rules-salesreps-invoice-pricepoint_id':{'label':'Pricepoint', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
-            'rules-salesreps-invoice-billing':{'label':'Billing Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
-            'rules-salesreps-invoice-shipping':{'label':'Shipping Address', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
-            'rules-salesreps-invoice-notes':{'label':'Customer Notes', 'default':'view', 'type':'toggle', 'toggles':this.viewEditOptions},
-            }},
         '_invoice_email_options':{'label':'Invoice Email Options', 'fields':{
             'invoice-email-all-addresses':{'label':'Multiple emails per customer', 'type':'toggle', 'default':'no', 'toggles':{'no':'Send to one', 'yes':'Send to all'}},
             }},
@@ -1857,7 +1850,6 @@ function ciniki_sapos_settings() {
         //
         // Decide what should be visible
         //
-        this.invoice.sections._salesreps.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x0800) > 0?'yes':'no');
         this.invoice.sections._invoice_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x01)>0?'yes':'no';
         this.invoice.sections._invoice_email_options.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x01)>0&&(M.userPerms&0x01)==0x01?'yes':'no';
         this.invoice.sections._cart_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';

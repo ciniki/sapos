@@ -367,9 +367,6 @@ function ciniki_sapos_templates_picklist(&$ciniki, $tnid, $invoice_id, $tenant_d
         $pdf->header_details[] = array('label'=>'Due Date', 'value'=>$invoice['due_date']);
     }
 //  $pdf->header_details[] = array('label'=>'Status', 'value'=>$invoice['status_text']);
-    if( isset($invoice['salesrep_id_text']) ) {
-        $pdf->header_details[] = array('label'=>'Rep', 'value'=>$invoice['salesrep_id_text']);
-    }
 //  $pdf->header_details[] = array('label'=>'Status', 'value'=>$invoice['status_text']);
 //  $pdf->header_details[] = array('label'=>'Balance', 'value'=>$invoice['balance_amount_display']);
 

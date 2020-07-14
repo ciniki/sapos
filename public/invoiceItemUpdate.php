@@ -95,25 +95,6 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
     //
 
     //
-    // Check to make sure the invoice belongs to the salesrep
-    //
-    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
-        $strsql = "SELECT id "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.75', 'msg'=>'Permission denied'));
-        }
-    }
-
-    //
     // Check if quantity or unit_amount has changed, and update the amount
     //
     if( isset($args['quantity']) 

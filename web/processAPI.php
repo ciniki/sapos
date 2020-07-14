@@ -60,7 +60,6 @@ function ciniki_sapos_web_processAPI(&$ciniki, $settings, $tnid, $args) {
     if( !isset($ciniki['session']['customer']) ) {
         $_SESSION['customer'] = array(
             'price_flags'=>0x01,
-            'pricepoint_id'=>0,
             'first'=>'',
             'last'=>'',
             'display_name'=>'',

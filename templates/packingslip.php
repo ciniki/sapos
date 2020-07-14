@@ -299,9 +299,6 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $tnid, $shipment_id, $tena
     if( isset($shipment['invoice']['po_number']) && $shipment['invoice']['po_number'] != '' ) {
         $pdf->header_details[] = array('label'=>'PO Number', 'value'=>$shipment['invoice']['po_number']);
     }
-    if( isset($shipment['salesrep_id_text']) ) {
-        $pdf->header_details[] = array('label'=>'Rep', 'value'=>$shipment['salesrep_id_text']);
-    }
 
     //
     // Setup the PDF basics

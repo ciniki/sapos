@@ -59,7 +59,6 @@ function ciniki_sapos_checkAccess(&$ciniki, $tnid, $method) {
     $perms = 0;
     if( in_array('owners', $groups) ) { $perms |= 0x01; }
     if( in_array('employees', $groups) ) { $perms |= 0x02; }
-    if( in_array('salesreps', $groups) ) { $perms |= 0x04; }
     $ciniki['tenant']['user']['perms'] = $perms;
 
     //
@@ -84,27 +83,6 @@ function ciniki_sapos_checkAccess(&$ciniki, $tnid, $method) {
         && $method != 'ciniki.sapos.settingsUpdate'
         && $method != 'ciniki.sapos.settingsHistory'
         ) {
-        return array('stat'=>'ok', 'modules'=>$modules, 'perms'=>$perms);
-    }
-
-    //
-    // If the user is part of the salesreps, ensure they have access to request method
-    //
-    $salesreps_methods = array(
-        'ciniki.sapos.invoiceAdd',
-        'ciniki.sapos.invoiceGet',
-        'ciniki.sapos.invoiceItemAdd',
-        'ciniki.sapos.invoiceItemGet',
-        'ciniki.sapos.invoiceItemSearch',
-        'ciniki.sapos.invoiceItemUpdate',
-        'ciniki.sapos.invoiceItemDelete',
-        'ciniki.sapos.invoiceDelete',
-        'ciniki.sapos.invoiceUpdate',
-        'ciniki.sapos.invoiceAction',
-        'ciniki.sapos.history',
-        'ciniki.sapos.shipmentGet',
-        );
-    if( in_array($method, $salesreps_methods) && ($perms&0x04) == 0x04 ) {
         return array('stat'=>'ok', 'modules'=>$modules, 'perms'=>$perms);
     }
 

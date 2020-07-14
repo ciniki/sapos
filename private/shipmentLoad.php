@@ -88,25 +88,6 @@ function ciniki_sapos_shipmentLoad(&$ciniki, $tnid, $shipment_id) {
     }
 
     //
-    // Check to make sure the invoice belongs to the salesrep
-    //
-    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
-        $strsql = "SELECT id "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.39', 'msg'=>'Permission denied'));
-        }
-    }
-
-    //
     // Format elements
     //
     $shipment['weight'] = (float)$shipment['weight'];

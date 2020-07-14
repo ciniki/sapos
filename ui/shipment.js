@@ -294,23 +294,12 @@ function ciniki_sapos_shipment() {
         } else {
             this.edit.sections.details.fields.weight_units.visible = 'yes';
         }
-        //
-        // Check what the user should see
-        //
-        if( M.curTenant.permissions.owners == null 
-            && M.curTenant.permissions.employees == null 
-            && M.curTenant.permissions.salesreps != null 
-            && (M.userPerms&0x01) == 0
-            ) {
-            this.showShipment(cb, args.shipment_id);
+        if( args.shipment_id != null && args.invoice_id != null ) {
+            this.showEdit(cb, args.shipment_id, args.invoice_id, args.shipment_number);
+        } else if( args.invoice_id != null ) {
+            this.showEdit(cb, 0, args.invoice_id, args.shipment_number);
         } else {
-            if( args.shipment_id != null && args.invoice_id != null ) {
-                this.showEdit(cb, args.shipment_id, args.invoice_id, args.shipment_number);
-            } else if( args.invoice_id != null ) {
-                this.showEdit(cb, 0, args.invoice_id, args.shipment_number);
-            } else {
-                this.showEdit(cb, args.shipment_id);
-            }
+            this.showEdit(cb, args.shipment_id);
         }
     };
 

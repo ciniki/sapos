@@ -103,25 +103,6 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
         $item['unit_donation_amount'], $intl_currency);
 
     //
-    // Check to make sure the invoice belongs to the salesrep
-    //
-    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
-        $strsql = "SELECT id "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $item['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "AND salesrep_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( !isset($rc['invoice']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.73', 'msg'=>'Permission denied'));
-        }
-    }
-
-    //
     // Get the tax types available for the tenant
     //
     if( isset($modules['ciniki.taxes']) && isset($args['taxtypes']) && $args['taxtypes'] == 'yes' ) {

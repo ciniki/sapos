@@ -95,6 +95,7 @@ function ciniki_sapos_maps($ciniki) {
             '40.60'=>'Refunded',
             '40.65'=>'Void',
             '90.10'=>'Entered',
+            '90.40'=>'Payment Required',
             ),
         'payment_status'=>array(
             '10'=>'Payment Required',

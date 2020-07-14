@@ -54,7 +54,6 @@ function ciniki_sapos_invoiceUpdatePrices($ciniki, $tnid, $invoice_id, $args) {
                 $rc = $fn($ciniki, $tnid, array(
                     'object'=>$item['object'],
                     'object_id'=>$item['object_id'],
-                    'pricepoint_id'=>$args['pricepoint_id'],
                     ));
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;

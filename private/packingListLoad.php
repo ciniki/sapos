@@ -87,7 +87,6 @@ function ciniki_sapos_packingListLoad(&$ciniki, $tnid, $shipment_id) {
         . "invoice_number, "
         . "po_number, "
         . "customer_id, "
-        . "salesrep_id, "
         . "invoice_type, "
         . "invoice_type AS invoice_type_text, "
         . "status, "
@@ -140,7 +139,7 @@ function ciniki_sapos_packingListLoad(&$ciniki, $tnid, $shipment_id) {
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
             'fields'=>array('id', 'invoice_number', 'po_number', 'customer_id', 
-                'invoice_type', 'invoice_type_text', 'status', 'status_text', 'salesrep_id',
+                'invoice_type', 'invoice_type_text', 'status', 'status_text',
                 'payment_status', 'payment_status_text',
                 'shipping_status', 'shipping_status_text',
                 'manufacturing_status', 'manufacturing_status_text',
@@ -174,27 +173,6 @@ function ciniki_sapos_packingListLoad(&$ciniki, $tnid, $shipment_id) {
         return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.37', 'msg'=>'Invoice does not exist'));
     }
     $shipment['invoice'] = $rc['invoices'][0]['invoice'];
-
-    //
-    // Add sales rep info
-    //
-    if( $shipment['invoice']['salesrep_id'] > 0 ) {
-        $strsql = "SELECT display_name "
-            . "FROM ciniki_tenant_users, ciniki_users "
-            . "WHERE ciniki_tenant_users.user_id = '" . ciniki_core_dbQuote($ciniki, $shipment['invoice']['salesrep_id']) . "' "
-            . "AND ciniki_tenant_users.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_tenant_users.package = 'ciniki' "
-            . "AND ciniki_tenant_users.permission_group = 'salesreps' "
-            . "AND ciniki_tenant_users.user_id = ciniki_users.id "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.tenants', 'user');
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( isset($rc['user']) ) {
-            $shipment['salesrep_id_text'] = $rc['user']['display_name'];
-        }
-    }
 
     //
     // Get the customer information

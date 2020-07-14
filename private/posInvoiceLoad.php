@@ -57,7 +57,6 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
         . "po_number, "
         . "receipt_number, "
         . "customer_id, "
-        . "salesrep_id, "
         . "invoice_type, "
         . "invoice_type AS invoice_type_text, "
         . "status, "
@@ -101,7 +100,6 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
         . "work_postal, "
         . "work_country, "
         . "tax_location_id, "
-        . "pricepoint_id, "
         . "shipping_amount, "
         . "subtotal_amount, "
         . "subtotal_discount_percentage, "
@@ -121,7 +119,7 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-            'fields'=>array('id', 'invoice_number', 'po_number', 'receipt_number', 'customer_id', 'salesrep_id',
+            'fields'=>array('id', 'invoice_number', 'po_number', 'receipt_number', 'customer_id',
                 'invoice_type', 'invoice_type_text', 'status', 'status_text',
                 'payment_status', 'payment_status_text',
                 'shipping_status', 'shipping_status_text',
@@ -133,7 +131,7 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
                 'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
                 'shipping_province', 'shipping_postal', 'shipping_country', 'shipping_phone', 'shipping_notes',
                 'work_address1', 'work_address2', 'work_city', 'work_province', 'work_postal', 'work_country',
-                'tax_location_id', 'pricepoint_id', 
+                'tax_location_id',
                 'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
                 'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
                 'paid_amount', 'balance_amount',

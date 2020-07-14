@@ -28,9 +28,9 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     }
 
     //
-    // Load the invoice salesrep
+    // Load the invoice 
     //
-    $strsql = "SELECT id, customer_id, salesrep_id "
+    $strsql = "SELECT id, customer_id "
         . "FROM ciniki_sapos_invoices "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -43,15 +43,6 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.45', 'msg'=>'Invoice not found.'));
     }
     $invoice = $rc['invoice'];
-
-    //
-    // Check to make sure the invoice belongs to the salesrep
-    //
-    if( isset($ciniki['tenant']['user']['perms']) && ($ciniki['tenant']['user']['perms']&0x07) == 0x04 ) {
-        if( $invoice['salesrep_id'] != $ciniki['session']['user']['id'] ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.68', 'msg'=>'Permission denied'));
-        }
-    }
 
     //
     // Get the max line_number for this invoice
@@ -105,9 +96,6 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     $num_lines = 1;
     if( $args['object'] != '' && $args['object_id'] != '' ) {
         list($pkg,$mod,$obj) = explode('.', $args['object']);
-        if( !isset($args['pricepoint_id']) ) {
-            $args['pricepoint_id'] = 0;
-        }
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemLookup');
         if( $rc['stat'] == 'ok' ) {
             $fn = $rc['function_call'];
