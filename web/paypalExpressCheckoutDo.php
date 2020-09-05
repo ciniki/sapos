@@ -102,6 +102,15 @@ function ciniki_sapos_web_paypalExpressCheckoutDo(&$ciniki, $tnid, $args) {
         curl_close($ch);
     }
     if( strtolower($nvpResArray['ACK']) == 'success' || strtolower($nvpResArray['ACK']) == 'successwithwarning' ) {
+
+        //
+        // Make sure it wasn't a duplicate request
+        //
+        if( isset($nvpResArray['L_ERRORCODE0']) && $nvpResArray['L_ERRORCODE0'] == '11607' ) {
+            error_log("PAYPAL-ERR: DUP CART SUBMITTED: " . urldecode($nvpResArray['L_ERRORCODE0']) . '-' . urldecode($nvpResArray['L_LONGMESSAGE0']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.310', 'msg'=>'Oops, looks like something went wrong. Please contact us for help.'));
+        }
+
         //
         // Add a transaction to the invoice
         //
