@@ -321,7 +321,7 @@ function ciniki_sapos_invoice() {
                 }
                 else if( j == 1 ) {
                     if( d.item.code != null && d.item.code != '' ) {
-                        return '<span class="maintext">' + d.item.code + '</span><span class="subtext">' + d.item.description + '</span>' + (d.item.notes!=null&&d.item.notes!=''?'<span class="subsubtext">'+d.item.notes.replace(/\n/g, '<br/>')+'</span>':'');
+                        return '<span class="maintext">' + d.item.code + ' - ' + d.item.description + '</span>' + (d.item.notes!=null&&d.item.notes!=''?'<span class="subtext">'+d.item.notes.replace(/\n/g, '<br/>')+'</span>':'');
                     }
                     if( d.item.notes != null && d.item.notes != '' ) {
                         return '<span class="maintext">' + d.item.description + '</span><span class="subtext">' + d.item.notes.replace(/\n/g, '<br/>') + '</span>';
