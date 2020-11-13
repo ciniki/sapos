@@ -168,12 +168,42 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
     if( $invoice['customer_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'customerDetails2');
         $rc = ciniki_customers_hooks_customerDetails2($ciniki, $tnid, array( 'customer_id'=>$invoice['customer_id'], 
-            'phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no', 'membership'=>'yes'));
+            'phones'=>'yes', 'emails'=>'yes', 'addresses'=>'no', 'subscriptions'=>'no'));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
         $invoice['customer'] = $rc['customer'];
         $invoice['customer_details'] = $rc['details'];
+
+        //
+        // Get the membership details
+        //
+        if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.customers', 0x08) ) {
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'membershipDetails');
+            $rc = ciniki_customers_hooks_membershipDetails($ciniki, $tnid, array('customer_id' => $invoice['customer_id']));
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.customers.427', 'msg'=>'Unable to get purchases', 'err'=>$rc['err']));
+            }
+            $invoice['membership_details'] = isset($rc['membership_details']) ? $rc['membership_details'] : array();
+
+            if( $invoice['customer']['member_status'] == 0 ) {
+                array_unshift($invoice['membership_details'], array(
+                    'label' => 'Status',
+                    'value' => 'Not a member',
+                    ));
+            } elseif( $invoice['customer']['member_status'] == 10 ) {
+                array_unshift($invoice['membership_details'], array(
+                    'label' => 'Status',
+                    'value' => 'Active',
+                    ));
+
+            } elseif( $invoice['customer']['member_status'] == 60 ) {
+                array_unshift($invoice['membership_details'], array(
+                    'label' => 'Status',
+                    'value' => 'Inactive',
+                    ));
+            }
+        }
     }
 
     //

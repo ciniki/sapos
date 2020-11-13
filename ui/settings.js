@@ -963,7 +963,7 @@ function ciniki_sapos_settings() {
     //
     this.stripe = new M.panel('Stripe', 'ciniki_sapos_settings', 'stripe', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.stripe');
     this.stripe.sections = {
-        'stripe':{'label':'Paypal', 'fields':{
+        'stripe':{'label':'Stripe Settings', 'fields':{
             'stripe-pk':{'label':'Publishable key', 'type':'text'},
             'stripe-sk':{'label':'Secret key', 'type':'text'},
             }},

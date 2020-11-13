@@ -109,6 +109,10 @@ function ciniki_sapos_pos() {
             'changeTxt':'Change customer',
             'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'next\':\'M.ciniki_sapos_pos.checkout.updateCustomer\',\'action\':\'change\',\'current_id\':M.ciniki_sapos_pos.checkout.data.customer_id,\'customer_id\':0});',
             },
+        'membership_details':{'label':'Membership', 'type':'simplegrid', 'aside':'yes', 'num_cols':2,
+            'visible':function() { M.modFlagSet('ciniki.customers', 0x08); },
+            'cellClasses':['label',''],
+            },
         'item_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':4,
             'headerValues':['Code', 'Description', 'Price', ''],
             'cellClasses':['', 'multiline', 'alignright', 'alignright'],
@@ -141,7 +145,7 @@ function ciniki_sapos_pos() {
             },
         '_buttons':{'label':'', 'buttons':{
             'record':{'label':'Record Transaction', 
-                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount > 0 ?'yes':'no'},
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount >= 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
                 'fn':'M.ciniki_sapos_pos.transaction.open(\'M.ciniki_sapos_pos.checkout.open();\',0,M.ciniki_sapos_pos.checkout.invoice_id,\'now\',M.ciniki_sapos_pos.checkout.data.balance_amount_display);',
                 },
             'print':{'label':'Print Receipt', 
@@ -193,11 +197,31 @@ function ciniki_sapos_pos() {
         }
         M.ciniki_sapos_pos.searchresults.open('M.ciniki_sapos_pos.checkout.open();', v);
     }
+    this.checkout.cellColour = function(s, i, j, d) {
+        if( s == 'membership_details' && j == 1 && d.expires != null ) {
+            switch(d.expires) {
+                case 'past': return '#ffdddd';
+                case 'soon': return '#ffefdd';
+                case 'future': return '#ddffdd';
+            }
+        }
+        return '';
+    }
     this.checkout.cellValue = function(s, i, j, d) {
         if( s == 'details' || s == 'customer_details' ) {
             switch (j) {
                 case 0: return d.label;
                 case 1: return (d.label == 'Email'?M.linkEmail(d.value):d.value);
+            }
+        }
+        if( s == 'membership_details' ) {
+            switch(j) {
+                case 0: return d.label;
+                case 1: 
+                    if( d.expiry_display != null && d.expiry_display != '' ) {
+                        return d.value + '<span class="subdue"> (' + d.expiry_display + ')</span>';
+                    }
+                    return d.value;
             }
         }
         if( s == 'items' ) {
@@ -261,6 +285,9 @@ function ciniki_sapos_pos() {
     this.checkout.rowFn = function(s, i, d) {
         if( d == null ) {
             return '';
+        }
+        if( s == 'membership_details' ) {
+            return null;
         }
         if( s == 'customer_details' ) { return ''; }
         if( s == 'items' ) {

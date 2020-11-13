@@ -22,20 +22,26 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
     //
     // Apply any rules to the invoice
     //
-    
+
 
     //
     // Get the invoice details
     //
-    $strsql = "SELECT customer_id, invoice_type, status, "
-        . "receipt_number, "
-        . "payment_status, shipping_status, manufacturing_status, preorder_status, "
-        . "ROUND(total_amount, 2) AS total_amount, "
-        . "ROUND(paid_amount, 2) AS paid_amount, "
-        . "ROUND(balance_amount, 2) AS balance_amount "
-        . "FROM ciniki_sapos_invoices "
-        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "AND id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+    $strsql = "SELECT invoices.customer_id, invoices.invoice_type, invoices.status, "
+        . "invoices.receipt_number, "
+        . "invoices.payment_status, invoices.shipping_status, invoices.manufacturing_status, invoices.preorder_status, "
+        . "ROUND(invoices.total_amount, 2) AS total_amount, "
+        . "ROUND(invoices.paid_amount, 2) AS paid_amount, "
+        . "ROUND(invoices.balance_amount, 2) AS balance_amount, "
+        . "COUNT(items.id) AS num_items "
+        . "FROM ciniki_sapos_invoices AS invoices "
+        . "LEFT JOIN ciniki_sapos_invoice_items AS items ON ("
+            . "invoices.id = items.invoice_id "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . ") "
+        . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND invoices.id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+        . "GROUP BY invoices.id "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
     if( $rc['stat'] != 'ok' ) { 
@@ -177,8 +183,12 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
             if( $invoice['payment_status'] == 10 || $invoice['payment_status'] == 50 ) {
                 $new_payment_status = 40;
             }
+        } elseif( $amount_paid == 0 && $invoice['total_amount'] == 0 && $invoice['num_items'] > 0 ) {
+            // No paid items on invoice, but still need to mark as paid and process itemPaymentReceived
+            if( $invoice['payment_status'] < 50 ) {
+                $new_payment_status = 50;
+            }
         } elseif( $amount_paid > 0 && $amount_paid == $amount_refunded && $amount_paid == $invoice['total_amount'] ) {
-            error_log('new payment status');
             if( $invoice['payment_status'] < 60 ) {
                 $new_payment_status = 60;
             }
