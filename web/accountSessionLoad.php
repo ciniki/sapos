@@ -47,6 +47,7 @@ function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $tnid) {
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
+        $cart = $rc['invoice'];
 
         //
         // Check to make sure the invoice is still in shopping cart status
@@ -66,6 +67,9 @@ function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $tnid) {
         $ciniki['session']['cart']['sapos_id'] = $_SESSION['cart']['sapos_id'];
         $ciniki['session']['cart']['num_items'] = $_SESSION['cart']['num_items'];
 
+        //
+        // Attach the customer to the cart
+        //
         if( isset($rc['invoice']['customer_id']) && $rc['invoice']['customer_id'] == 0 ) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartCustomerUpdate');
             $rc = ciniki_sapos_web_cartCustomerUpdate($ciniki, $settings, $tnid);
@@ -74,6 +78,35 @@ function ciniki_sapos_web_accountSessionLoad(&$ciniki, $settings, $tnid) {
             }
         }
 
+        //
+        // Check for older carts and remove
+        //
+        $strsql = "SELECT id "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE customer_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['customer']['id']) . "' " 
+            . "AND invoice_type = 20 " // Cart
+            . "AND status = 10 "
+            . "AND id <> '" . ciniki_core_dbQuote($ciniki, $cart['id']) . "' " 
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.5', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+        }
+        if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
+            //
+            // Remove older carts
+            //
+            $carts = $rc['rows'];
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'cartDelete');
+            foreach($carts as $c) {
+                $rc = ciniki_sapos_cartDelete($ciniki, $tnid, $c['id']);
+                if( $rc['stat'] != 'ok' ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.11', 'msg'=>'Unable to remove older cart', 'err'=>$rc['err']));
+                }
+            }
+        }
+        
         return array('stat'=>'ok');
     }
 
