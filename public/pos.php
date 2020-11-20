@@ -247,6 +247,7 @@ function ciniki_sapos_pos(&$ciniki) {
             'invoice_type' => 30,
             'status' => 10,
             'payment_status' => 0,
+            'customer_id' => 0,
             'details' => array(
                 array('label'=>'Invoice #', 'value'=>'New Invoice'),
                 array('label'=>'Status', 'value'=>''),
