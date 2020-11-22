@@ -111,7 +111,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
     //
     $new_shipping_status = $invoice['shipping_status'];
     if( $invoice['shipping_status'] > 0 
-        && ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x40) > 0
+        && ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x20000040) > 0
         ) {
         $remaining_quantity = 'none';
         //
@@ -157,15 +157,19 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
         //
         // Decide what the new status should be
         //
-        if( $remaining_quantity == 'none' && $shipments == 'all' ) {
+        if( $remaining_quantity == 'none' && $new_shipping_status == 20 ) {
+            // Items have "shipped" (packed)
+            $new_shipping_status = 55;
+        }
+        elseif( $remaining_quantity == 'none' && $shipments == 'all' && $new_shipping_status < 55 ) {
             // Nothing remaining to be shipped, and all shipments have been sent
             $new_shipping_status = 50;
         }
-        elseif( $remaining_quantity = 'some' && $shipments == 'some' ) {
+        elseif( $remaining_quantity = 'some' && $shipments == 'some' && $new_shipping_status < 55 ) {
             // Some items have shipped, but not all
             $new_shipping_status = 30;
         }
-        elseif( $remaining_quantity = 'some' && $shipments == 'none' ) {    
+        elseif( $remaining_quantity = 'some' && $shipments == 'none' && $new_shipping_status < 55 && $new_shipping_status != 20 ) {    
             // Nothing has been shipped
             $new_shipping_status = 10;
         }
@@ -226,6 +230,10 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
         } elseif( $invoice['preorder_status'] == 30 && $new_status == 30 ) {
             $new_status = 50;
         }
+        // Check if pending pickup and paid
+        if( $invoice['shipping_status'] == 20 && $new_payment_status == 50 ) {
+            $new_status = 45;
+        }
     }
     elseif( $invoice['invoice_type'] == '40' && $invoice['status'] > 15 && $invoice['status'] < 65 ) {
         //
@@ -243,6 +251,9 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
         }
         elseif( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
             $new_status = 20;
+        }
+        elseif( $new_shipping_status == 20 ) {
+            $new_status = 45;
         }
         elseif( $new_shipping_status > 0 && $new_shipping_status < 50 ) {   
             $new_status = 30;

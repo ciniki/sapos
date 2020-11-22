@@ -89,6 +89,8 @@
 #                   If no taxes are to be applied, then taxtype_id should be set to a value of zero,
 #                   or to the ID of the tax type that has no tax rates applied.
 #
+# shipping_profile_id:  The ID of the shipping profile for this item.
+#
 # notes:            Any notes for this item, that will be shown on the invoice/receipt.  This will 
 #                   typically be blank but can be used as a second description line if required.
 #
@@ -122,10 +124,11 @@ create table ciniki_sapos_invoice_items (
     total_amount decimal(19,4) not null,
     unit_donation_amount decimal(19,4) not null,
     taxtype_id int not null,
+    shipping_profile_id int not null,
     notes varchar(6000) not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
     index (invoice_id, object, object_id, taxtype_id),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.08';
+) ENGINE='InnoDB', COMMENT='v1.09';

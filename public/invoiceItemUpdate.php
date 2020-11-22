@@ -35,6 +35,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         'unit_preorder_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Preorder Amount'),
         'unit_donation_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Donation Amount'),
         'taxtype_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Tax Type'),
+        'shipping_profile_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Profile'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 

@@ -210,7 +210,11 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     // Build the shipping address
     //
     $invoice['shipping_address'] = '';
-    if( $invoice['shipping_name'] != '' 
+    if( $invoice['shipping_status'] == 20 ) {
+        $invoice['shipping_address'] .= 
+            ($invoice['shipping_address']!=''?"\n":'') . $invoice['shipping_name'];
+    }
+    elseif( $invoice['shipping_name'] != '' 
         && (!isset($invoice['customer']['display_name']) 
             || $invoice['customer']['display_name'] != $invoice['shipping_name']) 
         ) {

@@ -37,6 +37,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
             'name'=>'Discount Percentage'),
         'unit_donation_amount'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Donation Portion'),
         'taxtype_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Tax Type'),
+        'shipping_profile_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Profile'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'),
         )); 
     if( $rc['stat'] != 'ok' ) { 

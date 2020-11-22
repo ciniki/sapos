@@ -82,6 +82,7 @@ function ciniki_sapos_shippingProfilesGet($ciniki) {
             . "ciniki_sapos_shipping_rates.shipping_amount_intl "
             . "FROM ciniki_sapos_shipping_rates "
             . "WHERE ciniki_sapos_shipping_rates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND ciniki_sapos_shipping_rates.profile_id = '" . ciniki_core_dbQuote($ciniki, $args['profile_id']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(

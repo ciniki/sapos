@@ -41,6 +41,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
         . "ciniki_sapos_invoices.discount_amount, "
         . "ciniki_sapos_invoices.total_amount, "
         . "ciniki_sapos_invoices.total_savings, "
+        . "ciniki_sapos_invoices.shipping_name, "
         . "ciniki_sapos_invoices.shipping_address1, "
         . "ciniki_sapos_invoices.shipping_address2, "
         . "ciniki_sapos_invoices.shipping_city, "
@@ -81,6 +82,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
         'total_amount'=>$rc['invoice']['total_amount'],
         'total_savings'=>$rc['invoice']['total_savings'],
         'shipping_status'=>$rc['invoice']['shipping_status'],
+        'shipping_name'=>$rc['invoice']['shipping_name'],
         'shipping_address1'=>$rc['invoice']['shipping_address1'],
         'shipping_address2'=>$rc['invoice']['shipping_address2'],
         'shipping_city'=>$rc['invoice']['shipping_city'],
@@ -184,7 +186,8 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
             $invoice_total_savings = bcadd($invoice_total_savings, $item['discount_amount'], 4);
             // Check if shipping item
             if( ($item['flags']&0x0440) == 0x0040 ) {
-                if( $item['shipped_quantity'] < $item['quantity'] ) {   
+                // Item shipping and NOT POS checkout
+                if( $item['shipped_quantity'] < $item['quantity'] && $invoice['invoice_type'] != 30 ) {   
                     $shipping_status = 10;
                 }
             }
@@ -261,6 +264,21 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
         if( $new_preorder_ship != 99999.99 ) {
             $invoice_preorder_shipping_amount = $new_preorder_ship;
         }
+    }
+
+    //
+    // Check if only instore pickup offered and shipping is required
+    //
+    if( ($shipping_required == 'yes' || $preorder_shipping_required == 'yes') 
+        && !ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x40) 
+        && !ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x10000000) 
+        && ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x20000000) 
+        && $invoice['customer_id'] > 0 
+        && $shipping_status == 10
+        && $invoice['invoice_type'] != 30 
+        ) {
+        $new_shipping_amount = 0;
+        $shipping_status = 20;
     }
 
     //
@@ -456,6 +474,56 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $invoice_i
     $invoice_total_savings = bcadd($invoice_total_savings, $invoice_discount_amount, 4);
 
     $args = array();
+    if( $shipping_status == 20 ) {
+        $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', '');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $settings = isset($rc['settings'])?$rc['settings']:array();
+
+        // Check if shipping_name set for pickups, could also be blank (Leave nested if)
+        if( isset($settings['invoice-instore-pickup-name']) ) {
+            if( $settings['invoice-instore-pickup-name'] != $invoice['shipping_name'] ) {
+                $args['shipping_name'] = $settings['invoice-instore-pickup-name'];
+            }
+        } elseif( $invoice['shipping_name'] != 'In Store Pickup' ) {
+            $args['shipping_name'] = 'In Store Pickup';
+        }
+        if( isset($settings['invoice-instore-pickup-address1']) 
+            && $settings['invoice-instore-pickup-address1'] != $invoice['shipping_address1'] 
+            ) {
+            $args['shipping_address1'] = $settings['invoice-instore-pickup-address1'];
+        }
+        if( isset($settings['invoice-instore-pickup-address2']) 
+            && $settings['invoice-instore-pickup-address2'] != $invoice['shipping_address2'] 
+            ) {
+            $args['shipping_address2'] = $settings['invoice-instore-pickup-address2'];
+        }
+        if( isset($settings['invoice-instore-pickup-city']) 
+            && $settings['invoice-instore-pickup-city'] != $invoice['shipping_city'] 
+            ) {
+            $args['shipping_city'] = $settings['invoice-instore-pickup-city'];
+        }
+        if( isset($settings['invoice-instore-pickup-province']) 
+            && $settings['invoice-instore-pickup-province'] != $invoice['shipping_province'] 
+            ) {
+            $args['shipping_province'] = $settings['invoice-instore-pickup-province'];
+        }
+        if( isset($settings['invoice-instore-pickup-postal']) 
+            && $settings['invoice-instore-pickup-postal'] != $invoice['shipping_postal'] 
+            ) {
+            $args['shipping_postal'] = $settings['invoice-instore-pickup-postal'];
+        }
+        if( isset($settings['invoice-instore-pickup-country']) 
+            && $settings['invoice-instore-pickup-country'] != $invoice['shipping_country'] 
+            ) {
+            $args['shipping_country'] = $settings['invoice-instore-pickup-country'];
+        }
+    }
+
+    //
+    // Update the status fields of the invoice
+    //
     if( $invoice_preorder_subtotal_amount != floatval($invoice['preorder_subtotal_amount']) ) {
         $args['preorder_subtotal_amount'] = $invoice_preorder_subtotal_amount;
     }

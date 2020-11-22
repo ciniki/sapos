@@ -38,7 +38,9 @@ function ciniki_sapos_web_cartPaymentReceived(&$ciniki, $settings, $tnid, $cart)
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'submitOrder');
         $rc = ciniki_sapos_web_submitOrder($ciniki, $settings, $tnid, $cart);
     } else {
-        if( $cart['shipping_status'] > 0 || $cart['preorder_status'] > 0 ) {
+        if( $cart['shipping_status'] == 20 ) {
+            $cart['status'] = 45;
+        } elseif( $cart['shipping_status'] > 0 || $cart['preorder_status'] > 0 ) {
             $cart['status'] = 30;
         } else {
             $cart['status'] = 50;

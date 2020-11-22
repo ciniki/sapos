@@ -64,6 +64,7 @@ function ciniki_sapos_web_cartItemPaymentReceived($ciniki, $settings, $tnid, $ar
                 'quantity'=>$item['quantity'],
                 'customer_id'=>$ciniki['session']['customer']['id'],
                 'invoice_id'=>$item['invoice_id'],
+                'total_amount'=>$item['total_amount'],
                 ));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;

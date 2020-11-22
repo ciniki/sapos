@@ -48,6 +48,7 @@
 #                       20 - Pending Manufacturing
 #                       30 - Pending Shipping
 #                       40 - Pending Payment
+#                       45 - Pending Pickup
 #                       50 - Fulfilled/Paid/Shipped/Done
 #                       55 - Refund Required
 #                       60 - Refunded
@@ -71,8 +72,11 @@
 # 
 # shipping_status:      0 - no shipping
 #                       10 - Required
+#                       20 - In Store Pickup
 #                       30 - Partial Shipment
 #                       50 - Shipped
+#                       55 - Ready for Pickup
+#                       60 - Picked Up
 #
 # manufacturing_status: 0 - no manufacturing
 #                       10 - Required

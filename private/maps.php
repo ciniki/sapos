@@ -30,6 +30,7 @@ function ciniki_sapos_maps($ciniki) {
             '20'=>'Pending Manufacturing',
             '30'=>'Pending Shipping',
             '40'=>'Payment Required',
+            '45'=>'Pending Pickup',
             '50'=>'Fulfilled',
             '55'=>'Refund Required',
             '65'=>'Refunded',
@@ -39,6 +40,7 @@ function ciniki_sapos_maps($ciniki) {
             '10.20'=>'Processing',
             '10.30'=>'Pending Shipping',
             '10.40'=>'Payment Required',
+            '10.45'=>'Pending Pickup',
             '10.50'=>'Paid',
             '10.55'=>'Refund Required',
             '10.60'=>'Refunded',
@@ -81,6 +83,7 @@ function ciniki_sapos_maps($ciniki) {
             '30.20'=>'Pending Manufacturing',
             '30.30'=>'Pending Shipping',
             '30.40'=>'Payment Required',
+            '30.45'=>'Pending Pickup',
             '30.50'=>'Paid',
             '30.55'=>'Refund Required',
             '30.60'=>'Refunded',
@@ -90,6 +93,7 @@ function ciniki_sapos_maps($ciniki) {
             '40.20'=>'Pending Manufacturing',
             '40.30'=>'Pending Shipping',
             '40.40'=>'Payment Required',
+            '40.45'=>'Pending Pickup',
             '40.50'=>'Fulfilled',
             '40.55'=>'Refund Required',
             '40.60'=>'Refunded',
@@ -107,8 +111,11 @@ function ciniki_sapos_maps($ciniki) {
         'shipping_status'=>array(
             '0'=>'',        // No shipping
             '10'=>'Shipping Required',
+            '20'=>'Instore Pickup',
             '30'=>'Partial Shipment',
             '50'=>'Shipped',
+            '55'=>'Ready for Pickup',
+            '60'=>'Picked Up',
             ),
         'manufacturing_status'=>array(
             '0'=>'',        // No shipping

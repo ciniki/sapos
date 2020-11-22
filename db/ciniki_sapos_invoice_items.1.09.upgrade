@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table to version 1.08.
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN shipping_profile_id int not null AFTER taxtype_id;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.09';

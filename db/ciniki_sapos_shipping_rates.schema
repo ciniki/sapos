@@ -1,0 +1,76 @@
+#
+# Description
+# -----------
+# This table stores the shipping profile rates.
+#
+# The default rate is set to per item amount, so if
+# there are 3 items of shipping profile 1, then it would be 3 * shipping_amount.
+#
+# If the flag 0x10 is set then the shipping amount is only charged once,
+# so if 3 items of profile 1, then it would be 1 * shipping_amount.
+# 
+# There can be restrictions on the min and max quantity so
+# the rates can be increased the more that are purchaes.
+#
+# Eg: When dealing will selling greeting cards
+#     - Rate 1 could be 0x12, 1-10 cards are $2.50 shipping
+#     - Rate 2 could be 0x13, 11-19 cards are $5.00 shipping
+#     - Rate 3 could be 0x11, 20 cards are $0 shipping (free)
+#
+# Eg: when selling original artwork, each item should be charged the shipping amount.
+#     - Rate 1 could be 0x00, $150 shipping
+#
+# Fields
+# ------
+# id:                       The ID assigned to the record.
+# uuid:                     The Universal Unique ID.
+# tnid:                     The Tenant ID the record belongs to.
+#
+# profile_id:               The ID of the shipping profile the rate is attached to.
+#
+# flags:                    The options for the rate.
+#
+#                               0x01 - min quantity used
+#                               0x02 - max quantity used
+#                               0x04 - min amount used **future**
+#                               0x08 - max amount used **future**
+#                               0x10 - Multi-item rate (shipping amount only charged once per profile)
+#                               0x20 - 
+#                               0x40 - 
+#                               0x80 - Instore Pickup Only (Forces entire order to be instore pickup)
+#
+# min_quantity:             The minimum quantity ordered to get this shipping rate, only valid if flag 0x01 set.
+# max_quantity:             The maximum quantity ordered to get this rate, only valid if flag 0x02 set.
+#
+# min_amount:               The minimum quantity ordered to get this shipping rate, only valid if flag 0x04 set.
+# max_amount:               The maximum quantity ordered to get this rate, only valid if flag 0x08 set.
+#
+# shipping_amount_us:       The amount of shipping for United States.
+# shipping_amount_ca:       The amount of shipping for Canada.
+# shipping_amount_intl:     The amount of shipping for international.
+#
+# date_added:               The UTC date and time the record was added.
+# last_updated:             The UTC date and time the record was last update.
+#
+create table ciniki_sapos_shipping_rates (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+
+    profile_id int not null,
+    flags int not null,
+    min_quantity int not null,
+    max_quantity int not null,
+    min_amount decimal(19,6) not null, 
+    max_amount decimal(19,6) not null,
+    shipping_amount_us decimal(19,6) not null,
+    shipping_amount_ca decimal(19,6) not null,
+    shipping_amount_intl decimal(19,6) not null,
+
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    unique index (tnid, profile_id, min_quantity, max_quantity, min_amount, max_amount),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

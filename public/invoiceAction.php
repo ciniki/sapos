@@ -18,7 +18,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action',
-            'validlist'=>array('submit', 'discount')),
+            'validlist'=>array('submit', 'discount', 'packed', 'pickedup')),
         'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Percent'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -167,7 +167,94 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
                 }
             }
         }
+    } elseif( isset($args['action']) && $args['action'] == 'packed' ) {
+        //
+        // Load the invoice
+        //
+        $strsql = "SELECT po_number, customer_id, invoice_type, status, shipping_status, submitted_by "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+        if( !isset($rc['invoice']) ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
+        }
+        $invoice = $rc['invoice'];
+       
+        //
+        // Load the items
+        //
+        $strsql = "SELECT id, uuid, flags, quantity, shipped_quantity, unit_amount, unit_discount_amount, unit_discount_percentage, unit_preorder_amount "
+            . "FROM ciniki_sapos_invoice_items "
+            . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+        if( isset($rc['rows']) ) {
+            $items = $rc['rows'];
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
+            foreach($items as $item) {
+                if( ($item['flags']&0x40) == 0x40 && $item['shipped_quantity'] < $item['quantity'] ) {
+                    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $item['id'], array(
+                        'shipped_quantity' => $item['quantity'],
+                        ), 0x04);
+                    if( $rc['stat'] != 'ok' ) {
+                        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                        return $rc;
+                    }
+                }
+            }
+        }
 
+/*        $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice', $invoice['id'], array(
+            'shipping_status' => 55,
+            ), 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        } */
+
+//        return array('stat'=>'ok');
+
+    } elseif( isset($args['action']) && $args['action'] == 'pickedup' ) {
+        
+        //
+        // Load the invoice
+        //
+        $strsql = "SELECT po_number, customer_id, invoice_type, status, shipping_status, submitted_by "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+        if( !isset($rc['invoice']) ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
+        }
+        $invoice = $rc['invoice'];
+
+        $update_args = array();
+        if( $invoice['shipping_status'] == 55 ) {
+            $update_args['shipping_status'] = 60;
+            if( $invoice['status'] < 50 ) {
+                $update_args['status'] = 50;
+            }
+        }
+    
     } else {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.60', 'msg'=>'No action specified'));

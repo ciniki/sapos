@@ -13,7 +13,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_shippingprofileList($ciniki) {
+function ciniki_sapos_shippingProfiles($ciniki) {
     //
     // Find all the required and optional arguments
     //

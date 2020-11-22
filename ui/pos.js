@@ -46,6 +46,16 @@ function ciniki_sapos_pos() {
         'mc', 'large', 'sectioned', 'ciniki.sapos.pos.menu');
     this.menu.data = {};
     this.menu.sections = {
+        'packing_required':{'label':'Packing', 'type':'simplegrid', 'num_cols':2, 'aside':'yes',
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x20000000); },
+            'headerValues':['#', 'Customer'],
+            'noData':'No Orders',
+            },
+        'pickups':{'label':'Pending Pickups', 'type':'simplegrid', 'num_cols':2, 'aside':'yes',
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x20000000); },
+            'headerValues':['#', 'Customer'],
+            'noData':'No Pending Pickups',
+            },
         'invoices':{'label':'Todays Sales', 'type':'simplegrid', 'num_cols':4,
             'headerValues':['#', 'Status', 'Customer', 'Total'],
             'headerClasses':['', '', '', 'alignright'],
@@ -56,11 +66,25 @@ function ciniki_sapos_pos() {
             },
     }
     this.menu.cellValue = function(s, i, j, d) {
-        switch(j) {
-            case 0: return d.invoice_number;
-            case 1: return d.status_text;
-            case 2: return d.billing_name;
-            case 3: return d.total_amount_display;
+        if( s == 'packing_required' ) {
+            switch(j) {
+                case 0: return d.invoice_number;
+                case 1: return d.billing_name;
+            }
+        }
+        if( s == 'pickups' ) {
+            switch(j) {
+                case 0: return d.invoice_number;
+                case 1: return d.billing_name;
+            }
+        }
+        if( s == 'invoices' ) {
+            switch(j) {
+                case 0: return d.invoice_number;
+                case 1: return d.status_text;
+                case 2: return d.billing_name;
+                case 3: return d.total_amount_display;
+            }
         }
     }
     this.menu.rowFn = function(s, i, d) {
@@ -70,8 +94,26 @@ function ciniki_sapos_pos() {
         return 'M.ciniki_sapos_pos.checkout.open(\'M.ciniki_sapos_pos.menu.open();\',\'' + d.id + '\');';
     }
     this.menu.footerValue = function(s, i, d) {
-        if( i == 3 ) { return this.data.totals.total_amount_display; }
-        return '';
+        if( s == 'invoices' ) {
+            if( i == 3 ) { return this.data.totals.total_amount_display; }
+            return '';
+        }
+        return null;
+    }
+    this.menu.autoUpdate = function() {
+        if( this.isVisible() ) {
+            M.api.getJSONCb('ciniki.sapos.posSales', {'tnid':M.curTenantID}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.ciniki_sapos_pos.menu;
+                p.data = rsp;
+                p.refreshSections('packing_required');
+                p.refreshSections('pickups');
+                setTimeout('M.ciniki_sapos_pos.menu.autoUpdate();', 60000);
+            });
+        }
     }
     this.menu.open = function(cb, v) {
         M.api.getJSONCb('ciniki.sapos.posSales', {'tnid':M.curTenantID}, function(rsp) {
@@ -83,6 +125,7 @@ function ciniki_sapos_pos() {
             p.data = rsp;
             p.refresh();
             p.show(cb);
+            setTimeout('M.ciniki_sapos_pos.menu.autoUpdate();', 60000);
         });
     }
     this.menu.addButton('add', 'Add', 'M.ciniki_sapos_pos.checkout.open(\'M.ciniki_sapos_pos.menu.open();\',0);');
@@ -102,6 +145,18 @@ function ciniki_sapos_pos() {
         'details':{'label':'', 'type':'simplegrid', 'aside':'yes', 'num_cols':2,
             'cellClasses':['label',''],
             },
+        '_orderbuttons':{'label':'', 'aside':'yes',
+            'visible':function() { return M.ciniki_sapos_pos.checkout.data.status == 45 && M.ciniki_sapos_pos.checkout.data.shipping_status <= 55 ? 'yes' : 'no'; },
+            'buttons':{
+                'packed':{'label':'Order Packed - Ready for Pickup', 
+                    'visible':function() {return M.ciniki_sapos_pos.checkout.data.status == 45 && M.ciniki_sapos_pos.checkout.data.shipping_status == 20 ? 'yes' : 'no'; },
+                    'fn':'M.ciniki_sapos_pos.checkout.orderPacked();',
+                    },
+                'pickedup':{'label':'Order Picked Up', 
+                    'visible':function() {return M.ciniki_sapos_pos.checkout.data.status == 45 && M.ciniki_sapos_pos.checkout.data.shipping_status == 55 ? 'yes' : 'no'; },
+                    'fn':'M.ciniki_sapos_pos.checkout.orderPickedUp();',
+                    },
+            }},
         'customer_details':{'label':'', 'aside':'yes', 'type':'simplegrid', 'num_cols':2,
             'cellClasses':['label',''],
             'addTxt':'Edit',
@@ -110,10 +165,11 @@ function ciniki_sapos_pos() {
             'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'next\':\'M.ciniki_sapos_pos.checkout.updateCustomer\',\'action\':\'change\',\'current_id\':M.ciniki_sapos_pos.checkout.data.customer_id,\'customer_id\':0});',
             },
         'membership_details':{'label':'Membership', 'type':'simplegrid', 'aside':'yes', 'num_cols':2,
-            'visible':function() { M.modFlagSet('ciniki.customers', 0x08); },
+            'visible':function() { return (M.modFlagOn('ciniki.customers', 0x08) && M.ciniki_sapos_pos.checkout.data.customer_id > 0 ? 'yes' : 'no'); },
             'cellClasses':['label',''],
             },
         'item_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':4,
+            'visible':function() { return M.ciniki_sapos_pos.checkout.data.status < 45 ? 'yes' : 'no'; },
             'headerValues':['Code', 'Description', 'Price', ''],
             'cellClasses':['', 'multiline', 'alignright', 'alignright'],
             'hint':'Search Items',
@@ -293,7 +349,7 @@ function ciniki_sapos_pos() {
         if( s == 'items' ) {
             if( d.object == 'ciniki.courses.offering_registration' ) {
                 return 'M.startApp(\'ciniki.courses.sapos\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'item_object\':\'' + d.object + '\',\'item_object_id\':\'' + d.object_id + '\',\'source\':\'pos\'});';
-            } else if( M.ciniki_sapos_pos.checkout.data.status < 50 ) {
+            } else if( M.ciniki_sapos_pos.checkout.data.status < 45 ) {
                 return 'M.ciniki_sapos_pos.item.open(\'M.ciniki_sapos_pos.checkout.open();\',\'' + d.id + '\');';
             }
         }
@@ -335,6 +391,26 @@ function ciniki_sapos_pos() {
     this.checkout.printReceipt = function(iid) {
         if( iid <= 0 ) { return false; }
         M.showPDF('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id});
+    }
+    this.checkout.orderPacked = function() {
+        M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
+            'invoice_id':this.invoice_id, 'action':'packed'}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_pos.checkout.close();
+            });
+    }
+    this.checkout.orderPickedUp = function() {
+        M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
+            'invoice_id':this.invoice_id, 'action':'pickedup'}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_pos.checkout.close();
+            });
     }
     this.checkout.open = function(cb,iid) {
         if( cb != null ) { this.cb = cb; }
@@ -404,6 +480,11 @@ function ciniki_sapos_pos() {
             }
         } else {
             p.sections.transactions.visible='no';
+        }
+        if( rsp.invoice.status < 45 ) {
+            p.sections.items.addTxt = 'Add';
+        } else {
+            p.sections.items.addTxt = '';
         }
         p.refresh();
         p.show();
@@ -881,6 +962,15 @@ function ciniki_sapos_pos() {
         } else {
             this.item.sections.details.fields.taxtype_id.active = 'no';
             this.item.sections.details.fields.taxtype_id.options = {'0':'No Taxes'};
+        }
+        
+        //
+        // If instore pickups, then make sure they are visible
+        //
+        if( M.modFlagOn('ciniki.sapos', 0x20000000) ) {
+            this.menu.size = 'large mediumaside';
+        } else {
+            this.menu.size = 'large';
         }
 
         //

@@ -98,6 +98,72 @@ function ciniki_sapos_posSales(&$ciniki) {
 
     $totals['total_amount_display'] = '$' . number_format($totals['total_amount'], 2);
 
-    return array('stat'=>'ok', 'invoices'=>$invoices, 'invoice_ids'=>$invoice_ids, 'totals'=>$totals);
+    $rsp = array('stat'=>'ok', 'invoices'=>$invoices, 'invoice_ids'=>$invoice_ids, 'totals'=>$totals);
+
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x20000000) ) {
+        //
+        // Get the list of orders that require packing
+        //
+        $strsql = "SELECT invoices.id, "
+            . "invoices.invoice_number, "
+            . "invoices.invoice_type, "
+            . "invoices.status, "
+            . "CONCAT_WS('.', invoices.invoice_type, invoices.status) AS status_text, "
+            . "invoices.invoice_date, "
+            . "invoices.billing_name, "
+            . "invoices.total_amount "
+            . "FROM ciniki_sapos_invoices AS invoices "
+            . "WHERE invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
+            . "AND invoices.invoice_type != 20 "
+            . "AND invoices.status = 45 "
+            . "AND invoices.shipping_status = 20 "
+            . "AND invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "ORDER BY invoice_date DESC "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+            array('container'=>'invoices', 'fname'=>'id', 
+                'fields'=>array('id', 'invoice_number', 'invoice_type', 'status', 'status_text', 'invoice_date', 'billing_name', 'total_amount'),
+                'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
+                ),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.249', 'msg'=>'Unable to load invoices', 'err'=>$rc['err']));
+        }
+        $rsp['packing_required'] = isset($rc['invoices']) ? $rc['invoices'] : array();
+
+        //
+        // Get the list of orders that are for pickup
+        //
+        $strsql = "SELECT invoices.id, "
+            . "invoices.invoice_number, "
+            . "invoices.invoice_type, "
+            . "invoices.status, "
+            . "CONCAT_WS('.', invoices.invoice_type, invoices.status) AS status_text, "
+            . "invoices.invoice_date, "
+            . "invoices.billing_name, "
+            . "invoices.total_amount "
+            . "FROM ciniki_sapos_invoices AS invoices "
+            . "WHERE invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
+            . "AND invoices.invoice_type != 20 "
+            . "AND invoices.status = 45 "
+            . "AND invoices.shipping_status = 55 "
+            . "AND invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "ORDER BY invoice_date DESC "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+            array('container'=>'invoices', 'fname'=>'id', 
+                'fields'=>array('id', 'invoice_number', 'invoice_type', 'status', 'status_text', 'invoice_date', 'billing_name', 'total_amount'),
+                'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
+                ),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.249', 'msg'=>'Unable to load invoices', 'err'=>$rc['err']));
+        }
+        $rsp['pickups'] = isset($rc['invoices']) ? $rc['invoices'] : array();
+    }
+
+    return $rsp;
 }
 ?>
