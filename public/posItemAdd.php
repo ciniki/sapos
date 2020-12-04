@@ -95,7 +95,7 @@ function ciniki_sapos_posItemAdd(&$ciniki) {
     //
     // Check for auto categories
     //
-    if( isset($settings['invoice-autocat-' . $item['object']]) ) {
+    if( isset($item['object']) && isset($settings['invoice-autocat-' . $item['object']]) ) {
         $args['category'] = $settings['invoice-autocat-' . $item['object']];
     }
 
