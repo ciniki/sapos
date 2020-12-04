@@ -171,60 +171,91 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         //
         // Load the invoice
         //
-        $strsql = "SELECT po_number, customer_id, invoice_type, status, shipping_status, submitted_by "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
+        $rc = ciniki_sapos_invoiceLoad($ciniki, $args['tnid'], $args['invoice_id']);
         if( $rc['stat'] != 'ok' ) {
-            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
             return $rc;
-        }
-        if( !isset($rc['invoice']) ) {
-            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
         }
         $invoice = $rc['invoice'];
-       
-        //
-        // Load the items
-        //
-        $strsql = "SELECT id, uuid, flags, quantity, shipped_quantity, unit_amount, unit_discount_amount, unit_discount_percentage, unit_preorder_amount "
-            . "FROM ciniki_sapos_invoice_items "
-            . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
-        if( $rc['stat'] != 'ok' ) {
-            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return $rc;
-        }
-        if( isset($rc['rows']) ) {
-            $items = $rc['rows'];
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
-            foreach($items as $item) {
-                if( ($item['flags']&0x40) == 0x40 && $item['shipped_quantity'] < $item['quantity'] ) {
-                    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $item['id'], array(
-                        'shipped_quantity' => $item['quantity'],
-                        ), 0x04);
-                    if( $rc['stat'] != 'ok' ) {
-                        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-                        return $rc;
-                    }
+        foreach($invoice['items'] as $item) {
+            $item = $item['item'];
+            if( ($item['flags']&0x40) == 0x40 && $item['shipped_quantity'] < $item['quantity'] ) {
+                $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $item['id'], array(
+                    'shipped_quantity' => $item['quantity'],
+                    ), 0x04);
+                if( $rc['stat'] != 'ok' ) {
+                    ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                    return $rc;
                 }
             }
         }
 
-/*        $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice', $invoice['id'], array(
-            'shipping_status' => 55,
-            ), 0x04);
-        if( $rc['stat'] != 'ok' ) {
-            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return $rc;
-        } */
+        //
+        // Check if email configured to send when order ready for pickup
+        //
+        if( isset($settings['instore-pickup-ready-email-subject']) 
+            && $settings['instore-pickup-ready-email-subject'] != ''
+            && isset($settings['instore-pickup-ready-email-content']) 
+            && $settings['instore-pickup-ready-email-content'] != ''
+            ) {
+            $subject = $settings['instore-pickup-ready-email-subject'];
+            $textmsg = $settings['instore-pickup-ready-email-content'];
+            $subject = str_ireplace("{_invoicenumber_}", $invoice['invoice_number'], $subject);
+            $textmsg = str_ireplace("{_invoicenumber_}", $invoice['invoice_number'], $textmsg);
 
-//        return array('stat'=>'ok');
+            //
+            // Prepare the invoice
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'tenantDetails');
+            $rc = ciniki_tenants_tenantDetails($ciniki, $args['tnid']);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $tenant_details = array();
+            if( isset($rc['details']) && is_array($rc['details']) ) {
+                $tenant_details = $rc['details'];
+            }
+
+            //
+            // Create the pdf
+            //
+            $rc = ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'templates', 'default');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $fn = $rc['function_call'];
+            $rc = $fn($ciniki, $args['tnid'], $invoice['id'], $tenant_details, $settings, 'email');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+
+            //
+            // Email the pdf to the customer
+            //
+            $filename = $rc['filename'];
+            $invoice = $rc['invoice'];
+            $pdf = $rc['pdf'];
+
+            //
+            // Send the email
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
+            $rc = ciniki_mail_hooks_addMessage($ciniki, $args['tnid'], array(
+                'object'=>'ciniki.sapos.invoice',
+                'object_id'=>$invoice['id'],
+                'customer_id'=>$invoice['customer']['id'],
+                'customer_email'=>$invoice['customer']['emails'][0]['email']['address'],
+                'customer_name'=>$invoice['customer']['display_name'],
+                'subject'=>$subject,
+                'html_content'=>$textmsg,
+                'text_content'=>$textmsg,
+                'attachments'=>array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$args['tnid']);
+        }
 
     } elseif( isset($args['action']) && $args['action'] == 'pickedup' ) {
         

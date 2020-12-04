@@ -714,6 +714,18 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     }
 
     //
+    // Check if there is a instore pickup message to be displayed
+    //
+    if( $invoice['shipping_status'] == 20 
+        && isset($sapos_settings['invoice-bottom-instore-pickup-message']) 
+        && $sapos_settings['invoice-bottom-instore-pickup-message'] != '' 
+        ) {
+        $pdf->Ln();
+        $pdf->SetFont('');
+        $pdf->MultiCell(180, 5, $sapos_settings['invoice-bottom-instore-pickup-message'], 0, 'L');
+    }
+
+    //
     // Check if there is a donation message to be displayed
     //
     if( isset($sapos_settings['donation-invoice-message']) && $sapos_settings['donation-invoice-message'] != '' ) {

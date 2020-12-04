@@ -987,6 +987,11 @@ function ciniki_sapos_pos() {
             '115':'Gift Certificate',
             '120':'Other',
         }
+        if( M.modFlagOn('ciniki.sapos', 0x200000) ) {
+            this.transactionSources[10] = 'Paypal';
+        } else if( this.transactionSources[10] != null ) {
+            delete(this.transactionSources[10]);
+        }
         this.transaction.sections.details.fields.source.toggles = this.transactionSources;
 
         this.menu.open(cb,0);
