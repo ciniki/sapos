@@ -69,6 +69,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         . "i.po_number, "
         . "c.type AS customer_type, "
         . "c.display_name, "
+        . "m.quantity, "
         . "i.total_amount, "
         . "m.category, m.code, m.description, "
         . "IF(IFNULL(m.category, '') = '', 'Uncategorized', category) AS category, "
@@ -97,7 +98,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'categories', 'fname'=>'category', 'fields'=>array('name'=>'category')),
         array('container'=>'items', 'fname'=>'id', 
-            'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'category', 'code', 'description', 'amount', 'source'),
+            'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'category', 'code', 'description', 'amount', 'source', 'quantity'),
             'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status'],
                 'source'=>$maps['transaction']['source'],
                 ),
@@ -116,6 +117,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         $categories[$cid]['textlist'] = 0;
         if( isset($category['items']) ) {
             foreach($category['items'] as $iid => $item) {
+                $categories[$cid]['items'][$iid]['quantity'] = (float)$item['quantity'];
                 $categories[$cid]['items'][$iid]['invoice_number'] = '#' . $item['invoice_number'];
                 $categories[$cid]['items'][$iid]['code_desc'] = ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
                 $categories[$cid]['total'] = bcadd($categories[$cid]['total'], $item['amount'], 6);
@@ -139,7 +141,8 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
                 'columns' => array(
                     array('label'=>'#', 'pdfwidth'=>'10%', 'field'=>'invoice_number'),
                     array('label'=>'Name', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
-                    array('label'=>'Item', 'pdfwidth'=>'40%', 'field'=>'code_desc'),
+                    array('label'=>'Item', 'pdfwidth'=>'35%', 'field'=>'code_desc'),
+                    array('label'=>'Qty', 'pdfwidth'=>'5%', 'field'=>'quantity'),
                     array('label'=>'Amount', 'pdfwidth'=>'12%', 'type'=>'dollar', 'field'=>'amount'),
                     array('label'=>'Payment', 'pdfwidth'=>'12%', 'field'=>'source'),
                     ),
