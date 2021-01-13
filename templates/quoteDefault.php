@@ -622,7 +622,7 @@ function ciniki_sapos_templates_quoteDefault(&$ciniki, $tnid, $invoice_id, $tena
     // ---------------------------------------------------------
 
     //Close and output PDF document
-    $pdf->Output('invoice_' . $invoice['invoice_number'] . '.pdf', 'D');
+    $pdf->Output('quote_' . $invoice['invoice_number'] . '.pdf', 'D');
 
     return array('stat'=>'exit');
 }

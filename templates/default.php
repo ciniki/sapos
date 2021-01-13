@@ -915,11 +915,17 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
 
     // ---------------------------------------------------------
 
+    $filename_prefix = 'invoice_';
+    if( $invoice['invoice_type'] == 90 ) {
+        $filename_prefix = 'quote_';
+    }
+    error_log($filename_prefix);
+
     if( $output == 'email' ) {
-        return array('stat'=>'ok', 'filename'=>'invoice_' . $invoice['invoice_number'] . '.pdf', 'pdf'=>$pdf, 'invoice'=>$invoice);
+        return array('stat'=>'ok', 'filename'=>$filename_prefix . $invoice['invoice_number'] . '.pdf', 'pdf'=>$pdf, 'invoice'=>$invoice);
     } else {
         //Close and output PDF document
-        $pdf->Output('invoice_' . $invoice['invoice_number'] . '.pdf', 'D');
+        $pdf->Output($filename_prefix . $invoice['invoice_number'] . '.pdf', 'D');
     }
 
     return array('stat'=>'exit');
