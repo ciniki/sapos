@@ -919,7 +919,6 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     if( $invoice['invoice_type'] == 90 ) {
         $filename_prefix = 'quote_';
     }
-    error_log($filename_prefix);
 
     if( $output == 'email' ) {
         return array('stat'=>'ok', 'filename'=>$filename_prefix . $invoice['invoice_number'] . '.pdf', 'pdf'=>$pdf, 'invoice'=>$invoice);
