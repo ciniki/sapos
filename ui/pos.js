@@ -201,7 +201,7 @@ function ciniki_sapos_pos() {
             },
         '_buttons':{'label':'', 'buttons':{
             'record':{'label':'Record Transaction', 
-                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount >= 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount >= 0 && M.ciniki_sapos_pos.checkout.data.balance_amount > 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
                 'fn':'M.ciniki_sapos_pos.transaction.open(\'M.ciniki_sapos_pos.checkout.open();\',0,M.ciniki_sapos_pos.checkout.invoice_id,\'now\',M.ciniki_sapos_pos.checkout.data.balance_amount_display);',
                 },
             'print':{'label':'Print Receipt', 
