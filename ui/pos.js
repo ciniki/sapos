@@ -458,7 +458,7 @@ function ciniki_sapos_pos() {
         }
         if( rsp.invoice.taxes != null ) {
             for(i in rsp.invoice.taxes) {
-                p.data.tallies['tax'+i] = {'description':rsp.invoice.taxes[i].tax.description, 'amount':rsp.invoice.taxes[i].tax.amount_display};
+                p.data.tallies['tax'+i] = {'description':rsp.invoice.taxes[i].description, 'amount':rsp.invoice.taxes[i].amount_display};
             }
         }
         if( p.data.tallies.length == 1 ) {
