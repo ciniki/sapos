@@ -613,14 +613,14 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         $total_margin = 0;
         foreach($invoice['costing'] as $cid => $cost) {
             $invoice['costing'][$cid]['quantity'] = (float)$cost['quantity'];
-            $invoice['costing'][$cid]['cost_display'] = '$' . number_format($cost['cost'], 2);
-            $invoice['costing'][$cid]['price_display'] = '$' . number_format($cost['price'], 2);
+            $invoice['costing'][$cid]['cost_display'] = '$' . number_format($cost['cost'], 0);
+            $invoice['costing'][$cid]['price_display'] = '$' . number_format($cost['price'], 0);
             $total = $cost['quantity'] * $cost['price']; 
             $invoice['costing'][$cid]['total'] = $total;
-            $invoice['costing'][$cid]['total_display'] = '$' . number_format($total, 2);
+            $invoice['costing'][$cid]['total_display'] = '$' . number_format($total, 0);
             $margin = $total - ($cost['quantity'] * $cost['cost']);
             $invoice['costing'][$cid]['margin'] = $margin;
-            $invoice['costing'][$cid]['margin_display'] = '$' . number_format($margin, 2);
+            $invoice['costing'][$cid]['margin_display'] = '$' . number_format($margin, 0);
             $total_cost += $cost['quantity'] * $cost['cost'];
             $total_total += $total;
             $total_margin += $margin;
@@ -632,10 +632,10 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
             }
         }
         $invoice['costing_totals'] = array(
-            'cost' => '$' . number_format($total_cost, 2),
-            'total' => '$' . number_format($total_total, 2),
-            'margin' => '$' . number_format($total_margin, 2),
-            'margin_percent' => number_format(($total_margin/$total_total)*100, 0),
+            'cost' => '$' . number_format($total_cost, 0),
+            'total' => '$' . number_format($total_total, 0),
+            'margin' => '$' . number_format($total_margin, 0),
+            'margin_percent' => ($total_margin != 0 ? number_format(($total_margin/$total_total)*100, 0) : ''),
             );
     }
 

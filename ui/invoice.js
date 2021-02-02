@@ -140,6 +140,7 @@ function ciniki_sapos_invoice() {
                 'headerValues':['Description', 'Qty', 'Cost', 'Price', 'Total', 'Margin', '%'],
                 'headerClasses':['', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
                 'cellClasses':['', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
+                'footerClasses':['', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
                 'sortable':'yes',
                 'sortTypes':['text','number','number','number','number','number','number'],
                 'addTxt':'Add',
@@ -928,7 +929,7 @@ function ciniki_sapos_invoice() {
     this.costing.sections = {
         'general':{'label':'', 'fields':{
             'line_number':{'label':'Line Number', 'type':'text'},
-            'description':{'label':'Item', 'type':'text', 'livesearch':'yes', 'livesearchcols':1},
+            'description':{'label':'Item', 'type':'text', 'livesearch':'yes', 'livesearchcols':3},
             'quantity':{'label':'Quantity', 'type':'text'},
             'cost':{'label':'Cost', 'type':'text'},
             'price':{'label':'Price', 'type':'text'},
@@ -951,7 +952,7 @@ function ciniki_sapos_invoice() {
             M.api.getJSONBgCb('ciniki.sapos.invoiceCostingSearch', {'tnid':M.curTenantID,
                 'field':i, 'invoice_id':this.invoice_id, 'start_needle':v, 'limit':15}, function(rsp) {
                     if( sN == M.ciniki_sapos_invoice.costing.liveSearchRN ) {
-                        M.ciniki_sapos_invoice.costing.liveSearchShow(s,i,M.gE(M.ciniki_sapos_invoice.costing.panelUID + '_' + i), rsp.items);
+                        M.ciniki_sapos_invoice.costing.liveSearchShow(s,i,M.gE(M.ciniki_sapos_invoice.costing.panelUID + '_' + i), rsp.costings);
                     }
                 });
         }
@@ -959,6 +960,8 @@ function ciniki_sapos_invoice() {
     this.costing.liveSearchResultValue = function(s,f,i,j,d) {
         switch(j) {
             case 0: return d.description;
+            case 1: return 'Cost: ' + d.cost;
+            case 2: return 'Price: ' + d.price;
         }
         return '';
     };

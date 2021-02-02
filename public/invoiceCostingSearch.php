@@ -65,7 +65,7 @@ function ciniki_sapos_invoiceCostingSearch($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'costings', 'fname'=>'id', 
-            'fields'=>array('id', 'invoice_id', 'line_number', 'quantity', 'cost', 'price')),
+            'fields'=>array('id', 'invoice_id', 'line_number', 'description', 'quantity', 'cost', 'price')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -75,6 +75,8 @@ function ciniki_sapos_invoiceCostingSearch($ciniki) {
         $costing_ids = array();
         foreach($costings as $iid => $costing) {
             $costing_ids[] = $costing['id'];
+            $costings[$iid]['cost'] = '$' . number_format($costing['cost'], 2);
+            $costings[$iid]['price'] = '$' . number_format($costing['price'], 2);
         }
     } else {
         $costings = array();
