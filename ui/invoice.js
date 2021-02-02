@@ -131,6 +131,20 @@ function ciniki_sapos_invoice() {
     //              'billing_name':{'label':'Bill To'},
                 'work_address':{'label':'Work Location'},
                 }},
+            'costing':{'label':'Costing', 'type':'simplegrid', 'num_cols':7, 'aside':'yes',
+                'visible':function() { if( M.ciniki_sapos_invoice.invoice.data.invoice_type == 90 ) { 
+                        return M.modSettingSet('ciniki.sapos','quote-costing');
+                        }
+                    return 'no';
+                    },
+                'headerValues':['Description', 'Qty', 'Cost', 'Price', 'Total', 'Margin', '%'],
+                'headerClasses':['', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
+                'cellClasses':['', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
+                'sortable':'yes',
+                'sortTypes':['text','number','number','number','number','number','number'],
+                'addTxt':'Add',
+                'addTopFn':'M.ciniki_sapos_invoice.costing.open(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id);',
+                },
             'shipitems':{'label':'', 'type':'simplegrid', 'num_cols':7,
                 'headerValues':['Description', 'Qty', 'Inv', 'B/O', 'Shp', 'Price', 'Total'],
                 'headerClasses':['', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright', 'alignright'],
@@ -252,6 +266,17 @@ function ciniki_sapos_invoice() {
                 switch (j) {
                     case 0: return d.detail.label;
                     case 1: return (d.detail.label == 'Email'?M.linkEmail(d.detail.value):d.detail.value);
+                }
+            }
+            if( s == 'costing' ) {
+                switch(j) {
+                    case 0: return d.description;
+                    case 1: return d.quantity;
+                    case 2: return d.cost_display;
+                    case 3: return d.price_display;
+                    case 4: return d.total_display;
+                    case 5: return d.margin_display;
+                    case 6: return d.margin_percent_display;
                 }
             }
             if( s == 'shipitems' ) {
@@ -382,6 +407,20 @@ function ciniki_sapos_invoice() {
                 }
             }
         };
+        this.invoice.footerValue = function(s, i, j, d) {
+            if( s == 'costing' ) {
+                switch(i) {
+                    case 0: return '';
+                    case 1: return '';
+                    case 2: return this.data.costing_totals.cost;
+                    case 3: return '';
+                    case 4: return this.data.costing_totals.total;
+                    case 5: return this.data.costing_totals.margin;
+                    case 6: return this.data.costing_totals.margin_percent;
+                }
+            }
+            return null;
+        }
     //      this.invoice.cellClass = function(s, i, j, d) {
     //          if( s == 'items' && j >= 2) { return 'alignright'; }
     //          if( s == 'tallies' ) { return 'alignright'; }
@@ -392,6 +431,9 @@ function ciniki_sapos_invoice() {
             if( s == 'customer_details' ) { return ''; }
             if( d != null && d.item != null && s == 'shipitems' && M.ciniki_sapos_invoice.invoice.data.status < 50 ) {
                 return 'M.ciniki_sapos_invoice.editItem(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
+            }
+            if( s == 'costing' ) {
+                return 'M.ciniki_sapos_invoice.costing.open(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.id + '\',M.ciniki_sapos_invoice.invoice.invoice_id);';
             }
             if( s == 'items' && (M.ciniki_sapos_invoice.invoice.data.status < 45
                 || (M.curTenant.sapos.settings['rules-invoice-paid-change-items'] != null && M.curTenant.sapos.settings['rules-invoice-paid-change-items'] == 'yes'))
@@ -873,6 +915,134 @@ function ciniki_sapos_invoice() {
         });
     }
     this.addorder.addClose('Cancel');
+
+    //
+    // The panel to edit Invoice Costing
+    //
+    this.costing = new M.panel('Costing Item', 'ciniki_sapos_invoice', 'costing', 'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.costing');
+    this.costing.data = null;
+    this.costing.costing_id = 0;
+    this.costing.invoice_id = 0;
+    this.costing.liveSearchRN = 0;
+    this.costing.nplist = [];
+    this.costing.sections = {
+        'general':{'label':'', 'fields':{
+            'line_number':{'label':'Line Number', 'type':'text'},
+            'description':{'label':'Item', 'type':'text', 'livesearch':'yes', 'livesearchcols':1},
+            'quantity':{'label':'Quantity', 'type':'text'},
+            'cost':{'label':'Cost', 'type':'text'},
+            'price':{'label':'Price', 'type':'text'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_invoice.costing.save();'},
+            'delete':{'label':'Delete', 
+                'visible':function() {return M.ciniki_sapos_invoice.costing.costing_id > 0 ? 'yes' : 'no'; },
+                'fn':'M.ciniki_sapos_invoice.costing.remove();'},
+            }},
+        };
+    this.costing.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.costing.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.invoiceCostingHistory', 'args':{'tnid':M.curTenantID, 'costing_id':this.costing_id, 'field':i}};
+    }
+    this.costing.liveSearchCb = function(s, i, v) {
+        this.liveSearchRN++;
+        var sN = this.liveSearchRN;
+        if( i == 'description' ) {
+            M.api.getJSONBgCb('ciniki.sapos.invoiceCostingSearch', {'tnid':M.curTenantID,
+                'field':i, 'invoice_id':this.invoice_id, 'start_needle':v, 'limit':15}, function(rsp) {
+                    if( sN == M.ciniki_sapos_invoice.costing.liveSearchRN ) {
+                        M.ciniki_sapos_invoice.costing.liveSearchShow(s,i,M.gE(M.ciniki_sapos_invoice.costing.panelUID + '_' + i), rsp.items);
+                    }
+                });
+        }
+    };
+    this.costing.liveSearchResultValue = function(s,f,i,j,d) {
+        switch(j) {
+            case 0: return d.description;
+        }
+        return '';
+    };
+    this.costing.liveSearchResultRowFn = function(s,f,i,j,d) {
+        return 'M.ciniki_sapos_invoice.costing.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + escape(d.description) + '\',\'' + d.quantity + '\',\'' + escape(d.cost) + '\',\'' + escape(d.price) + '\');';
+    };
+
+    this.costing.updateFromSearch = function(s, fid, d,q,c,p) {
+        this.setFieldValue('description', unescape(d));
+        this.setFieldValue('quantity', q);
+        this.setFieldValue('cost', unescape(c));
+        this.setFieldValue('price', unescape(p));
+        this.removeLiveSearch(s, fid);
+    };
+    this.costing.open = function(cb, cid, invoice_id) {
+        if( cid != null ) { this.costing_id = cid; }
+        if( invoice_id != null ) { this.invoice_id = invoice_id; }
+        M.api.getJSONCb('ciniki.sapos.invoiceCostingGet', {'tnid':M.curTenantID, 'costing_id':this.costing_id, 'invoice_id':this.invoice_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_invoice.costing;
+            p.data = rsp.costing;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.costing.save = function(cb) {
+        if( cb == null ) { cb = 'M.ciniki_sapos_invoice.costing.close();'; }
+        if( !this.checkForm() ) { return false; }
+        if( this.costing_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('ciniki.sapos.invoiceCostingUpdate', {'tnid':M.curTenantID, 'costing_id':this.costing_id}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    eval(cb);
+                });
+            } else {
+                eval(cb);
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('ciniki.sapos.invoiceCostingAdd', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_invoice.costing.costing_id = rsp.id;
+                eval(cb);
+            });
+        }
+    }
+    this.costing.remove = function() {
+        if( confirm('Are you sure you want to remove invoice cost?') ) {
+            M.api.getJSONCb('ciniki.sapos.invoiceCostingDelete', {'tnid':M.curTenantID, 'costing_id':this.costing_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_invoice.costing.close();
+            });
+        }
+    }
+    this.costing.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.costing_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_sapos_invoice.costing.save(\'M.ciniki_sapos_invoice.costing.open(null,' + this.nplist[this.nplist.indexOf('' + this.costing_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.costing.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.costing_id) > 0 ) {
+            return 'M.ciniki_sapos_invoice.costing.save(\'M.ciniki_sapos_invoice.costing.open(null,' + this.nplist[this.nplist.indexOf('' + this.costing_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.costing.addButton('save', 'Save', 'M.ciniki_sapos_invoice.costing.save();');
+    this.costing.addClose('Cancel');
+    this.costing.addButton('next', 'Next');
+    this.costing.addLeftButton('prev', 'Prev');
+
 
     //
     // Start the app

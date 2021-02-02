@@ -1,0 +1,43 @@
+#
+# Description
+# -----------
+# This table stores the costing items for an invoice/quote. It was developed so a business
+# could keep track of the items for a quote without having to show all the items on the quote.
+#
+# Fields
+# ------
+# id:               The invoice ID.
+# uuid:             The Universal Unique ID for the invoice.
+# tnid:             The tenant the invoice is for.
+#
+# invoice_id:       The ID of the invoice the item is attached to.
+#
+# line_number:      The line number of the item on the invoice.  Used for sorting.
+#
+# description:      The description of the item.
+#
+# quantity:         The number of units of the item.
+# cost:             The cost of a unit.
+# price:            The price of the unit to the customer.
+#
+# date_added:       The UTC date and time the invoice item was added.
+# last_updated:     The UTC date and time the invoice item was last updated.
+#
+create table ciniki_sapos_invoice_costing (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+
+    invoice_id int not null,
+    line_number int not null,
+    description varchar(1000) not null,
+    quantity decimal(19,4) not null,
+    cost decimal(19,4) not null,
+    price decimal(19,4) not null,
+
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    index (invoice_id),
+    index sync (uuid, tnid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

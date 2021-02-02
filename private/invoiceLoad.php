@@ -37,6 +37,16 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     $datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
     
     //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', '');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.56', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+    
+    //
     // Load the status maps for the text description of each status
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
@@ -569,6 +579,64 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         if( isset($rc['shipments']) ) {
             $invoice['shipments'] = $rc['shipments'];
         }
+    }
+
+    //
+    // Get any costing for the invoice
+    //
+    if( $invoice['invoice_type'] == 90 
+        && isset($settings['quote-costing']) && $settings['quote-costing'] == 'yes' 
+        ) {
+        $strsql = "SELECT id, "
+            . "invoice_id, "
+            . "line_number, "
+            . "description, "
+            . "quantity, "
+            . "cost, "
+            . "price "
+            . "FROM ciniki_sapos_invoice_costing "
+            . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice['id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "ORDER BY line_number, date_added "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+            array('container'=>'costing', 'fname'=>'id', 
+                'fields'=>array('id', 'invoice_id', 'line_number', 'description', 'quantity', 'cost', 'price')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $invoice['costing'] = isset($rc['costing']) ? $rc['costing'] : array();
+        $total_cost = 0;
+        $total_total = 0;
+        $total_margin = 0;
+        foreach($invoice['costing'] as $cid => $cost) {
+            $invoice['costing'][$cid]['quantity'] = (float)$cost['quantity'];
+            $invoice['costing'][$cid]['cost_display'] = '$' . number_format($cost['cost'], 2);
+            $invoice['costing'][$cid]['price_display'] = '$' . number_format($cost['price'], 2);
+            $total = $cost['quantity'] * $cost['price']; 
+            $invoice['costing'][$cid]['total'] = $total;
+            $invoice['costing'][$cid]['total_display'] = '$' . number_format($total, 2);
+            $margin = $total - ($cost['quantity'] * $cost['cost']);
+            $invoice['costing'][$cid]['margin'] = $margin;
+            $invoice['costing'][$cid]['margin_display'] = '$' . number_format($margin, 2);
+            $total_cost += $cost['quantity'] * $cost['cost'];
+            $total_total += $total;
+            $total_margin += $margin;
+            if( $margin != 0 ) {
+                $margin_percent = ($margin/$total)*100;
+                $invoice['costing'][$cid]['margin_percent_display'] = number_format($margin_percent, 0);
+            } else {
+                $margin_percent_display = '';
+            }
+        }
+        $invoice['costing_totals'] = array(
+            'cost' => '$' . number_format($total_cost, 2),
+            'total' => '$' . number_format($total_total, 2),
+            'margin' => '$' . number_format($total_margin, 2),
+            'margin_percent' => number_format(($total_margin/$total_total)*100, 0),
+            );
     }
 
     //

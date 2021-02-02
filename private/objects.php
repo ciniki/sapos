@@ -121,6 +121,22 @@ function ciniki_sapos_objects($ciniki) {
             ),
         'history_table'=>'ciniki_sapos_history',
         );
+    $objects['invoice_costing'] = array(
+        'name' => 'Invoice Costing',
+        'sync' => 'yes',
+        'o_name' => 'costing',
+        'o_container' => 'costings',
+        'table' => 'ciniki_sapos_invoice_costing',
+        'fields' => array(
+            'invoice_id' => array('name'=>'Invoice', 'ref'=>'ciniki.sapos.invoice'),
+            'line_number' => array('name'=>'Line Number', 'default'=>'1'),
+            'description' => array('name'=>'Description', 'default'=>''),
+            'quantity' => array('name'=>'Quantity', 'default'=>'1'),
+            'cost' => array('name'=>'Cost', 'default'=>''),
+            'price' => array('name'=>'Price', 'default'=>''),
+            ),
+        'history_table' => 'ciniki_sapos_history',
+        );
     $objects['qi_item'] = array(
         'name'=>'Quick Invoice Item',
         'sync'=>'yes',
