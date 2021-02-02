@@ -635,7 +635,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
             'cost' => '$' . number_format($total_cost, 0),
             'total' => '$' . number_format($total_total, 0),
             'margin' => '$' . number_format($total_margin, 0),
-            'margin_percent' => ($total_margin != 0 ? number_format(($total_margin/$total_total)*100, 0) : ''),
+            'margin_percent' => ($total_total != 0 && $total_margin != 0 ? number_format(($total_margin/$total_total)*100, 0) : ''),
             );
     }
 
