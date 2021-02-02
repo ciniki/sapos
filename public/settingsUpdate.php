@@ -122,6 +122,8 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'rules-shipment-shipped-require-tracking_number',
         'rules-shipment-shipped-require-boxes',
         'quote-notes-product-synopsis',
+        'quote-notes-copy',
+        'quote-costing',
         'quote-bottom-message',
         'quote-footer-message',
         'quote-email-message',

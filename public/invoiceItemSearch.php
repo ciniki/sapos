@@ -39,6 +39,32 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
     $modules = $rc['modules'];
 
     //
+    // Load invoice details
+    //
+    if( isset($args['invoice_id']) ) {
+        $strsql = "SELECT invoice_type "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.55', 'msg'=>'Unable to load invoice', 'err'=>$rc['err']));
+        }
+        $invoice = isset($rc['invoice']) ? $rc['invoice'] : array();
+    }
+
+    //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', '');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.39', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+    
+    //
     // Load tenant INTL settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
@@ -142,6 +168,12 @@ function ciniki_sapos_invoiceItemSearch(&$ciniki) {
         $items[$i]['item']['quantity'] = (float)$item['item']['quantity'];
         if( !isset($item['item']['flags']) ) {
             $items[$i]['item']['flags'] = 0;
+        }
+        if( isset($item['item']['synopsis']) && $item['item']['synopsis'] != '' && $item['item']['notes'] == '' 
+            && isset($settings['quote-notes-product-synopsis']) && $settings['quote-notes-product-synopsis'] == 'yes'
+            && isset($invoice['invoice_type']) && $invoice['invoice_type'] == 90 
+            ) {
+            $items[$i]['item']['notes'] = $item['item']['synopsis']; 
         }
     }
 
