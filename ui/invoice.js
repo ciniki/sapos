@@ -132,8 +132,12 @@ function ciniki_sapos_invoice() {
                 'work_address':{'label':'Work Location'},
                 }},
             'costing':{'label':'Costing', 'type':'simplegrid', 'num_cols':7, 'aside':'yes',
-                'visible':function() { if( M.ciniki_sapos_invoice.invoice.data.invoice_type == 90 ) { 
-                        return M.modSettingSet('ciniki.sapos','quote-costing');
+                'visible':function() { 
+                        if( M.ciniki_sapos_invoice.invoice.data.invoice_type == 90 ) { 
+                            return M.modSettingSet('ciniki.sapos','quote-costing');
+                        }
+                        if( M.ciniki_sapos_invoice.invoice.data.invoice_type == 10 ) { 
+                            return M.modSettingSet('ciniki.sapos','invoice-costing');
                         }
                     return 'no';
                     },

@@ -91,6 +91,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'invoice-instore-pickup-postal',
         'invoice-instore-pickup-country',
         'invoice-tallies-payment-type',
+        'invoice-costing',
         'invoice-bottom-message',
         'invoice-bottom-instore-pickup-message',
         'invoice-preorder-message',

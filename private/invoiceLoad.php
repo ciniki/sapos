@@ -584,8 +584,8 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     //
     // Get any costing for the invoice
     //
-    if( $invoice['invoice_type'] == 90 
-        && isset($settings['quote-costing']) && $settings['quote-costing'] == 'yes' 
+    if( ($invoice['invoice_type'] == 90 && isset($settings['quote-costing']) && $settings['quote-costing'] == 'yes')
+        || ($invoice['invoice_type'] == 10 && isset($settings['invoice-costing']) && $settings['invoice-costing'] == 'yes')
         ) {
         $strsql = "SELECT id, "
             . "invoice_id, "
