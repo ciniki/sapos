@@ -189,7 +189,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
             }
         } elseif( $amount_paid == 0 && $invoice['total_amount'] == 0 && $invoice['num_items'] > 0 ) {
             // No paid items on invoice, but still need to mark as paid and process itemPaymentReceived
-            if( $invoice['payment_status'] < 50 ) {
+            if( $invoice['payment_status'] < 50 && $invoice['invoice_type'] != 30 ) {
                 $new_payment_status = 50;
             }
         } elseif( $amount_paid > 0 && $amount_paid == $amount_refunded && $amount_paid == $invoice['total_amount'] ) {
