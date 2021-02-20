@@ -38,6 +38,23 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
             );
     }
 
+    //
+    // Ontario HST Report, designed to run quarterly
+    //
+    if( ciniki_core_checkModuleActive($ciniki, 'ciniki.sapos') ) {
+        $blocks['ciniki.sapos.ontarioquarterlyhst'] = array(
+            'name'=>'Ontario Quarterly HST',
+            'module' => 'Accounting',
+            'options'=>array(
+                'quarters'=>array('label'=>'Number of Previous Quarters', 'type'=>'text', 'size'=>'small', 'default'=>'1'),
+                'current'=>array('label'=>'Include Current Quarter', 'type'=>'toggle', 'default'=>'no', 'toggles'=>array(
+                    'no'=>'No',
+                    'yes'=>'Yes',
+                    )),
+                ),
+            );
+    }
+
     return array('stat'=>'ok', 'blocks'=>$blocks);
 }
 ?>

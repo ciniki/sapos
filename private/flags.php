@@ -28,7 +28,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
         array('flag'=>array('bit'=>'11', 'name'=>'Item Codes')), // Should be enabled along with product codes in ciniki.products
         array('flag'=>array('bit'=>'12', 'name'=>'Quantity Totals')),
         // 0x1000
-        array('flag'=>array('bit'=>'13', 'name'=>'Recurring Invoices')), // Must also have Invoices enabled
+        array('flag'=>array('bit'=>'13', 'name'=>'Recurring Invoices/Expenses')), // Must also have Invoices enabled
 //        array('flag'=>array('bit'=>'14', 'name'=>'Recurring Expenses')), // Must also have Expenses enabled
 //        array('flag'=>array('bit'=>'15', 'name'=>'Recurring Purchase Orders')), // Must also have Purchase Orders enabled
 //        array('flag'=>array('bit'=>'16', 'name'=>'')),

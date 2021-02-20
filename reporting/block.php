@@ -36,6 +36,10 @@ function ciniki_sapos_reporting_block(&$ciniki, $tnid, $args) {
     if( $args['block_ref'] == 'ciniki.sapos.categorysales' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockCategorySales');
         return ciniki_sapos_reporting_blockCategorySales($ciniki, $tnid, $args['options']);
+    } 
+    elseif( $args['block_ref'] == 'ciniki.sapos.ontarioquarterlyhst' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockOntarioQuarterlyHST');
+        return ciniki_sapos_reporting_blockOntarioQuarterlyHST($ciniki, $tnid, $args['options']);
     }
 
     return array('stat'=>'ok');

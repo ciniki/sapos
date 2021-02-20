@@ -24,9 +24,9 @@ function ciniki_sapos_main() {
     this._tabs = {'label':'', 'visible':'no', 'selected':'invoices', 'cb':'',
         'tabs':{
             'invoices':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"invoices");'},
-            'monthlyinvoices':{'label':'Monthly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"monthlyinvoices");'},
-            'quarterlyinvoices':{'label':'Quarterly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"quarterlyinvoices");'},
-            'yearlyinvoices':{'label':'Yearly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"yearlyinvoices");'},
+//            'monthlyinvoices':{'label':'Monthly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"monthlyinvoices");'},
+//            'quarterlyinvoices':{'label':'Quarterly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"quarterlyinvoices");'},
+//            'yearlyinvoices':{'label':'Yearly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"yearlyinvoices");'},
             'transactions':{'label':'Transactions', 'visible':'no', 'fn':'M.ciniki_sapos_main.transactions.open(M.ciniki_sapos_main._tabs.cb);'},
             'donations':{'label':'Donations', 'visible':'no', 'fn':'M.ciniki_sapos_main.donations.open(M.ciniki_sapos_main._tabs.cb);'},
             'categories':{'label':'Categories', 'visible':'no', 'fn':'M.ciniki_sapos_main.categories.open(M.ciniki_sapos_main._tabs.cb);'},
@@ -36,6 +36,7 @@ function ciniki_sapos_main() {
             'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.expenses.open(M.ciniki_sapos_main._tabs.cb);'},
             'mileage':{'label':'Mileage', 'visible':'no', 'fn':'M.ciniki_sapos_main.mileage.open(M.ciniki_sapos_main._tabs.cb);'},
             'quotes':{'label':'Quotes', 'visible':'no', 'fn':'M.ciniki_sapos_main.quotes.open(M.ciniki_sapos_main._tabs.cb);'},
+            'repeats':{'label':'Repeats', 'visible':'no', 'fn':'M.ciniki_sapos_main.repeats.open(M.ciniki_sapos_main._tabs.cb);'},
             'reports':{'label':'Reports', 'visible':'no', 'fn':'M.ciniki_sapos_main.reports.open(M.ciniki_sapos_main._tabs.cb,"taxes");'},
         },
     };
@@ -1433,8 +1434,11 @@ function ciniki_sapos_main() {
             return false;
         } 
 
+        this._tabs.tabs.repeats.visible = M.modFlagSet('ciniki.sapos', 0x1000);
         this._tabs.tabs.reports.visible = 'no';
-        if( M.curTenant.modules['ciniki.taxes'] != null ) {
+        if( M.curTenant.modules['ciniki.taxes'] != null 
+            && M.modSettingSet('ciniki.sapos', 'invoice-reports-taxes-ontario-hst') == 'yes' 
+            ) {
             this._tabs.tabs.reports.visible = 'yes';
         }
         
@@ -1445,7 +1449,7 @@ function ciniki_sapos_main() {
             this._tabs.tabs.transactions.visible = 'yes';
             if( sp == '' ) { sp = 'invoices'; }
             ct+=2;
-            if( M.modFlagOn('ciniki.sapos', 0x1000) ) {
+/*            if( M.modFlagOn('ciniki.sapos', 0x1000) ) {
                 this._tabs.tabs.monthlyinvoices.visible = 'yes';
                 this._tabs.tabs.quarterlyinvoices.visible = 'yes';
                 this._tabs.tabs.yearlyinvoices.visible = 'yes';
@@ -1454,12 +1458,12 @@ function ciniki_sapos_main() {
                 this._tabs.tabs.monthlyinvoices.visible = 'no';
                 this._tabs.tabs.quarterlyinvoices.visible = 'no';
                 this._tabs.tabs.yearlyinvoices.visible = 'no';
-            }
+            } */
         } else {
             this._tabs.tabs.invoices.visible = 'no';
-            this._tabs.tabs.monthlyinvoices.visible = 'no';
+/*            this._tabs.tabs.monthlyinvoices.visible = 'no';
             this._tabs.tabs.quarterlyinvoices.visible = 'no';
-            this._tabs.tabs.yearlyinvoices.visible = 'no';
+            this._tabs.tabs.yearlyinvoices.visible = 'no'; */
         }
         if( M.modFlagOn('ciniki.sapos', 0x10) ) {
             this._tabs.tabs.pos.visible = 'yes';
