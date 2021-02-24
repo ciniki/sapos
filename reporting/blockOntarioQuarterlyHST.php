@@ -167,7 +167,7 @@ function ciniki_sapos_reporting_blockOntarioQuarterlyHST(&$ciniki, $tnid, $args)
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
             $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.sapos', 'num');
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.66', 'msg'=>'Unable to load get the number of items', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.51', 'msg'=>'Unable to load get the number of items', 'err'=>$rc['err']));
             }
             $month_total = isset($rc['num']) ? $rc['num'] : 0;
 //            $table_details[] = array(
@@ -194,7 +194,7 @@ function ciniki_sapos_reporting_blockOntarioQuarterlyHST(&$ciniki, $tnid, $args)
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
             $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.sapos', 'num');
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.66', 'msg'=>'Unable to load get the number of items', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.52', 'msg'=>'Unable to load get the number of items', 'err'=>$rc['err']));
             }
             $month_total = isset($rc['num']) ? $rc['num'] : 0;
             $hst_invoiced += $month_total;

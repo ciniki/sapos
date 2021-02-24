@@ -17,6 +17,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
+        'expense_type'=>array('required'=>'no', 'blank'=>'no', 'default'=>'10', 'name'=>'Type'), 
         'year'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Year'), 
         'month'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Month'), 
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
@@ -91,47 +92,48 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
             . ") ";
     }
     $strsql .= "ORDER BY sequence ";
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'categories', 'fname'=>'id', 'name'=>'category',
-            'fields'=>array('id', 'name')),
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'name')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['categories']) ) {
-        $categories = array();
-    } else {
-        $categories = $rc['categories'];
-    }
+    $categories = isset($rc['categories']) ? $rc['categories'] : array();
 
     //
     // Build an index of categories for easy reference while calculating category totals
     //
     $cidx = array();
     foreach($categories as $cid => $category) {
-        $categories[$cid]['category']['total_amount'] = 0;
-        $cidx[$category['category']['id']] = $cid;
+        $categories[$cid]['total_amount'] = 0;
+        $cidx[$category['id']] = $cid;
     }
 
     //
     // Build the query to get the list of expenses
     //
-    $strsql = "SELECT ciniki_sapos_expenses.id, "
-        . "ciniki_sapos_expenses.name, "
-        . "ciniki_sapos_expenses.description, "
-        . "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
-        . "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.paid_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS paid_date, "
-        . "ciniki_sapos_expenses.total_amount, "
-        . "ciniki_sapos_expense_items.id AS item_id, "
-        . "ciniki_sapos_expense_items.category_id, "
-        . "ciniki_sapos_expense_items.amount AS item_amount "
-        . "FROM ciniki_sapos_expenses "
-        . "LEFT JOIN ciniki_sapos_expense_items ON (ciniki_sapos_expenses.id = ciniki_sapos_expense_items.expense_id "
-            . "AND ciniki_sapos_expense_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+    $strsql = "SELECT expenses.id, "
+        . "expenses.name, "
+        . "expenses.description, "
+        . "IFNULL(DATE_FORMAT(expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
+        . "IFNULL(DATE_FORMAT(expenses.paid_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS paid_date, "
+        . "expenses.total_amount, "
+        . "items.id AS item_id, "
+        . "items.category_id, "
+        . "items.amount AS item_amount "
+        . "FROM ciniki_sapos_expenses AS expenses "
+        . "LEFT JOIN ciniki_sapos_expense_items AS items ON ("
+            . "expenses.id = items.expense_id "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE ciniki_sapos_expenses.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "WHERE expenses.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
+    if( isset($args['expense_type']) && $args['expense_type'] != 10 ) {
+        $strsql .= "AND expenses.expense_type = '" . ciniki_core_dbQuote($ciniki, $args['expense_type']) . "' ";
+    } else {
+        $strsql .= "AND expenses.expense_type = 10 ";
+    }
     if( isset($args['year']) && $args['year'] != '' ) {
         //
         // Set the start and end date for the tenant timezone, don't convert to UTC.  These dates are stored
@@ -154,27 +156,27 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
         //
         // Add to SQL string
         //
-        $strsql .= "AND ciniki_sapos_expenses.invoice_date >= '" . $start_date->format('Y-m-d') . "' ";
-        $strsql .= "AND ciniki_sapos_expenses.invoice_date < '" . $end_date->format('Y-m-d') . "' ";
+        $strsql .= "AND expenses.invoice_date >= '" . $start_date->format('Y-m-d') . "' ";
+        $strsql .= "AND expenses.invoice_date < '" . $end_date->format('Y-m-d') . "' ";
     }
 
     //
     // Order the expenses
     //
-    $strsql .= "ORDER BY ciniki_sapos_expenses.invoice_date ";
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense', 'fields'=>array('id', 'name', 'description', 'invoice_date', 'paid_date', 'total_amount')),
-        array('container'=>'items', 'fname'=>'item_id', 'name'=>'item', 'fields'=>array('id'=>'item_id', 'category_id', 'amount'=>'item_amount')),
+    $strsql .= "ORDER BY expenses.invoice_date ";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'expenses', 'fname'=>'id', 
+            'fields'=>array('id', 'name', 'description', 'invoice_date', 'paid_date', 'total_amount'),
+            ),
+        array('container'=>'items', 'fname'=>'item_id', 
+            'fields'=>array('id'=>'item_id', 'category_id', 'amount'=>'item_amount'),
+            ),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['expenses']) ) {
-        $expenses = array();
-    } else {
-        $expenses = $rc['expenses'];
-    }
+    $expenses = isset($rc['expenses']) ? $rc['expenses'] : array();
     $totals = array(
         'total_amount'=>0,
         );
@@ -183,22 +185,20 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
     // Calculate totals for all expenses and categories
     //
     foreach($expenses as $eid => $expense) {
-        $totals['total_amount'] = bcadd($totals['total_amount'], $expense['expense']['total_amount'], 2);
+        $totals['total_amount'] = bcadd($totals['total_amount'], $expense['total_amount'], 2);
 
-        $expenses[$eid]['expense']['total_amount_display'] = numfmt_format_currency(
-            $intl_currency_fmt, $expense['expense']['total_amount'], $intl_currency);
+        $expenses[$eid]['total_amount_display'] = '$' . number_format($expense['total_amount'], 2);
 
-        if( !isset($expense['expense']['items']) ) {
-            $expense['expense']['items'] = array();
+        if( !isset($expense['items']) ) {
+            $expense['items'] = array();
         }
-        foreach($expense['expense']['items'] as $iid => $item) {
-            $category_id = $item['item']['category_id'];
+        foreach($expense['items'] as $iid => $item) {
+            $category_id = $item['category_id'];
             if( isset($cidx[$category_id]) ) {
                 $cid = $cidx[$category_id];
-                $categories[$cid]['category']['total_amount'] = bcadd(
-                    $categories[$cid]['category']['total_amount'], $item['item']['amount'], 2);
-                $expenses[$eid]['expense']['items'][$iid]['item']['amount_display'] = numfmt_format_currency(
-                    $intl_currency_fmt, $item['item']['amount'], $intl_currency);
+                $categories[$cid]['total_amount'] = bcadd(
+                    $categories[$cid]['total_amount'], $item['amount'], 2);
+                $expenses[$eid]['items'][$iid]['amount_display'] = '$' . number_format($item['amount'], 2);
             }
         }
     }
@@ -207,12 +207,14 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
     // Format the totals
     //
     foreach($categories as $cid => $category) {
-        $categories[$cid]['category']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
-            $categories[$cid]['category']['total_amount'], $intl_currency);
+        if( $categories[$cid]['total_amount'] > 0 ) {
+            $categories[$cid]['total_amount_display'] = '$' . number_format($categories[$cid]['total_amount'], 2);
+        } else {
+            $categories[$cid]['total_amount_display'] = '';
+        }
     }
 
-    $totals['total_amount_display'] = numfmt_format_currency($intl_currency_fmt,
-        $totals['total_amount'], $intl_currency);
+    $totals['total_amount_display'] = '$' . number_format($totals['total_amount'], 2);
     $totals['num_expenses'] = count($expenses);
 
     $rsp = array('stat'=>'ok', 'categories'=>$categories, 'expenses'=>$expenses, 'totals'=>$totals);
@@ -256,7 +258,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 //        $sheet->getStyle($)->getFont()->setBold(true);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Name', false)->getStyle()->getFont()->setBold(true);
         foreach($categories as $cid => $category) {
-            $sheet->setCellValueByColumnAndRow($i++, 1, $category['category']['name'], false)->getStyle()->getFont()->setBold(true);
+            $sheet->setCellValueByColumnAndRow($i++, 1, $category['name'], false)->getStyle()->getFont()->setBold(true);
             $sheet->getStyle(chr(64+$i) . '1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT); 
         }
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false)->getStyle()->getFont()->setBold(true);
@@ -268,15 +270,12 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
         $row = 1;
         foreach($expenses as $eid => $expense) {
             $row++;
-            $expense = $expense['expense'];
             $i = 0;
             $sheet->setCellValueByColumnAndRow($i++, $row, $expense['invoice_date'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $expense['name'], false);
             foreach($categories as $cid => $category) {
-                $category = $category['category'];
                 $value = '0';
                 foreach($expense['items'] as $iid => $item) {
-                    $item = $item['item'];
                     if( $item['category_id'] == $category['id'] ) {
                         $value = $item['amount'];
                         break;

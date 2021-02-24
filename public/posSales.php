@@ -80,7 +80,7 @@ function ciniki_sapos_posSales(&$ciniki) {
             ),
         ));
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.249', 'msg'=>'Unable to load invoices', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.68', 'msg'=>'Unable to load invoices', 'err'=>$rc['err']));
     }
     $totals = array(
         'total_amount' => 0,
@@ -127,7 +127,7 @@ function ciniki_sapos_posSales(&$ciniki) {
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.249', 'msg'=>'Unable to load invoices', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.70', 'msg'=>'Unable to load invoices', 'err'=>$rc['err']));
         }
         $rsp['packing_required'] = isset($rc['invoices']) ? $rc['invoices'] : array();
 

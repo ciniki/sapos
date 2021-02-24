@@ -17,6 +17,7 @@ function ciniki_sapos_expenseUpdate(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'expense_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Expense'), 
+        'expense_type'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Type'), 
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'), 
         'description'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Description'), 
         'invoice_date'=>array('required'=>'no', 'blank'=>'no', 'type'=>'date', 'name'=>'Invoice Date'),
@@ -62,11 +63,7 @@ function ciniki_sapos_expenseUpdate(&$ciniki) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['categories']) ) {
-        $categories = array();
-    } else {
-        $categories = $rc['categories'];
-    }
+    $categories = isset($rc['categories']) ? $rc['categories'] : array();
 
     //
     // Get the existing items
@@ -82,11 +79,7 @@ function ciniki_sapos_expenseUpdate(&$ciniki) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['items']) ) {
-        $items = array();
-    } else {
-        $items = $rc['items'];
-    }
+    $items = isset($rc['items']) ? $rc['items'] : array();
     
     //
     // Start the transaction

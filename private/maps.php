@@ -183,7 +183,15 @@ function ciniki_sapos_maps($ciniki) {
             '60'=>'Deleted',
             ),
         );
-    
+    $maps['expense'] = array(
+        'expense_type'=>array(
+            '10'=>'Invoice',
+            '20'=>'Monthly Expense',
+            '30'=>'Quarterly Expense',
+            '40'=>'Yearly Expense',
+            ),
+        ); 
+
     return array('stat'=>'ok', 'maps'=>$maps);
 }
 ?>

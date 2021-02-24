@@ -85,7 +85,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         }
         if( !isset($rc['invoice']) ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.50', 'msg'=>'Unable to find invoice'));
         }
         $invoice = $rc['invoice'];
         //

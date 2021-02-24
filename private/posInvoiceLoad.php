@@ -182,7 +182,7 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'membershipDetails');
             $rc = ciniki_customers_hooks_membershipDetails($ciniki, $tnid, array('customer_id' => $invoice['customer_id']));
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.customers.427', 'msg'=>'Unable to get purchases', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.311', 'msg'=>'Unable to get purchases', 'err'=>$rc['err']));
             }
             $invoice['membership_details'] = isset($rc['membership_details']) ? $rc['membership_details'] : array();
 

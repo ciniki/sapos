@@ -1,6 +1,8 @@
 //
 // The app to add/edit sapos images
 //
+// ** DEPRECATED - no longer used or supported as of Jan 2021
+//
 function ciniki_sapos_expenseimages() {
     this.init = function() {
         //

@@ -1,0 +1,7 @@
+#
+# Add the expense type column into the expenses table.
+#
+ALTER TABLE ciniki_sapos_expenses ADD COLUMN source_id int not null after tnid;
+ALTER TABLE ciniki_sapos_expenses ADD COLUMN expense_type tinyint unsigned not null after source_id;
+UPDATE ciniki_sapos_expenses SET expense_type = 10;
+ALTER TABLE ciniki_sapos_expenses COMMENT='v1.02';

@@ -17,6 +17,7 @@ function ciniki_sapos_expenseAdd(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
+        'expense_type'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'), 
         'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'), 
         'description'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Description'), 
         'invoice_date'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'date', 

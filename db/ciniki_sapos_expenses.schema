@@ -13,6 +13,16 @@
 # uuid:             The Universal Unique ID for the invoice.
 # tnid:             The tenant the invoice is for.
 #
+# source_id:        The ID of the recurring expense that created this expense.
+# 
+# expense_type:     The type of expense.
+#
+#                       0 - Unknown
+#                       10 - Expense
+#                       20 - Monthly Recurring Expense
+#                       30 - Quarterly Recurring Expense
+#                       40 - Yearly Recurring Expense
+#
 # name:             The name, typically the tenant name from the bill/expense/receipt.
 #
 # description:      The description of the expense, if more detail required than just the name.
@@ -30,6 +40,8 @@ create table ciniki_sapos_expenses (
     id int not null auto_increment,
     uuid char(36) not null,
     tnid int not null,
+    source_id int not null,
+    expense_type tinyint unsigned not null,
     name varchar(150) not null,
     description varchar(250) not null,
     invoice_date date not null,
@@ -41,4 +53,4 @@ create table ciniki_sapos_expenses (
     primary key (id),
     index (name, invoice_date, paid_date),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';

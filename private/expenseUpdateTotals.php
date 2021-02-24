@@ -53,11 +53,7 @@ function ciniki_sapos_expenseUpdateTotals($ciniki, $tnid, $expense_id) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( isset($rc['rows']) ) {
-        $items = $rc['rows'];
-    } else {
-        $items = array();
-    }
+    $items = isset($rc['rows']) ? $rc['rows'] : array();
 
     //
     // Add the totals for the expense items

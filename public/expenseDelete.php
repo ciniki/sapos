@@ -37,7 +37,7 @@ function ciniki_sapos_expenseDelete(&$ciniki) {
     // Load the expense record
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'expenseLoad');
-    $rc = ciniki_sapos_expenseLoad($ciniki, $args['tnid'], $args['expense_id'], 'no');
+    $rc = ciniki_sapos_expenseLoad($ciniki, $args['tnid'], $args['expense_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

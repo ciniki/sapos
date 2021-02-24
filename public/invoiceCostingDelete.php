@@ -50,7 +50,7 @@ function ciniki_sapos_invoiceCostingDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['costing']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.428', 'msg'=>'Invoice Costing does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.86', 'msg'=>'Invoice Costing does not exist.'));
     }
     $costing = $rc['costing'];
 
@@ -64,10 +64,10 @@ function ciniki_sapos_invoiceCostingDelete(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectCheckUsed');
     $rc = ciniki_core_objectCheckUsed($ciniki, $args['tnid'], 'ciniki.sapos.invoice_costing', $args['costing_id']);
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.429', 'msg'=>'Unable to check if the invoice costing is still being used.', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.73', 'msg'=>'Unable to check if the invoice costing is still being used.', 'err'=>$rc['err']));
     }
     if( $rc['used'] != 'no' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.430', 'msg'=>'The invoice costing is still in use. ' . $rc['msg']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.75', 'msg'=>'The invoice costing is still in use. ' . $rc['msg']));
     }
 
     //

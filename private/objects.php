@@ -217,12 +217,14 @@ function ciniki_sapos_objects($ciniki) {
         'sync'=>'yes',
         'table'=>'ciniki_sapos_expenses',
         'fields'=>array(
-            'name'=>array(),
-            'description'=>array(),
-            'invoice_date'=>array(),
-            'paid_date'=>array(),
-            'total_amount'=>array(),
-            'notes'=>array(),
+            'source_id'=>array('name'=>'Source', 'ref'=>'ciniki.sapos.expense', 'default'=>'0'),
+            'expense_type'=>array('name'=>'Type', 'default'=>'10'),
+            'name'=>array('name'=>'Name'),
+            'description'=>array('name'=>'Description', 'default'=>''),
+            'invoice_date'=>array('name'=>'Date', 'default'=>''),
+            'paid_date'=>array('name'=>'Paid Date', 'default'=>''),
+            'total_amount'=>array('name'=>'Total Amount'),
+            'notes'=>array('name'=>'Notes', 'default'=>''),
             ),
         'history_table'=>'ciniki_sapos_history',
         );
@@ -249,16 +251,6 @@ function ciniki_sapos_objects($ciniki) {
             'category_id'=>array('ref'=>'ciniki.sapos.expense_category'),
             'amount'=>array(),
             'notes'=>array(),
-            ),
-        'history_table'=>'ciniki_sapos_history',
-        );
-    $objects['expense_image'] = array(
-        'name'=>'Expense Image',
-        'sync'=>'yes',
-        'table'=>'ciniki_sapos_expense_images',
-        'fields'=>array(
-            'expense_id'=>array('ref'=>'ciniki.sapos.expense'),
-            'image_id'=>array('ref'=>'ciniki.images.image'),
             ),
         'history_table'=>'ciniki_sapos_history',
         );

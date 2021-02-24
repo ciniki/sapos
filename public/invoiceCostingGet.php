@@ -89,10 +89,10 @@ function ciniki_sapos_invoiceCostingGet($ciniki) {
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.431', 'msg'=>'Invoice Costing not found', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.312', 'msg'=>'Invoice Costing not found', 'err'=>$rc['err']));
         }
         if( !isset($rc['costings'][0]) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.432', 'msg'=>'Unable to find Invoice Costing'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.315', 'msg'=>'Unable to find Invoice Costing'));
         }
         $costing = $rc['costings'][0];
         $costing['quantity'] = (float)$costing['quantity'];

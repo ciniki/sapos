@@ -68,8 +68,7 @@ function ciniki_sapos_expenseItemGet(&$ciniki) {
     }
     $item = $rc['item'];
 
-    $item['amount'] = numfmt_format_currency($intl_currency_fmt, 
-        $item['amount'], $intl_currency);
+    $item['amount'] = '$' . number_format($item['amount'], 2);
 
     return array('stat'=>'ok', 'item'=>$item);
 }

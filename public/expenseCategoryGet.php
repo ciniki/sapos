@@ -64,9 +64,9 @@ function ciniki_sapos_expenseCategoryGet(&$ciniki) {
         . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
         . "";
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'categories', 'fname'=>'id', 'name'=>'category',
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'categories', 'fname'=>'id', 
             'fields'=>array('id', 'name', 'sequence', 'flags', 'taxrate_id', 'start_date', 'end_date'),
             'utctotz'=>array('start_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format),
                 'end_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)),
@@ -74,10 +74,10 @@ function ciniki_sapos_expenseCategoryGet(&$ciniki) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['categories'][0]['category']) ) {
+    if( !isset($rc['categories'][0]) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.48', 'msg'=>'Unable to find expense category.'));
     }
-    $category = $rc['categories'][0]['category'];
+    $category = $rc['categories'][0];
 
     return array('stat'=>'ok', 'category'=>$category);
 }

@@ -42,8 +42,6 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
         return $rc;
     }
     $intl_timezone = $rc['settings']['intl-default-timezone'];
-    $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
-    $intl_currency = $rc['settings']['intl-default-currency'];
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
     $date_format = ciniki_users_dateFormat($ciniki);
@@ -84,17 +82,17 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
         $strsql .= "LIMIT " . intval($args['limit']) . " ";
     }
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     if( isset($args['items']) && $args['items'] == 'yes' ) {
-        $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-            array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+            array('container'=>'expenses', 'fname'=>'id', 
                 'fields'=>array('id', 'invoice_date', 'name', 'description', 'total_amount')),
-            array('container'=>'items', 'fname'=>'item_id', 'name'=>'item',
+            array('container'=>'items', 'fname'=>'item_id', 
                 'fields'=>array('id'=>'item_id', 'category_id', 'amount')),
             ));
     } else {
-        $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-            array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+            array('container'=>'expenses', 'fname'=>'id', 
                 'fields'=>array('id', 'invoice_date', 'name', 'total_amount')),
             ));
     }
@@ -105,11 +103,10 @@ function ciniki_sapos_expenseSearch(&$ciniki) {
         return array('stat'=>'ok', 'expenses'=>array());
     }
     foreach($rc['expenses'] as $iid => $expense) {
-        $rc['expenses'][$iid]['expense']['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
-            $expense['expense']['total_amount'], $intl_currency);
-        if( isset($expense['expense']['items']) ) {
-            foreach($expense['expense']['items'] as $item_id => $item) {
-                $rc['expenses'][$iid]['expense']['items'][$item_id]['item']['amount_display'] = numfmt_format_currency($intl_currency_fmt, $item['item']['amount'], $intl_currency);
+        $rc['expenses'][$iid]['total_amount_display'] = '$' . number_format($expense['total_amount'], 2);
+        if( isset($expense['items']) ) {
+            foreach($expense['items'] as $item_id => $item) {
+                $rc['expenses'][$iid]['items'][$item_id]['amount_display'] = '$' . number_format($item['amount'], 2);
             }
         }
     }

@@ -14,7 +14,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_expenseLoad($ciniki, $tnid, $expense_id, $images) {
+function ciniki_sapos_expenseLoad($ciniki, $tnid, $expense_id) {
     //
     // Get the time information for tenant and user
     //
@@ -34,12 +34,13 @@ function ciniki_sapos_expenseLoad($ciniki, $tnid, $expense_id, $images) {
 //  ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
 //  $datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
     
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
 
     //
     // The the expense details
     //
     $strsql = "SELECT id, "
+        . "expense_type, "
         . "name, "
         . "description, "
         . "IFNULL(DATE_FORMAT(ciniki_sapos_expenses.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS invoice_date, "
@@ -50,9 +51,9 @@ function ciniki_sapos_expenseLoad($ciniki, $tnid, $expense_id, $images) {
         . "WHERE ciniki_sapos_expenses.id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
         . "AND ciniki_sapos_expenses.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'expenses', 'fname'=>'id', 'name'=>'expense',
-            'fields'=>array('id', 'name', 'description', 
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'expenses', 'fname'=>'id', 
+            'fields'=>array('id', 'expense_type', 'name', 'description', 
                 'invoice_date', 'paid_date', 
                 'total_amount', 'notes'),
 //          'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
@@ -67,84 +68,44 @@ function ciniki_sapos_expenseLoad($ciniki, $tnid, $expense_id, $images) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['expenses']) || !isset($rc['expenses'][0]['expense']) ) {
+    if( !isset($rc['expenses']) || !isset($rc['expenses'][0]) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.17', 'msg'=>'Expense does not exist'));
     }
-    $expense = $rc['expenses'][0]['expense'];
+    $expense = $rc['expenses'][0];
 
     //
     // Get the item details
     //
-    $strsql = "SELECT ciniki_sapos_expense_items.id, "  
-        . "ciniki_sapos_expense_items.category_id, "
-        . "ciniki_sapos_expense_categories.name, "
-        . "ciniki_sapos_expense_items.amount, "
-        . "ciniki_sapos_expense_items.notes "
-        . "FROM ciniki_sapos_expense_items "
-        . "LEFT JOIN ciniki_sapos_expense_categories ON (ciniki_sapos_expense_items.category_id = ciniki_sapos_expense_categories.id "
-            . "AND ciniki_sapos_expense_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+    $strsql = "SELECT items.id, "  
+        . "items.category_id, "
+        . "categories.name, "
+        . "items.amount, "
+        . "items.notes "
+        . "FROM ciniki_sapos_expense_items AS items "
+        . "LEFT JOIN ciniki_sapos_expense_categories AS categories ON ("
+            . "items.category_id = categories.id "
+            . "AND categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE ciniki_sapos_expense_items.expense_id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
-        . "AND ciniki_sapos_expense_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "ORDER BY ciniki_sapos_expense_categories.sequence "
+        . "WHERE items.expense_id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
+        . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "ORDER BY categories.sequence "
         . "";
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'items', 'fname'=>'id', 'name'=>'item',
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'items', 'fname'=>'id',
             'fields'=>array('id', 'category_id', 'name', 'amount', 'notes')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['items']) ) {
-        $expense['items'] = array();
-    } else {
-        $expense['items'] = $rc['items'];
-        foreach($expense['items'] as $iid => $item) {
-            $expense['items'][$iid]['item']['amount'] = numfmt_format_currency(
-                $intl_currency_fmt, $item['item']['amount'], $intl_currency);
-        }
-    }
-
-    //
-    // Get the images
-    //
-    if( $images == 'yes' ) {
-        $strsql = "SELECT id, image_id "
-            . "FROM ciniki_sapos_expense_images "
-            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND expense_id = '" . ciniki_core_dbQuote($ciniki, $expense_id) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
-            array('container'=>'images', 'fname'=>'id', 'name'=>'image',
-                'fields'=>array('id', 'image_id')),
-            ));
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( isset($rc['images']) ) {
-            $images = $rc['images'];
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadCacheThumbnail');
-            foreach($images as $iid => $img ) {
-                if( $img['image']['image_id'] > 0 ) {
-                    $rc = ciniki_images_loadCacheThumbnail($ciniki, $args['tnid'], $img['image']['image_id'], 75);
-                    if( $rc['stat'] != 'ok' ) {
-                        return $rc;
-                    }
-                    $images[$iid]['image']['image_data'] = 'data:image/jpg;base64,' . base64_encode($rc['image']);
-                }
-            }
-            $expense['images'] = $images;
-        } else {
-            $expense['images'] = array();
-        }
-
+    $expense['items'] = isset($rc['items']) ? $rc['items'] : array();
+    foreach($expense['items'] as $iid => $item) {
+        $expense['items'][$iid]['amount'] = '$' . number_format($item['amount'], 2);
     }
 
     //
     // Format the currency numbers
     //
-    $expense['total_amount'] = numfmt_format_currency($intl_currency_fmt, 
-        $expense['total_amount'], $intl_currency);
+    $expense['total_amount'] = '$' . number_format($expense['total_amount'], 2);
 
     return array('stat'=>'ok', 'expense'=>$expense);
 }

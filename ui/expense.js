@@ -1,6 +1,8 @@
 //
 // This panel will create or edit an expense
 //
+// Moved to main.js
+//
 function ciniki_sapos_expense() {
     this.init = function() {
         //
@@ -24,11 +26,11 @@ function ciniki_sapos_expense() {
                 'total_amount':{'label':'Total'},
                 }},
             'notes':{'label':'Notes', 'visible':'no', 'type':'htmlcontent'},
-            'images':{'label':'Images', 'type':'simplethumbs'},
+/*            'images':{'label':'Images', 'type':'simplethumbs'},
             '_images':{'label':'', 'type':'simplegrid', 'num_cols':1,
                 'addTxt':'Add Image',
                 'addFn':'M.startApp(\'ciniki.sapos.expenseimages\',null,\'M.ciniki_sapos_expense.showExpense();\',\'mc\',{\'expense_id\':M.ciniki_sapos_expense.expense.expense_id,\'add\':\'yes\'});',
-                },
+                }, */
             '_buttons':{'label':'', 'buttons':{
                 'edit':{'label':'Edit', 'fn':'M.ciniki_sapos_expense.showEdit(\'M.ciniki_sapos_expense.showExpense();\',M.ciniki_sapos_expense.expense.expense_id);'},
                 }},
@@ -55,7 +57,7 @@ function ciniki_sapos_expense() {
                 return this.data[i].replace(/\n/g, '<br/>');
             }
         };
-        this.expense.thumbFn = function(s, i, d) {
+/*        this.expense.thumbFn = function(s, i, d) {
             return 'M.startApp(\'ciniki.sapos.expenseimages\',null,\'M.ciniki_sapos_expense.showExpense();\',\'mc\',{\'expense_image_id\':\'' + d.image.id + '\'});';
         };
         this.expense.addDropImage = function(iid) {
@@ -80,7 +82,7 @@ function ciniki_sapos_expense() {
                         M.ciniki_sapos_expense.expense.refreshSection('images');
                     });
             }
-        };
+        }; */
         this.expense.addButton('edit', 'Edit', 'M.ciniki_sapos_expense.showEdit(\'M.ciniki_sapos_expense.showExpense();\',M.ciniki_sapos_expense.expense.expense_id);');
         this.expense.addClose('Back');
             
@@ -89,12 +91,12 @@ function ciniki_sapos_expense() {
         //
         this.edit = new M.panel('Expense',
             'ciniki_sapos_expense', 'edit',
-            'mc', 'medium mediumaside', 'sectioned', 'ciniki.sapos.expense.edit');
+            'mc', 'medium', 'sectioned', 'ciniki.sapos.expense.edit');
         this.edit.expense_id = 0;
         this.edit.data = {};
         this.edit.sections = {
             'details':{'label':'', 'aside':'left', 'fields':{
-                'name':{'label':'Name', 'type':'text', 'autofocus':'yes', 'livesearch':'yes'},
+                'name':{'label':'Name', 'type':'text', 'livesearch':'yes'},
                 'description':{'label':'Description', 'type':'text'},
                 'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
 //              'paid_date':{'label':'Paid Date', 'type':'text', 'size':'medium'},
@@ -102,7 +104,7 @@ function ciniki_sapos_expense() {
             'items':{'label':'', 'aside':'right', 'fields':{
                 }},
             '_notes':{'label':'Notes', 'aside':'left', 'fields':{
-                'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
+                'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'medium'},
                 }},
             '_buttons':{'label':'', 'aside':'left', 'buttons':{
                 'save':{'label':'Save', 'fn':'M.ciniki_sapos_expense.saveExpense();'},
@@ -158,6 +160,82 @@ function ciniki_sapos_expense() {
             return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.expense', 'object_id':this.expense_id, 'field':i}};
         };
+        this.showEdit = function(cb, eid, date) {
+            if( eid != null ) { this.edit.expense_id = eid; }
+            if( this.edit.expense_id > 0 ) {
+                this.edit.sections._buttons.buttons.delete.visible = 'yes';
+                this.edit.sections._buttons.buttons.saveadd.visible = 'no';
+                M.api.getJSONCb('ciniki.sapos.expenseGet', {'tnid':M.curTenantID,
+                    'expense_id':this.edit.expense_id}, function(rsp) {
+                        if( rsp.stat != 'ok' ) {
+                            M.api.err(rsp);
+                            return false;
+                        }
+                        var p = M.ciniki_sapos_expense.edit;
+                        p.data = rsp.expense;
+                        for(i in rsp.expense.items) {
+                            p.data['category_' + rsp.expense.items[i].item.category_id] = rsp.expense.items[i].item.amount;
+                        }
+                        p.refresh();
+                        p.show(cb);
+                    });
+            } else {
+                var p = M.ciniki_sapos_expense.edit;
+                this.edit.sections._buttons.buttons.saveadd.visible = 'yes';
+                this.edit.sections._buttons.buttons.delete.visible = 'no';
+                p.reset();
+                p.data = {};
+                if( date == null || date == '' ) {
+                    var dt = new Date();
+                    p.data.invoice_date = M.dateFormat(dt);
+                } else {
+                    p.data.invoice_date = date;
+                }
+                p.sections._buttons.buttons.delete.visible = 'no';
+                p.refresh();
+                p.show(cb);
+            }
+        }
+        this.saveExpense = function(add) {
+            if( this.edit.expense_id > 0 ) {
+                var c = this.edit.serializeForm('no');
+                if( c != '' ) {
+                    M.api.postJSONCb('ciniki.sapos.expenseUpdate', {'tnid':M.curTenantID,
+                        'expense_id':this.edit.expense_id}, c, function(rsp) {
+                            if( rsp.stat != 'ok' ) {
+                                M.api.err(rsp);
+                                return false;
+                            }
+                            M.ciniki_sapos_expense.edit.close();
+                        });
+                } else {
+                    this.edit.close();
+                }
+            } else {
+                var c = this.edit.serializeForm('yes');
+                M.api.postJSONCb('ciniki.sapos.expenseAdd', 
+                    {'tnid':M.curTenantID}, c, function(rsp) {
+                        if( rsp.stat != 'ok' ) {
+                            M.api.err(rsp);
+                            return false;
+                        }
+                        if( add == 'yes' ) { M.ciniki_sapos_expense.showEdit(null,0); }
+                        else { M.ciniki_sapos_expense.edit.close(); }
+                    });
+            }
+        }
+        this.deleteExpense = function(eid) {
+            if( eid <= 0 ) { return false; }
+            M.confirm("Are you sure you want to remove this expense?",null,function() {
+                M.api.getJSONCb('ciniki.sapos.expenseDelete', {'tnid':M.curTenantID, 'expense_id':eid}, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    M.ciniki_sapos_expense.expense.close();
+                });
+            });
+        }
         this.edit.addButton('save', 'Save', 'M.ciniki_sapos_expense.saveExpense();');
         this.edit.addClose('Cancel');
     }; 

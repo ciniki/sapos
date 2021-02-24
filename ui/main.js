@@ -24,9 +24,6 @@ function ciniki_sapos_main() {
     this._tabs = {'label':'', 'visible':'no', 'selected':'invoices', 'cb':'',
         'tabs':{
             'invoices':{'label':'Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"invoices");'},
-//            'monthlyinvoices':{'label':'Monthly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"monthlyinvoices");'},
-//            'quarterlyinvoices':{'label':'Quarterly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"quarterlyinvoices");'},
-//            'yearlyinvoices':{'label':'Yearly', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"yearlyinvoices");'},
             'transactions':{'label':'Transactions', 'visible':'no', 'fn':'M.ciniki_sapos_main.transactions.open(M.ciniki_sapos_main._tabs.cb);'},
             'donations':{'label':'Donations', 'visible':'no', 'fn':'M.ciniki_sapos_main.donations.open(M.ciniki_sapos_main._tabs.cb);'},
             'categories':{'label':'Categories', 'visible':'no', 'fn':'M.ciniki_sapos_main.categories.open(M.ciniki_sapos_main._tabs.cb);'},
@@ -36,7 +33,9 @@ function ciniki_sapos_main() {
             'expenses':{'label':'Expenses', 'visible':'no', 'fn':'M.ciniki_sapos_main.expenses.open(M.ciniki_sapos_main._tabs.cb);'},
             'mileage':{'label':'Mileage', 'visible':'no', 'fn':'M.ciniki_sapos_main.mileage.open(M.ciniki_sapos_main._tabs.cb);'},
             'quotes':{'label':'Quotes', 'visible':'no', 'fn':'M.ciniki_sapos_main.quotes.open(M.ciniki_sapos_main._tabs.cb);'},
-            'repeats':{'label':'Repeats', 'visible':'no', 'fn':'M.ciniki_sapos_main.repeats.open(M.ciniki_sapos_main._tabs.cb);'},
+//            'repeats':{'label':'Recurring', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb);'},
+            'repeats':{'label':'Recurring', 'visible':'no', 'fn':'M.ciniki_sapos_main.menu.open(M.ciniki_sapos_main._tabs.cb,"repeats");'},
+//            'repeats':{'label':'Recurring', 'visible':'no', 'fn':'M.ciniki_sapos_main.repeats.open(M.ciniki_sapos_main._tabs.cb);'},
             'reports':{'label':'Reports', 'visible':'no', 'fn':'M.ciniki_sapos_main.reports.open(M.ciniki_sapos_main._tabs.cb,"taxes");'},
         },
     };
@@ -67,6 +66,20 @@ function ciniki_sapos_main() {
     this.monthSwitch = function(m) {
         this[this._months.panel].monthSwitch(m);
     }
+    this._rtabs = {'label':'', 'type':'paneltabs', 'selected':'monthlyinvoices', 'panel':'invoices',
+        'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'repeats' ? 'yes' : 'no'); },
+        'tabs':{
+            'monthlyinvoices':{'label':'Monthly Invoices', 'fn':'M.ciniki_sapos_main.repeatSwitch("monthlyinvoices");'},
+            'quarterlyinvoices':{'label':'Quarterly Invoices', 'fn':'M.ciniki_sapos_main.repeatSwitch("quarterlyinvoices");'},
+            'yearlyinvoices':{'label':'Yearly Invoices', 'fn':'M.ciniki_sapos_main.repeatSwitch("yearlyinvoices");'},
+            'monthlyexpenses':{'label':'Monthly Expenses', 'fn':'M.ciniki_sapos_main.repeatSwitch("monthlyexpenses");'},
+            'quarterlyexpenses':{'label':'Quarterly Expenses', 'fn':'M.ciniki_sapos_main.repeatSwitch("quarterlyexpenses");'},
+            'yearlyexpenses':{'label':'Yearly Expenses', 'fn':'M.ciniki_sapos_main.repeatSwitch("yearlyexpenses");'},
+        }};
+    this.repeatSwitch = function(t) {
+        this._rtabs.selected = t;
+        this.menu.open();
+    }
 
     //
     // The menu panel
@@ -74,6 +87,7 @@ function ciniki_sapos_main() {
     this.menu = new M.panel('Accounting', 'ciniki_sapos_main', 'menu', 'mc', 'full', 'sectioned', 'ciniki.sapos.main.menu');
     this.menu.data = {'invoice_type':'invoices'};
     this.menu.invoice_type = 10;
+    this.menu.expense_type = 10;
     this.menu.payment_status = 0;
     this.menu.menutabs = this._tabs;
     this.menu.sections = {
@@ -82,6 +96,7 @@ function ciniki_sapos_main() {
 //            }},
         'years':this._years,
         'months':this._months,
+        '_rtabs':this._rtabs,
         'payment_statuses':{'label':'', 'type':'paneltabs', 'selected':'0', 
             'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'invoices' || M.ciniki_sapos_main._tabs.selected == 'pos' ? 'yes' : 'no');},
             'tabs':{
@@ -93,7 +108,7 @@ function ciniki_sapos_main() {
                 '60':{'label':'Refunded', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,60);'},
             }},
         'invoice_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':5, 
-            'visible':function() { var s = M.ciniki_sapos_main._tabs.selected; return ((s == 'invoices' || s == 'monthlyinvoices' || s == 'quarterlyinvoices' || s == 'yearlyinvoices' || s == 'pos' ) ? 'yes' : 'no');},
+            'visible':function() { return M.ciniki_sapos_main._tabs.selected == 'invoices' ? 'yes' : 'no'; },
             'headerValues':['Invoice #','Date','Customer','Amount','Status'],
             'headerClasses':['', '', '', 'alignright', 'alignright'],
             'cellClasses':['', '', '', 'alignright', 'alignright'],
@@ -101,12 +116,44 @@ function ciniki_sapos_main() {
             'noData':'No Invoices Found',
             },
         'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
+            'visible':function() { 
+                if( M.ciniki_sapos_main._tabs.selected == 'invoices' ) {
+                    return 'yes';
+                }
+                var t = M.ciniki_sapos_main._rtabs.selected;
+                if( M.ciniki_sapos_main._tabs.selected == 'repeats' && 
+                    (t == 'monthlyinvoices' || t == 'quarterlyinvoices' || t == 'yearlyinvoices')
+                    ) {
+                    return 'yes';
+                }
+                return 'no';
+                },
             'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status'],
             'headerClasses':['', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
             'cellClasses':['', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
             'sortable':'yes',
             'sortTypes':['text', 'date', 'text', 'number', 'text'],
             'noData':'No Invoices',
+            },
+        'expenses':{'label':'', 'type':'simplegrid', 'num_cols':5,
+            'visible':function() { 
+                if( M.ciniki_sapos_main._tabs.selected == 'expenses' ) {
+                    return 'yes';
+                }
+                var t = M.ciniki_sapos_main._rtabs.selected;
+                if( M.ciniki_sapos_main._tabs.selected == 'repeats' && 
+                    (t == 'monthlyexpenses' || t == 'quarterlyexpenses' || t == 'yearlyexpenses')
+                    ) {
+                    return 'yes';
+                }
+                return 'no';
+                },
+            'headerValues':['Date', 'Name', ''],
+            'cellClasses':[],
+            'headerClasses':[],
+            'sortable':'yes',
+            'sortTypes':['date', 'alttext', 'number', 'number', 'number'],
+            'noData':'No Expenses Found',
             },
         }
     this.menu.liveSearchCb = function(s, i, v) {
@@ -135,7 +182,7 @@ function ciniki_sapos_main() {
         }
     };
     this.menu.sectionData = function(s) {
-        if( s == 'invoices' || s == 'items' ) { return this.data[s]; }
+        if( s == 'invoices' || s == 'expenses' || s == 'items' ) { return this.data[s]; }
         return this.sections[s].list;
     };
     this.menu.noData = function(s) {
@@ -200,6 +247,42 @@ function ciniki_sapos_main() {
                 return '<span class="maintext">' + d.total_amount_display + '</span><span class="subtext">' + ((d.taxtype_name!=null)?d.taxtype_name:'') + '</span>';
             }
         }
+        if( s == 'expenses' ) {
+            switch(j) {
+                case 0: return d.invoice_date;
+                case 1: return M.multiline(d.name, d.description);
+            }
+            if( j < this.sections[s].num_cols-1 ) {
+                for(k in d.items) {
+                    if( d.items[k].category_id == this.data.categories[j-2].id ) {
+                        return d.items[k].amount_display;
+                    }
+                }
+                return '';
+            } else {    
+                return d.total_amount_display;
+            }
+/*    this.expenses.cellValue = function(s, i, j, d) {
+        if( j == 0 ) { return d.invoice_date; }
+        if( j == 1 ) { 
+            if( d.description != '' ) {
+                return '<span class="maintext">' + d.name + '</span><span class="subtext">' + d.description + '</span>'; 
+            } else {
+                return d.name; 
+            }
+        }
+        if( j < this.sections[s].num_cols-1 ) {
+            for(k in d.items) {
+                if( d.items[k].category_id == this.categories[j-2].id ) {
+                    return d.items[k].amount_display;
+                }
+            }
+            return '';
+        } else {
+            return d.total_amount_display;
+        }
+    }; */
+        }
     };
     this.menu.cellSortValue = function(s, i, j, d) {
         if( s == 'invoices' ) {
@@ -219,9 +302,13 @@ function ciniki_sapos_main() {
         if( s == 'invoices' || s == 'donations' ) {
             return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
         }
+        if( s == 'expenses' ) {
+            return 'M.ciniki_sapos_main.expense.open(\'M.ciniki_sapos_main.menu.open();\',\'' + d.id + '\');';
+        }
         return '';
     }
-    this.menu.footerValue = function(s, i, j, d) {
+    this.menu.footerValue = function(s, i, d) {
+        console.log(s + '--' + i);
         if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'invoices' && this.data.totals != null ) {
             if( this.sections[s].num_cols == 7 ) {
                 switch(i) {
@@ -249,7 +336,7 @@ function ciniki_sapos_main() {
                 case (this.sections[s].num_cols - 2): return this.data.totals.total;
             }
         }
-        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'monthlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
+        if( s == 'invoices' && M.ciniki_sapos_main._rtabs.selected.search(/invoices/) && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
             if( this.sections[s].num_cols == 7 && i == 3 ) {
                 return this.data.totals.subtotal_amount;
             }
@@ -257,35 +344,21 @@ function ciniki_sapos_main() {
                 return this.data.totals.taxes_amount;
             }
             if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount;  }
-//            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
             return '';
         }
-        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'quarterlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
-            if( this.sections[s].num_cols == 7 && i == 3 ) {
-                return this.data.totals.subtotal_amount;
+        if( s == 'expenses' && M.ciniki_sapos_main._rtabs.selected.search(/expenses/) ) {
+            if( i < 2 ) { return ''; }
+            if( i < this.sections[s].num_cols-1 ) {
+                return this.data.categories[i-2].total_amount_display;
+            } else {
+                return this.data.totals.total_amount_display;
             }
-            if( this.sections[s].num_cols == 7 && i == 4 ) {
-                return this.data.totals.taxes_amount;
-            }
-            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount;  }
-//            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount + ' (' + this.data.totals.yearly_amount + ')';  }
-            return '';
-        }
-        if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'yearlyinvoices' && this.data.totals != null && this.data.totals.total_amount != '$0.00' ) {
-            if( this.sections[s].num_cols == 7 && i == 3 ) {
-                return this.data.totals.subtotal_amount;
-            }
-            if( this.sections[s].num_cols == 7 && i == 4 ) {
-                return this.data.totals.taxes_amount;
-            }
-            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.total_amount;  }
-//            if( i == (this.sections[s].num_cols - 2) ) { return this.data.totals.monthly_amount + ' (' + this.data.totals.total_amount + ')';  }
-            return '';
         }
         return null;
     }
     this.menu.footerClass = function(s, i, d) {
         if( s == 'invoices' && i > 2 ) { return 'alignright'; }
+        if( s == 'expenses' && i > 2 ) { return 'alignright'; }
         if( s == 'transactions' && i > 1 ) { return 'alignright'; }
         return '';
     }
@@ -294,7 +367,6 @@ function ciniki_sapos_main() {
     this.menu.open = function(cb, type) {
         this.delButton('add');
         this.delButton('download');
-        this.addButton('add', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{});');
 
         this.sections.years.visible = 'no';
         this.size = 'full';
@@ -308,6 +380,7 @@ function ciniki_sapos_main() {
         if( M.ciniki_sapos_main._tabs.selected == 'invoices' ) {
             this.invoice_type = 10;
             M.ciniki_sapos_main.menu.invoices(cb);
+            this.addButton('add', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{});');
             this.addButton('download', 'Excel', 'M.ciniki_sapos_main.menu.downloadExcel();');
         }
         else if( M.ciniki_sapos_main._tabs.selected == 'carts' || M.ciniki_sapos_main._tabs.selected == 'pos' || M.ciniki_sapos_main._tabs.selected == 'orders' ) {
@@ -332,8 +405,12 @@ function ciniki_sapos_main() {
                     break;
             }
         } 
-        else if( M.ciniki_sapos_main._tabs.selected == 'monthlyinvoices' || M.ciniki_sapos_main._tabs.selected == 'quarterlyinvoices' || M.ciniki_sapos_main._tabs.selected == 'yearlyinvoices') {
-            switch(M.ciniki_sapos_main._tabs.selected) {
+        //else if( M.ciniki_sapos_main._tabs.selected == 'monthlyinvoices' || M.ciniki_sapos_main._tabs.selected == 'quarterlyinvoices' || M.ciniki_sapos_main._tabs.selected == 'yearlyinvoices') {
+        else if( M.ciniki_sapos_main._tabs.selected == 'repeats' 
+            && (M.ciniki_sapos_main._rtabs.selected == 'monthlyinvoices' || M.ciniki_sapos_main._rtabs.selected == 'quarterlyinvoices' || M.ciniki_sapos_main._rtabs.selected == 'yearlyinvoices') 
+            ) {
+            this.addButton('add', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{});');
+            switch(M.ciniki_sapos_main._rtabs.selected) {
                 case 'monthlyinvoices': this.invoice_type = 11; break;
                 case 'quarterlyinvoices': this.invoice_type = 16; break;
                 case 'yearlyinvoices': this.invoice_type = 19; break;
@@ -349,6 +426,43 @@ function ciniki_sapos_main() {
                 p.refresh();
                 p.show(cb);
             });
+        }
+        else if( M.ciniki_sapos_main._tabs.selected == 'repeats' 
+            && (M.ciniki_sapos_main._rtabs.selected == 'monthlyexpenses' || M.ciniki_sapos_main._rtabs.selected == 'quarterlyexpenses' || M.ciniki_sapos_main._rtabs.selected == 'yearlyexpenses') 
+            ) {
+            this.addButton('add', 'Expense', 'M.ciniki_sapos_main.expense.open(\'M.ciniki_sapos_main.menu.open();\',0);');
+            switch(M.ciniki_sapos_main._rtabs.selected) {
+                case 'monthlyexpenses': this.expense_type = 20; break;
+                case 'quarterlyexpenses': this.expense_type = 30; break;
+                case 'yearlyexpenses': this.expense_type = 40; break;
+            }
+            M.api.getJSONCb('ciniki.sapos.expenseGrid', {'tnid':M.curTenantID, 'sort':'date', 'expense_type':this.expense_type}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.ciniki_sapos_main.menu;
+                p.data = rsp;
+                console.log(rsp);
+                p.sections.expenses.headerValues = ['Date', 'Name'];
+                p.sections.expenses.cellClasses = ['', 'multiline'];
+                p.sections.expenses.headerClasses = ['', 'multiline'];
+                p.sections.expenses.sortTypes = ['date', 'text'];
+                p.sections.expenses.num_cols = rsp.categories.length + 3;
+                for(var i in rsp.categories) {
+                    p.sections.expenses.headerValues.push(rsp.categories[i].name);
+                    p.sections.expenses.cellClasses.push('alignright');
+                    p.sections.expenses.headerClasses.push('alignright');
+                    p.sections.expenses.sortTypes.push('number');
+                }
+                p.sections.expenses.headerValues.push('Total');
+                p.sections.expenses.cellClasses.push('alignright');
+                p.sections.expenses.headerClasses.push('alignright');
+                p.sections.expenses.sortTypes.push('number');
+                p.refresh();
+                p.show(cb);
+            }); 
+
         }
     }
     this.menu.invoices = function(cb, year, month, type, pstatus) {
@@ -963,7 +1077,7 @@ function ciniki_sapos_main() {
         if( i == 0 ) { return 'Date'; }
         if( i == 1 ) { return 'Name'; }
         if( i < this.sections[s].num_cols-1 ) {
-            return this.categories[i-2].category.name;
+            return this.categories[i-2].name;
         } else {
             return 'Total';
         }
@@ -971,7 +1085,7 @@ function ciniki_sapos_main() {
     this.expenses.footerValue = function(s, i, d) {
         if( i < 2 ) { return ''; }
         if( i < this.sections[s].num_cols-1 ) {
-            return this.categories[i-2].category.total_amount_display;
+            return this.categories[i-2].total_amount_display;
         } else {
             return this.data.totals.total_amount_display;
         }
@@ -993,40 +1107,40 @@ function ciniki_sapos_main() {
     this.expenses.liveSearchResultValue = function(s, f, i, j, d) {
         if( s == 'search' ) { 
             switch (j) {
-                case 0: return d.expense.name;
-                case 1: return d.expense.invoice_date;
-                case 2: return d.expense.total_amount_display;
+                case 0: return d.name;
+                case 1: return d.invoice_date;
+                case 2: return d.total_amount_display;
             }
         }
         return '';
     };
     this.expenses.liveSearchResultRowFn = function(s, f, i, j, d) {
         if( s == 'search' ) {
-            return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
+            return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{\'expense_id\':\'' + d.id + '\'});';
         }
     };
     this.expenses.cellValue = function(s, i, j, d) {
-        if( j == 0 ) { return d.expense.invoice_date; }
+        if( j == 0 ) { return d.invoice_date; }
         if( j == 1 ) { 
-            if( d.expense.description != '' ) {
-                return '<span class="maintext">' + d.expense.name + '</span><span class="subtext">' + d.expense.description + '</span>'; 
+            if( d.description != '' ) {
+                return '<span class="maintext">' + d.name + '</span><span class="subtext">' + d.description + '</span>'; 
             } else {
-                return d.expense.name; 
+                return d.name; 
             }
         }
         if( j < this.sections[s].num_cols-1 ) {
-            for(k in d.expense.items) {
-                if( d.expense.items[k].item.category_id == this.categories[j-2].category.id ) {
-                    return d.expense.items[k].item.amount_display;
+            for(k in d.items) {
+                if( d.items[k].category_id == this.categories[j-2].id ) {
+                    return d.items[k].amount_display;
                 }
             }
             return '';
         } else {
-            return d.expense.total_amount_display;
+            return d.total_amount_display;
         }
     };
     this.expenses.cellSortValue = function(s, i, j, d) {
-        if( j == 1 ) { return d.expense.name + d.expense.description; }
+        if( j == 1 ) { return d.name + d.description; }
     }
     this.expenses.headerClass = function(s, i) {
         if( i > 1 ) { return 'alignright'; }
@@ -1040,7 +1154,8 @@ function ciniki_sapos_main() {
             return '';
         }
         if( s == 'expenses' ) {
-            return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{\'expense_id\':\'' + d.expense.id + '\'});';
+            return 'M.ciniki_sapos_main.expense.open(\'M.ciniki_sapos_main.expenses.open();\',\'' + d.id + '\');';
+            //return 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{\'expense_id\':\'' + d.id + '\'});';
         }
     };
     this.expenses.yearSwitch = function(y) { this.open(null,y); }
@@ -1084,9 +1199,155 @@ function ciniki_sapos_main() {
         if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
         M.api.openFile('ciniki.sapos.expenseGrid', args);
     };
-    this.expenses.addButton('add', 'Expense', 'M.startApp(\'ciniki.sapos.expense\',null,\'M.ciniki_sapos_main.expenses.open();\',\'mc\',{});');
+    this.expenses.addButton('add', 'Expense', 'M.ciniki_sapos_main.expense.open(\'M.ciniki_sapos_main.expenses.open();\',0);');
     this.expenses.addButton('download', 'Excel', 'M.ciniki_sapos_main.expenses.download();');
     this.expenses.addClose('Back');
+
+    //
+    // Get expense panel
+    //
+    this.expense = new M.panel('Expense',
+        'ciniki_sapos_main', 'expense',
+        'mc', 'medium', 'sectioned', 'ciniki.sapos.main.expense');
+    this.expense.expense_id = 0;
+    this.expense.data = {};
+    this.expense.sections = {
+        'details':{'label':'', 'aside':'left', 'fields':{
+            'expense_type':{'label':'Type', 'type':'toggle', 'toggles':{'10':'Expense', '20':'Monthly', '30':'Quarterly', '40':'Yearly'}},
+            'name':{'label':'Name', 'type':'text', 'livesearch':'yes'},
+            'description':{'label':'Description', 'type':'text'},
+            'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
+//              'paid_date':{'label':'Paid Date', 'type':'text', 'size':'medium'},
+            }},
+        'items':{'label':'', 'aside':'right', 'fields':{
+            }},
+        '_notes':{'label':'Notes', 'aside':'left', 'fields':{
+            'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'medium'},
+            }},
+        '_buttons':{'label':'', 'aside':'left', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_main.expense.save();'},
+            'saveadd':{'label':'Save, Add Another', 'fn':'M.ciniki_sapos_main.expense.save(\'yes\');',
+                'visible':function() { return M.ciniki_sapos_main.expense.expense_id == 0 ? 'yes' : 'no'; },
+                },
+            'delete':{'label':'Delete', 'fn':'M.ciniki_sapos_main.expense.remove(M.ciniki_sapos_main.expense.expense_id);',
+                'visible':function() { return M.ciniki_sapos_main.expense.expense_id > 0 ? 'yes' : 'no'; },
+                },
+            }},
+    };
+    this.expense.fieldValue = function(s, i, d) {
+        if( this.data[i] == null ) { return ''; }
+        return this.data[i];
+    };
+    this.expense.liveSearchCb = function(s, i, v) {
+        if( i == 'name' ) {
+            M.api.getJSONBgCb('ciniki.sapos.expenseSearch', {'tnid':M.curTenantID,
+                'items':'yes', 'sort':'reverse', 'start_needle':v, 'limit':15}, function(rsp) {
+                    M.ciniki_sapos_main.expense.searchExpenseResults = rsp.expenses;
+                    M.ciniki_sapos_main.expense.liveSearchShow(s,i,M.gE(M.ciniki_sapos_main.expense.panelUID+'_'+i), rsp.expenses);
+                });
+        }
+    }
+    this.expense.liveSearchResultValue = function(s,f,i,j,d) {
+        if( f == 'name' ) {
+            return d.name + ' [' + d.total_amount_display + '] <span class="subdue">' + d.description + '</span>';
+        }
+        return '';
+    };
+    this.expense.liveSearchResultRowFn = function(s,f,i,j,d) {
+        if( f == 'name' ) {
+            return 'M.ciniki_sapos_main.expense.updateExpense(\'' + s + '\',\'' + f + '\',' + i + ')';
+        }
+    };
+    this.expense.updateExpense = function(s, fid, expense) {
+        var e = M.ciniki_sapos_main.expense.searchExpenseResults[expense];
+        if( e != null ) {
+            this.setFieldValue('name', e.name);
+            this.setFieldValue('description', e.description);
+            if( e.items != null ) {
+                for(i in e.items) {
+                    var el = M.gE(M.ciniki_sapos_main.expense.panelUID + '_category_' + e.items[i].category_id);
+                    if( el != null ) {
+                        this.setFieldValue('category_' + e.items[i].category_id, e.items[i].amount_display);
+                    }
+                }
+            }
+            this.removeLiveSearch(s, fid);
+        }
+    };
+    this.expense.fieldHistoryArgs = function(s, i) {
+        if( s == 'items' ) {
+            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
+                'object':'ciniki.sapos.expense_item', 'object_id':this.expense_id, 'field':i}};
+        }
+        return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
+            'object':'ciniki.sapos.expense', 'object_id':this.expense_id, 'field':i}};
+    };
+    this.expense.open = function(cb, eid, date) {
+        if( eid != null ) { this.expense_id = eid; }
+        M.api.getJSONCb('ciniki.sapos.expenseGet', {'tnid':M.curTenantID, 'expense_id':this.expense_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_main.expense;
+            p.data = rsp.expense;
+            p.sections.items.fields = {}
+            for(i in rsp.categories) {
+                p.sections.items.fields['category_' + rsp.categories[i].id] = {
+                    'label':rsp.categories[i].name,
+                    'type':'text',
+                    'size':'small',
+                    };
+            }
+            for(i in rsp.expense.items) {
+                p.data['category_' + rsp.expense.items[i].category_id] = rsp.expense.items[i].amount;
+            }
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.expense.save = function(add) {
+        if( this.expense_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('ciniki.sapos.expenseUpdate', {'tnid':M.curTenantID,
+                    'expense_id':this.expense_id}, c, function(rsp) {
+                        if( rsp.stat != 'ok' ) {
+                            M.api.err(rsp);
+                            return false;
+                        }
+                        M.ciniki_sapos_main.expense.close();
+                    });
+            } else {
+                this.close();
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('ciniki.sapos.expenseAdd', 
+                {'tnid':M.curTenantID}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    if( add == 'yes' ) { M.ciniki_sapos_main.expense.open(null,0); }
+                    else { M.ciniki_sapos_main.expense.close(); }
+                });
+        }
+    }
+    this.expense.remove = function(eid) {
+        if( eid <= 0 ) { return false; }
+        M.confirm("Are you sure you want to remove this expense?",null,function() {
+            M.api.getJSONCb('ciniki.sapos.expenseDelete', {'tnid':M.curTenantID, 'expense_id':eid}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_main.expense.close();
+            });
+        });
+    }
+    this.expense.addButton('save', 'Save', 'M.ciniki_sapos_main.expense.save();');
+    this.expense.addClose('Cancel');
 
     //
     // The mileage panel
@@ -1317,7 +1578,72 @@ function ciniki_sapos_main() {
     this.quotes.addButton('add', 'Quote', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.quotes.open();\',\'mc\',{\'type\':\'90\'});');
 
     //
-    // The reports panel
+    // The repeats panel for recurring invoices and expenses
+    //
+/*    this.repeats = new M.panel('Recurring', 'ciniki_sapos_main', 'repeats', 'mc', 'large', 'sectioned', 'ciniki.sapos.main.repeats');
+    this.repeats.data = {};
+    this.repeats.menutabs = this._tabs;
+    this.repeats.cols = [];
+    this.repeats.sections = {
+        'quarters':{'label':'', 'type':'simplegrid', 'num_cols':2,
+            'cols':{},
+            'noData':'No taxes found',
+            },
+    }
+    this.repeats.sectionData = function(s) {
+        return this.data[s];
+    }
+    this.repeats.headerValue = function(s, i, d) {
+        if( i == 0 ) { return 'Quarter'; }
+        if( i > 1 && i == (this.sections.quarters.num_cols - 1) ) { return 'Total'; }
+        return this.sections.quarters.cols[(i-1)].name;
+    }
+    this.repeats.cellValue = function(s, i, j, d) {
+        if( j == 0 ) { return d.start_date + ' - ' + d.end_date; }
+        if( j > 1 && j == (this.sections.quarters.num_cols - 1) ) { return d.total_amount_display; }
+        var c = this.sections.quarters.cols[(j-1)];
+        return d[c.type][c.id].amount_display;
+    }
+//    this.repeats.setup = function() {
+//    }
+    this.repeats.open = function(cb, report) {
+        var method = '';
+        switch (report) {
+            case 'taxes': method = 'ciniki.sapos.reportInvoicesTaxes'; break;
+        }
+        M.api.getJSONCb(method, {'tnid':M.curTenantID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_main.repeats;
+            p.data = rsp;
+            p.sections.quarters.cols = {};
+            var c = 0;
+            p.sections.quarters.num_cols = 1;
+            for(i in p.data.taxrates) {
+                p.sections.quarters.cols[c] = {'type':'taxrates', 'id':p.data.taxrates[i].id, 'name':p.data.taxrates[i].name};
+                c++;
+            }
+            for(i in p.data.expensecategories) {
+                p.sections.quarters.cols[c] = {'type':'expenses', 'id':p.data.expensecategories[i].id, 'name':p.data.expensecategories[i].name};
+                c++;
+            }
+            p.sections.quarters.num_cols += c;
+            if( c > 1 ) {
+                // Add extra column for totals
+                p.sections.quarters.num_cols++;
+            }
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.repeats.addClose('Back');
+*/
+    //
+    // The reports panel 
+    //
+    // ******* NOT USED ANYMORE, Deprecated Feb 19, 2021 and HST report now in Reporting. *******
     //
     this.reports = new M.panel('Reports', 'ciniki_sapos_main', 'reports', 'mc', 'large', 'sectioned', 'ciniki.sapos.main.reports');
     this.reports.year = null;
@@ -1449,21 +1775,8 @@ function ciniki_sapos_main() {
             this._tabs.tabs.transactions.visible = 'yes';
             if( sp == '' ) { sp = 'invoices'; }
             ct+=2;
-/*            if( M.modFlagOn('ciniki.sapos', 0x1000) ) {
-                this._tabs.tabs.monthlyinvoices.visible = 'yes';
-                this._tabs.tabs.quarterlyinvoices.visible = 'yes';
-                this._tabs.tabs.yearlyinvoices.visible = 'yes';
-                ct+=3;
-            } else {
-                this._tabs.tabs.monthlyinvoices.visible = 'no';
-                this._tabs.tabs.quarterlyinvoices.visible = 'no';
-                this._tabs.tabs.yearlyinvoices.visible = 'no';
-            } */
         } else {
             this._tabs.tabs.invoices.visible = 'no';
-/*            this._tabs.tabs.monthlyinvoices.visible = 'no';
-            this._tabs.tabs.quarterlyinvoices.visible = 'no';
-            this._tabs.tabs.yearlyinvoices.visible = 'no'; */
         }
         if( M.modFlagOn('ciniki.sapos', 0x10) ) {
             this._tabs.tabs.pos.visible = 'yes';
