@@ -117,9 +117,9 @@ function ciniki_sapos_main() {
             },
         'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
             'visible':function() { 
-                if( M.ciniki_sapos_main._tabs.selected == 'invoices' ) {
-                    return 'yes';
-                }
+                if( M.ciniki_sapos_main._tabs.selected == 'invoices' ) { return 'yes'; }
+                if( M.ciniki_sapos_main._tabs.selected == 'pos' ) { return 'yes'; }
+                if( M.ciniki_sapos_main._tabs.selected == 'carts' ) { return 'yes'; }
                 var t = M.ciniki_sapos_main._rtabs.selected;
                 if( M.ciniki_sapos_main._tabs.selected == 'repeats' && 
                     (t == 'monthlyinvoices' || t == 'quarterlyinvoices' || t == 'yearlyinvoices')
