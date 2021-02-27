@@ -674,7 +674,9 @@ function ciniki_sapos_invoice() {
                     'livesearchcols':3,
                     },
     //              'description':{'label':'Description', 'type':'text', 'livesearch':'yes'},
-                'quantity':{'label':'Quantity', 'type':'text', 'size':'small'},
+                'quantity':{'label':'Quantity', 'type':'text', 'size':'small',
+                    'visible':function() { return (M.ciniki_sapos_invoice.item.data.flags&0x08) == 0 ? 'yes' : 'no';},
+                    },
                 'unit_amount':{'label':'Price', 'type':'text', 'size':'small'},
                 'unit_discount_amount':{'label':'Discount Amount', 'type':'text', 'size':'small'},
                 'unit_discount_percentage':{'label':'Discount %', 'type':'text', 'size':'small'},
@@ -794,6 +796,8 @@ function ciniki_sapos_invoice() {
             if( M.modFlagOn('ciniki.sapos', 0x02000000) ) {
                 this.setFieldValue('flags1', flags);
             }
+            this.data.flags = flags;
+            this.showHideFormField('details', 'quantity');
             this.setFieldValue('notes', unescape(n));
             this.removeLiveSearch(s, fid);
             this.donationToggle();

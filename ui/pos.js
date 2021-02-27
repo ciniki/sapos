@@ -170,6 +170,7 @@ function ciniki_sapos_pos() {
             },
         'item_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':4,
             'visible':function() { return M.ciniki_sapos_pos.checkout.data.status < 45 ? 'yes' : 'no'; },
+            'headerClasses':['', '', 'alignright', 'alignright'],
             'headerValues':['Code', 'Description', 'Price', ''],
             'cellClasses':['', 'multiline', 'alignright', 'alignright'],
             'hint':'Search Items',

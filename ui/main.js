@@ -308,7 +308,6 @@ function ciniki_sapos_main() {
         return '';
     }
     this.menu.footerValue = function(s, i, d) {
-        console.log(s + '--' + i);
         if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'invoices' && this.data.totals != null ) {
             if( this.sections[s].num_cols == 7 ) {
                 switch(i) {
@@ -443,7 +442,6 @@ function ciniki_sapos_main() {
                 }
                 var p = M.ciniki_sapos_main.menu;
                 p.data = rsp;
-                console.log(rsp);
                 p.sections.expenses.headerValues = ['Date', 'Name'];
                 p.sections.expenses.cellClasses = ['', 'multiline'];
                 p.sections.expenses.headerClasses = ['', 'multiline'];
