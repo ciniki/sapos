@@ -200,6 +200,12 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
             }
         }
     }
+    usort($sections['ciniki.sapos.invoices']['data'], function($a, $b) {
+        if( $a['invoice_date'] == $b['invoice_date'] ) {
+            return 0;
+        }
+        return $a['invoice_date'] < $b['invoice_date'] ? -1 : 1;
+        });
 
     //
     // Add a tab the customer UI data screen with the certificate list
