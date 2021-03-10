@@ -63,6 +63,7 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         . "ciniki_sapos_invoices.invoice_number, "
         . "ciniki_sapos_invoices.po_number, "
         . "ciniki_sapos_invoices.invoice_date, "
+        . "ciniki_sapos_invoices.invoice_date AS sort_date, "
         . "ciniki_sapos_invoices.status, "
 //      . "ciniki_sapos_invoices.status AS status_text, "
         . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
@@ -87,7 +88,8 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'types', 'fname'=>'invoice_type', 'fields'=>array('type'=>'invoice_type')),
         array('container'=>'invoices', 'fname'=>'id', 
-            'fields'=>array('id', 'customer_name', 'invoice_number', 'po_number', 'invoice_date', 'status', 'status_text', 'total_amount'),
+            'fields'=>array('id', 'customer_name', 'invoice_number', 'po_number', 'invoice_date', 'sort_date',
+                'status', 'status_text', 'total_amount'),
             'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format))), 
         ));
@@ -114,6 +116,8 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
                 )),
             'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
             'data' => array(),
+            'sortable' => 'yes',
+            'sortTypes' => array('number', 'date', 'number', 'text'),
             'cellValues' => array(
                 '0' => 'd.invoice_number;',
                 '1' => 'd.invoice_date;',
@@ -132,6 +136,8 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
             'noData' => 'No carts',
             'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
             'data' => array(),
+            'sortable' => 'yes',
+            'sortTypes' => array('number', 'date', 'number', 'text'),
             'cellValues' => array(
                 '0' => 'd.invoice_number;',
                 '1' => 'd.invoice_date;',
@@ -150,6 +156,8 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
             'noData' => 'No carts',
             'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
             'data' => array(),
+            'sortable' => 'yes',
+            'sortTypes' => array('number', 'date', 'number', 'text'),
             'cellValues' => array(
                 '0' => 'd.invoice_number;',
                 '1' => 'd.invoice_date;',
@@ -201,10 +209,10 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         }
     }
     usort($sections['ciniki.sapos.invoices']['data'], function($a, $b) {
-        if( $a['invoice_date'] == $b['invoice_date'] ) {
+        if( $a['sort_date'] == $b['sort_date'] ) {
             return 0;
         }
-        return $a['invoice_date'] < $b['invoice_date'] ? -1 : 1;
+        return $a['sort_date'] > $b['sort_date'] ? -1 : 1;
         });
 
     //
