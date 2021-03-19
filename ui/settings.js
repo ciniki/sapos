@@ -582,14 +582,14 @@ function ciniki_sapos_settings() {
     this.ecats.sectionData = function(s) { return this.data[s]; }
     this.ecats.cellValue = function(s, i, j, d) {
         switch(j) {
-            case 0: return d.category.name;
+            case 0: return d.name;
         }
     }
     this.ecats.rowFn = function(s, i, d) {
         if( d == null ) {
             return '';
         }
-        return 'M.ciniki_sapos_settings.ecatedit.open(\'M.ciniki_sapos_settings.ecats.open();\',\'' + d.category.id + '\');';
+        return 'M.ciniki_sapos_settings.ecatedit.open(\'M.ciniki_sapos_settings.ecats.open();\',\'' + d.id + '\');';
     }
     this.ecats.open = function(cb) {
         M.api.getJSONCb('ciniki.sapos.expenseCategoryList', 

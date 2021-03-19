@@ -1211,7 +1211,10 @@ function ciniki_sapos_main() {
     this.expense.data = {};
     this.expense.sections = {
         'details':{'label':'', 'aside':'left', 'fields':{
-            'expense_type':{'label':'Type', 'type':'toggle', 'toggles':{'10':'Expense', '20':'Monthly', '30':'Quarterly', '40':'Yearly'}},
+            'expense_type':{'label':'Type', 'type':'toggle', 
+                'toggles':{'10':'Expense', '20':'Monthly', '30':'Quarterly', '40':'Yearly'},
+                'visible':function() { return M.modFlagSet('ciniki.sapos', 0x1000); },
+                },
             'name':{'label':'Name', 'type':'text', 'livesearch':'yes'},
             'description':{'label':'Description', 'type':'text'},
             'invoice_date':{'label':'Date', 'type':'text', 'size':'medium'},
