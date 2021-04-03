@@ -57,13 +57,10 @@ function ciniki_sapos_reporting_blockOntarioQuarterlyHST(&$ciniki, $tnid, $args)
     $end_dt->setTime(0, 0, 0);
     if( isset($args['current']) && $args['current'] == 'yes' ) {
         if( (($end_dt->format('n'))%3) == 0 ) {
-            error_log('1');
             $end_dt->add(new DateInterval('P1M'));
         } elseif( (($end_dt->format('n'))%3) == 1 ) {
-            error_log('2');
             $end_dt->add(new DateInterval('P3M'));
         } elseif( (($end_dt->format('n'))%3) == 2 ) {
-            error_log('3');
             $end_dt->add(new DateInterval('P2M'));
         }
         $quarters++;
@@ -122,7 +119,6 @@ function ciniki_sapos_reporting_blockOntarioQuarterlyHST(&$ciniki, $tnid, $args)
     }
     $categories = isset($rc['categories']) ? $rc['categories'] : array();
     $category_ids = array_keys($categories);
-    error_log(print_r($category_ids,true));
 
     //
     // Process each quarter
@@ -152,8 +148,6 @@ function ciniki_sapos_reporting_blockOntarioQuarterlyHST(&$ciniki, $tnid, $args)
             $utc_end_dt = clone($m_end_dt);
             $utc_end_dt->setTimezone(new DateTimezone('UTC'));
 
-        error_log($m_start_dt->format('Y-m-d H:i:s'));
-        error_log($m_end_dt->format('Y-m-d H:i:s'));
             //
             // Get the invoice totals for the month
             //
