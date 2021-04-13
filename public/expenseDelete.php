@@ -61,7 +61,7 @@ function ciniki_sapos_expenseDelete(&$ciniki) {
     if( isset($expense['items']) && count($expense['items']) > 0 ) {
         foreach($expense['items'] as $iid => $item) {
             $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.sapos.expense_item', 
-                $item['item']['id'], NULL, 0x04);
+                $item['id'], NULL, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                 return $rc;
