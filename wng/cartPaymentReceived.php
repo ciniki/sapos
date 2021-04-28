@@ -50,7 +50,7 @@ function ciniki_sapos_wng_cartPaymentReceived(&$ciniki, $tnid, $request, $cart) 
         $cart['paid_amount'] = $cart['total_amount'];
         $cart['balance_amount'] = 0;
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'submitInvoice');
-        $rc = ciniki_sapos_wng_submitInvoice($ciniki, $settings, $tnid, $cart);
+        $rc = ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart);
 /*    } */
     if( $rc['stat'] != 'ok' ) {
         $carterrors = "Oops, we seem to have had a problem with your order.";
