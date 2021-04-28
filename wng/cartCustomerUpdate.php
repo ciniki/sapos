@@ -42,7 +42,7 @@ function ciniki_sapos_wng_cartCustomerUpdate($ciniki, $tnid, $request) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
             $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', $request['session']['cart']['sapos_id'], $cart_args, 0x07);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.147', 'msg'=>'Internal error', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.320', 'msg'=>'Internal error', 'err'=>$rc['err']));
             }
 
             //
@@ -51,7 +51,7 @@ function ciniki_sapos_wng_cartCustomerUpdate($ciniki, $tnid, $request) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
             $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $request['session']['cart']['sapos_id']);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.292', 'msg'=>'Unable to update cart', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.321', 'msg'=>'Unable to update cart', 'err'=>$rc['err']));
             }
         }
 

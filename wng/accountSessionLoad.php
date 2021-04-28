@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, $request) {
+function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, &$request) {
 
     //
     // Check if the customer is signed in and look for an open cart
@@ -89,7 +89,7 @@ function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, $request) {
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.5', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.316', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
         }
         if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
             //
@@ -100,7 +100,7 @@ function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, $request) {
             foreach($carts as $c) {
                 $rc = ciniki_sapos_cartDelete($ciniki, $tnid, $c['id']);
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.11', 'msg'=>'Unable to remove older cart', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.319', 'msg'=>'Unable to remove older cart', 'err'=>$rc['err']));
                 }
             }
         }

@@ -218,7 +218,7 @@ function ciniki_sapos_settings() {
             'rules-invoice-submit-require-po_number':{'label':'Require PO Number', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
             }},
         '_instore_pickup':{'label':'In Store Pickup Name/Address', 'aside':'no', 
-            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x20000000); },
+            'active':function() { return M.modFlagSet('ciniki.sapos', 0x20000000); },
             'fields':{
                 'invoice-instore-pickup-name':{'label':'Name', 'type':'text'},
                 'invoice-instore-pickup-address1':{'label':'Address', 'type':'text'},
@@ -229,17 +229,19 @@ function ciniki_sapos_settings() {
                 'invoice-instore-pickup-country':{'label':'Country', 'type':'text'},
             }},
         '_instore_pickup_email':{'label':'Instore Pickup Order Placed Email', 
+            'active':function() { return M.modFlagSet('ciniki.sapos', 0x20000000); },
             'fields':{
                 'instore-pickup-placed-email-subject':{'label':'Subject', 'type':'text'},
                 'instore-pickup-placed-email-content':{'label':'Content', 'type':'textarea'},
             }},
         '_instore_ready_email':{'label':'Instore Pickup Order Ready Email', 
+            'active':function() { return M.modFlagSet('ciniki.sapos', 0x20000000); },
             'fields':{
                 'instore-pickup-ready-email-subject':{'label':'Subject', 'type':'text'},
                 'instore-pickup-ready-email-content':{'label':'Content', 'type':'textarea'},
             }},
         '_instorepickup_bottom_msg':{'label':'Instore Pickup Invoice Message', 'aside':'no', 
-            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x20000000); },
+            'active':function() { return M.modFlagSet('ciniki.sapos', 0x20000000); },
             'fields':{
                 'invoice-bottom-instore-pickup-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
