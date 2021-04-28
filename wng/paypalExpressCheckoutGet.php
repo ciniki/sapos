@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_wng_paypalExpressCheckoutGet(&$ciniki, $tnid, $request, $args) {
+function ciniki_sapos_wng_paypalExpressCheckoutGet(&$ciniki, $tnid, &$request, $args) {
 
     $settings = isset($request['site']['settings']) ? $request['site']['settings'] : array();
 
@@ -79,8 +79,7 @@ function ciniki_sapos_wng_paypalExpressCheckoutGet(&$ciniki, $tnid, $request, $a
         curl_close($ch);
     }
     if( strtolower($nvpResArray['ACK']) == 'success' || strtolower($nvpResArray['ACK']) == 'successwithwarning' ) {
-        $paypal_payer_id = urldecode($nvpResArray['PAYERID']);
-        $_SESSION['paypal_payer_id'] = $paypal_payer_id;
+        $request['session']['paypal_payer_id'] = urldecode($nvpResArray['PAYERID']);
         return array('stat'=>'ok');
     } 
 

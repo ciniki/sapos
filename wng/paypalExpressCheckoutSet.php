@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_wng_paypalExpressCheckoutSet(&$ciniki, $tnid, $request, $args) {
+function ciniki_sapos_wng_paypalExpressCheckoutSet(&$ciniki, $tnid, &$request, $args) {
 
     $settings = isset($request['site']['settings']) ? $request['site']['settings'] : array();
 
