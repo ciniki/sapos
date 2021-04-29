@@ -720,6 +720,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     if( $invoice['shipping_status'] == 20 
         && isset($sapos_settings['invoice-bottom-instore-pickup-message']) 
         && $sapos_settings['invoice-bottom-instore-pickup-message'] != '' 
+        && $sapos_settings['invoice-bottom-instore-pickup-message'] != 'null' 
         ) {
         $pdf->Ln();
         $pdf->SetFont('');
@@ -729,7 +730,10 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     //
     // Check if there is a donation message to be displayed
     //
-    if( isset($sapos_settings['donation-invoice-message']) && $sapos_settings['donation-invoice-message'] != '' ) {
+    if( isset($sapos_settings['donation-invoice-message']) 
+        && $sapos_settings['donation-invoice-message'] != '' 
+        && $sapos_settings['donation-invoice-message'] != 'null' 
+        ) {
         $pdf->Ln();
         $pdf->SetFont('');
         $pdf->MultiCell(180, 5, $sapos_settings['donation-invoice-message'], 0, 'L');

@@ -80,7 +80,8 @@ function ciniki_sapos_wng_cartItemUpdate($ciniki, $tnid, $request, $args) {
             //
             if( $args['quantity'] > $item['quantity'] ) {
                 if( isset($object_item['limited_units']) && $object_item['limited_units'] == 'yes'
-                    && isset($object_item['units_available']) && $object_item['units_available'] != '' ) {
+                    && isset($object_item['units_available']) && $object_item['units_available'] != '' 
+                    ) {
                     if( $args['quantity'] > $object_item['units_available'] ) {
                         // Check if there's enough units available, otherwise use the maximum available
                         if( $object_item['units_available'] > 0 ) {
