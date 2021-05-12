@@ -702,7 +702,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         ) {
         $pdf->Ln();
         $pdf->SetFont('');
-        $pdf->MultiCell(180, 5, $sapos_settings['invoice-preorder-message'], 0, 'L');
+        $pdf->MultiCell(180, 5, $sapos_settings['invoice-preorder-message'], 0, 'L',0,1,'','',true,0,true);
     }
 
     //
@@ -711,7 +711,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     if( isset($sapos_settings['invoice-bottom-message']) && $sapos_settings['invoice-bottom-message'] != '' ) {
         $pdf->Ln();
         $pdf->SetFont('');
-        $pdf->MultiCell(180, 5, $sapos_settings['invoice-bottom-message'], 0, 'L');
+        $pdf->MultiCell(180, 5, $sapos_settings['invoice-bottom-message'], 0, 'L',0,1,'','',true,0,true);
     }
 
     //
@@ -724,7 +724,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         ) {
         $pdf->Ln();
         $pdf->SetFont('');
-        $pdf->MultiCell(180, 5, $sapos_settings['invoice-bottom-instore-pickup-message'], 0, 'L');
+        $pdf->MultiCell(180, 5, $sapos_settings['invoice-bottom-instore-pickup-message'], 0, 'L',0,1,'','',true,0,true);
     }
 
     //
@@ -736,7 +736,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         ) {
         $pdf->Ln();
         $pdf->SetFont('');
-        $pdf->MultiCell(180, 5, $sapos_settings['donation-invoice-message'], 0, 'L');
+        $pdf->MultiCell(180, 5, $sapos_settings['donation-invoice-message'], 0, 'L',0,1,'','',true,0,true);
     }
 
     //
