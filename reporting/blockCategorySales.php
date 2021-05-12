@@ -91,7 +91,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         . "WHERE i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND i.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
         . "AND i.invoice_type = 10 "
-        . "AND i.status = 50 "
+        . "AND (i.status = 45 OR i.status = 50) "
         . "ORDER BY m.category, i.invoice_date, c.display_name "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
