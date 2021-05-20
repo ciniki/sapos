@@ -85,6 +85,9 @@ function ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, $args) {
                     . "AND object_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
                     . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                     . "";
+                if( isset($args['price_id']) && $args['price_id'] > 0 ) {
+                    $strsql .= "AND price_id = '" . ciniki_core_dbQuote($ciniki, $args['price_id']) . "' ";
+                }
                 $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.327', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
