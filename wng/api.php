@@ -58,8 +58,6 @@ function ciniki_sapos_wng_api(&$ciniki, $tnid, &$request) {
             );
     }
 
-error_log($request['uri_split'][$request['cur_uri_pos']]);
-error_log(print_r($request['args'],true));
     //
     // cartLoad - Load the cart for the customer/session
     //
@@ -71,7 +69,6 @@ error_log(print_r($request['args'],true));
     // cartItemAdd - Add an item to the cart
     //
     elseif( isset($request['uri_split'][$request['cur_uri_pos']]) && $request['uri_split'][$request['cur_uri_pos']] == 'cartItemAdd' ) {
-        error_log('add item');
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartItemAdd');
         return ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, array(
             'object'=>($request['args']['object'] ? $request['args']['object'] : ''),
