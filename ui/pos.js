@@ -202,8 +202,12 @@ function ciniki_sapos_pos() {
             },
         '_buttons':{'label':'', 'buttons':{
             'record':{'label':'Record Transaction', 
-                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount >= 0 && M.ciniki_sapos_pos.checkout.data.balance_amount > 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount > 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
                 'fn':'M.ciniki_sapos_pos.transaction.open(\'M.ciniki_sapos_pos.checkout.open();\',0,M.ciniki_sapos_pos.checkout.invoice_id,\'now\',M.ciniki_sapos_pos.checkout.data.balance_amount_display);',
+                },
+            'completesale':{'label':'Complete Sale', 
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
+                'fn':'M.ciniki_sapos_pos.checkout.completeSale();',
                 },
             'print':{'label':'Print Receipt', 
                 'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 ?'yes':'no'},
@@ -406,6 +410,16 @@ function ciniki_sapos_pos() {
     this.checkout.orderPickedUp = function() {
         M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
             'invoice_id':this.invoice_id, 'action':'pickedup'}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_pos.checkout.close();
+            });
+    }
+    this.checkout.completeSale = function() {
+        M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
+            'invoice_id':this.invoice_id, 'action':'completesale'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;

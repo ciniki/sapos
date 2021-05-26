@@ -18,7 +18,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action',
-            'validlist'=>array('submit', 'discount', 'packed', 'pickedup')),
+            'validlist'=>array('submit', 'discount', 'packed', 'pickedup', 'completesale')),
         'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Percent'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -284,6 +284,35 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
             if( $invoice['status'] < 50 ) {
                 $update_args['status'] = 50;
             }
+        }
+
+    } 
+    //
+    // When invoices have zero dollar items, this action will mark the invoice as paid.
+    //
+    elseif( isset($args['action']) && $args['action'] == 'completesale' ) {
+        //
+        // Load the invoice
+        //
+        $strsql = "SELECT po_number, customer_id, invoice_type, status, payment_status, balance_amount, submitted_by "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+        if( !isset($rc['invoice']) ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
+        }
+        $invoice = $rc['invoice'];
+
+        $update_args = array();
+        if( $invoice['balance_amount'] == 0 && $invoice['payment_status'] < 50 ) {
+            $update_args['payment_status'] = 50;
         }
     
     } else {
