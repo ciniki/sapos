@@ -129,15 +129,6 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
                         $args[$k] = $v;
                     }
                 }
-                
-                //
-                // Check if synopsis should be notes
-                //
-                if( isset($settings['quote-notes-product-synopsis']) && $settings['quote-notes-product-synopsis'] != '' 
-                    && isset($rc['item']['synopsis']) 
-                    ) {
-                    $args['notes'] = $rc['item']['synopsis'];
-                }
             }
         }
     }
