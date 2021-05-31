@@ -71,7 +71,8 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         . "c.display_name, "
         . "m.quantity, "
         . "i.total_amount, "
-        . "m.category, m.code, m.description, "
+        . "m.code, "
+        . "m.description, "
         . "IF(IFNULL(m.category, '') = '', 'Uncategorized', category) AS category, "
         . "m.total_amount AS amount, "
         . "t.source "
@@ -92,7 +93,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         . "AND i.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
         . "AND i.invoice_type = 10 "
         . "AND (i.status = 45 OR i.status = 50) "
-        . "ORDER BY m.category, i.invoice_date, c.display_name "
+        . "ORDER BY category, i.invoice_date, c.display_name "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
