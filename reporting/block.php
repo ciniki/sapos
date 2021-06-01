@@ -33,7 +33,11 @@ function ciniki_sapos_reporting_block(&$ciniki, $tnid, $args) {
     //
     // Return the list of reports for the tenant
     //
-    if( $args['block_ref'] == 'ciniki.sapos.categorysales' ) {
+    if( $args['block_ref'] == 'ciniki.sapos.sales' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockSales');
+        return ciniki_sapos_reporting_blockSales($ciniki, $tnid, $args['options']);
+    } 
+    elseif( $args['block_ref'] == 'ciniki.sapos.categorysales' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockCategorySales');
         return ciniki_sapos_reporting_blockCategorySales($ciniki, $tnid, $args['options']);
     } 
