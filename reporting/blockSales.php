@@ -119,7 +119,7 @@ function ciniki_sapos_reporting_blockSales(&$ciniki, $tnid, $args) {
         $items[$iid]['invoice_number'] = '#' . $item['invoice_number'];
         $items[$iid]['code_desc'] = ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
         $total = bcadd($total, $item['amount'], 6);
-        $textlist .= '#' . $item['invoice_number'] . ' ' . $item['display_name'] . ' ' . '$' . number_format($item['amount'], 2) . "\n";
+        $textlist .= '#' . $item['invoice_number'] . ' ' . $item['description'] . ' ' . '$' . number_format($item['amount'], 2) . "\n";
     }
     $textlist .= 'Total: ' . '$' . number_format($total, 2) . "\n";
 
