@@ -36,6 +36,13 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
                 'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
                 ),
             );
+        $blocks['ciniki.sapos.categorizedsales'] = array(
+            'name'=>'Categorized Sales',
+            'module' => 'Accounting',
+            'options'=>array(
+                'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
+                ),
+            );
     }
 
     //

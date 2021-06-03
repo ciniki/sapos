@@ -63,7 +63,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     //
     $strsql = "SELECT m.id, "
         . "i.invoice_number, "
-        . "DATE_FORMAT(i.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
+        . "DATE_FORMAT(IFNULL(t.transaction_date, i.invoice_date), '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
         . "i.payment_status, "
         . "i.payment_status AS payment_status_text, "
         . "i.po_number, "
@@ -93,13 +93,15 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         . "AND i.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
         . "AND (i.invoice_type = 10 OR i.invoice_type = 30) "
         . "AND (i.status = 45 OR i.status = 50) "
-        . "ORDER BY category, i.invoice_date, c.display_name "
+        . "ORDER BY category, invoice_date, c.display_name "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'categories', 'fname'=>'category', 'fields'=>array('name'=>'category')),
         array('container'=>'items', 'fname'=>'id', 
-            'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'category', 'code', 'description', 'amount', 'source', 'quantity'),
+            'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 
+                'category', 'code', 'description', 'amount', 'source', 'quantity',
+                ),
             'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status'],
                 'source'=>$maps['transaction']['source'],
                 ),
