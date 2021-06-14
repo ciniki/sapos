@@ -109,13 +109,13 @@ function ciniki_sapos_pos(&$ciniki) {
     if( isset($args['action']) && $args['action'] == 'updatecustomer' ) {
         if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
             $customer_id = $args['customer_id'];
-        } else {
+        } elseif( isset($invoice['customer_id']) ) {
             $customer_id = $invoice['customer_id'];
         }
         //
         // Create invoice if required
         //
-        if( $args['invoice_id'] == 0 || $args['invoice_id'] == '' ) {
+        if( ($args['invoice_id'] == 0 || $args['invoice_id'] == '') && isset($args['customer_id']) && $args['customer_id'] > 0 ) {
             $invoice = array(
                 'invoice_type' => 30,
                 'status' => 10,
