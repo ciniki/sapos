@@ -234,7 +234,6 @@ function ciniki_sapos_web_accountProcessRequest($ciniki, $settings, $tnid, $args
             if( isset($customer_invoice['shipments']) ) {
                 $content = '';
                 foreach($customer_invoice['shipments'] as $shipment) {
-//                      $content .= "<pre>" . print_r($shipment, true) . "</pre>";
                     $shipment = $shipment['shipment'];
 //                   $content .= "<div class='cart'>";
 

@@ -199,30 +199,6 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
 
     $categories = array_values($categories);
 
-    error_log(print_r($categories,true));
-//    error_log(print_r($invoices,true));
-
-   /* 
-    error_log(print_r($categories,true));
-
-    //
-    // Calculate the sums for each category
-    //
-    foreach($categories as $cid => $category) {
-        $categories[$cid]['total'] = 0;
-        $categories[$cid]['textlist'] = 0;
-        if( isset($category['items']) ) {
-            foreach($category['items'] as $iid => $item) {
-                $categories[$cid]['items'][$iid]['quantity'] = (float)$item['quantity'];
-                $categories[$cid]['items'][$iid]['invoice_number'] = '#' . $item['invoice_number'];
-                $categories[$cid]['items'][$iid]['code_desc'] = ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
-                $categories[$cid]['total'] = bcadd($categories[$cid]['total'], $item['amount'], 6);
-                $categories[$cid]['textlist'] .= '#' . $item['invoice_number'] . ' ' . $item['display_name'] . ' ' . $categories[$cid]['items'][$iid]['code_desc'] . ' ' . '$' . number_format($item['amount'], 2) . "\n";
-            }
-            $categories[$cid]['textlist'] .= 'Total: ' . '$' . number_format($categories[$cid]['total'], 2) . "\n";
-        }
-    }
-*/
     //
     // List the items foreach category
     //
