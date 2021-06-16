@@ -48,6 +48,7 @@ function ciniki_sapos_invoiceAdd(&$ciniki) {
         'shipping_country'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Country'),
         'shipping_phone'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Phone'),
         'shipping_notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Shipping Notes'),
+        'work_type'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Work Type'),
         'work_address1'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Work Address Line 1'),
         'work_address2'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Work Address Line 2'),
         'work_city'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Work City'),

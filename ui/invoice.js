@@ -98,9 +98,11 @@ function ciniki_sapos_invoice() {
         this.invoice.sections = {
             'details':{'label':'', 'aside':'yes', 'list':{
                 'invoice_number':{'label':'Invoice #'},
-    //              'invoice_type_text':{'label':'Type'},
                 'po_number':{'label':'PO #'},
     //              'status_text':{'label':'Status'},
+                'work_type':{'label':'Work Type',
+                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x020000); },
+                    },
                 'payment_status_text':{'label':'Payment'},
                 'shipping_status_text':{'label':'Shipping'},
                 'manufacturing_status_text':{'label':'Manufacturing'},
@@ -534,6 +536,9 @@ function ciniki_sapos_invoice() {
 //                'receipt_number':{'label':'Receipt #', 'type':'text', 'size':'medium',
 //                    'active':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
 //                    },
+                'work_type':{'label':'Work Type', 'type':'text', 
+                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x020000); },
+                    },
                 'status':{'label':'Status', 'type':'select', 'options':M.ciniki_sapos_invoice.invoiceStatuses},
                 'payment_status':{'label':'Payment', 'active':'yes', 'type':'select', 'options':M.ciniki_sapos_invoice.paymentStatuses},
                 'shipping_status':{'label':'Shipping', 'visible':'yes', 'type':'select', 'options':M.ciniki_sapos_invoice.shippingStatuses},

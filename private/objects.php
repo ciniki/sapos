@@ -48,6 +48,7 @@ function ciniki_sapos_objects($ciniki) {
             'shipping_country'=>array('default'=>''),
             'shipping_phone'=>array('default'=>''),
             'shipping_notes'=>array('default'=>''),
+            'work_type'=>array('default'=>''),
             'work_address1'=>array('default'=>''),
             'work_address2'=>array('default'=>''),
             'work_city'=>array('default'=>''),

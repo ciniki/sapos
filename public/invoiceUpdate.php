@@ -49,6 +49,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
         'shipping_phone'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Phone'),
         'shipping_notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shipping Notes'),
         'work_update'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Update Work from Customer'),
+        'work_type'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Work Type'),
         'work_address1'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Work Address Line 1'),
         'work_address2'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Work Address Line 2'),
         'work_city'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Work City'),

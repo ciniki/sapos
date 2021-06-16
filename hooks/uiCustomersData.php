@@ -66,6 +66,11 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         . "ciniki_sapos_invoices.invoice_date AS sort_date, "
         . "ciniki_sapos_invoices.status, "
 //      . "ciniki_sapos_invoices.status AS status_text, "
+        . "ciniki_sapos_invoices.work_type, "
+        . "ciniki_sapos_invoices.work_address1, "
+        . "ciniki_sapos_invoices.work_address2, "
+        . "ciniki_sapos_invoices.work_city, "
+        . "ciniki_sapos_invoices.work_province, "
         . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
         . "ciniki_sapos_invoices.total_amount "
         . "FROM ciniki_sapos_invoices "
@@ -89,6 +94,7 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         array('container'=>'types', 'fname'=>'invoice_type', 'fields'=>array('type'=>'invoice_type')),
         array('container'=>'invoices', 'fname'=>'id', 
             'fields'=>array('id', 'customer_name', 'invoice_number', 'po_number', 'invoice_date', 'sort_date',
+                'work_type', 'work_address1', 'work_address2', 'work_city', 'work_province',
                 'status', 'status_text', 'total_amount'),
             'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format))), 
@@ -96,6 +102,7 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
+    
 
     //
     // Setup the section for invoices
@@ -125,6 +132,10 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
                 '3' => 'd.status_text;',
                 ),
             );
+        if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x020000) ) {
+            $sections['ciniki.sapos.invoices']['cellClasses'] = array('multiline', '', '', '');
+            $sections['ciniki.sapos.invoices']['cellValues']['0'] = 'M.multiline(d.invoice_number, d.work_address);';
+        }
     }
     if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x08) ) {
         $carts['ciniki.sapos.carts'] = array(
@@ -182,6 +193,10 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
                 '2' => 'd.total_amount_display;',
                 ),
             );
+        if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x020000) ) {
+            $sections['ciniki.sapos.quotes']['cellClasses'] = array('multiline', '', '', '');
+            $sections['ciniki.sapos.quotes']['cellValues']['0'] = 'M.multiline(d.invoice_number, d.work_address);';
+        }
     }
     if( !isset($rc['types']) ) {
         return array('stat'=>'ok', 'tabs'=>array(array(
@@ -194,6 +209,22 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
 
     foreach($types as $tid => $type) {
         foreach($type['invoices'] as $iid => $invoice) {
+            if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x020000) ) { 
+                if( $invoice['work_type'] != '' ) { 
+                    $invoice['invoice_number'] .= ' - ' . $invoice['work_type'];
+                }
+                $invoice['work_address'] = $invoice['work_address1'];
+                if( $invoice['work_address2'] != '' ) {
+                    $invoice['work_address'] .= ($invoice['work_address'] != '' ? ', ' : '') . $invoice['work_address1'];
+                }
+                if( $invoice['work_city'] != '' ) {
+                    $invoice['work_address'] .= ($invoice['work_address'] != '' ? ', ' : '') . $invoice['work_city'];
+                }
+                if( $invoice['work_province'] != '' ) {
+                    $invoice['work_address'] .= ($invoice['work_address'] != '' ? ', ' : '') . $invoice['work_province'];
+                }
+            }
+            
             $invoice['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $invoice['total_amount'], $intl_currency);
             if( $type['type'] == 10 && isset($sections['ciniki.sapos.invoices']) ) {
                 $sections['ciniki.sapos.invoices']['data'][] = $invoice;

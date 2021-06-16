@@ -1,0 +1,5 @@
+#
+# This file will upgrade the database table ciniki_sapos_invoices to version 1.13 adding the preorder_amount field.
+#
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN work_type varchar(150) not null AFTER shipping_notes;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.14';

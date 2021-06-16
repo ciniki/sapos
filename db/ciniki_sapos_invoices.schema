@@ -133,6 +133,7 @@
 # shipping_phone:       The shipping phone to assist in deliveries.
 # shipping_notes:       The shipping notes.
 #
+# work_type:            The type of work performed (internal).
 # work_address1:        The work address, first line. This is where the work was completed at.
 # work_address2:        The work address, line two.
 # work_city:            The work address city.
@@ -204,6 +205,7 @@ create table ciniki_sapos_invoices (
     shipping_country varchar(50) not null,
     shipping_phone varchar(50) not null,
     shipping_notes varchar(5000) not null,
+    work_type varchar(150) not null,
     work_address1 varchar(250) not null,
     work_address2 varchar(250) not null,
     work_city varchar(100) not null,
@@ -235,4 +237,4 @@ create table ciniki_sapos_invoices (
     index (customer_id, status, invoice_date),
     unique index (tnid, invoice_number),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.13';
+) ENGINE='InnoDB', COMMENT='v1.14';

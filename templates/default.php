@@ -401,11 +401,36 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             $saddr[] = 'Phone: ' . $invoice['shipping_phone'];
         }
     }
+    $waddr = array();
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x020000) && $invoice['work_address1'] != '' ) {
+        if( isset($invoice['work_address1']) && $invoice['work_address1'] != '' ) {
+            $waddr[] = $invoice['work_address1'];
+        }
+        if( isset($invoice['work_address2']) && $invoice['work_address2'] != '' ) {
+            $waddr[] = $invoice['work_address2'];
+        }
+        $city = '';
+        if( isset($invoice['work_city']) && $invoice['work_city'] != '' ) {
+            $city = $invoice['work_city'];
+        }
+        if( isset($invoice['work_province']) && $invoice['work_province'] != '' ) {
+            $city .= (($city!='')?', ':'') . $invoice['work_province'];
+        }
+        if( isset($invoice['work_postal']) && $invoice['work_postal'] != '' ) {
+            $city .= (($city!='')?',  ':'') . $invoice['work_postal'];
+        }
+        if( $city != '' ) {
+            $waddr[] = $city;
+        }
+        if( isset($invoice['work_country']) && $invoice['work_country'] != '' ) {
+            $waddr[] = $invoice['work_country'];
+        }
+    }
 
     //
     // Output the bill to and ship to information
     //
-    if( $invoice['shipping_status'] > 0 || $invoice['preorder_status'] > 0 ) {
+    if( $invoice['shipping_status'] > 0 || $invoice['preorder_status'] > 0 || count($waddr) > 0 ) {
         $w = array(90, 90);
     } else {
         $w = array(100, 80);
@@ -413,7 +438,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     $lh = 6;
     $pdf->SetFillColor(224);
     $pdf->setCellPadding(2);
-    if( count($baddr) > 0 || count($saddr) > 0 ) {
+    if( count($baddr) > 0 || count($saddr) > 0 || count($waddr) > 0 ) {
         $pdf->SetFont('', 'B');
         $pdf->Cell($w[0], $lh, 'Bill To:', 1, 0, 'L', 1);
         $border = 1;
@@ -431,6 +456,21 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
                     $baddr[] = " ";
                 }
             }
+        } elseif( count($waddr) > 0 ) {
+            $pdf->Cell($w[1], $lh, 'Work Location:', 1, 0, 'L', 1);
+            $border = 1;
+            $diff_lines = (count($baddr) - count($waddr));
+            // Add padding so the boxes line up
+            if( $diff_lines > 0 ) {
+                for($i=0;$i<$diff_lines;$i++) {
+                    $waddr[] = " ";
+                }
+            } elseif( $diff_lines < 0 ) {
+                for($i=0;$i<abs($diff_lines);$i++) {
+                    $baddr[] = " ";
+                }
+            }
+
         }
         $pdf->Ln($lh);  
         $pdf->SetFont('');
@@ -438,6 +478,8 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         $pdf->MultiCell($w[0], $lh, implode("\n", $baddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
         if( $invoice['shipping_status'] > 0 || $invoice['preorder_status'] > 0 ) {
             $pdf->MultiCell($w[1], $lh, implode("\n", $saddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
+        } elseif( count($waddr) > 0 ) {
+            $pdf->MultiCell($w[1], $lh, implode("\n", $waddr), $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T', false);
         }
         $pdf->Ln($lh);
     }
@@ -920,9 +962,9 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
 
     // ---------------------------------------------------------
 
-    $filename_prefix = 'invoice_';
+    $filename_prefix = 'Invoice_';
     if( $invoice['invoice_type'] == 90 ) {
-        $filename_prefix = 'quote_';
+        $filename_prefix = 'Quote_';
     }
 
     if( $output == 'email' ) {
