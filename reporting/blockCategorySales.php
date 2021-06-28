@@ -150,7 +150,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
                     array('label'=>'Payment', 'pdfwidth'=>'12%', 'field'=>'source'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'colspan'=>3, 'pdfwidth'=>'76%'),
+                    array('value'=>'Total', 'colspan'=>4, 'pdfwidth'=>'76%'),
                     array('value'=>$category['total'], 'pdfwidth'=>'12%', 'type'=>'dollar'),
                     array('value'=>'', 'pdfwidth'=>'12%'),
                     ),
