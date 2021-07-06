@@ -1,0 +1,5 @@
+#
+# Add the donation category field
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN donation_category varchar(150) not null AFTER category;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.10';

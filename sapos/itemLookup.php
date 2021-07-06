@@ -55,7 +55,7 @@ function ciniki_sapos_sapos_itemLookup($ciniki, $tnid, $args) {
         // Setup the product
         //
         $product = array(
-            'flags'=>0x8000,
+            'flags'=>0x8088,
             'price_id'=>0,
             'code'=>'',
             'description'=>$package['invoice_name'],

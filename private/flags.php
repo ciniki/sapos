@@ -46,7 +46,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
         array('flag'=>array('bit'=>'25', 'name'=>'Item Categories')), 
         array('flag'=>array('bit'=>'26', 'name'=>'Donations')),
         array('flag'=>array('bit'=>'27', 'name'=>'Donation Portions')), 
-//        array('flag'=>array('bit'=>'28', 'name'=>'')),
+        array('flag'=>array('bit'=>'28', 'name'=>'Donation Categories')),
         // 0x10000000
         array('flag'=>array('bit'=>'29', 'name'=>'Simple Shipping')), // Do not use with Shipping 0x40 flag
         array('flag'=>array('bit'=>'30', 'name'=>'Instore Pickup')),

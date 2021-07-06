@@ -266,6 +266,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "ciniki_sapos_invoice_items.flags, "
         . "ciniki_sapos_invoice_items.status, "
         . "ciniki_sapos_invoice_items.category, "
+        . "ciniki_sapos_invoice_items.donation_category, "
         . "ciniki_sapos_invoice_items.object, "
         . "ciniki_sapos_invoice_items.object_id, "
         . "ciniki_sapos_invoice_items.price_id, "
@@ -295,7 +296,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'items', 'fname'=>'id', 'name'=>'item',
-            'fields'=>array('id', 'line_number', 'flags', 'status', 'category',
+            'fields'=>array('id', 'line_number', 'flags', 'status', 'category', 'donation_category',
                 'object', 'object_id', 'price_id', 'student_id', 
                 'code', 'description', 'quantity', 'shipped_quantity', 'required_quantity', 
                 'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'unit_preorder_amount', 

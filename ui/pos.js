@@ -533,8 +533,10 @@ function ciniki_sapos_pos() {
             'unit_discount_amount':{'label':'Discount Amount', 'type':'text', 'size':'small'},
             'unit_discount_percentage':{'label':'Discount %', 'type':'text', 'size':'small'},
             'flags1':{'label':'Donation', 'type':'flagtoggle', 'field':'flags', 'bit':0x8000, 'default':'off', 
+                'on_fields':[],
                 'active':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
                 },
+            'donation_category':{'label':'Donation Category', 'type':'text', 'visible':'no', },
             'taxtype_id':{'label':'Taxes', 'type':'select', 'options':{}},
             }},
         '_notes':{'label':'Notes', 'fields':{
@@ -622,6 +624,10 @@ function ciniki_sapos_pos() {
         }
         this.setFieldValue('notes', unescape(n));
         this.removeLiveSearch(s, fid);
+        if( M.modFlagOn('ciniki.sapos', 0x08000000) && (flags&0x8000) == 0x8000 ) {
+            this.sections.details.fields.donation_category.visible = 'yes';
+            this.showHideFormField('details', 'donation_category');
+        }
     };
     this.item.fieldValue = function(s, i, d) {
         if( this.data != null && this.data[i] != null ) { return this.data[i]; }
@@ -646,6 +652,14 @@ function ciniki_sapos_pos() {
                 p.price_id = rsp.item.price_id;
                 p.object = rsp.item.object;
                 p.object_id = rsp.item.object_id;
+                p.sections.details.fields.flags1.on_fields = [];
+                p.sections.details.fields.donation_category.visible = 'no';
+                if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
+                    p.sections.details.fields.flags1.on_fields = ['donation_category'];
+                    if( (rsp.item.flags&0x8000) == 0x8000 ) {
+                        p.sections.details.fields.donation_category.visible = 'yes';
+                    }
+                }
                 p.refresh();
                 p.show(cb);
             });
@@ -656,6 +670,11 @@ function ciniki_sapos_pos() {
             p.object_id = 0;
             p.price_id = 0;
             p.sections._buttons.buttons.delete.visible = 'no';
+            p.sections.details.fields.flags1.on_fields = [];
+            p.sections.details.fields.donation_category.visible = 'no';
+            if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
+                p.sections.details.fields.flags1.on_fields = ['donation_category'];
+            }
             p.refresh();
             p.show(cb);
         }
