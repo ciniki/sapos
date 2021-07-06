@@ -463,7 +463,7 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $invoice_id, $t
         $pdf->AddPage();
         $pdf->setY(($pdf->header_height)+15);
 
-        $pdf->Cell(180, $lh, 'Minimum donation amount not received, receipt not printed.', 0, 0, 'L', 1);
+        $pdf->Cell(180, 12, 'Minimum donation amount not received, receipt not printed.', 0, 0, 'L', 1);
     }
 
 

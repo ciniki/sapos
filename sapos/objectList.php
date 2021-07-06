@@ -18,7 +18,10 @@ function ciniki_sapos_sapos_objectList($ciniki, $tnid) {
         // this object should only be added to carts
         //
         'ciniki.sapos.donationpackage' => array(
-            'name' => 'Donation',
+            'name' => 'Donation Package',
+            ),
+        'ciniki.sapos.cartdonation' => array(
+            'name' => 'Cart Donation',
             ),
         );
 
