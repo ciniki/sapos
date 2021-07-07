@@ -20,7 +20,7 @@ function ciniki_sapos_hooks_invoiceItemDisconnect($ciniki, $tnid, $args) {
         || !isset($args['object']) || $args['object'] == '' 
         || !isset($args['object_id']) || $args['object_id'] == '' 
         ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.3', 'msg'=>'No invoice or item specified.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.366', 'msg'=>'No invoice or item specified.'));
     }
 
     //

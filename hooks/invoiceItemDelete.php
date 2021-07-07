@@ -47,7 +47,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $tnid, $args) {
         return $rc;
     }
     if( !isset($rc['item']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.4', 'msg'=>'Unable to find invoice item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.382', 'msg'=>'Unable to find invoice item'));
     }
     $item = $rc['item'];
 

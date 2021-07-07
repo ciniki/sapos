@@ -108,7 +108,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
             ),
         ));
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.237', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.384', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
     }
     $categories = isset($rc['categories']) ? $rc['categories'] : array();
 

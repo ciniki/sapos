@@ -22,7 +22,7 @@ function ciniki_sapos_web_processAPI(&$ciniki, $settings, $tnid, $args) {
     // Check to make sure the module is enabled
     //
     if( !isset($ciniki['tenant']['modules']['ciniki.sapos']) ) {
-        return array('stat'=>'404', 'err'=>array('code'=>'ciniki.sapos.269', 'msg'=>"I'm sorry, the page you requested does not exist."));
+        return array('stat'=>'404', 'err'=>array('code'=>'ciniki.sapos.385', 'msg'=>"I'm sorry, the page you requested does not exist."));
     }
 
 /*    //
@@ -41,13 +41,13 @@ function ciniki_sapos_web_processAPI(&$ciniki, $settings, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'web', 'cartCreate');
         $rc = ciniki_sapos_web_cartCreate($ciniki, $settings, $ciniki['request']['tnid'], array());
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.277', 'msg'=>'Unable to create shopping cart. Please try again or contact us for help.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.387', 'msg'=>'Unable to create shopping cart. Please try again or contact us for help.'));
         }
         $cart = $_SESSION['cart'];
         $_SESSION['cart']['num_items'] = 0;
         $ciniki['session']['cart']['num_items'] = 0;
     } elseif( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.271', 'msg'=>'Unable to load cart. Please try again or contact us for help.', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.386', 'msg'=>'Unable to load cart. Please try again or contact us for help.', 'err'=>$rc['err']));
     } else {
         $cart = $rc['cart'];
         $_SESSION['cart']['num_items'] = count($cart['items']);
