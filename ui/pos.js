@@ -883,7 +883,7 @@ function ciniki_sapos_pos() {
         } else if( invoice.invoice_type == 30 ) {
             this.data.subject = 'Receipt #' + invoice.invoice_number;
             if( M.curTenant.sapos.settings['pos-email-message'] != null ) {
-                this.email.data.textmsg = M.curTenant.sapos.settings['pos-email-message'];
+                this.data.textmsg = M.curTenant.sapos.settings['pos-email-message'];
             }
         } else if( invoice.invoice_type == 40 ) {
             this.data.subject = 'Order #' + invoice.invoice_number;
