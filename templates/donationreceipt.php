@@ -400,7 +400,7 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $invoice_id, $t
 
         $pdf->Cell($w[2], $lh, $sapos_settings['donation-receipt-signing-officer'], 'T', 0, 'R', 1); 
         $pdf->Ln(10);
-        $pdf->Cell(180, $lh, 'Official ' . $invoice['donation_year'] . ' Donation Receipt for Income Tax Purposes, Canada Revenue Agency: www.cra.gc.ca/charitiesandgiving', 0, 0, 'L', 1);
+        $pdf->Cell(180, $lh, 'Official ' . $invoice['donation_year'] . ' Donation Receipt for Income Tax Purposes, Canada Revenue Agency: canada.ca/charities-giving', 0, 0, 'L', 1);
         $pdf->Ln(10);
 
         //
@@ -455,7 +455,7 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $invoice_id, $t
         $pdf->Cell($w[0]+$w[1], $lh, 'Charity BN/Registration #: ' . $sapos_settings['donation-receipt-charity-number'], 0, 0, 'L', 1);
         $pdf->Ln();
 
-        $pdf->Cell($w[0] + $w[1], $lh, 'Canada Revenue Agency: www.cra.gc.ca/charitiesandgiving', 0, 0, 'L', 1);
+        $pdf->Cell($w[0] + $w[1], $lh, 'Canada Revenue Agency: canada.ca/charities-giving', 0, 0, 'L', 1);
         $pdf->Ln();
     } 
     
