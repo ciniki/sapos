@@ -236,6 +236,7 @@ function ciniki_sapos_pos() {
             });
     }
     this.checkout.liveSearchResultValue = function(s,f,i,j,d) {
+        console.log(d);
         switch(j) {
             case 0: return d.item.code;
             case 1: 
@@ -244,7 +245,7 @@ function ciniki_sapos_pos() {
                 }
                 return d.item.description;
             case 2: return d.item.unit_amount;
-            case 3: return '<button onclick="M.ciniki_sapos_pos.checkout.addItem(event,\'' + d.item.object + '\',\'' + d.item.object_id + '\');">Add</button>';
+            case 3: return '<button onclick="M.ciniki_sapos_pos.checkout.addItem(event,\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + (d.item.price_id != null ? d.item.price_id : 0) + '\');">Add</button>';
         }
     };
     this.checkout.liveSearchSubmitFn = function(s, v) {
@@ -378,7 +379,7 @@ function ciniki_sapos_pos() {
             M.api.getJSONCb('ciniki.sapos.pos', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id, 'action':'updatecustomer'}, this.processOpen);
         }
     }
-    this.checkout.addItem = function(e,o,i) {
+    this.checkout.addItem = function(e,o,i,p) {
         if( e != null ) {
             e.stopPropagation();
             if( e.screenX == 0 && e.screenY == 0 ) {
@@ -388,7 +389,7 @@ function ciniki_sapos_pos() {
         M.gE(this.panelUID + '_item_search').value = '';
         M.gE(this.panelUID + '_item_search_livesearch_grid').style.display = 'none';
         M.api.getJSONCb('ciniki.sapos.pos', {'tnid':M.curTenantID, 
-            'invoice_id':this.invoice_id, 'action':'additem', 'object':o, 'object_id':i, 'quantity':1}, this.processOpen);
+            'invoice_id':this.invoice_id, 'action':'additem', 'object':o, 'object_id':i, 'quantity':1, 'price_id':p}, this.processOpen);
     }
     this.checkout.printDonationReceipt = function(iid) {
         M.showPDF('ciniki.sapos.donationPDF', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id});

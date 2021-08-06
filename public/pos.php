@@ -22,6 +22,7 @@ function ciniki_sapos_pos(&$ciniki) {
         'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action'),
         'object'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object'),
         'object_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object ID'),
+        'price_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Price ID'),
         'customer_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer ID'),
         'quantity'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Quantity'),
         )); 
@@ -85,7 +86,12 @@ function ciniki_sapos_pos(&$ciniki) {
                 'status' => 10,
                 'customer_id' => 0,
                 'objects' => array(
-                    array('object' => $args['object'], 'id' => $args['object_id'], 'quantity' => $args['quantity']),
+                    array(
+                        'object' => $args['object'], 
+                        'id' => $args['object_id'], 
+                        'quantity' => $args['quantity'],
+                        'price_id' => $args['price_id'],
+                        ),
                     ),
                 );
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAdd');
