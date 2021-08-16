@@ -24,6 +24,7 @@
 # Donation Settings
 # -----------------
 # donation-receipt-minimum:         The minimum amount that must be donated before a receipt can be issued.
+# donation-receipt-next-number:     The next receipt number to be used.
 #
 # Fiscal Year Settings
 # --------------------
