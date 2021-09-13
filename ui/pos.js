@@ -236,7 +236,6 @@ function ciniki_sapos_pos() {
             });
     }
     this.checkout.liveSearchResultValue = function(s,f,i,j,d) {
-        console.log(d);
         switch(j) {
             case 0: return d.item.code;
             case 1: 
