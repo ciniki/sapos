@@ -26,7 +26,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         'object'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object'),
         'object_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object ID'),
         'price_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Price'),
-        'code'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Code'),
+        'code'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Code'),
         'description'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Description'),
         'quantity'=>array('required'=>'no', 'blank'=>'no', 'type'=>'int', 'name'=>'Quantity'),
         'shipped_quantity'=>array('required'=>'no', 'blank'=>'no', 'type'=>'int', 'name'=>'Shipped'),
