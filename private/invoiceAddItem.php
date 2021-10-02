@@ -70,6 +70,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
     $existing_id = 0;
     if( isset($settings['rules-invoice-duplicate-items'])
         && $settings['rules-invoice-duplicate-items'] == 'no' 
+        && isset($args['object']) && $args['object'] != '' 
         ) {
         $strsql = "SELECT id, invoice_id, object, object_id, "
             . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, unit_preorder_amount, price_id, "
