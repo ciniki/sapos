@@ -192,7 +192,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
             if( $invoice['payment_status'] < 50 && $invoice['invoice_type'] != 30 ) {
                 $new_payment_status = 50;
             }
-        } elseif( $amount_paid > 0 && bcsub($amount_paid, $amount_refunded, 2) == $invoice['total_amount'] ) {
+        } elseif( $amount_paid > 0 && $amount_refunded > 0 && bcsub($amount_paid, $amount_refunded, 2) == $invoice['total_amount'] ) {
             // Partial refund
             if( $invoice['payment_status'] > 50 ) {
                 $new_payment_status = 50;
