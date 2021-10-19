@@ -71,6 +71,36 @@ function ciniki_sapos_hooks_invoiceStatus($ciniki, $tnid, $args) {
         return $rsp;
     }
 
+    if( isset($args['invoice_id']) && $args['invoice_id'] > 0 ) {
+        $strsql = "SELECT ciniki_sapos_invoices.id, "
+            . "ciniki_sapos_invoices.customer_id, "
+            . "ciniki_sapos_invoices.invoice_number, "
+            . "ciniki_sapos_invoices.invoice_date, "
+            . "ciniki_sapos_invoices.status, "
+            . "ciniki_sapos_invoices.payment_status, "
+            . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
+            . "ciniki_sapos_invoices.total_amount "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND ciniki_sapos_invoices.id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+        $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
+            array('container'=>'invoices', 'fname'=>'id', 
+                'fields'=>array('id', 'customer_id', 'invoice_number', 'invoice_date', 'status', 'status_text', 'total_amount'),
+                'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
+                'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format))), 
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( !isset($rc['invoices']) || count($rc['invoices']) == 0 ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.390', 'msg'=>'No invoice found'));
+        }
+        $invoice = $rc['invoices'][$args['invoice_id']];
+        return array('stat'=>'ok', 'invoice'=>$invoice);
+    }
+
     return array('stat'=>'ok');
 }
 ?>

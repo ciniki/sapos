@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_wng_cartCreate(&$ciniki, $tnid, $request) {
+function ciniki_sapos_wng_cartCreate(&$ciniki, $tnid, &$request) {
 
     //
     // Check that a cart does not exist
@@ -112,7 +112,10 @@ function ciniki_sapos_wng_cartCreate(&$ciniki, $tnid, $request) {
         }
         $invoice_id = $rc['id'];
         $cart_args['sapos_id'] = $rc['id'];
-//        $request['session']['cart'] = $cart_args;
+        $request['session']['cart'] = array(
+            'sapos_id' => $rc['id'],
+            'num_items' => 0,
+            );
 
         return array('stat'=>'ok', 'sapos_id'=>$invoice_id);
     }

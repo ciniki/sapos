@@ -121,6 +121,20 @@ function ciniki_sapos_invoice() {
                 'changeTxt':'Change customer',
                 'changeFn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'action\':\'change\',\'current_id\':M.ciniki_sapos_invoice.invoice.data.customer_id,\'customer_id\':0});',
                 },
+/*            '_customer_buttons':{'label':'', 'size':'half', 'aside':'yes', 'buttons':{
+                'add':{'label':'Add Customer', 
+                    'visible':function() { return M.ciniki_sapos_invoice.invoice.data.customer_id == 0 ? 'yes' : 'no';},
+                    'fn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'action\':\'edit\',\'customer_id\':M.ciniki_sapos_invoice.invoice.data.customer_id});',
+                    },
+                'edit':{'label':'Edit Customer', 
+                    'visible':function() { return M.ciniki_sapos_invoice.invoice.data.customer_id > 0 ? 'yes' : 'no';},
+                    'fn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'action\':\'edit\',\'customer_id\':M.ciniki_sapos_invoice.invoice.data.customer_id});',
+                    },
+                'change':{'label':'Change Customer',
+                    'visible':function() { return M.ciniki_sapos_invoice.invoice.data.customer_id > 0 ? 'yes' : 'no';},
+                    'fn':'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'next\':\'M.ciniki_sapos_invoice.updateInvoiceCustomer\',\'action\':\'change\',\'current_id\':M.ciniki_sapos_invoice.invoice.data.customer_id,\'customer_id\':0});',
+                    },
+                }}, */
             'shipping':{'label':'', 'aside':'yes', 'visible':'no', 'list':{
     //              'shipping_name':{'label':'Ship To'},
                 'shipping_address':{'label':'Ship To'},

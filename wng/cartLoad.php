@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_wng_cartLoad(&$ciniki, $tnid, $request) {
+function ciniki_sapos_wng_cartLoad(&$ciniki, $tnid, &$request) {
 
     //
     // Check if the customer is signed in and look for an open cart
@@ -59,6 +59,8 @@ function ciniki_sapos_wng_cartLoad(&$ciniki, $tnid, $request) {
         }
         $rc['invoice']['sapos_id'] = $rc['invoice']['id'];
         $rc['invoice']['num_items'] = count($rc['invoice']['items']);
+        $request['session']['cart'] = $rc['invoice'];
+        $request['session']['cart']['num_items'] = count($rc['invoice']['items']);
 
         return array('stat'=>'ok', 'cart'=>$rc['invoice']);
     }

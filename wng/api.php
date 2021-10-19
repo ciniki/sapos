@@ -35,14 +35,14 @@ function ciniki_sapos_wng_api(&$ciniki, $tnid, &$request) {
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.277', 'msg'=>'Unable to create shopping cart. Please try again or contact us for help.'));
         }
-        $request['session']['cart'] = array();
-        $request['session']['cart']['sapos_id'] = $rc['sapos_id'];
-        $request['session']['cart']['num_items'] = 0;
+//        $request['session']['cart'] = array();
+//        $request['session']['cart']['sapos_id'] = $rc['sapos_id'];
+//        $request['session']['cart']['num_items'] = 0;
     } elseif( $rc['stat'] != 'ok' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.271', 'msg'=>'Unable to load cart. Please try again or contact us for help.', 'err'=>$rc['err']));
     } else {
-        $request['session']['cart'] = $rc['cart'];
-        $request['session']['cart']['num_items'] = count($request['session']['cart']['items']);
+//        $request['session']['cart'] = $rc['cart'];
+//        $request['session']['cart']['num_items'] = count($request['session']['cart']['items']);
     }
 
     //

@@ -206,7 +206,7 @@ function ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, $args) {
         //
         if( $args['object'] != '' && $args['object_id'] != '' ) {
             list($pkg,$mod,$obj) = explode('.', $args['object']);
-            $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartAdd');
+            $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemAdd');
             if( $rc['stat'] == 'ok' ) {
                 $itemAddCBfn = $rc['function_call'];
             }
