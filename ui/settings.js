@@ -68,7 +68,7 @@ function ciniki_sapos_settings() {
         'stripe':{'label':'Payments', 
             'visible':function() { return M.modFlagSet('ciniki.sapos', 0x800000); },
             'list':{
-                'paypalapi':{'label':'Stripe', 'fn':'M.ciniki_sapos_settings.stripe.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+                'stripe':{'label':'Stripe', 'fn':'M.ciniki_sapos_settings.stripe.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
         'paypalec':{'label':'Paypal Express Checkout', 
             'visible':function() { return M.modFlagSet('ciniki.sapos', 0x200000); },
@@ -996,6 +996,7 @@ function ciniki_sapos_settings() {
         'stripe':{'label':'Stripe Settings', 'fields':{
             'stripe-pk':{'label':'Publishable key', 'type':'text'},
             'stripe-sk':{'label':'Secret key', 'type':'text'},
+            'stripe-terminal':{'label':'Stripe Terminal', 'type':'toggle', 'default':'none', 'toggles':{'none':'None', 'wisepose':'WisePOS E'}},
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.stripe.save();'},

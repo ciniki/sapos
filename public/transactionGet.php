@@ -61,6 +61,8 @@ function ciniki_sapos_transactionGet(&$ciniki) {
         . "customer_amount, "
         . "transaction_fees, "
         . "tenant_amount, "
+        . "gateway, "
+        . "gateway_token, "
         . "notes "
         . "FROM ciniki_sapos_transactions "
         . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
@@ -70,7 +72,7 @@ function ciniki_sapos_transactionGet(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
-            'fields'=>array('id', 'status', 'transaction_type', 'transaction_date', 'source', 'customer_amount', 'transaction_fees', 'tenant_amount', 'notes'),
+            'fields'=>array('id', 'status', 'transaction_type', 'transaction_date', 'source', 'customer_amount', 'transaction_fees', 'tenant_amount', 'gateway', 'gateway_token', 'notes'),
             'utctotz'=>array('transaction_date'=>array('timezone'=>$intl_timezone, 'format'=>$datetime_format)), 
             ),
         ));

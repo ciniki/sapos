@@ -2,6 +2,10 @@
 // This panel will create or edit an invoice
 //
 function ciniki_sapos_pos() {
+    this.st = null;        // Stripe Terminal
+    this.reader = null;    // Connect reader object
+//    this.st = null;
+//    this.reader = null;
     this.invoiceTypes = {};
     this.invoiceStatuses = {
         '10':'Entered',
@@ -201,6 +205,10 @@ function ciniki_sapos_pos() {
             'addFn':'M.ciniki_sapos_pos.email.open(\'M.ciniki_sapos_pos.checkout.open();\',M.ciniki_sapos_pos.checkout.data);',
             },
         '_buttons':{'label':'', 'buttons':{
+            'terminal':{'label':'Pay with Credit or Debit', 
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount > 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 && M.modSetting('ciniki.sapos', 'stripe-terminal') == 'wisepose' ?'yes':'no'},
+                'fn':'M.ciniki_sapos_pos.terminal.open(\'M.ciniki_sapos_pos.checkout.open();\',M.ciniki_sapos_pos.checkout.invoice_id,M.ciniki_sapos_pos.checkout.data.balance_amount_display);',
+                },
             'record':{'label':'Record Transaction', 
                 'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount > 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
                 'fn':'M.ciniki_sapos_pos.transaction.open(\'M.ciniki_sapos_pos.checkout.open();\',0,M.ciniki_sapos_pos.checkout.invoice_id,\'now\',M.ciniki_sapos_pos.checkout.data.balance_amount_display);',
@@ -730,7 +738,7 @@ function ciniki_sapos_pos() {
     }
     this.item.remove = function() {
         if( this.item_id <= 0 ) { return false; }
-        M.confirm("Are you sure you want to remove this item?",null,function() {
+        M.confirm("Are you sure you want to remove this item?",'Delete Item',function() {
             M.api.getJSONCb('ciniki.sapos.invoiceItemDelete', {'tnid':M.curTenantID, 'item_id':M.ciniki_sapos_pos.item.item_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -744,26 +752,141 @@ function ciniki_sapos_pos() {
     this.item.addClose('Cancel');
 
     //
+    // The terminal panel
+    //
+    this.terminal = new M.panel('Collect Payment', 'ciniki_sapos_pos', 'terminal', 'mc', 'medium', 'sectioned', 'ciniki.sapos.pos.terminal');
+    this.terminal.invoice_id = 0;
+    this.terminal.data = {};
+//    this.terminal.st = null;        // Stripe Terminal
+//    this.terminal.reader = null;    // Connect reader object
+    this.terminal.data = {};
+    this.terminal.sections = {
+        '_amount':{'label':'', 'fields':{
+            'customer_amount':{'label':'Amount', 'type':'text', 'size':'small'},
+            }},
+        '_notes':{'label':'Notes', 'fields':{
+            'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
+            }}, 
+        '_buttons':{'label':'', 'buttons':{
+            'go':{'label':'Collect Payment', 'fn':'M.ciniki_sapos_pos.terminal.paynow();'},
+            'delete':{'label':'Cancel', 
+                'fn':'M.ciniki_sapos_pos.terminal.close();',
+                },
+            }},
+    }
+    this.terminal.open = function(cb, iid, amount) {
+        if( iid != null ) { this.invoice_id = iid; }
+        this.reset();
+        this.data = {};
+        var dt = new Date();
+        this.data.transaction_date = M.dateFormat(dt) + ' ' + M.dateMake12hourTime2(dt);
+        if( amount != null && amount != '' ) { 
+            this.data.customer_amount = amount;
+        }
+        this.refresh();
+        this.show(cb);
+    }
+    this.terminal.paynow = function() {
+        M.processingShow('Initializing...', '', null, 'Cancel', function() { M.ciniki_sapos_pos.terminal.paymentCancel(); });
+        var amount = this.formValue('customer_amount');
+        M.api.getJSONCb('ciniki.sapos.stripeTerminalPaymentCreate', {'tnid':M.curTenantID, 'customer_amount':amount, 'invoice_id':this.invoice_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.hide('m_processing');
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_pos.terminal;
+            p.stripe_payment_secret = rsp.payment_secret;
+            M.ciniki_sapos_pos.stripeInit(rsp.connection_token).then(
+                () => {
+                    // Init Success, collect the payment
+                    M.ciniki_sapos_pos.terminal.paymentCollect(rsp.payment_secret);
+                },
+                (errmsg) => {
+                    M.hide('m_processing');
+                    M.alert(errmsg);
+                    M.ciniki_sapos_pos.stripeDisconnect();
+                    M.ciniki_sapos_pos.terminal.close();
+                });
+        }); 
+    }
+    this.terminal.paymentCollect = function(ps) {
+        M.processingShow('Waiting for card...', '', null, 'Cancel', function() { M.ciniki_sapos_pos.terminal.paymentCancel(); });
+        M.ciniki_sapos_pos.st.collectPaymentMethod(ps).then(function(result) {
+            if( result.error ) {
+                M.hide('m_processing');
+                if( result.error.code != null && result.error.code == 'canceled' ) {
+                    M.alert('Cancelled: ' + result.error.message);
+                    //M.alert('Cancelled');
+                } else {
+                    M.alert('Error: ' + result.error.message);
+                }
+                M.ciniki_sapos_pos.stripeDisconnect();
+                M.ciniki_sapos_pos.terminal.close();
+            } else {
+                M.ciniki_sapos_pos.st.processPayment(result.paymentIntent).then(function(result) {
+                    if( result.error ) {
+                        M.hide('m_processing');
+                        M.alert('Error: ' + result.error.message);
+                        M.ciniki_sapos_pos.stripeDisconnect();
+                        M.ciniki_sapos_pos.terminal.close();
+                    } else if( result.paymentIntent ) {
+                        M.ciniki_sapos_pos.terminal.paymentCapture(result.paymentIntent);
+                    }
+                });
+            }
+        });
+    }
+    this.terminal.paymentCapture = function(pi) {
+        M.processingShow('Capturing payment...', '', null, 'Cancel', function() { M.ciniki_sapos_pos.terminal.paymentCancel(); });
+        var c = 'payment_intent=' + JSON.stringify(pi) + '&notes=' + M.eU(this.formValue('notes'));
+        M.api.postJSONCb('ciniki.sapos.stripeTerminalPaymentCapture', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id}, c, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.hide('m_processing');
+                M.api.err(rsp);
+                return false;
+            }
+            M.hide('m_processing');
+            M.ciniki_sapos_pos.stripeDisconnect();
+            M.ciniki_sapos_pos.terminal.close();
+        });
+    }
+    this.terminal.paymentCancel = function() {
+        M.processingShow('Cancelling...', '', null, '', null);
+        if( M.ciniki_sapos_pos.st != null ) {
+            M.ciniki_sapos_pos.st.cancelCollectPaymentMethod();
+        }
+        M.hide('m_processing');
+    }
+    //this.terminal.addLeftButton('cancel', 'Cancel', 'M.ciniki_sapos_pos.terminal.close();');
+    this.terminal.addClose('Cancel');
+
+    //
     // The transaction panel
     //
     this.transaction = new M.panel('Payment', 'ciniki_sapos_pos', 'transaction', 'mc', 'medium', 'sectioned', 'ciniki.sapos.pos.transaction');
     this.transaction.transaction_id = 0;
     this.transaction.data = {};
     this.transaction.sections = {
-        'details':{'label':'Payment Type', 'fields':{
-            'source':{'label':'', 'hidelabel':'yes', 'join':'no', 'type':'toggle', 'size':'7.5', 'required':'yes', 'toggles':{}},
+        'details':{'label':'Payment Type', 'active':'yes',
+//            'active':function() { return M.ciniki_sapos_pos.transaction.data.source != 30 ? 'yes' : 'no';},
+            'fields':{
+                'source':{'label':'', 'hidelabel':'yes', 'join':'no', 'type':'toggle', 'size':'7.5', 'required':'yes', 'toggles':{}},
             }},
         '_amount':{'label':'', 'fields':{
-            'customer_amount':{'label':'Amount', 'type':'text', 'size':'small'},
+            'customer_amount':{'label':'Amount', 'editable':'yes', 'type':'text', 'size':'small'},
             }},
         '_notes':{'label':'Notes', 'fields':{
             'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_pos.transaction.save();'},
-            'delete':{'label':'Delete', 
-                'visible':function() { return M.ciniki_sapos_pos.transaction.transaction_id > 0 ? 'yes' : 'no';},
+            'delete':{'label':'Delete', 'visible':'no',
+//                'visible':function() { return M.ciniki_sapos_pos.transaction.transaction_id > 0 ? 'yes' : 'no';},
                 'fn':'M.ciniki_sapos_pos.transaction.remove(M.ciniki_sapos_pos.transaction.transaction_id);',
+                },
+            'refund':{'label':'Refund', 'class':'delete', 'visible':'no',
+                'fn':'M.ciniki_sapos_pos.transaction.refund();',
                 },
             }},
     }
@@ -785,6 +908,18 @@ function ciniki_sapos_pos() {
                 }
                 var p = M.ciniki_sapos_pos.transaction;
                 p.data = rsp.transaction;
+                p.sections.details.active = 'yes';
+                p.sections._amount.fields.customer_amount.editable = 'yes';
+                p.sections._buttons.buttons['delete'].visible = (rsp.transaction.id > 0 ? 'yes' : 'no');
+                p.sections._buttons.buttons['refund'].visible = 'no';
+                if( rsp.transaction.gateway > 0 ) {
+                    p.sections.details.active = 'no';
+                    p.sections._amount.fields.customer_amount.editable = 'no';
+                    p.sections._buttons.buttons['delete'].visible = 'no';
+                    if( rsp.transaction.gateway == 30 && rsp.transaction.transaction_type == 20 ) {
+                        p.sections._buttons.buttons['refund'].visible = 'yes';
+                    }
+                }
                 p.refresh();
                 p.show(cb);
             });
@@ -810,12 +945,12 @@ function ciniki_sapos_pos() {
             var c = this.serializeForm('no');
             if( c != '' ) {
                 M.api.postJSONCb('ciniki.sapos.transactionUpdate', {'tnid':M.curTenantID, 'transaction_id':this.transaction_id}, c, function(rsp) {
-                        if( rsp.stat != 'ok' ) {
-                            M.api.err(rsp);
-                            return false;
-                        }
-                        M.ciniki_sapos_pos.transaction.close();
-                    });
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    M.ciniki_sapos_pos.transaction.close();
+                });
             } else {
                 this.close();
             }
@@ -832,7 +967,7 @@ function ciniki_sapos_pos() {
     }
     this.transaction.remove = function(tid) {
         if( tid <= 0 ) { return false; }
-        M.confirm("Are you sure you want to remove this transaction?",null,function() {
+        M.confirm("Are you sure you want to remove this transaction?",'Delete Transaction',function() {
             M.api.getJSONCb('ciniki.sapos.transactionDelete', {'tnid':M.curTenantID, 'transaction_id':tid}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
@@ -841,6 +976,77 @@ function ciniki_sapos_pos() {
                 M.ciniki_sapos_pos.transaction.close();
             });
         });
+    }
+    this.transaction.refund = function() {
+        M.confirm("Are you sure you want to refund this transaction?",'Yes, refund purchase',function() {
+            var c = 'notes=' + M.eU(M.ciniki_sapos_pos.transaction.formValue('notes'));
+            M.api.postJSONCb('ciniki.sapos.stripeTerminalPaymentRefund', {'tnid':M.curTenantID, 'transaction_id':M.ciniki_sapos_pos.transaction.transaction_id}, c, function(rsp) {
+                if( rsp.stat != 'ok' && rsp.stat != 'interacrefund' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                if( rsp.stat == 'interacrefund' ) {
+                    M.ciniki_sapos_pos.transaction.interacRefund(rsp.connection_token, rsp.charge_id, rsp.amount);
+                } else {
+                    M.ciniki_sapos_pos.transaction.close();
+                }
+            });
+        });
+    }
+    this.transaction.interacRefund = function(ct,cid,amt) {
+        M.confirm("Refund requires customer to be present with interac card. Continue with refund?",'Yes, refund now',function() {
+            M.processingShow('Initializing...', '', null, 'Cancel', function() { M.ciniki_sapos_pos.transaction.refundCancel(); });
+            M.ciniki_sapos_pos.stripeInit(ct).then(
+                () => {
+                    // Init Success, collect the payment
+                    M.ciniki_sapos_pos.transaction.paymentRefund(cid,amt);
+                },
+                (errmsg) => {
+                    M.hide('m_processing');
+                    M.alert(errmsg);
+                    M.ciniki_sapos_pos.stripeDisconnect();
+                    M.ciniki_sapos_pos.transaction.close();
+                });
+            
+        });
+    }
+    this.transaction.paymentRefund = function(cid,amt) {
+        M.processingShow('Waiting for card...', '', null, 'Cancel', function() { M.ciniki_sapos_pos.transaction.refundCancel(); });
+        M.ciniki_sapos_pos.st.collectRefundPaymentMethod(cid,amt,'cad').then(function(resulta) {
+            if (resulta.error) {
+                M.hide('m_processing');
+                M.alert('Error: ' + resulta.error.message);
+                M.ciniki_sapos_pos.stripeDisconnect();
+                M.ciniki_sapos_pos.transaction.save();
+            } else {
+                M.processingShow('Processing Refund...', '', null, 'Cancel', function() { M.ciniki_sapos_pos.transaction.refundCancel(); });
+                return M.ciniki_sapos_pos.st.processRefund();
+            }
+        }).then(function(resultb) {
+            M.hide('m_processing');
+            if (resultb.error) {
+                M.alert('Error: ' + resultb.error.message);
+                M.ciniki_sapos_pos.stripeDisconnect();
+                M.ciniki_sapos_pos.transaction.save();
+            } else {
+                var c = 'result=' + JSON.stringify(resultb.refund) + '&notes=' + M.eU(M.ciniki_sapos_pos.transaction.formValue('notes'));
+                M.api.postJSONCb('ciniki.sapos.stripeTerminalPaymentRefund', {'tnid':M.curTenantID, 'transaction_id':M.ciniki_sapos_pos.transaction.transaction_id, 'interac':'refunded'}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    M.alert('Refund processed');
+                    M.ciniki_sapos_pos.transaction.save();
+                });
+            }
+        });
+    }
+    this.transaction.refundCancel = function() {
+        M.processingShow('Cancelling...', '', null, '', null);
+        if( M.ciniki_sapos_pos.st != null ) {
+            M.ciniki_sapos_pos.st.cancelCollectPaymentMethod();
+        }
+        M.hide('m_processing');
     }
     this.transaction.addButton('save', 'Save', 'M.ciniki_sapos_pos.saveTransaction();');
     this.transaction.addClose('Cancel');
@@ -1008,6 +1214,22 @@ function ciniki_sapos_pos() {
         }
 
         //
+        // Check if stripe terminal needs to be loaded
+        //
+        var stripe_js = M.gE('stripe-terminal-js');
+        if( M.modSetting('ciniki.sapos', 'stripe-terminal') == 'wisepose' ) {
+            if( stripe_js == null ) {
+                if( stripe_js == null ) {
+                    var s = M.aE('script', 'stripe-terminal-js');
+                    s.type = 'text/javascript';
+                    s.src = 'https://js.stripe.com/terminal/v1/';
+                }
+                var head = document.getElementsByTagName('head')[0];
+                head.appendChild(s);
+            }
+        }
+
+        //
         // Setup list of sources for payments
         //
         // FIXME: This needs to be changed to settings so list can be updated by tenant
@@ -1030,4 +1252,61 @@ function ciniki_sapos_pos() {
 
         this.menu.open(cb,0);
     };
+
+    this.stripeInit = function(ct,ps) {
+        return new Promise((resolve, reject) => {
+            if( M.ciniki_sapos_pos.st == null ) {
+                M.ciniki_sapos_pos.reader = null;   // Reset reader
+                M.ciniki_sapos_pos.st = StripeTerminal.create({
+                    onFetchConnectionToken: function() { 
+                        return ct; 
+                    },
+                    onUnexpectedReaderDisconnect: function() {
+                        M.ciniki_sapos_pos.st = null;
+                        M.ciniki_sapos_pos.reader = null;
+                        console.log('reader disconnect');
+                    },
+                });
+            }
+
+            if( M.ciniki_sapos_pos.st != null 
+                && M.ciniki_sapos_pos.reader != null 
+                && M.ciniki_sapos_pos.st.getConnectionStatus() == 'not_connected'
+                ) {  
+                M.ciniki_sapos_pos.reader = null;
+                M.ciniki_sapos_pos.st = null;
+            }
+
+            if( M.ciniki_sapos_pos.st != null && M.ciniki_sapos_pos.reader == null ) {
+                M.ciniki_sapos_pos.st.discoverReaders().then(function(discoverResult) {
+                    if( discoverResult.error) {
+                        reject(discoverResult.error);
+                    } else if (discoverResult.discoveredReaders.length === 0) {
+                        reject('No Available Readers');
+                    } else if (discoverResult.discoveredReaders.length === 1) {
+                        M.ciniki_sapos_pos.reader = discoverResult.discoveredReaders[0];
+                        M.ciniki_sapos_pos.st.connectReader(M.ciniki_sapos_pos.reader, {fail_if_in_use:true}).then(function(result) {
+                            if( result.error ) {
+                                M.ciniki_sapos_pos.reader = null;
+                                reject('Error: ' + result.error.message);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    } else {
+                        reject('Too many readers! Call Ciniki Support');
+                    }
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+    this.stripeDisconnect = function() {
+        if( this.st != null && this.reader != null ) {
+            this.st.disconnectReader();
+            this.st = null;
+            this.reader = null;
+        }
+    }
 }
