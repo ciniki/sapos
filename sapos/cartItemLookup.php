@@ -90,7 +90,7 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
             'quantity'=>1,
             'object'=>'ciniki.sapos.cartdonation',
             'object_id'=>$args['object_id'],
-            'unit_amount' => $args['user_amount'],
+            'unit_amount' => (isset($args['user_amount']) ? $args['user_amount'] : 0),
             'unit_discount_amount'=>0,
             'unit_discount_percentage'=>0,
             'taxtype_id'=>0,
