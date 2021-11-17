@@ -22,7 +22,9 @@ function ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice_id) {
     // Get the invoice details
     //
     $strsql = "SELECT customer_id, invoice_type, status, "
+        . "invoice_number, "
         . "receipt_number, "
+        . "invoice_date, "
         . "payment_status, shipping_status, manufacturing_status, "
         . "ROUND(total_amount, 2) AS total_amount, "
         . "ROUND(paid_amount, 2) AS paid_amount, "
@@ -39,7 +41,7 @@ function ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice_id) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.235', 'msg'=>'Unable to locate the invoice'));
     }
     $invoice = $rc['invoice']; 
-    
+
     //
     // Get the items on the invoice
     //
@@ -73,6 +75,8 @@ function ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice_id) {
                     'quantity'=>$item['quantity'],
                     'customer_id'=>$invoice['customer_id'],
                     'invoice_id'=>$item['invoice_id'],
+                    'invoice_number'=>$invoice['invoice_number'],
+                    'invoice_date'=>$invoice['invoice_date'],
                     'total_amount'=>$item['total_amount'],
                     ));
                 if( $rc['stat'] != 'ok' ) {
