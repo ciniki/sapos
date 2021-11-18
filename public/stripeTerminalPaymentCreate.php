@@ -88,7 +88,7 @@ function ciniki_sapos_stripeTerminalPaymentCreate(&$ciniki) {
     //
     // Get the customer email to send receipt to
     //
-    $email = '';
+    $email = null;
     if( isset($invoice['customer']['emails'][0]['email']['address']) ) {
         $email = $invoice['customer']['emails'][0]['email']['address'];
     }
