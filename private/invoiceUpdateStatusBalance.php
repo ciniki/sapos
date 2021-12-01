@@ -121,6 +121,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $invoice_id) {
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
             . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND (flags&0x40) = 0x40 " // Shipped Item
             . "HAVING remaining_quantity > 0 "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
