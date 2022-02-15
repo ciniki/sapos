@@ -66,6 +66,9 @@ function ciniki_sapos_wng_stripeCustomerCharge(&$ciniki, $tnid, $request, $args)
                 'customer' => $customer->id,
                 'amount'   => number_format($args['charge-amount'] * 100, 0, '', ''),
                 'currency' => $intl_currency,
+                'metadata' => [
+                    'invoice_number' => $args['invoice_number'],
+                    ],
                 ));
         } catch( Exception $e) {
             error_log("STRIPE-ERR: Unable to charge customer: " . $e->getMessage());
