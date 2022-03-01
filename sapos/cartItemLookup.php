@@ -99,6 +99,7 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
         return array('stat'=>'ok', 'item'=>$product);
     }
 
+    error_log('ERR: Invalid Object: ' . $args['object'] . ' ID: ' . $args['object_id']);
     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.211', 'msg'=>'No product specified.'));        
 }
 ?>

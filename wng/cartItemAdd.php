@@ -50,17 +50,21 @@ function ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, $args) {
         //
         $item = array();
         if( $args['object'] != '' && $args['object_id'] != '' ) {
-            list($pkg,$mod,$obj) = explode('.', $args['object']);
-            $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemLookup');
-            if( $rc['stat'] == 'ok' ) {
-                $fn = $rc['function_call'];
-                $rc = $fn($ciniki, $tnid, $request['session']['customer'], $args);
-                if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.325', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
+            if( preg_match("/.*\..*\..*/", $args['object']) ) {
+                list($pkg,$mod,$obj) = explode('.', $args['object']);
+                $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemLookup');
+                if( $rc['stat'] == 'ok' ) {
+                    $fn = $rc['function_call'];
+                    $rc = $fn($ciniki, $tnid, $request['session']['customer'], $args);
+                    if( $rc['stat'] != 'ok' ) {
+                        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.325', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
+                    }
+                    $item = $rc['item'];
+                } else {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.326', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
                 }
-                $item = $rc['item'];
             } else {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.326', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.405', 'msg'=>'Invalid Request', 'err'=>$rc['err']));
             }
         }
         if( isset($item['object']) ) { $args['object'] = $item['object']; }
