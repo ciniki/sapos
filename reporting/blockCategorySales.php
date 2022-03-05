@@ -143,7 +143,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
                 'type' => 'table',
                 'columns' => array(
                     array('label'=>'#', 'pdfwidth'=>'10%', 'field'=>'invoice_number'),
-                    array('label'=>'Name', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
+                    array('label'=>'Date', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
                     array('label'=>'Item', 'pdfwidth'=>'35%', 'field'=>'code_desc'),
                     array('label'=>'Qty', 'pdfwidth'=>'5%', 'field'=>'quantity'),
                     array('label'=>'Amount', 'pdfwidth'=>'12%', 'type'=>'dollar', 'field'=>'amount'),
