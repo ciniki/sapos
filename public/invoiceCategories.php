@@ -163,6 +163,12 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
                 $category['amount_display'] = numfmt_format_currency($intl_currency_fmt, $category['amount'], $intl_currency);
                 $rsp['invoices'][$iid]['categories'][$category['name']] = $category;
 //                $rsp['invoices'][$iid]['categories'][$cid]['amount_display'] = numfmt_format_currency($intl_currency_fmt, $category['amount'], $intl_currency);
+                if( !isset($rsp['categores'][$category['name']]) ) {
+                    $rsp['categories'][$category['name']] = array(
+                        'name' => $category['name'], 
+                        'total_amount' => 0,
+                        );
+                }
                 $rsp['categories'][$category['name']]['total_amount'] = bcadd($rsp['categories'][$category['name']]['total_amount'], $category['amount'], 6);
             }
         }
@@ -171,7 +177,7 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
     $rsp['totals']['total_amount'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['total_amount'], $intl_currency);
     $rsp['totals']['num_invoices'] = count($rsp['invoices']);
 
-    if( isset($rsp['stats']['categories']) ) {
+    if( isset($rsp['categories']) ) {
         foreach($rsp['categories'] as $cid => $c) {
             $rsp['categories'][$cid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $c['total_amount'], $intl_currency);
         }
