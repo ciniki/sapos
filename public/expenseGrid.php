@@ -191,6 +191,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 
         if( !isset($expense['items']) ) {
             $expense['items'] = array();
+            $expenses[$eid]['items'] = array();
         }
         foreach($expense['items'] as $iid => $item) {
             $category_id = $item['category_id'];
