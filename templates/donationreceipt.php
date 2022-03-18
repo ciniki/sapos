@@ -23,6 +23,19 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $invoice_id, $t
     $invoice = $rc['invoice'];
 
     //
+    // Setup defaults if settings hasn't been configured for receipts
+    //
+    if( !isset($sapos_settings['donation-receipt-location-issued']) ) {
+        $sapos_settings['donation-receipt-location-issued'] = '';
+    }
+    if( !isset($sapos_settings['donation-receipt-charity-number']) ) {
+        $sapos_settings['donation-receipt-charity-number'] = '';
+    }
+    if( !isset($sapos_settings['donation-receipt-signing-officer']) ) {
+        $sapos_settings['donation-receipt-signing-officer'] = '';
+    }
+
+    //
     // Load the tenant settings
     //
     ciniki_core_loadMethod($ciniki, 'core', 'tenants', 'private', 'intlSettings');

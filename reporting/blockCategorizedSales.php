@@ -206,7 +206,7 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
         $chunk = array(
             'type' => 'table',
             'columns' => array(
-                array('label'=>'# - Paid Date', 'pdfwidth'=>'15%', 'field'=>'invoice_number_date', 'line2'=>'customer_display_name'),
+                array('label'=>'# - Paid Date', 'pdfwidth'=>'15%', 'field'=>'invoice_number_date', 'line2'=>'customer_display_name', 'type'=>'multiline'),
                 ),
             'footer' => array(
                 array('value'=>'Total', 'pdfwidth'=>'15%'),

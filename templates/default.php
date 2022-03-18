@@ -23,6 +23,19 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     $invoice = $rc['invoice'];
     
     //
+    // Setup defaults if settings hasn't been configured for receipts
+    //
+    if( !isset($sapos_settings['donation-receipt-location-issued']) ) {
+        $sapos_settings['donation-receipt-location-issued'] = '';
+    }
+    if( !isset($sapos_settings['donation-receipt-charity-number']) ) {
+        $sapos_settings['donation-receipt-charity-number'] = '';
+    }
+    if( !isset($sapos_settings['donation-receipt-signing-officer']) ) {
+        $sapos_settings['donation-receipt-signing-officer'] = '';
+    }
+
+    //
     // Load TCPDF library
     //
     require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/tcpdf/tcpdf.php');
