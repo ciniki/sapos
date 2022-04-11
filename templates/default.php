@@ -799,9 +799,9 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     //
     $donation_minimum = 25;
     if( isset($sapos_settings['donation-receipt-minimum-amount']) && $sapos_settings['donation-receipt-minimum-amount'] != '' ) {
-        $donation_minimum = $sapos_settings['donation-receipt-minimum-amount'];
+        $donation_minimum = preg_replace("/[^0-9\.]/", '', $sapos_settings['donation-receipt-minimum-amount']);
     }
-    if( $donation_amount >= $donation_minimum
+    if( $donation_amount > 0 && $donation_amount >= $donation_minimum
         && (!isset($sapos_settings['donation-receipt-invoice-include']) || $sapos_settings['donation-receipt-invoice-include'] == 'yes')
         ) {
         $pdf->header_details = array();
