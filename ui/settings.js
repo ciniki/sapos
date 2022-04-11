@@ -60,11 +60,12 @@ function ciniki_sapos_settings() {
             'list':{
                 'mileagerates':{'label':'Rates', 'fn':'M.ciniki_sapos_settings.mrates.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
-        'paypalapi':{'label':'Paypal API', 
-            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x0200); },
-            'list':{
-                'paypalapi':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalapi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
-            }},
+// deprecated - 2021
+//        'paypalapi':{'label':'Paypal API', 
+//            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x0200); },
+//            'list':{
+//                'paypalapi':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalapi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+//            }},
         'stripe':{'label':'Payments', 
             'visible':function() { return M.modFlagSet('ciniki.sapos', 0x800000); },
             'list':{

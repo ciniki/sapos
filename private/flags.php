@@ -24,7 +24,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
         array('flag'=>array('bit'=>'8', 'name'=>'Manufacturing')),
         // 0x0100
         array('flag'=>array('bit'=>'9', 'name'=>'Mileage')),
-        array('flag'=>array('bit'=>'10', 'name'=>'Paypal API')),  // If the tenant is handling payments elsewhere turn this off
+        array('flag'=>array('bit'=>'10', 'name'=>'Payments')),  // This use to be Paypal API (deprecated)
         array('flag'=>array('bit'=>'11', 'name'=>'Item Codes')), // Should be enabled along with product codes in ciniki.products
         array('flag'=>array('bit'=>'12', 'name'=>'Quantity Totals')),
         // 0x1000

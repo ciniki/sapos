@@ -207,7 +207,7 @@ function ciniki_sapos_invoice() {
                 },
             '_buttons':{'label':'', 'buttons':{
                 'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
-                'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
+//                'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
                 'submitorder':{'label':'Submit Order', 'fn':'M.ciniki_sapos_invoice.submitOrder(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'applydiscount':{'label':'Apply Discount', 'fn':'M.ciniki_sapos_invoice.applyDiscount(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'picklist':{'label':'Print Pick/Pack', 'fn':'M.ciniki_sapos_invoice.printPickList(M.ciniki_sapos_invoice.invoice.invoice_id);'},
@@ -1727,13 +1727,13 @@ function ciniki_sapos_invoice() {
         } else {
             p.sections.transactions.visible='no';
         }
-        if( M.curTenant.sapos != null && M.curTenant.sapos.settings != null 
-            && M.curTenant.sapos.settings['paypal-api-processing'] != null 
-            && M.curTenant.sapos.settings['paypal-api-processing'] == 'yes' ) {
-            p.sections._buttons.buttons.terminal.visible='yes';
-        } else {
-            p.sections._buttons.buttons.terminal.visible='no';
-        }
+//        if( M.curTenant.sapos != null && M.curTenant.sapos.settings != null 
+//            && M.curTenant.sapos.settings['paypal-api-processing'] != null 
+//            && M.curTenant.sapos.settings['paypal-api-processing'] == 'yes' ) {
+//            p.sections._buttons.buttons.terminal.visible='yes';
+//        } else {
+//            p.sections._buttons.buttons.terminal.visible='no';
+//        }
 /* REMOVED - OLD SHIPMENTS CODE, needs a rewrite to be good for general use
         if( rsp.invoice.shipping_status > 0 ) {
             if( M.curTenant.permissions.owners != null
@@ -1806,7 +1806,7 @@ function ciniki_sapos_invoice() {
         }
         if( rsp.invoice.invoice_type == 90 ) {
             p.sections._buttons.buttons.record.visible = 'no';
-            p.sections._buttons.buttons.terminal.visible = 'no';
+//            p.sections._buttons.buttons.terminal.visible = 'no';
             p.sections._buttons.buttons.submitorder.visible = 'no';
             p.sections._buttons.buttons.print.visible = 'no';
             p.sections._buttons.buttons.picklist.visible = 'no';
@@ -2040,7 +2040,7 @@ function ciniki_sapos_invoice() {
         }
     };
 
-    this.terminalDetails = function() {
+/*    this.terminalDetails = function() {
         var p = M.ciniki_sapos_invoice.invoice;
         var d = {
             'invoice_id':p.invoice_id,
@@ -2075,7 +2075,7 @@ function ciniki_sapos_invoice() {
             d.phone = p.data.customer.phone_cell.value;
         }
         return d;
-    };
+    }; */
 
 
     this.saveItem = function() {
