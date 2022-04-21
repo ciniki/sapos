@@ -126,7 +126,7 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
                 // Setup any missing fields
                 //
                 foreach($rc['item'] as $k => $v) {
-                    if( !isset($args[$k]) ) {
+                    if( !isset($args[$k]) || ($k == 'price_id' && $args[$k] == 0) ) {
                         $args[$k] = $v;
                     }
                 }
