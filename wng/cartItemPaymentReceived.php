@@ -9,7 +9,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_wng_cartItemPaymentReceived($ciniki, $tnid, $request, $args) {
+function ciniki_sapos_wng_cartItemPaymentReceived(&$ciniki, $tnid, $request, $args) {
 
     //
     // Check that an item was specified

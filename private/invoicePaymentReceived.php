@@ -13,7 +13,7 @@
 // -------
 // <rsp stat='ok' />
 //
-function ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice_id) {
+function ciniki_sapos_invoicePaymentReceived(&$ciniki, $tnid, $invoice_id) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
