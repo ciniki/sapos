@@ -68,22 +68,28 @@ function ciniki_sapos_wng_api(&$ciniki, $tnid, &$request) {
     //
     // cartItemAdd - Add an item to the cart
     //
-    elseif( isset($request['uri_split'][$request['cur_uri_pos']]) && $request['uri_split'][$request['cur_uri_pos']] == 'cartItemAdd' ) {
+    elseif( isset($request['uri_split'][$request['cur_uri_pos']]) 
+        && $request['uri_split'][$request['cur_uri_pos']] == 'cartItemAdd' 
+        && isset($request['args']['object'])
+        && isset($request['args']['object_id'])
+        ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartItemAdd');
         return ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, array(
             'object'=>($request['args']['object'] ? $request['args']['object'] : ''),
             'object_id'=>($request['args']['object_id'] ? $request['args']['object_id'] : ''),
-            'quantity'=>($request['args']['quantity'] ? $request['args']['quantity'] : '1'),
-            'price_id'=>($request['args']['price_id'] ? $request['args']['price_id'] : '0'),
+            'quantity'=>(isset($request['args']['quantity']) && $request['args']['quantity'] ? $request['args']['quantity'] : '1'),
+            'price_id'=>(isset($request['args']['price_id']) && $request['args']['price_id'] ? $request['args']['price_id'] : '0'),
             ));
     }
     
     //
     // cartItemAdd - Add an item to the cart
     //
-    elseif( isset($request['uri_split'][$request['cur_uri_pos']]) && $request['uri_split'][$request['cur_uri_pos']] == 'cartItemUpdate' 
+    elseif( isset($request['uri_split'][$request['cur_uri_pos']]) 
+        && $request['uri_split'][$request['cur_uri_pos']] == 'cartItemUpdate' 
         && isset($request['args']['item_id'])
-        && isset($request['args']['quantity']) ) {
+        && isset($request['args']['quantity']) 
+        ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartItemUpdate');
         return ciniki_sapos_wng_cartItemUpdate($ciniki, $tnid, $request, array(
             'item_id'=>($request['args']['item_id'] ? $request['args']['item_id'] : '0'),
@@ -94,7 +100,10 @@ function ciniki_sapos_wng_api(&$ciniki, $tnid, &$request) {
     //
     // cartItemRemove - Remove an item to the cart
     //
-    elseif( isset($request['uri_split'][$request['cur_uri_pos']]) && $request['uri_split'][$request['cur_uri_pos']] == 'cartItemDelete' ) {
+    elseif( isset($request['uri_split'][$request['cur_uri_pos']]) 
+        && $request['uri_split'][$request['cur_uri_pos']] == 'cartItemDelete' 
+        && isset($request['args']['item_id'])
+        ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartItemDelete');
         return ciniki_sapos_wng_cartItemDelete($ciniki, $tnid, $request, array(
             'item_id'=>($request['args']['item_id'] ? $request['args']['item_id'] : '0'),
