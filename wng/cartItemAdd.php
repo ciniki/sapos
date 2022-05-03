@@ -38,7 +38,7 @@ function ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, $args) {
             || !isset($args['object_id']) || $args['object_id'] == ''
             || !isset($args['quantity']) || $args['quantity'] == ''
             ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.324', 'msg'=>'No item specified'));
+            return array('stat'=>'404', 'err'=>array('code'=>'ciniki.sapos.324', 'msg'=>'No item specified'));
         }
 
         if( !isset($args['price_id']) ) {
@@ -57,14 +57,14 @@ function ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, $args) {
                     $fn = $rc['function_call'];
                     $rc = $fn($ciniki, $tnid, $request['session']['customer'], $args);
                     if( $rc['stat'] != 'ok' ) {
-                        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.325', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
+                        return array('stat'=>'404', 'err'=>array('code'=>'ciniki.sapos.325', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
                     }
                     $item = $rc['item'];
                 } else {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.326', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
                 }
             } else {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.405', 'msg'=>'Invalid Request', 'err'=>$rc['err']));
+                return array('stat'=>'404', 'err'=>array('code'=>'ciniki.sapos.405', 'msg'=>'Invalid Request'));
             }
         }
         if( isset($item['object']) ) { $args['object'] = $item['object']; }
