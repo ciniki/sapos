@@ -178,7 +178,9 @@ function ciniki_sapos_invoiceObjectsAdd(&$ciniki) {
         //
         // Check for auto categories
         //
-        if( isset($settings['invoice-autocat-' . $item['object']]) ) {
+        if( isset($item['object']) && isset($settings['invoice-autocat-' . $item['object']]) 
+            && (!isset($item['category']) || $item['category'] == '')
+            ) {
             $item['category'] = $settings['invoice-autocat-' . $item['object']];
         }
         if( !isset($item['amount']) ) {

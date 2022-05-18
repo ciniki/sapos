@@ -70,6 +70,7 @@ function ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, $args) {
         if( isset($item['object']) ) { $args['object'] = $item['object']; }
         if( isset($item['object_id']) ) { $args['object_id'] = $item['object_id']; }
         if( isset($item['price_id']) ) { $args['price_id'] = $item['price_id']; }
+        if( isset($item['form_id']) ) { $args['form_id'] = $item['form_id']; }
         
         $args['invoice_id'] = $request['session']['cart']['sapos_id'];
 
@@ -219,7 +220,9 @@ function ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, $args) {
         //
         // Check for auto categories
         //
-        if( isset($sapos_settings['invoice-autocat-' . $args['object']]) ) {
+        if( isset($args['object']) && isset($sapos_settings['invoice-autocat-' . $args['object']]) 
+            && (!isset($item['category']) || $item['category'] == '')
+            ) {
             $args['category'] = $sapos_settings['invoice-autocat-' . $args['object']];
         }
 

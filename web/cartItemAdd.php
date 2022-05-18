@@ -212,7 +212,9 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         //
         // Check for auto categories
         //
-        if( isset($sapos_settings['invoice-autocat-' . $args['object']]) ) {
+        if( isset($args['object']) && isset($sapos_settings['invoice-autocat-' . $args['object']]) 
+            && (!isset($args['category']) || $args['category'] == '') 
+            ) {
             $args['category'] = $sapos_settings['invoice-autocat-' . $args['object']];
         }
 
