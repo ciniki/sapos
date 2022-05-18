@@ -163,7 +163,7 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
                 $category['amount_display'] = numfmt_format_currency($intl_currency_fmt, $category['amount'], $intl_currency);
                 $rsp['invoices'][$iid]['categories'][$category['name']] = $category;
 //                $rsp['invoices'][$iid]['categories'][$cid]['amount_display'] = numfmt_format_currency($intl_currency_fmt, $category['amount'], $intl_currency);
-                if( !isset($rsp['categores'][$category['name']]) ) {
+                if( !isset($rsp['categories'][$category['name']]) ) {
                     $rsp['categories'][$category['name']] = array(
                         'name' => $category['name'], 
                         'total_amount' => 0,
