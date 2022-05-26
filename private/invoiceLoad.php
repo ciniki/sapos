@@ -284,6 +284,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "ROUND(ciniki_sapos_invoice_items.discount_amount, 2) AS discount_amount, "
         . "ROUND(ciniki_sapos_invoice_items.total_amount, 2) AS total_amount, "
         . "ROUND(ciniki_sapos_invoice_items.unit_donation_amount, 2) AS unit_donation_amount, "
+        . "ciniki_sapos_invoice_items.form_id, "
         . "ciniki_sapos_invoice_items.notes, "
         . "IFNULL(ciniki_tax_types.name, '') AS taxtype_name "
         . "FROM ciniki_sapos_invoice_items "
@@ -300,7 +301,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 'object', 'object_id', 'price_id', 'student_id', 
                 'code', 'description', 'quantity', 'shipped_quantity', 'required_quantity', 
                 'unit_amount', 'unit_discount_amount', 'unit_discount_percentage', 'unit_preorder_amount', 
-                'subtotal_amount', 'discount_amount', 'total_amount', 'unit_donation_amount', 'notes', 'taxtype_name')),
+                'subtotal_amount', 'discount_amount', 'total_amount', 'unit_donation_amount', 'form_id', 'notes', 'taxtype_name')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

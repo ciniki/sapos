@@ -1,0 +1,5 @@
+#
+# Add the required form field
+#
+ALTER TABLE ciniki_sapos_invoice_items ADD COLUMN form_id int not null AFTER shipping_profile_id;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.11';

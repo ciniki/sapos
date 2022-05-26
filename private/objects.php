@@ -105,6 +105,7 @@ function ciniki_sapos_objects($ciniki) {
             'unit_donation_amount'=>array('name'=>'Donation Amount', 'default'=>'0'),
             'taxtype_id'=>array('name'=>'Taxtype', 'ref'=>'ciniki.taxes.type', 'default'=>'0'),
             'shipping_profile_id'=>array('name'=>'Shipping Profile', 'ref'=>'ciniki.sapos.shippingprofile', 'default'=>'0'),
+            'form_id'=>array('name'=>'Required Form', 'ref'=>'ciniki.forms.form', 'default'=>'0'),
             'notes'=>array('name'=>'Notes', 'default'=>''),
             ),
         'history_table'=>'ciniki_sapos_history',
