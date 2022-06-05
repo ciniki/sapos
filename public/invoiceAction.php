@@ -18,7 +18,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action',
-            'validlist'=>array('submit', 'discount', 'packed', 'pickedup', 'completesale')),
+            'validlist'=>array('submit', 'discount', 'packed', 'pickedup', 'completesale', 'completeinpersonsale')),
         'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Percent'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -313,6 +313,37 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         $update_args = array();
         if( $invoice['balance_amount'] == 0 && $invoice['payment_status'] < 50 ) {
             $update_args['payment_status'] = 50;
+        }
+    } 
+    //
+    // When invoices have been purchased in person, clear all shipping
+    //
+    elseif( isset($args['action']) && $args['action'] == 'completeinpersonsale' ) {
+        //
+        // Load the invoice
+        //
+        $strsql = "SELECT po_number, customer_id, invoice_type, status, payment_status, shipping_status, balance_amount, submitted_by "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return $rc;
+        }
+        if( !isset($rc['invoice']) ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
+        }
+        $invoice = $rc['invoice'];
+
+        $update_args = array();
+        if( $invoice['shipping_status'] == 20 ) {
+            $update_args['shipping_status'] = 60;
+        }
+        if( $invoice['status'] == 45 ) {
+            $update_args['status'] = 50;
         }
     
     } else {

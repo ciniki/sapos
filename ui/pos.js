@@ -217,6 +217,10 @@ function ciniki_sapos_pos() {
                 'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
                 'fn':'M.ciniki_sapos_pos.checkout.completeSale();',
                 },
+            'inpersonsale':{'label':'Complete In Person Sale', 
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 && M.ciniki_sapos_pos.checkout.data.shipping_status == 20 ?'yes':'no'},
+                'fn':'M.ciniki_sapos_pos.checkout.completeInPersonSale();',
+                },
             'print':{'label':'Print Receipt', 
                 'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 ?'yes':'no'},
                 'fn':'M.ciniki_sapos_pos.checkout.printReceipt();',
@@ -428,6 +432,16 @@ function ciniki_sapos_pos() {
     this.checkout.completeSale = function() {
         M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
             'invoice_id':this.invoice_id, 'action':'completesale'}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_pos.checkout.close();
+            });
+    }
+    this.checkout.completeInPersonSale = function() {
+        M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
+            'invoice_id':this.invoice_id, 'action':'completeinpersonsale'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
