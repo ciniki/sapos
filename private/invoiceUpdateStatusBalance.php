@@ -284,6 +284,12 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
         if( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
             $new_status = 20;
         }
+        elseif( $new_shipping_status == 20 && $new_payment_status == 50 ) {
+            $new_status = 45;
+        }
+        elseif( $new_shipping_status == 55 && $new_payment_status == 50 ) {
+            $new_status = 45;
+        }
         elseif( $new_shipping_status > 0 && $new_shipping_status < 50 ) {   
             $new_status = 30;
         }
@@ -335,7 +341,10 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
     $args = array();
     if( $new_status != $invoice['status'] ) {
         $args['status'] = $new_status;
-        if( $args['status'] == 50 ) {
+    }
+    if( $new_payment_status != $invoice['payment_status'] ) {
+        $args['payment_status'] = $new_payment_status;
+        if( $new_payment_status == 50 ) {
             //
             // Payment received
             //
@@ -345,9 +354,6 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.236', 'msg'=>'Error updating the invoice', 'err'=>$rc['err']));
             }
         }
-    }
-    if( $new_payment_status != $invoice['payment_status'] ) {
-        $args['payment_status'] = $new_payment_status;
     }
     if( $new_shipping_status != $invoice['shipping_status'] ) {
         $args['shipping_status'] = $new_shipping_status;
@@ -369,8 +375,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
     }
 
     if( count($args) > 0 ) {
-        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', 
-            $invoice_id, $args, 0x04);
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', $invoice_id, $args, 0x04);
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.29', 'msg'=>'Unable to update invoice', 'err'=>$rc['err']));
         }

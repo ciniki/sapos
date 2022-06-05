@@ -1238,6 +1238,7 @@ function ciniki_sapos_invoice() {
             this.orderStatuses['40'] = 'Payment Required';
         }
         if( M.modFlagOn('ciniki.sapos', 0x20000000) ) {
+            this.orderStatuses['30'] = 'Pending Shipping';
             this.invoiceStatuses['30'] = 'Pending Shipping';
             this.invoiceStatuses['45'] = 'Pending Pickup';
             this.orderStatuses['45'] = 'Pending Pickup';

@@ -302,8 +302,9 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal(&$ciniki, $tnid, $invoice_
         && !ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x10000000) 
         && ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x20000000) 
         && $invoice['customer_id'] > 0 
-        && $shipping_status == 10
-        && $invoice['invoice_type'] != 30 
+        && $shipping_status <= 10
+// Removed Jun 4, 2022 to allow for checkout to be used for phone in purchases that required pickup
+//        && $invoice['invoice_type'] != 30 
         ) {
         $new_shipping_amount = 0;
         $shipping_status = 20;
