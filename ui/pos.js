@@ -783,10 +783,16 @@ function ciniki_sapos_pos() {
             }}, 
         '_buttons':{'label':'', 'buttons':{
             'go':{'label':'Collect Payment', 'fn':'M.ciniki_sapos_pos.terminal.paynow();'},
+            'pickterminal':{'label':'Change Terminal & Collect', 'fn':'M.ciniki_sapos_pos.terminal.change();'},
+            //'pickterminal':{'label':'Change Terminal', 'fn':'M.ciniki_sapos_pos.pickterminal.open(\'M.ciniki_sapos_pos.terminal.open();\',\'M.ciniki_sapos_pos.terminal.open();\');'},
             'delete':{'label':'Cancel', 
                 'fn':'M.ciniki_sapos_pos.terminal.close();',
                 },
             }},
+    }
+    this.terminal.change = function() {
+        localStorage.setItem('ciniki.sapos.stripe-terminal-id', '');
+        this.paynow();
     }
     this.terminal.open = function(cb, iid, amount) {
         if( iid != null ) { this.invoice_id = iid; }
@@ -816,11 +822,15 @@ function ciniki_sapos_pos() {
                     // Init Success, collect the payment
                     M.ciniki_sapos_pos.terminal.paymentCollect(rsp.payment_secret);
                 },
-                (errmsg) => {
+                (err) => {
                     M.hide('m_processing');
-                    M.alert(errmsg);
-                    M.ciniki_sapos_pos.stripeDisconnect();
-                    M.ciniki_sapos_pos.terminal.close();
+                    if( err.code != null && err.code == 'pickreader' ) {
+                        M.ciniki_sapos_pos.pickterminal.open('M.ciniki_sapos_pos.terminal.paynow();','M.ciniki_sapos_pos.terminal.close();');
+                    } else {
+                        M.alert(err.msg);
+                        M.ciniki_sapos_pos.stripeDisconnect();
+                        M.ciniki_sapos_pos.terminal.close();
+                    }
                 });
         }); 
     }
@@ -1015,9 +1025,9 @@ function ciniki_sapos_pos() {
                     // Init Success, collect the payment
                     M.ciniki_sapos_pos.transaction.paymentRefund(cid,amt);
                 },
-                (errmsg) => {
+                (err) => {
                     M.hide('m_processing');
-                    M.alert(errmsg);
+                    M.alert(err.msg);
                     M.ciniki_sapos_pos.stripeDisconnect();
                     M.ciniki_sapos_pos.transaction.close();
                 });
@@ -1178,6 +1188,44 @@ function ciniki_sapos_pos() {
     this.searchresults.addClose('Back');
 
     //
+    // The search results panel when multiple items found
+    //
+    this.pickterminal = new M.panel('Choose Stripe Terminal',
+        'ciniki_sapos_pos', 'pickterminal',
+        'mc', 'medium', 'sectioned', 'ciniki.sapos.pos.pickterminal');
+    this.pickterminal.invoice_id = 0;
+    this.pickterminal.data = {};
+    this.pickterminal.discoveredReaders = null;
+    this.pickterminal.sections = {
+        'buttons':{'label':'Choose a reader', 'buttons':{}},
+    }
+    this.pickterminal.open = function(cb,ccb) {
+        this.cb = cb;
+        this.cancel_cb = ccb;
+        this.sections.buttons.buttons = {};
+        for(var i in this.discoveredReaders) {
+            this.sections.buttons.buttons[i] = {
+                'label':this.discoveredReaders[i].label,
+                'fn':'M.ciniki_sapos_pos.pickterminal.choose(\'' + this.discoveredReaders[i].id + '\');',
+                };
+        }
+        this.sections.buttons.buttons['delete'] = {
+            'label':'Cancel',
+            'fn':'M.ciniki_sapos_pos.pickterminal.cancel();',
+            };
+        this.refresh();
+        this.show();
+    }
+    this.pickterminal.cancel = function() {
+        eval(this.cancel_cb);
+    }
+    this.pickterminal.choose = function(t) {
+        localStorage.setItem('ciniki.sapos.stripe-terminal-id', t);
+        this.close();
+    }
+    this.pickterminal.addClose('Back');
+
+    //
     // Start the app
     //
     this.start = function(cb, aP, aG) {
@@ -1294,21 +1342,51 @@ function ciniki_sapos_pos() {
             if( M.ciniki_sapos_pos.st != null && M.ciniki_sapos_pos.reader == null ) {
                 M.ciniki_sapos_pos.st.discoverReaders().then(function(discoverResult) {
                     if( discoverResult.error) {
-                        reject(discoverResult.error);
+                        reject({'msg':discoverResult.error});
                     } else if (discoverResult.discoveredReaders.length === 0) {
-                        reject('No Available Readers');
+                        reject({'msg':'No Available Readers'});
                     } else if (discoverResult.discoveredReaders.length === 1) {
                         M.ciniki_sapos_pos.reader = discoverResult.discoveredReaders[0];
                         M.ciniki_sapos_pos.st.connectReader(M.ciniki_sapos_pos.reader, {fail_if_in_use:true}).then(function(result) {
                             if( result.error ) {
                                 M.ciniki_sapos_pos.reader = null;
-                                reject('Error: ' + result.error.message);
+                                reject({'msg':'Error: ' + result.error.message});
                             } else {
                                 resolve();
                             }
                         });
+                    } else if (discoverResult.discoveredReaders.length > 1) {
+                        //
+                        // Check for which terminal to use
+                        //
+                        var terminal_id = '';
+                        if( localStorage != null && localStorage.getItem('ciniki.sapos.stripe-terminal-id') != null ) {
+                            terminal_id = localStorage.getItem('ciniki.sapos.stripe-terminal-id');
+                        }
+                        M.ciniki_sapos_pos.pickterminal.discoveredReaders = discoverResult.discoveredReaders;
+                        var connecting = 'no';
+                        for(var i in discoverResult.discoveredReaders) {
+                            if( discoverResult.discoveredReaders[i].id == terminal_id ) {
+                                connecting = 'yes';
+                                M.ciniki_sapos_pos.reader = discoverResult.discoveredReaders[i];
+                                M.ciniki_sapos_pos.st.connectReader(M.ciniki_sapos_pos.reader, {fail_if_in_use:true}).then(function(result) {
+                                    if( result.error ) {
+                                        M.ciniki_sapos_pos.reader = null;
+                                        localStorage.removeItem('ciniki.sapos.stripe-terminal-id');
+                                        reject({'msg':'Error: ' + result.error.message});
+                                    } else {
+                                        console.log('resolving');
+                                        resolve();
+                                    }
+                                });
+                            }
+                        }
+                        // No readers available to connect to
+                        if( connecting == 'no' ) {
+                            reject({'msg':'Pick a reader', 'code':'pickreader'});
+                        }
                     } else {
-                        reject('Too many readers! Call Ciniki Support');
+                        reject({'msg':'Too many readers! Call Ciniki Support'});
                     }
                 });
             } else {

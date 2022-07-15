@@ -15,6 +15,28 @@ function ciniki_sapos_web_cartLoad(&$ciniki, $settings, $tnid) {
     // Check if the customer is signed in and look for an open cart
     //
     if( (!isset($ciniki['session']['cart']['sapos_id']) || $ciniki['session']['cart']['sapos_id'] == 0)
+        && isset($ciniki['session']['account']['id']) && $ciniki['session']['account']['id'] > 0 
+        ) {
+        $strsql = "SELECT id "
+            . "FROM ciniki_sapos_invoices "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND customer_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['account']['id']) . "' "
+            . "AND invoice_type = 20 "
+            . "AND status = 10 "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.products', 'invoice');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['rows'][0]['id']) ) {
+            if( !isset($ciniki['session']['cart']) ) {
+                $ciniki['session']['cart'] = array('sapos_id'=>$rc['rows'][0]['id']);
+            } else {
+                $ciniki['session']['cart']['sapos_id'] = $rc['rows'][0]['id'];
+            }
+        }
+    }
+    elseif( (!isset($ciniki['session']['cart']['sapos_id']) || $ciniki['session']['cart']['sapos_id'] == 0)
         && isset($ciniki['session']['customer']['id']) && $ciniki['session']['customer']['id'] > 0 
         ) {
         $strsql = "SELECT id "
