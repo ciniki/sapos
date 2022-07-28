@@ -27,7 +27,7 @@
 #
 # sequence:             The sort order for the packages.
 #
-# amount:               The donation amount if the flag 0x01 has been set.
+# amount:               The donation amount if the flag 0x02 has been set.
 #
 # primary_image_id:     The ID of the main image for the package.
 #
