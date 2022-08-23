@@ -9,10 +9,12 @@ function ciniki_sapos_main() {
     this.transactionSources = {
         '10':'Paypal',
         '20':'Square',
+        '30':'Stripe',
         '50':'Visa',
         '55':'Mastercard',
         '60':'Discover',
         '65':'Amex',
+        '80':'Credit',
         '90':'Interac',
         '100':'Cash',
         '105':'Check',
