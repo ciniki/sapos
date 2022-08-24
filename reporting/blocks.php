@@ -57,6 +57,17 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
         );
 
     //
+    // Daily sales report
+    //
+    $blocks['ciniki.sapos.dailysales'] = array(
+        'name'=>'Daily Sales',
+        'module' => 'Accounting',
+        'options'=>array(
+            'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
+            ),
+        );
+
+    //
     // Ontario HST Report, designed to run quarterly
     //
     if( ciniki_core_checkModuleActive($ciniki, 'ciniki.sapos') ) {
