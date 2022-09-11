@@ -26,6 +26,23 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
     $blocks = array();
 
     //
+    // Get the list of categories
+    //
+    $strsql = "SELECT DISTINCT IF(items.category='','Uncategorized', items.category) AS category "
+        . "FROM ciniki_sapos_invoice_items AS items "
+        . "WHERE items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'categories', 'fname'=>'category', 'fields'=>array('id'=>'category', 'name'=>'category')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.410', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
+    }
+    $categories = isset($rc['categories']) ? $rc['categories'] : array();
+    array_unshift($categories, array('id'=>0, 'name'=>'All Categories'));
+
+    //
     // Return the list of blocks for the tenant
     //
     if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x02000000) ) {
@@ -34,6 +51,10 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
             'module' => 'Accounting',
             'options'=>array(
                 'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
+                'category'=>array('label'=>'Category', 'type'=>'select', 'default'=>'0',
+                    'complex_options'=>array('value'=>'id', 'name'=>'name'),
+                    'options'=>$categories
+                    ),
                 ),
             );
         $blocks['ciniki.sapos.categorizedsales'] = array(
@@ -70,7 +91,7 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
     //
     // Ontario HST Report, designed to run quarterly
     //
-    if( ciniki_core_checkModuleActive($ciniki, 'ciniki.sapos') ) {
+    if( ciniki_core_checkModuleActive($ciniki, 'ciniki.taxes') ) {
         $blocks['ciniki.sapos.ontarioquarterlyhst'] = array(
             'name'=>'Ontario Quarterly HST',
             'module' => 'Accounting',

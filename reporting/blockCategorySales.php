@@ -58,6 +58,11 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     //
     $chunks = array();
 
+    $category_sql = '';
+    if( isset($args['category']) && $args['category'] != '0' ) {
+        $category_sql = "AND m.category = '" . ciniki_core_dbQuote($ciniki, $args['category']) . "' ";
+    }
+
     //
     // Get the list of invoice items by category
     //
@@ -83,6 +88,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
             . ") "
         . "LEFT JOIN ciniki_sapos_invoice_items AS m ON ("
             . "i.id = m.invoice_id "
+            . $category_sql
             . "AND m.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_sapos_transactions AS t ON ("
@@ -135,7 +141,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     //
     if( count($categories) > 0 ) {
         foreach($categories as $category) {
-            if( count($category['items']) <= 0 ) {
+            if( !isset($category['items']) || count($category['items']) <= 0 ) {
                 continue;
             }
             $chunks[] = array(
