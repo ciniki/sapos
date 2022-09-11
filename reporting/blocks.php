@@ -51,6 +51,7 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
             'module' => 'Accounting',
             'options'=>array(
                 'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
+                'months'=>array('label'=>'Number of Months Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
                 'category'=>array('label'=>'Category', 'type'=>'select', 'default'=>'0',
                     'complex_options'=>array('value'=>'id', 'name'=>'name'),
                     'options'=>$categories

@@ -43,15 +43,27 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     }
     $maps = $rc['maps'];
 
+    $date_text = '';
+    if( isset($args['months']) && $args['months'] != '' && $args['months'] > 0 && $args['months'] < 366 ) {
+        $months = $args['months'];
+        $date_text .= ($months > 1 ? $months . ' months' : 'month');
+    } else {
+        $months = 0;
+    }
     if( isset($args['days']) && $args['days'] != '' && $args['days'] > 0 && $args['days'] < 366 ) {
         $days = $args['days'];
     } else {
-        $days = 7;
+        $days = ($months > 0 ? 0 : 7);
     }
 
     $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
     $end_dt = clone $start_dt;
-    $end_dt->sub(new DateInterval('P' . $days . 'D'));
+    if( $days != 0 ) {
+        $start_dt->sub(new DateInterval('P' . $days . 'D'));
+    }
+    if( $months != 0 ) {
+        $start_dt->sub(new DateInterval('P' . $months . 'M'));
+    }
 
     //
     // Store the report block chunks
@@ -96,7 +108,8 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
             . "AND t.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "AND i.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
+        . "AND i.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d')) . "' "
+        . "AND i.invoice_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
         . "AND (i.invoice_type = 10 OR i.invoice_type = 30) "
         . "AND (i.status = 45 OR i.status = 50) "
         . "ORDER BY category, invoice_date, c.display_name "
