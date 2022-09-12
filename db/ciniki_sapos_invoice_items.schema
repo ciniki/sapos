@@ -120,7 +120,6 @@ create table ciniki_sapos_invoice_items (
     description varchar(250) not null,
     quantity decimal(19,4) not null,
     shipped_quantity decimal(19,4) not null,
-    unit_preorder_amount decimal(19,4) not null,
     unit_amount decimal(19,4) not null,
     unit_discount_amount decimal(19,4) not null,
     unit_discount_percentage decimal(19,4) not null,
