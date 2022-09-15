@@ -739,7 +739,7 @@ function ciniki_sapos_main() {
     this.donations.sections = {
         'years':this._years,
         'months':this._months,
-        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':6,
+        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
             'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status', 'Receipt'],
             'headerClasses':['', '', '', 'alignright', 'alignright'],
             'cellClasses':['', '', '', 'alignright', 'alignright'],
