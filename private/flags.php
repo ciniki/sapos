@@ -50,7 +50,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
         // 0x10000000
         array('flag'=>array('bit'=>'29', 'name'=>'Simple Shipping')), // Do not use with Shipping 0x40 flag
         array('flag'=>array('bit'=>'30', 'name'=>'Instore Pickup')),
-//        array('flag'=>array('bit'=>'31', 'name'=>'')), 
+        array('flag'=>array('bit'=>'31', 'name'=>'E-Transfer Checkout')), 
 //        array('flag'=>array('bit'=>'32', 'name'=>'')), // Do NOT USE
 
         );

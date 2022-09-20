@@ -46,23 +46,50 @@ function ciniki_sapos_wng_cartLoad(&$ciniki, $tnid, &$request) {
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
+        $invoice = $rc['invoice'];
+
 
         //
         // Check to make sure the invoice is still in shopping cart status
         //
-        if( $rc['invoice']['status'] != '10' || $rc['invoice']['invoice_type'] != '20' ) {
+        if( $invoice['status'] != '10' || $invoice['invoice_type'] != '20' ) {
             return array('stat'=>'noexist', 'cart'=>array());
         }
 
-        if( !isset($rc['invoice']['items']) ) {
-            $rc['invoice']['items'] = array();
+        if( !isset($invoice['items']) ) {
+            $invoice['items'] = array();
         }
-        $rc['invoice']['sapos_id'] = $rc['invoice']['id'];
-        $rc['invoice']['num_items'] = count($rc['invoice']['items']);
-        $request['session']['cart'] = $rc['invoice'];
-        $request['session']['cart']['num_items'] = count($rc['invoice']['items']);
+        //
+        // Check for edit urls for the items
+        //
+        foreach($invoice['items'] as $iid => $item) {
+            $item = $item['item'];
+            if( isset($item['object']) && $item['object'] != '' ) {
+                list($pkg, $mod, $obj) = explode('.', $item['object']);
+                $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemEditURL');
+                if( $rc['stat'] == 'ok' ) {
+                    $fn = $rc['function_call'];
+                    $rc = $fn($ciniki, $tnid, $invoice['id'], array(
+                        'object'=>$item['object'],
+                        'object_id'=>$item['object_id'],
+                        'price_id'=>$item['price_id'],
+                        ));
+                    if( $rc['stat'] != 'ok' ) {
+                        return $rc;
+                    }
+                    if( isset($rc['url']) && $rc['url'] != '' ) {
+                        $invoice['items'][$iid]['item']['edit_url'] = $request['ssl_domain_base_url'] . $rc['url'];
+                    }
+                }
+            }
+        }
 
-        return array('stat'=>'ok', 'cart'=>$rc['invoice']);
+        $invoice['sapos_id'] = $invoice['id'];
+        $invoice['num_items'] = count($invoice['items']);
+        $request['session']['cart'] = $invoice;
+        $request['session']['cart']['num_items'] = count($invoice['items']);
+
+        return array('stat'=>'ok', 'cart'=>$invoice);
     }
 
     return array('stat'=>'noexist', 'cart'=>array());

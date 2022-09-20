@@ -65,12 +65,14 @@ function ciniki_sapos_wng_cartItemUpdate($ciniki, $tnid, $request, $args) {
         //
         // Check if quantity or unit_amount has changed, and update the amount
         //
-        if( isset($args['quantity']) ) {
+        if( isset($args['quantity']) || isset($args['unit_amount']) 
+            || isset($args['unit_discount_amount']) || isset($args['unit_discount_percentage']) 
+            ) {
 
             //
             // Check if quantity is zero or below, remove
             //
-            if( $args['quantity'] <= 0 ) {
+            if( isset($args['quantity']) && $args['quantity'] <= 0 ) {
                 ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartItemDelete');
                 return ciniki_sapos_wng_cartItemDelete($ciniki, $tnid, $request, $args);
             }
@@ -78,7 +80,7 @@ function ciniki_sapos_wng_cartItemUpdate($ciniki, $tnid, $request, $args) {
             //
             // If increasing the quantity, check to make sure there is enough
             //
-            if( $args['quantity'] > $item['quantity'] ) {
+            if( isset($args['quantity']) && $args['quantity'] > $item['quantity'] ) {
                 if( isset($object_item['limited_units']) && $object_item['limited_units'] == 'yes'
                     && isset($object_item['units_available']) && $object_item['units_available'] != '' 
                     ) {

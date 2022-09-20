@@ -255,6 +255,9 @@ function ciniki_sapos_settings() {
         '_cart_email_msg':{'label':'Default Shopping Cart Email Message', 'fields':{
             'cart-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
+        '_cart_etransfer_submitted':{'label':'E-Transfer Submitted Email Message', 'fields':{
+            'cart-etransfer-submitted-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+            }},
         '_pos_email_msg':{'label':'Default POS Receipt Email Message', 'fields':{
             'pos-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},

@@ -8,6 +8,7 @@ function ciniki_sapos_invoice() {
         '20':'Pending Manufacturing',
         '30':'Pending Shipping',
         '40':'Payment Required',
+        '42':'E-Transfer Required',
         '50':'Paid',
         '55':'Refund Required',
         '60':'Refunded',
@@ -19,6 +20,7 @@ function ciniki_sapos_invoice() {
         '20':'Pending Manufacturing',
         '30':'Pending Shipping',
         '40':'Payment Required',
+        '42':'E-Transfer Required',
         '50':'Fulfilled',
         '55':'Refund Required',
         '60':'Refunded',
@@ -27,6 +29,7 @@ function ciniki_sapos_invoice() {
     this.paymentStatuses = {
         '0':'None Required',
         '10':'Required',
+        '20':'E-Transfer Required',
         '40':'Deposit',
         '50':'Paid',
         '55':'Refund Required',
@@ -1228,6 +1231,10 @@ function ciniki_sapos_invoice() {
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x80) > 0 ) {
             this.invoiceStatuses['20'] = 'Pending Manufacturing';
             this.orderStatuses['20'] = 'Pending Manufacturing';
+        }
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x40000000) > 0 ) {
+            this.invoiceStatuses['42'] = 'E-Transfer Required';
+            this.orderStatuses['42'] = 'E-Transfer Required';
         }
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x40) > 0 ) {
             this.invoiceStatuses['30'] = 'Pending Shipping';

@@ -113,6 +113,7 @@ function ciniki_sapos_wng_cartCreate(&$ciniki, $tnid, &$request) {
         $invoice_id = $rc['id'];
         $cart_args['sapos_id'] = $rc['id'];
         $request['session']['cart'] = array(
+            'id' => $rc['id'],
             'sapos_id' => $rc['id'],
             'num_items' => 0,
             );

@@ -105,6 +105,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'instore-pickup-ready-email-subject',
         'instore-pickup-ready-email-content',
         'cart-email-message',
+        'cart-etransfer-submitted-message',
         'pos-email-message',
         'order-email-message',
         'shipments-default-shipper',

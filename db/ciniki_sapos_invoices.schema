@@ -48,6 +48,7 @@
 #                       20 - Pending Manufacturing
 #                       30 - Pending Shipping
 #                       40 - Pending Payment
+#                       42 - Pending Payment
 #                       45 - Pending Pickup
 #                       50 - Fulfilled/Paid/Shipped/Done
 #                       55 - Refund Required
@@ -65,6 +66,7 @@
 #
 # payment_status:       0 - Unknown
 #                       10 - Payment Required
+#                       20 - Pending e-transfer
 #                       40 - Partial Payment
 #                       50 - Paid
 #                       55 - Refund Required
