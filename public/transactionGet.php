@@ -17,6 +17,7 @@ function ciniki_sapos_transactionGet(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
+        'invoice_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice'), 
         'transaction_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice Transaction'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -49,6 +50,43 @@ function ciniki_sapos_transactionGet(&$ciniki) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
     $datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
+
+
+    if( $args['transaction_id'] == 0 ) {
+        $dt = new DateTime('now', new DateTimezone($intl_timezone));
+        $transaction = array(
+            'id' => 0,
+            'status' => 40,
+            'transaction_type' => 20,
+            'course' => 0,
+            'transaction_date' => $dt->format($datetime_format),
+            'customer_amount' => '',
+            'transaction_fees' => '',
+            'tenant_amount' => '',
+            'notes' => '',
+            );
+        //
+        // Lookup invoice if specified
+        //
+        if( isset($args['invoice_id']) && $args['invoice_id'] > 0 ) {
+            $strsql = "SELECT status, "
+                . "payment_status "
+                . "FROM ciniki_sapos_invoices "
+                . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.414', 'msg'=>'Unable to load invoice', 'err'=>$rc['err']));
+            }
+            if( isset($rc['invoice']['payment_status']) && $rc['invoice']['payment_status'] == 20 ) {
+                $transaction['source'] = 110;
+            }
+        }
+         
+         error_log(print_r($transaction,true));
+        return array('stat'=>'ok', 'transaction'=>$transaction);
+    }
 
     //
     // Get the transaction details

@@ -48,7 +48,7 @@
 #                       20 - Pending Manufacturing
 #                       30 - Pending Shipping
 #                       40 - Pending Payment
-#                       42 - Pending Payment
+#                       42 - Pending e-transfer
 #                       45 - Pending Pickup
 #                       50 - Fulfilled/Paid/Shipped/Done
 #                       55 - Refund Required

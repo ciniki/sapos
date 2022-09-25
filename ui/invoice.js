@@ -8,7 +8,6 @@ function ciniki_sapos_invoice() {
         '20':'Pending Manufacturing',
         '30':'Pending Shipping',
         '40':'Payment Required',
-        '42':'E-Transfer Required',
         '50':'Paid',
         '55':'Refund Required',
         '60':'Refunded',
@@ -20,7 +19,6 @@ function ciniki_sapos_invoice() {
         '20':'Pending Manufacturing',
         '30':'Pending Shipping',
         '40':'Payment Required',
-        '42':'E-Transfer Required',
         '50':'Fulfilled',
         '55':'Refund Required',
         '60':'Refunded',
@@ -29,7 +27,6 @@ function ciniki_sapos_invoice() {
     this.paymentStatuses = {
         '0':'None Required',
         '10':'Required',
-        '20':'E-Transfer Required',
         '40':'Deposit',
         '50':'Paid',
         '55':'Refund Required',
@@ -209,7 +206,7 @@ function ciniki_sapos_invoice() {
                 'addFn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);',
                 },
             '_buttons':{'label':'', 'buttons':{
-                'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
+                'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.transaction.open(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
 //                'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
                 'submitorder':{'label':'Submit Order', 'fn':'M.ciniki_sapos_invoice.submitOrder(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'applydiscount':{'label':'Apply Discount', 'fn':'M.ciniki_sapos_invoice.applyDiscount(M.ciniki_sapos_invoice.invoice.invoice_id);'},
@@ -468,6 +465,9 @@ function ciniki_sapos_invoice() {
                 if( d != null && d.item != null && d.item.object == 'ciniki.courses.offering_registration' ) {
                     return 'M.startApp(\'ciniki.courses.sapos\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
                 }
+                if( d != null && d.item != null && d.item.object == 'ciniki.musicfestivals.registration' ) {
+                    return 'M.startApp(\'ciniki.musicfestivals.main\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
+                }
                 if( d != null && d.item != null ) {
                     return 'M.ciniki_sapos_invoice.item.open(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
                 }
@@ -477,7 +477,7 @@ function ciniki_sapos_invoice() {
             }
             if( s == 'transactions' ) {
                 if( d != null && d.transaction != null && d.transaction.id > 0 ) {
-                    return 'M.ciniki_sapos_invoice.editTransaction(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.transaction.id + '\',0);';
+                    return 'M.ciniki_sapos_invoice.transaction.open(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.transaction.id + '\',0);';
                 } 
                 return '';
     //              return 'M.startApp(\'ciniki.sapos.transactions\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'transaction_id\':\'' + d.transaction.id + '\'});';
@@ -946,7 +946,9 @@ function ciniki_sapos_invoice() {
         this.transaction.data = {};
         this.transaction.sections = {
             'details':{'label':'', 'fields':{
-                'transaction_type':{'label':'Type', 'type':'toggle', 'default':'20', 'toggles':M.ciniki_sapos_invoice.transactionTypes},
+                'transaction_type':{'label':'Type', 'type':'toggle', 'default':'20', 
+                    'toggles':M.ciniki_sapos_invoice.transactionTypes,
+                    },
                 'status':{'label':'Status', 'type':'toggle', 'toggles':{'40':'Completed', '60':'Deposited'},
                     'visible':function() { return M.modFlagSet('ciniki.sapos', 0x080000); },
                     },
@@ -954,14 +956,17 @@ function ciniki_sapos_invoice() {
                 'source':{'label':'Source', 'type':'select', 'options':M.ciniki_sapos_invoice.transactionSources},
                 'customer_amount':{'label':'Customer Amount', 'type':'text', 'size':'small'},
                 'transaction_fees':{'label':'Fees', 'type':'text', 'size':'small'},
-                'tenant_amount':{'label':'Tenant Amount', 'type':'text', 'size':'small'},
+                'tenant_amount':{'label':'Business Amount', 'type':'text', 'size':'small'},
                 }},
             '_notes':{'label':'Notes', 'fields':{
                 'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
                 }},
             '_buttons':{'label':'', 'buttons':{
                 'save':{'label':'Save', 'fn':'M.ciniki_sapos_invoice.saveTransaction();'},
-                'delete':{'label':'Delete', 'fn':'M.ciniki_sapos_invoice.deleteTransaction(M.ciniki_sapos_invoice.transaction.transaction_id);'},
+                'delete':{'label':'Delete', 
+                    'visible':function() { return M.ciniki_sapos_invoice.transaction.transaction_id > 0 ? 'yes' : 'no';},
+                    'fn':'M.ciniki_sapos_invoice.deleteTransaction(M.ciniki_sapos_invoice.transaction.transaction_id);',
+                    },
                 }},
         };
         this.transaction.fieldValue = function(s, i, d) {
@@ -972,6 +977,25 @@ function ciniki_sapos_invoice() {
             return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
                 'object':'ciniki.sapos.transaction', 'object_id':this.transaction_id, 'field':i}};
         };
+        this.transaction.open = function(cb, tid, inid, date, amount) {
+            if( tid != null ) { this.transaction_id = tid; }
+            if( inid != null ) { this.invoice_id = inid; }
+            M.api.getJSONCb('ciniki.sapos.transactionGet', {'tnid':M.curTenantID,
+                'invoice_id':this.invoice_id,
+                'transaction_id':this.transaction_id}, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    var p = M.ciniki_sapos_invoice.transaction;
+                    p.data = rsp.transaction;
+                    if( amount != null && amount != '' ) { 
+                        p.data.customer_amount = amount;
+                    }
+                    p.refresh();
+                    p.show(cb);
+                });
+        }
         this.transaction.addButton('save', 'Save', 'M.ciniki_sapos_invoice.saveTransaction();');
         this.transaction.addClose('Cancel');
     }
@@ -1228,6 +1252,10 @@ function ciniki_sapos_invoice() {
             '10':'Incomplete',
             '15':'On Hold',
             };
+        this.paymentStatuses = {
+            '0':'None Required',
+            '10':'Required',
+            };
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x80) > 0 ) {
             this.invoiceStatuses['20'] = 'Pending Manufacturing';
             this.orderStatuses['20'] = 'Pending Manufacturing';
@@ -1235,6 +1263,7 @@ function ciniki_sapos_invoice() {
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x40000000) > 0 ) {
             this.invoiceStatuses['42'] = 'E-Transfer Required';
             this.orderStatuses['42'] = 'E-Transfer Required';
+            this.paymentStatuses['20'] = 'E-Transfer Required';
         }
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x40) > 0 ) {
             this.invoiceStatuses['30'] = 'Pending Shipping';
@@ -1262,6 +1291,10 @@ function ciniki_sapos_invoice() {
         this.orderStatuses['55'] = 'Refund Required';
         this.orderStatuses['60'] = 'Refunded';
         this.orderStatuses['65'] = 'Void';
+        this.paymentStatuses['40'] = 'Deposit';
+        this.paymentStatuses['50'] = 'Paid';
+        this.paymentStatuses['55'] = 'Refund Required';
+        this.paymentStatuses['60'] = 'Refunded';
 
         this.edit.sections.details.fields.status.options = this.invoiceStatuses;
         this.edit.sections.details.fields.shipping_status.options = this.shippingStatuses;
@@ -2156,7 +2189,8 @@ function ciniki_sapos_invoice() {
         });
     };
 
-    this.editTransaction = function(cb, tid, inid, date, amount) {
+/*
+    this.transaction.open = function(cb, tid, inid, date, amount) {
         if( tid != null ) { this.transaction.transaction_id = tid; }
         if( inid != null ) { this.transaction.invoice_id = inid; }
         if( this.transaction.transaction_id > 0 ) {
@@ -2188,9 +2222,9 @@ function ciniki_sapos_invoice() {
             p.sections._buttons.buttons.delete.visible='no';
             p.refresh();
             p.show(cb);
-        }
+        } 
     };
-
+*/
     this.saveTransaction = function() {
         if( this.transaction.transaction_id > 0 ) {
             var c = this.transaction.serializeForm('no');

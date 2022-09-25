@@ -20,8 +20,8 @@
 #
 # status:               The current status of the transaction. This is used to track transfers into tenant bank account.
 #
-#                           10 - Completed
-#                           40 - Deposited
+#                           40 - Completed
+#                           60 - Deposited
 #
 # transaction_type:     The type of transaction
 #

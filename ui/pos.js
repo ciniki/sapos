@@ -366,6 +366,8 @@ function ciniki_sapos_pos() {
         if( s == 'items' ) {
             if( d.object == 'ciniki.courses.offering_registration' ) {
                 return 'M.startApp(\'ciniki.courses.sapos\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'item_object\':\'' + d.object + '\',\'item_object_id\':\'' + d.object_id + '\',\'source\':\'pos\'});';
+            } else if( d.object == 'ciniki.musicfestivals.registrations' ) {
+                return 'M.startApp(\'ciniki.musicfestivals.main\',null,\'M.ciniki_sapos_pos.checkout.open();\',\'mc\',{\'item_object\':\'' + d.object + '\',\'item_object_id\':\'' + d.object_id + '\',\'source\':\'pos\'});';
             } else if( M.ciniki_sapos_pos.checkout.data.status < 45 ) {
                 return 'M.ciniki_sapos_pos.item.open(\'M.ciniki_sapos_pos.checkout.open();\',\'' + d.id + '\');';
             }
