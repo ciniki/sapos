@@ -202,6 +202,9 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
             // Full refund on invoice
             if( $invoice['payment_status'] < 60 ) {
                 $new_payment_status = 60;
+                if( $new_shipping_status > 0 ) {
+                    $new_shipping_status = 0;
+                }
             }
         } elseif( $amount_paid > 0 && $amount_paid == $invoice['total_amount'] ) {
             if( $invoice['payment_status'] < 50 ) {
@@ -280,7 +283,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
             $new_status = 50;
         }
     }
-    elseif( $invoice['invoice_type'] == '30') {
+    elseif( $invoice['invoice_type'] == '30') { // POS
         if( $new_manufacturing_status > 0 && $new_manufacturing_status < 50 ) {
             $new_status = 20;
         }
@@ -295,6 +298,9 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
         }
         elseif( $new_payment_status > 0 && $new_payment_status < 50 ) {
             $new_status = 40;
+        } 
+        elseif( $new_payment_status == 60 ) {
+            $new_status = 60;
         } 
         // Each status is either ignored, or completed
         elseif( ($new_manufacturing_status == 0 || $new_manufacturing_status >= 50) 

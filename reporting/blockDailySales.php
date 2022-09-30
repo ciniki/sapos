@@ -78,6 +78,9 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
             . "m.description, "
             . "IF(IFNULL(m.category, '') = '', 'Uncategorized', category) AS category, "
             . "m.total_amount AS amount, "
+            . "t.id AS transaction_id, "
+            . "t.transaction_type, "
+            . "t.customer_amount, "
             . "t.source "
             . "FROM ciniki_sapos_invoices AS i "
             . "LEFT JOIN ciniki_customers AS c ON ("
@@ -95,8 +98,8 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
             . "WHERE i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND DATE(i.invoice_date) = '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
             . "AND (i.invoice_type = 10 OR i.invoice_type = 30) "
-            . "AND (i.status = 45 OR i.status = 50) "
-            . "ORDER BY i.invoice_number, i.invoice_date, c.display_name "
+            . "AND (i.status = 45 OR i.status = 50 || i.status = 60 ) "
+            . "ORDER BY i.invoice_number, i.invoice_date, c.display_name, m.line_number, m.id, t.id "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -107,6 +110,10 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status'],
                     'source'=>$maps['transaction']['source'],
                     ),
+                ),
+            array('container'=>'transactions', 'fname'=>'transaction_id', 
+                'fields'=>array('id'=>'transaction_id', 'type'=>'transaction_type', 'source', 'customer_amount'),
+                'maps'=>array('source'=>$maps['transaction']['source']),
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
@@ -120,26 +127,42 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         //
         $total = 0;
         $textlist = '';
+        $prev_invoice_number = '';
         foreach($items as $iid => $item) {
             $items[$iid]['quantity'] = (float)$item['quantity'];
             $items[$iid]['invoice_number'] = '#' . $item['invoice_number'];
             $items[$iid]['code_desc'] = ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
-            $total = bcadd($total, $item['amount'], 6);
-            if( !isset($totals[$item['source']]) ) {
-                $totals[$item['source']] = array(
-                    'source' => $item['source'],
-                    'total' => $item['amount'],
-                    );
-            } else {
-                $totals[$item['source']]['total'] += $item['amount'];
+            foreach($item['transactions'] as $transaction) {
+                if( $prev_invoice_number != $item['invoice_number'] ) {
+                    if( $transaction['type'] == 60 ) {
+                        $total = bcsub($total, $transaction['customer_amount'], 6);
+                    } else {
+                        $total = bcadd($total, $transaction['customer_amount'], 6);
+                    }
+                    if( !isset($totals["{$transaction['source']}-{$transaction['type']}"]) ) {
+                        $totals["{$transaction['source']}-{$transaction['type']}"] = array(
+                            'source' => $transaction['source'],
+                            'type' => $transaction['type'],
+                            'total' => $transaction['customer_amount'],
+                            );
+                    } else {
+                        $totals["{$transaction['source']}-{$transaction['type']}"]['total'] += $item['amount'];
+                    }
+                }
             }
             $textlist .= '#' . $item['invoice_number'] . ' ' . $item['description'] . ' ' . '$' . number_format($item['amount'], 2) . "\n";
+            $prev_invoice_number = $item['invoice_number'];
         }
         $textlist .= 'Total: ' . '$' . number_format($total, 2) . "\n";
 
         $texttotals = '';
-        foreach($totals as $t) {
-            $texttotals .= $t['source'] . ': ' . number_format($t['total'], 2);
+        foreach($totals as $tid => $t) {
+            if( $t['type'] == 60 ) {
+                $totals[$tid]['type_text'] = 'Refunds';
+            } else {
+                $totals[$tid]['type_text'] = 'Payments';
+            }
+//            $texttotals .= $t['source'] . ': ' . number_format($t['total'], 2);
         }
 
         //
@@ -150,17 +173,18 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'type' => 'table',
                 'title' => $end_dt->format('M j, Y'),
                 'columns' => array(
-                    array('label'=>'#', 'pdfwidth'=>'10%', 'field'=>'invoice_number'),
-                    array('label'=>'Date/Name', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
-                    array('label'=>'Item', 'pdfwidth'=>'33%', 'field'=>'code_desc'),
+                    array('label'=>'#', 'pdfwidth'=>'20%', 'field'=>'invoice_number', 'line2'=>'display_name'),
+//                    array('label'=>'Date/Name', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
+                    array('label'=>'Item', 'pdfwidth'=>'36%', 'field'=>'code_desc'),
                     array('label'=>'Qty', 'pdfwidth'=>'6%', 'field'=>'quantity', 'align'=>'right'),
                     array('label'=>'Amount', 'pdfwidth'=>'12%', 'type'=>'dollar', 'field'=>'amount', 'align'=>'right'),
                     array('label'=>'Payment', 'pdfwidth'=>'13%', 'field'=>'source', 'align'=>'right'),
+                    array('label'=>'Status', 'pdfwidth'=>'13%', 'field'=>'payment_status_text', 'align'=>'right'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'colspan'=>4, 'pdfwidth'=>'75%', 'align'=>'right'),
+                    array('value'=>'Total', 'colspan'=>2, 'pdfwidth'=>'62%', 'align'=>'right'),
                     array('value'=>$total, 'pdfwidth'=>'12%', 'type'=>'dollar', 'align'=>'right'),
-                    array('value'=>'', 'pdfwidth'=>'13%'),
+                    array('value'=>'', 'colspan'=>2, 'pdfwidth'=>'26%'),
                     ),
                 'data' => $items,
                 'textlist' => $textlist,
@@ -181,7 +205,8 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'type' => 'table',
                 'title' => $end_dt->format('M j, Y') . ' - Summary',
                 'columns' => array(
-                    array('label'=>'Payment', 'pdfwidth'=>'75%', 'field'=>'source', 'align'=>'right'),
+                    array('label'=>'Payment', 'pdfwidth'=>'50%', 'field'=>'source', 'align'=>'right'),
+                    array('label'=>'Type', 'pdfwidth'=>'25%', 'field'=>'type_text', 'align'=>'right'),
                     array('label'=>'Total', 'pdfwidth'=>'25%', 'type'=>'dollar', 'field'=>'total', 'align'=>'right'),
                     ),
                 'footer' => array(
