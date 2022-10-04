@@ -140,7 +140,7 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
             // Expire customer carts after 30 days
             // OR Expire non-customer carts after 1 days
             //
-            if( ($cart['customer_id'] > 0 && $cart['age'] > 30) 
+            if( ($cart['customer_id'] > 0 && $cart['age'] > 90) 
                 || ($cart['customer_id'] == 0 && $cart['age'] > 1) 
                 ) {
                 error_log('removing cart: ' . $cart['tnid'] . '-' . $cart['id']);
