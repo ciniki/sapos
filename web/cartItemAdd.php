@@ -37,6 +37,7 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         if( !isset($args['object']) || $args['object'] == '' 
             || !isset($args['object_id']) || $args['object_id'] == ''
             || !isset($args['quantity']) || $args['quantity'] == ''
+            || !is_numeric($args['quantity'])
             ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.148', 'msg'=>'No item specified'));
         }
