@@ -17,10 +17,11 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.210', 'msg'=>'No product specified.'));
     }
 
+
     //
     // Lookup the requested product if specified along with a price_id
     //
-    if( $args['object'] == 'ciniki.sapos.donationpackage' && isset($args['object_id']) && $args['object_id'] > 0 ) {
+    if( $args['object'] == 'ciniki.sapos.donationpackage' && isset($args['object_id']) && is_numeric($args['object_id']) && $args['object_id'] > 0 ) {
         
         //
         // Get the details about the donation package
@@ -69,7 +70,7 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
             );
         if( ($package['flags']&0x02) == 0x02 ) {    
             $product['unit_amount'] = $package['amount'];
-        } elseif( isset($args['user_amount']) ) {
+        } elseif( isset($args['user_amount']) && is_numeric($args['user_amount']) ) {
             $product['unit_amount'] = $args['user_amount'];
         } else {
             $product['unit_amount'] = 0;
@@ -81,7 +82,7 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
     //
     // Check for basic donations
     //
-    if( $args['object'] == 'ciniki.sapos.cartdonation' ) {
+    if( $args['object'] == 'ciniki.sapos.cartdonation' && isset($args['object_id']) && is_numeric($args['object_id']) ) {
         $product = array(
             'flags'=>0x8000,
             'price_id'=>0,
@@ -90,7 +91,7 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
             'quantity'=>1,
             'object'=>'ciniki.sapos.cartdonation',
             'object_id'=>$args['object_id'],
-            'unit_amount' => (isset($args['user_amount']) ? $args['user_amount'] : 0),
+            'unit_amount' => ((isset($args['user_amount']) && is_numeric($args['user_amount'])) ? $args['user_amount'] : 0),
             'unit_discount_amount'=>0,
             'unit_discount_percentage'=>0,
             'taxtype_id'=>0,
