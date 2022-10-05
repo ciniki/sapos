@@ -50,7 +50,13 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
         //
         $item = array();
         if( $args['object'] != '' && $args['object_id'] != '' ) {
-            list($pkg,$mod,$obj) = explode('.', $args['object']);
+            $pieces = explode('.', $args['object']);
+            if( count($pieces) < 3 ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.150', 'msg'=>'Invalid item'));
+            }
+            $pkg = $pieces[0];
+            $mod = $pieces[1];
+            $obj = $pieces[2];
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemLookup');
             if( $rc['stat'] == 'ok' ) {
                 $fn = $rc['function_call'];
