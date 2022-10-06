@@ -19,6 +19,9 @@ function ciniki_sapos_lookupObjects(&$ciniki, $tnid, $objects) {
         // Check if function is already loaded
         if( !is_callable($lookup_function) ) {
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', "itemLookup");
+            if( $rc['stat'] == 'warn' ) {   
+                return $rc;
+            }
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.31', 'msg'=>'Unable to load invoice item details'));
             }
@@ -34,6 +37,9 @@ function ciniki_sapos_lookupObjects(&$ciniki, $tnid, $objects) {
         //
         $object['object_id'] = $object['id'];
         $rc = $lookup_function($ciniki, $tnid, $object);
+        if( $rc['stat'] == 'warn' ) {   
+            return $rc;
+        }
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.33', 'msg'=>'Unable to load invoice item details', 'err'=>$rc['err']));
         }

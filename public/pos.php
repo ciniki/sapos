@@ -96,6 +96,9 @@ function ciniki_sapos_pos(&$ciniki) {
                 );
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAdd');
             $rc = ciniki_sapos_invoiceAdd($ciniki, $args['tnid'], $invoice);
+            if( $rc['stat'] == 'warn' ) {
+                return $rc;
+            }
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.255', 'msg'=>'Unable to create new invoice', 'err'=>$rc['err']));
             }
@@ -106,6 +109,9 @@ function ciniki_sapos_pos(&$ciniki) {
             //
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAddItem');
             $rc = ciniki_sapos_invoiceAddItem($ciniki, $args['tnid'], $args);
+            if( $rc['stat'] == 'warn' ) {   
+                return $rc;
+            }
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.250', 'msg'=>'Unable to add item to invoice', 'err'=>$rc['err']));
             }

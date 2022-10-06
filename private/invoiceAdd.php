@@ -81,6 +81,9 @@ function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
     if( isset($args['objects']) && is_array($args['objects']) && count($args['objects']) > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'lookupObjects');
         $rc = ciniki_sapos_lookupObjects($ciniki, $tnid, $args['objects']);
+        if( $rc['stat'] == 'warn' ) {
+            return $rc;
+        }
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.1', 'msg'=>'Unable to lookup invoice item reference', 'err'=>$rc['err']));
         }

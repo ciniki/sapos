@@ -43,6 +43,9 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.45', 'msg'=>'Invoice not found.'));
     }
     $invoice = $rc['invoice'];
+    if( !isset($args['customer_id']) ) {
+        $args['customer_id'] = $invoice['customer_id'];
+    }
 
     //
     // Get the max line_number for this invoice

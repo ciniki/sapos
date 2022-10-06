@@ -80,6 +80,10 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAddItem');
     $rc = ciniki_sapos_invoiceAddItem($ciniki, $args['tnid'], $args);
+    if( $rc['stat'] == 'warn' ) {
+        ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+        return $rc;
+    }
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.248', 'msg'=>'Unable to add the item to the invoice', 'err'=>$rc['err']));
