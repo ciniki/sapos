@@ -100,7 +100,6 @@ function ciniki_sapos_wng_cartItemFormCheck(&$ciniki, $tnid, &$request, $item) {
         //
         // Save the submission
         //
-        error_log('Save');
         ciniki_core_loadMethod($ciniki, 'ciniki', 'forms', 'wng', 'submissionSave');
         $rc = ciniki_forms_wng_submissionSave($ciniki, $tnid, $request, $form);
         if( $rc['stat'] != 'ok' ) {

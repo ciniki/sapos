@@ -84,7 +84,6 @@ function ciniki_sapos_transactionGet(&$ciniki) {
             }
         }
          
-         error_log(print_r($transaction,true));
         return array('stat'=>'ok', 'transaction'=>$transaction);
     }
 
