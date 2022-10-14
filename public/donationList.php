@@ -165,7 +165,7 @@ function ciniki_sapos_donationList(&$ciniki) {
     if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
     }
-    $strsql .= "GROUP BY ciniki_sapos_invoices.id, donation_category ";
+    $strsql .= "GROUP BY ciniki_sapos_invoices.id ";
     if( isset($args['sort']) ) {
         if( $args['sort'] == 'latest' ) {
             $strsql .= "ORDER BY ciniki_sapos_invoices.last_updated DESC ";
