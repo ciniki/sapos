@@ -260,6 +260,12 @@ function ciniki_sapos_templates_quoteDefault(&$ciniki, $tnid, $invoice_id, $tena
         }
         if( (!isset($sapos_settings['invoice-header-tenant-website'])
             || $sapos_settings['invoice-header-tenant-website'] == 'yes')
+            && isset($tenant_details['contact.website.url']) 
+            && $tenant_details['contact.website.url'] != '' ) {
+            $pdf->header_addr[] = $tenant_details['contact.website.url'];
+        }
+        elseif( (!isset($sapos_settings['invoice-header-tenant-website'])
+            || $sapos_settings['invoice-header-tenant-website'] == 'yes')
             && isset($tenant_details['contact-website-url']) 
             && $tenant_details['contact-website-url'] != '' ) {
             $pdf->header_addr[] = $tenant_details['contact-website-url'];
