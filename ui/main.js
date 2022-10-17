@@ -105,7 +105,7 @@ function ciniki_sapos_main() {
             'tabs':{
                 '0':{'label':'All', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,0);'},
                 '10':{'label':'Payment Required', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,10);'},
-                '20':{'label':'E-Transfer Required',
+                '20':{'label':'e-transfer Required',
                     'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40000000); },
                     'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,20);',
                     },

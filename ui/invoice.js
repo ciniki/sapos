@@ -1261,9 +1261,9 @@ function ciniki_sapos_invoice() {
             this.orderStatuses['20'] = 'Pending Manufacturing';
         }
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x40000000) > 0 ) {
-            this.invoiceStatuses['42'] = 'E-Transfer Required';
-            this.orderStatuses['42'] = 'E-Transfer Required';
-            this.paymentStatuses['20'] = 'E-Transfer Required';
+            this.invoiceStatuses['42'] = 'e-transfer Required';
+            this.orderStatuses['42'] = 'e-transfer Required';
+            this.paymentStatuses['20'] = 'e-transfer Required';
         }
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x40) > 0 ) {
             this.invoiceStatuses['30'] = 'Pending Shipping';
