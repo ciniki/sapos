@@ -131,6 +131,7 @@ function ciniki_sapos_pos(&$ciniki) {
             $invoice = array(
                 'invoice_type' => 30,
                 'status' => 10,
+                'payment_status' => 10,
                 'customer_id' => $args['customer_id'],
                 );
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceAdd');
