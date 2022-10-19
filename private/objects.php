@@ -82,7 +82,7 @@ function ciniki_sapos_objects($ciniki) {
         'table'=>'ciniki_sapos_invoice_items',
         'fields'=>array(
             'invoice_id'=>array('name'=>'Invoice', 'ref'=>'ciniki.sapos.invoice'),
-            'line_number'=>array('name'=>'Line Number'),
+            'line_number'=>array('name'=>'Line Number', 'default'=>'1'),
             'status'=>array('name'=>'Status', 'default'=>'0'),
             'category'=>array('name'=>'Category', 'default'=>''),
             'donation_category'=>array('name'=>'Donation Category', 'default'=>''),

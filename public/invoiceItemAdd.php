@@ -18,7 +18,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'),
-        'line_number'=>array('required'=>'no', 'blank'=>'no', 'default'=>'1', 'name'=>'Line Number'),
+        'line_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Line Number'),
         'status'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Status'),
         'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         'donation_category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Donation Category'),
@@ -64,6 +64,26 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
     }
     if( isset($args['unit_donation_amount']) && $args['unit_donation_amount'] > 0 ) {
         $args['flags'] = (isset($args['flags']) ? $args['flags'] | 0x0800 : 0x0800);
+    }
+
+    //
+    // Get the next line number
+    //
+    if( !isset($args['line_number']) ) {
+        $strsql = "SELECT MAX(line_number) AS line_number "
+            . "FROM ciniki_sapos_invoice_items "
+            . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'max');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['max']['line_number']) ) {
+            $args['line_number'] = $rc['max']['line_number']++;
+        } else {
+            $args['line_number'] = 1;
+        }
     }
 
     //

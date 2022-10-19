@@ -20,7 +20,7 @@ function ciniki_sapos_maps($ciniki) {
             '16'=>'Quarterly Invoice',
             '19'=>'Yearly Invoice',
             '20'=>'Cart',
-            '30'=>'POS',
+            '30'=>'Checkout',
             '40'=>'Order',
             '90'=>'Quote',
             ),
