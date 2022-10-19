@@ -246,6 +246,9 @@ function ciniki_sapos_settings() {
             'fields':{
                 'invoice-bottom-instore-pickup-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
+        '_etransfer_msg':{'label':'e-transfer Invoice Message', 'fields':{
+            'invoice-etransfer-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+            }},
         '_invoice_email_options':{'label':'Invoice Email Options', 'fields':{
             'invoice-email-all-addresses':{'label':'Multiple emails per customer', 'type':'toggle', 'default':'no', 'toggles':{'no':'Send to one', 'yes':'Send to all'}},
             }},

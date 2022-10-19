@@ -93,6 +93,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'invoice-tallies-payment-type',
         'invoice-costing',
         'invoice-bottom-message',
+        'invoice-etransfer-message',
         'invoice-bottom-instore-pickup-message',
         'invoice-preorder-message',
         'packingslip-bottom-message',

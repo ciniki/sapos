@@ -776,6 +776,19 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     }
 
     //
+    // Check if there is a etransfer message to be displayed
+    //
+    if( isset($sapos_settings['invoice-etransfer-message']) && $sapos_settings['invoice-etransfer-message'] != '' 
+        && $invoice['payment_status'] == 20
+        ) {
+        $pdf->Ln();
+        $pdf->SetFont('');
+        $message = $sapos_settings['invoice-etransfer-message'];
+        $message = str_replace('{_invoice_total_}', $invoice['balance_amount_display'], $message);
+        $pdf->MultiCell(180, 5, $message, 0, 'L',0,1,'','',true,0,true);
+    }
+
+    //
     // Check if there is a instore pickup message to be displayed
     //
     if( $invoice['shipping_status'] == 20 
