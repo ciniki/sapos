@@ -38,7 +38,7 @@ function ciniki_sapos_settings() {
                     },
             }},
         'shipments':{'label':'Shipments',
-            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40); },
+            'visible':function() { return M.modFlagAny('ciniki.sapos', 0x10000040); },
             'list':{
 //                'shipments':{'label':'Settings', 'fn':'M.ciniki_sapos_settings.shipment.open(\'M.ciniki_sapos_settings.menu.open();\');'},
                 'simpleshiprates':{'label':'Shipping Rates', 
