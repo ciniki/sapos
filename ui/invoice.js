@@ -468,6 +468,9 @@ function ciniki_sapos_invoice() {
                 if( d != null && d.item != null && d.item.object == 'ciniki.musicfestivals.registration' ) {
                     return 'M.startApp(\'ciniki.musicfestivals.main\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
                 }
+                if( d != null && d.item != null && d.item.object == 'ciniki.writingfestivals.registration' ) {
+                    return 'M.startApp(\'ciniki.writingfestivals.main\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'item_object\':\'' + d.item.object + '\',\'item_object_id\':\'' + d.item.object_id + '\',\'source\':\'invoice\'});';
+                }
                 if( d != null && d.item != null ) {
                     return 'M.ciniki_sapos_invoice.item.open(\'M.ciniki_sapos_invoice.showInvoice();\',\'' + d.item.id + '\');';
                 }
