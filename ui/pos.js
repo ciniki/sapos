@@ -795,6 +795,11 @@ function ciniki_sapos_pos() {
             }},
     }
     this.terminal.change = function() {
+        if( this.st != null ) {
+            this.st.disconnectReader();
+        }
+        this.st = null;        // Stripe Terminal
+        this.reader = null;    // Connect reader object
         localStorage.setItem('ciniki.sapos.stripe-terminal-id', '');
         this.paynow();
     }
