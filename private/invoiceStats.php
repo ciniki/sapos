@@ -121,7 +121,7 @@ function ciniki_sapos__invoiceStats($ciniki, $tnid) {
     //
     if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x01000000) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
-        $strsql = "SELECT DISTINCT IF(category = '', 'Uncategorized', category) AS category "
+        $strsql = "SELECT DISTINCT BINARY IF(category = '', 'Uncategorized', category) AS category "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
@@ -139,7 +139,7 @@ function ciniki_sapos__invoiceStats($ciniki, $tnid) {
     //
     if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x08000000) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
-        $strsql = "SELECT DISTINCT IF(donation_category = '', 'Uncategorized', donation_category) AS category "
+        $strsql = "SELECT DISTINCT BINARY IF(donation_category = '', 'Uncategorized', donation_category) AS category "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
