@@ -98,7 +98,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
             . "WHERE i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND DATE(i.invoice_date) = '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
             . "AND (i.invoice_type = 10 OR i.invoice_type = 30) "
-            . "AND (i.status = 45 OR i.status = 50 || i.status = 60 ) "
+            . "AND (i.status = 45 OR i.status = 50 OR i.status = 60 ) "
             . "ORDER BY i.invoice_number, i.invoice_date, c.display_name, m.line_number, m.id, t.id "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
@@ -146,7 +146,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                             'total' => $transaction['customer_amount'],
                             );
                     } else {
-                        $totals["{$transaction['source']}-{$transaction['type']}"]['total'] += $item['amount'];
+                        $totals["{$transaction['source']}-{$transaction['type']}"]['total'] += $transaction['customer_amount'];
                     }
                 }
             }
@@ -182,7 +182,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                     array('label'=>'Status', 'pdfwidth'=>'13%', 'field'=>'payment_status_text', 'align'=>'right'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'colspan'=>2, 'pdfwidth'=>'62%', 'align'=>'right'),
+                    array('value'=>'Total', 'colspan'=>3, 'pdfwidth'=>'62%', 'align'=>'right'),
                     array('value'=>$total, 'pdfwidth'=>'12%', 'type'=>'dollar', 'align'=>'right'),
                     array('value'=>'', 'colspan'=>2, 'pdfwidth'=>'26%'),
                     ),
@@ -210,7 +210,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                     array('label'=>'Total', 'pdfwidth'=>'25%', 'type'=>'dollar', 'field'=>'total', 'align'=>'right'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'pdfwidth'=>'75%', 'align'=>'right'),
+                    array('value'=>'Total', 'colspan'=>2, 'pdfwidth'=>'75%', 'align'=>'right'),
                     array('value'=>$total, 'pdfwidth'=>'25%', 'align'=>'right', 'type'=>'dollar'),
                     ),
                 'data' => $totals,
