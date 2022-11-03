@@ -322,21 +322,24 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         //
         // Load the invoice
         //
-        $strsql = "SELECT po_number, customer_id, invoice_type, status, payment_status, shipping_status, balance_amount, submitted_by "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
+        $rc = ciniki_sapos_invoiceLoad($ciniki, $args['tnid'], $args['invoice_id']);
         if( $rc['stat'] != 'ok' ) {
-            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
             return $rc;
         }
-        if( !isset($rc['invoice']) ) {
-            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
-        }
         $invoice = $rc['invoice'];
+        foreach($invoice['items'] as $item) {
+            $item = $item['item'];
+            if( ($item['flags']&0x40) == 0x40 && $item['shipped_quantity'] < $item['quantity'] ) {
+                $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $item['id'], array(
+                    'shipped_quantity' => $item['quantity'],
+                    ), 0x04);
+                if( $rc['stat'] != 'ok' ) {
+                    ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                    return $rc;
+                }
+            }
+        }
 
         $update_args = array();
         if( $invoice['shipping_status'] == 20 ) {
@@ -345,7 +348,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         if( $invoice['status'] == 45 ) {
             $update_args['status'] = 50;
         }
-    
+
     } else {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.60', 'msg'=>'No action specified'));
