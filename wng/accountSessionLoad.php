@@ -31,8 +31,12 @@ function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, &$request) {
         }
         if( isset($rc['rows'][0]['id']) ) {
             if( !isset($request['session']['cart']) ) {
-                $request['session']['cart'] = array('sapos_id'=>$rc['rows'][0]['id']);
+                $request['session']['cart'] = array(
+                    'id'=>$rc['rows'][0]['id'],
+                    'sapos_id'=>$rc['rows'][0]['id'],
+                    );
             } else {
+                $request['session']['cart']['id'] = $rc['rows'][0]['id'];
                 $request['session']['cart']['sapos_id'] = $rc['rows'][0]['id'];
             }
         }
