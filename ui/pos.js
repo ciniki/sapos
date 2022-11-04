@@ -199,10 +199,10 @@ function ciniki_sapos_pos() {
             'cellClasses':['', '', 'alignright'],
             },
         'messages':{'label':'Messages', 'type':'simplegrid', 'num_cols':2,
-            'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.customer_id > 0 ?'yes':'no'},
+            'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.customer_id > 0 && M.ciniki_sapos_pos.checkout.data.messages != null && M.ciniki_sapos_pos.checkout.data.messages.length > 0 ?'yes':'no'},
             'cellClasses':['multiline', 'multiline'],
-            'addTxt':'Email Receipt',
-            'addFn':'M.ciniki_sapos_pos.email.open(\'M.ciniki_sapos_pos.checkout.open();\',M.ciniki_sapos_pos.checkout.data);',
+//            'addTxt':'Email Receipt',
+//            'addFn':'M.ciniki_sapos_pos.email.open(\'M.ciniki_sapos_pos.checkout.open();\',M.ciniki_sapos_pos.checkout.data);',
             },
         '_buttons':{'label':'', 'buttons':{
             'terminal':{'label':'Pay with Credit or Debit', 
@@ -214,12 +214,17 @@ function ciniki_sapos_pos() {
                 'fn':'M.ciniki_sapos_pos.transaction.open(\'M.ciniki_sapos_pos.checkout.open();\',0,M.ciniki_sapos_pos.checkout.invoice_id,\'now\',M.ciniki_sapos_pos.checkout.data.balance_amount_display);',
                 },
             'completesale':{'label':'Complete Sale', 
-                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 ?'yes':'no'},
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 && M.ciniki_sapos_pos.checkout.data.payment_status < 50 ?'yes':'no'},
                 'fn':'M.ciniki_sapos_pos.checkout.completeSale();',
                 },
             'inpersonsale':{'label':'Complete In Person Sale', 
                 'visible':function() {return M.ciniki_sapos_pos.checkout.data.balance_amount == 0 && M.ciniki_sapos_pos.checkout.data.items.length > 0 && M.ciniki_sapos_pos.checkout.data.shipping_status == 20 ?'yes':'no'},
                 'fn':'M.ciniki_sapos_pos.checkout.completeInPersonSale();',
+                },
+            'email':{'label':'Email Receipt', 
+                'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 ?'yes':'no'},
+                'fn':'M.ciniki_sapos_pos.email.open(\'M.ciniki_sapos_pos.checkout.open();\',M.ciniki_sapos_pos.checkout.data);',
+//                'fn':'M.ciniki_sapos_pos.checkout.printReceipt();',
                 },
             'print':{'label':'Print Receipt', 
                 'visible':function() {return M.ciniki_sapos_pos.checkout.data.total_amount > 0 && M.ciniki_sapos_pos.checkout.data.balance_amount == 0 ?'yes':'no'},
@@ -450,7 +455,7 @@ function ciniki_sapos_pos() {
                     M.api.err(rsp);
                     return false;
                 }
-                M.ciniki_sapos_pos.checkout.close();
+                M.ciniki_sapos_pos.checkout.open();
             });
     }
     this.checkout.open = function(cb,iid) {
