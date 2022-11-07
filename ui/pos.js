@@ -68,6 +68,9 @@ function ciniki_sapos_pos() {
             'addTxt':'Add Sale',
             'addTopFn':'M.ciniki_sapos_pos.checkout.open(\'M.ciniki_sapos_pos.menu.open();\',0);',
             },
+        '_buttons':{'label':'', 'buttons':{
+            'dailysalespdf':{'label':'Sales PDF', 'fn':'M.ciniki_sapos_pos.menu.downloadSalesPDF();'},
+            }},
     }
     this.menu.cellValue = function(s, i, j, d) {
         if( s == 'packing_required' ) {
@@ -131,6 +134,9 @@ function ciniki_sapos_pos() {
             p.show(cb);
             setTimeout('M.ciniki_sapos_pos.menu.autoUpdate();', 60000);
         });
+    }
+    this.menu.downloadSalesPDF = function() {
+        M.api.openPDF('ciniki.sapos.dailySalesPDF', {'tnid':M.curTenantID});
     }
     this.menu.addButton('add', 'Add', 'M.ciniki_sapos_pos.checkout.open(\'M.ciniki_sapos_pos.menu.open();\',0);');
     this.menu.addClose('Back');

@@ -66,11 +66,20 @@ function ciniki_sapos_posSales(&$ciniki) {
         . "invoices.invoice_date, "
         . "invoices.billing_name, "
         . "invoices.total_amount "
+/*        . "transactions.id AS transaction_id, "
+        . "transactions.status AS transaction_status,  "
+        . "transactions.transaction_type,  "
+        . "transactions.source,  "
+        . "transactions.customer_amount " */
         . "FROM ciniki_sapos_invoices AS invoices "
+/*        . "LEFT JOIN ciniki_sapos_transactions AS transactions ON ("
+            . "invoices.id = transactions.invoice_id "
+            . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . ") " */
         . "WHERE invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
         . "AND invoices.invoice_type = 30 " // POS Sales only
         . "AND invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-        . "ORDER BY invoice_date DESC "
+        . "ORDER BY invoices.invoice_date DESC "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -78,6 +87,10 @@ function ciniki_sapos_posSales(&$ciniki) {
             'fields'=>array('id', 'invoice_number', 'invoice_type', 'status', 'status_text', 'invoice_date', 'billing_name', 'total_amount'),
             'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
             ),
+/*        array('container'=>'transactions', 'fname'=>'transaction_id', 
+            'fields'=>array('id'=>'transaction_id', 'status'=>'transaction_status', 'transaction_type', 'source', 'customer_amount'),
+            'maps'=>array(),
+            ), */
         ));
     if( $rc['stat'] != 'ok' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.68', 'msg'=>'Unable to load invoices', 'err'=>$rc['err']));
