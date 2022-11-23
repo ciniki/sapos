@@ -915,10 +915,18 @@ function ciniki_sapos_pos() {
         'details':{'label':'Payment Type', 'active':'yes',
 //            'active':function() { return M.ciniki_sapos_pos.transaction.data.source != 30 ? 'yes' : 'no';},
             'fields':{
-                'source':{'label':'', 'hidelabel':'yes', 'join':'no', 'type':'toggle', 'size':'7.5', 'required':'yes', 'toggles':{}},
+                'source':{'label':'', 'hidelabel':'yes', 'join':'no', 'type':'toggle', 'size':'7.5', 'required':'yes', 'toggles':{},
+                    'onchange':'M.ciniki_sapos_pos.transaction.updateForm',
+                    },
             }},
         '_amount':{'label':'', 'fields':{
-            'customer_amount':{'label':'Amount', 'editable':'yes', 'type':'text', 'size':'small'},
+            'customer_paid':{'label':'Received', 'editable':'yes', 'type':'text', 'size':'small', 'visible':'no',
+                'onkeyup':'M.ciniki_sapos_pos.transaction.calcChange',
+                },
+            'customer_amount':{'label':'Amount', 'editable':'yes', 'type':'text', 'size':'small',
+                'onkeyup':'M.ciniki_sapos_pos.transaction.calcChange',
+                },
+            'customer_change':{'label':'Change', 'editable':'no', 'type':'text', 'size':'small', 'visible':'no'},
             }},
         '_notes':{'label':'Notes', 'fields':{
             'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -940,6 +948,29 @@ function ciniki_sapos_pos() {
     }
     this.transaction.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID, 'object':'ciniki.sapos.transaction', 'object_id':this.transaction_id, 'field':i}};
+    }
+    this.transaction.updateForm = function() {
+        var v = M.ciniki_sapos_pos.transaction.formValue('source');
+        if( this.transaction_id == 0 && v == 100 ) {
+            this.sections._amount.fields.customer_paid.visible = 'yes';
+            this.sections._amount.fields.customer_change.visible = 'yes';
+        } else {
+            this.sections._amount.fields.customer_paid.visible = 'no';
+            this.sections._amount.fields.customer_change.visible = 'no';
+        }
+        this.showHideFormField('_amount', 'customer_paid');
+        this.showHideFormField('_amount', 'customer_change');
+    }
+    this.transaction.calcChange = function() {
+        var a = parseFloat(M.ciniki_sapos_pos.transaction.formValue('customer_paid'));
+        var v = M.ciniki_sapos_pos.transaction.formValue('customer_amount');
+        v = parseFloat(v.replaceAll(/[^0-9\.]/g,''));
+        if( a != '' && a > 0 ) {
+            var c = a - v;
+            this.setFieldValue('customer_change', M.formatDollar(c));
+        } else {
+            this.setFieldValue('customer_change', '');
+        }
     }
     this.transaction.open = function(cb, tid, inid, date, amount) {
         if( tid != null ) { this.transaction_id = tid; }
