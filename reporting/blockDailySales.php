@@ -132,21 +132,23 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
             $items[$iid]['quantity'] = (float)$item['quantity'];
             $items[$iid]['invoice_number'] = '#' . $item['invoice_number'];
             $items[$iid]['code_desc'] = ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
-            foreach($item['transactions'] as $transaction) {
-                if( $prev_invoice_number != $item['invoice_number'] ) {
-                    if( $transaction['type'] == 60 ) {
-                        $total = bcsub($total, $transaction['customer_amount'], 6);
-                    } else {
-                        $total = bcadd($total, $transaction['customer_amount'], 6);
-                    }
-                    if( !isset($totals["{$transaction['source']}-{$transaction['type']}"]) ) {
-                        $totals["{$transaction['source']}-{$transaction['type']}"] = array(
-                            'source' => $transaction['source'],
-                            'type' => $transaction['type'],
-                            'total' => $transaction['customer_amount'],
-                            );
-                    } else {
-                        $totals["{$transaction['source']}-{$transaction['type']}"]['total'] += $transaction['customer_amount'];
+            if( isset($item['transactions']) ) {
+                foreach($item['transactions'] as $transaction) {
+                    if( $prev_invoice_number != $item['invoice_number'] ) {
+                        if( $transaction['type'] == 60 ) {
+                            $total = bcsub($total, $transaction['customer_amount'], 6);
+                        } else {
+                            $total = bcadd($total, $transaction['customer_amount'], 6);
+                        }
+                        if( !isset($totals["{$transaction['source']}-{$transaction['type']}"]) ) {
+                            $totals["{$transaction['source']}-{$transaction['type']}"] = array(
+                                'source' => $transaction['source'],
+                                'type' => $transaction['type'],
+                                'total' => $transaction['customer_amount'],
+                                );
+                        } else {
+                            $totals["{$transaction['source']}-{$transaction['type']}"]['total'] += $transaction['customer_amount'];
+                        }
                     }
                 }
             }
