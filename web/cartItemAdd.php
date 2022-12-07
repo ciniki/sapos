@@ -26,6 +26,10 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
     //
     $error_message = '';
 
+    if( isset($args['user_amount']) ) {
+        $args['user_amount'] = preg_replace("/[^0-9\.]/", '', $args['user_amount']);
+    }
+
     //
     // Check that a cart does not exist
     //
