@@ -177,7 +177,12 @@ function ciniki_sapos_invoiceList(&$ciniki) {
     if( isset($args['status']) && $args['status'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
     }
-    if( isset($args['payment_status']) && $args['payment_status'] > 0 ) {
+    if( isset($args['payment_status']) && $args['payment_status'] == 10 ) {
+        // Include e-transfer payments
+        $strsql .= "AND (ciniki_sapos_invoices.payment_status = '10' "
+            . "OR ciniki_sapos_invoices.payment_status = '20') ";
+    }
+    elseif( isset($args['payment_status']) && $args['payment_status'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.payment_status = '" . ciniki_core_dbQuote($ciniki, $args['payment_status']) . "' ";
     }
     if( isset($args['type']) && $args['type'] > 0 ) {
