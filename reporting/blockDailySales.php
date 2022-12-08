@@ -31,7 +31,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-    $date_format = ciniki_users_dateFormat($ciniki, 'mysql');
+    $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
     //
     // Load maps
@@ -58,6 +58,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
     $start_dt->setTime(0,0,0);
     $start_dt->setTimezone(new DateTimezone('UTC'));
     $end_dt = clone $start_dt;
+    $end_dt->add(new DateInterval('P1D'));
     for($i = 0; $i < $days; $i++) {
 //        $end_dt->sub(new DateInterval('P1D'));
 
@@ -66,7 +67,8 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         //
         $strsql = "SELECT m.id, "
             . "i.invoice_number, "
-            . "DATE_FORMAT(i.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
+            . "i.invoice_date, "
+//            . "DATE_FORMAT(i.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
             . "i.payment_status, "
             . "i.payment_status AS payment_status_text, "
             . "i.po_number, "
@@ -96,7 +98,9 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 . "AND t.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "WHERE i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND DATE(i.invoice_date) = '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
+//            . "AND DATE(i.invoice_date) = '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
+            . "AND i.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d H:i:s')) . "' "
+            . "AND i.invoice_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d H:i:s')) . "' "
             . "AND (i.invoice_type = 10 OR i.invoice_type = 30) "
             . "AND (i.status = 45 OR i.status = 50 OR i.status = 60 ) "
             . "ORDER BY i.invoice_number, i.invoice_date, c.display_name, m.line_number, m.id, t.id "
@@ -107,8 +111,12 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 
                     'category', 'code', 'description', 'amount', 'source', 'quantity',
                     ),
-                'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status'],
+                'maps'=>array(
+                    'payment_status_text'=>$maps['invoice']['payment_status'],
                     'source'=>$maps['transaction']['source'],
+                    ),
+                'utctotz'=>array(
+                    'invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
                     ),
                 ),
             array('container'=>'transactions', 'fname'=>'transaction_id', 
@@ -173,7 +181,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         if( count($items) > 0 ) {
             $chunks[] = array(
                 'type' => 'table',
-                'title' => $end_dt->format('M j, Y'),
+                'title' => $start_dt->format('M j, Y'),
                 'columns' => array(
                     array('label'=>'#', 'pdfwidth'=>'20%', 'field'=>'invoice_number', 'line2'=>'display_name'),
 //                    array('label'=>'Date/Name', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
@@ -194,7 +202,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         } else {
             $chunks[] = array(
                 'type' => 'text',
-                'title' => $end_dt->format('M j, Y'),
+                'title' => $start_dt->format('M j, Y'),
                 'content' => 'No Sales',
                 );
 
@@ -205,7 +213,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         if( count($totals) > 0 ) {
             $chunks[] = array(
                 'type' => 'table',
-                'title' => $end_dt->format('M j, Y') . ' - Summary',
+                'title' => $start_dt->format('M j, Y') . ' - Summary',
                 'columns' => array(
                     array('label'=>'Payment', 'pdfwidth'=>'50%', 'field'=>'source', 'align'=>'right'),
                     array('label'=>'Type', 'pdfwidth'=>'25%', 'field'=>'type_text', 'align'=>'right'),
@@ -219,6 +227,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'textlist' => $texttotals,
                 );
         }
+        $start_dt->sub(new DateInterval('P1D'));
         $end_dt->sub(new DateInterval('P1D'));
     }
     
