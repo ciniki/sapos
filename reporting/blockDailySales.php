@@ -55,6 +55,8 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
     $chunks = array();
 
     $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
+//$start_dt = new DateTime('2022-11-04', new DateTimezone($intl_timezone));
+//$days = 1;
     $start_dt->setTime(0,0,0);
     $start_dt->setTimezone(new DateTimezone('UTC'));
     $end_dt = clone $start_dt;
@@ -66,6 +68,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         // Get the list of invoice items by category
         //
         $strsql = "SELECT m.id, "
+            . "i.id AS invoice_id, "
             . "i.invoice_number, "
             . "i.invoice_date, "
 //            . "DATE_FORMAT(i.invoice_date, '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
@@ -107,17 +110,15 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+            array('container'=>'invoices', 'fname'=>'invoice_id', 
+                'fields'=>array('id'=>'invoice_id', 'display_name', 'invoice_number', 'invoice_date', 
+                    'payment_status', 'payment_status_text', 'total_amount',
+                    ),
+                'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
+                ),
             array('container'=>'items', 'fname'=>'id', 
-                'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 
-                    'category', 'code', 'description', 'amount', 'source', 'quantity',
-                    ),
-                'maps'=>array(
-                    'payment_status_text'=>$maps['invoice']['payment_status'],
-                    'source'=>$maps['transaction']['source'],
-                    ),
-                'utctotz'=>array(
-                    'invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
-                    ),
+                'fields'=>array('id', 'category', 'code', 'description', 'amount', 'quantity',),
+                'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
                 ),
             array('container'=>'transactions', 'fname'=>'transaction_id', 
                 'fields'=>array('id'=>'transaction_id', 'type'=>'transaction_type', 'source', 'customer_amount'),
@@ -127,7 +128,8 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.237', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
         }
-        $items = isset($rc['items']) ? $rc['items'] : array();
+        $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
+//        $items = isset($rc['items']) ? $rc['items'] : array();
         $totals = array();
 
         //
@@ -136,67 +138,110 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         $total = 0;
         $textlist = '';
         $prev_invoice_number = '';
-        foreach($items as $iid => $item) {
-            $items[$iid]['quantity'] = (float)$item['quantity'];
-            $items[$iid]['invoice_number'] = '#' . $item['invoice_number'];
-            $items[$iid]['code_desc'] = ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
-            if( isset($item['transactions']) ) {
-                foreach($item['transactions'] as $transaction) {
-                    if( $prev_invoice_number != $item['invoice_number'] ) {
-                        if( $transaction['type'] == 60 ) {
-                            $total = bcsub($total, $transaction['customer_amount'], 6);
-                        } else {
-                            $total = bcadd($total, $transaction['customer_amount'], 6);
+        $report_lines = array();
+        foreach($invoices as $invoice_id => $invoice) {
+            $invoice_total = 0;
+            $item = null;
+            if( isset($invoice['items']) ) {
+                foreach($invoice['items'] as $iid => $item) {
+                    $report_lines[] = array(
+                        'invoice_number' => '#' . $invoice['invoice_number'],
+                        'code_desc' => ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'],
+                        'quantity' => (float)$item['quantity'],
+                        'amount' => $item['amount'],
+                        'source' => '',
+                        'payment_status_text' => '',
+                        );
+                    $items[$iid]['quantity'] = (float)$item['quantity'];
+                    $items[$iid]['invoice_number'] = '#' . $invoice['invoice_number'];
+                    $items[$iid]['code_desc'] = ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
+                    if( isset($item['transactions']) ) {
+                        foreach($item['transactions'] as $transaction) {
+                            if( $prev_invoice_number != $invoice['invoice_number'] ) {
+                                if( $transaction['type'] == 60 ) {
+                                    $total = bcsub($total, $transaction['customer_amount'], 6);
+                                    $invoice_total = bcsub($total, $transaction['customer_amount'], 6);
+                                } else {
+                                    $total = bcadd($total, $transaction['customer_amount'], 6);
+                                    $invoice_total = bcadd($total, $transaction['customer_amount'], 6);
+                                }
+                                if( !isset($totals["{$transaction['source']}-{$transaction['type']}"]) ) {
+                                    $totals["{$transaction['source']}-{$transaction['type']}"] = array(
+                                        'source' => $transaction['source'],
+                                        'type' => $transaction['type'],
+                                        'total' => $transaction['customer_amount'],
+                                        );
+                                } else {
+                                    $totals["{$transaction['source']}-{$transaction['type']}"]['total'] += $transaction['customer_amount'];
+                                }
+                            }
                         }
-                        if( !isset($totals["{$transaction['source']}-{$transaction['type']}"]) ) {
-                            $totals["{$transaction['source']}-{$transaction['type']}"] = array(
-                                'source' => $transaction['source'],
-                                'type' => $transaction['type'],
-                                'total' => $transaction['customer_amount'],
-                                );
-                        } else {
-                            $totals["{$transaction['source']}-{$transaction['type']}"]['total'] += $transaction['customer_amount'];
-                        }
+                    }
+                    $textlist .= '#' . $invoice['invoice_number'] . ' ' . $item['description'] . ' ' . '$' . number_format($item['amount'], 2) . "\n";
+                    $prev_invoice_number = $invoice['invoice_number'];
+                }
+
+                //
+                // Add invoice total
+                //
+                $report_lines[] = array(
+                    'invoice_number' => '',
+                    'code_desc' => '',
+                    'quantity' => 'Total',
+                    'amount' => $invoice['total_amount'],
+                    'source' => '', 
+                    'payment_status_text' => $invoice['payment_status_text'],
+                    );
+                $textlist .= 'Total: ' . '$' . number_format($total, 2) . "\n";
+
+                //
+                // Add transactions
+                //
+                if( isset($item['transactions']) ) {
+                    foreach($item['transactions'] as $transaction) {
+                        $report_lines[] = array(
+                            'invoice_number' => '',
+                            'code_desc' => '',
+                            'quantity' => '',
+                            'amount' => $transaction['customer_amount'],
+                            'payment_status_text' => $transaction['source'],
+                            );
                     }
                 }
             }
-            $textlist .= '#' . $item['invoice_number'] . ' ' . $item['description'] . ' ' . '$' . number_format($item['amount'], 2) . "\n";
-            $prev_invoice_number = $item['invoice_number'];
-        }
-        $textlist .= 'Total: ' . '$' . number_format($total, 2) . "\n";
-
-        $texttotals = '';
-        foreach($totals as $tid => $t) {
-            if( $t['type'] == 60 ) {
-                $totals[$tid]['type_text'] = 'Refunds';
-            } else {
-                $totals[$tid]['type_text'] = 'Payments';
+            $texttotals = '';
+            foreach($totals as $tid => $t) {
+                if( $t['type'] == 60 ) {
+                    $totals[$tid]['type_text'] = 'Refunds';
+                } else {
+                    $totals[$tid]['type_text'] = 'Payments';
+                }
+    //            $texttotals .= $t['source'] . ': ' . number_format($t['total'], 2);
             }
-//            $texttotals .= $t['source'] . ': ' . number_format($t['total'], 2);
         }
 
         //
         // List the items foreach category
         //
-        if( count($items) > 0 ) {
+        if( count($report_lines) > 0 ) {
             $chunks[] = array(
                 'type' => 'table',
                 'title' => $start_dt->format('M j, Y'),
                 'columns' => array(
-                    array('label'=>'#', 'pdfwidth'=>'20%', 'field'=>'invoice_number', 'line2'=>'display_name'),
+                    array('label'=>'#', 'pdfwidth'=>'10%', 'field'=>'invoice_number', 'line2'=>'display_name'),
 //                    array('label'=>'Date/Name', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
-                    array('label'=>'Item', 'pdfwidth'=>'36%', 'field'=>'code_desc'),
-                    array('label'=>'Qty', 'pdfwidth'=>'6%', 'field'=>'quantity', 'align'=>'right'),
+                    array('label'=>'Item', 'pdfwidth'=>'56%', 'field'=>'code_desc'),
+                    array('label'=>'Qty', 'pdfwidth'=>'9%', 'field'=>'quantity', 'align'=>'right'),
                     array('label'=>'Amount', 'pdfwidth'=>'12%', 'type'=>'dollar', 'field'=>'amount', 'align'=>'right'),
-                    array('label'=>'Payment', 'pdfwidth'=>'13%', 'field'=>'source', 'align'=>'right'),
+//                    array('label'=>'Payment', 'pdfwidth'=>'13%', 'field'=>'source', 'align'=>'right'),
                     array('label'=>'Status', 'pdfwidth'=>'13%', 'field'=>'payment_status_text', 'align'=>'right'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'colspan'=>3, 'pdfwidth'=>'62%', 'align'=>'right'),
+                    array('value'=>'Total', 'colspan'=>3, 'pdfwidth'=>'75%', 'align'=>'right'),
                     array('value'=>$total, 'pdfwidth'=>'12%', 'type'=>'dollar', 'align'=>'right'),
-                    array('value'=>'', 'colspan'=>2, 'pdfwidth'=>'26%'),
+                    array('value'=>'', 'colspan'=>1, 'pdfwidth'=>'13%'),
                     ),
-                'data' => $items,
+                'data' => $report_lines,
                 'textlist' => $textlist,
                 );
         } else {
