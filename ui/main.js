@@ -510,6 +510,10 @@ function ciniki_sapos_main() {
                 if( p.sections.years.selected == '' ) {
                     p.sections.years.selected = year;
                 }
+                console.log(rsp);
+                if( rsp.stats.max_invoice_date_year != null && year < rsp.stats.max_invoice_date_year ) {
+                    year++;
+                }   
                 for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
                     p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.menu.invoices(null,' + i + ',null);'};
                 }
