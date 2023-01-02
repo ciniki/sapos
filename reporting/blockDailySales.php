@@ -141,10 +141,10 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                     'payment_status', 'payment_status_text', 'total_amount',
                     ),
                 'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
+                'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
                 ),
             array('container'=>'items', 'fname'=>'id', 
                 'fields'=>array('id', 'category', 'code', 'description', 'amount', 'quantity',),
-                'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
                 ),
             array('container'=>'transactions', 'fname'=>'transaction_id', 
                 'fields'=>array('id'=>'transaction_id', 'type'=>'transaction_type', 'source', 'customer_amount'),
@@ -172,6 +172,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 foreach($invoice['items'] as $iid => $item) {
                     $report_lines[] = array(
                         'invoice_number' => '#' . $invoice['invoice_number'],
+                        'invoice_date' => $invoice['invoice_date'],
                         'code_desc' => ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'],
                         'quantity' => (float)$item['quantity'],
                         'amount' => $item['amount'],
@@ -212,6 +213,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 //
                 $report_lines[] = array(
                     'invoice_number' => '',
+                    'invoice_date' => '',
                     'code_desc' => '',
                     'quantity' => 'Total',
                     'amount' => $invoice['total_amount'],
@@ -227,6 +229,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                     foreach($item['transactions'] as $transaction) {
                         $report_lines[] = array(
                             'invoice_number' => '',
+                            'invoice_date' => '',
                             'code_desc' => '',
                             'quantity' => '',
                             'amount' => $transaction['customer_amount'],
@@ -255,15 +258,15 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'title' => $start_dt->format('M j, Y'),
                 'columns' => array(
                     array('label'=>'#', 'pdfwidth'=>'10%', 'field'=>'invoice_number', 'line2'=>'display_name'),
-//                    array('label'=>'Date/Name', 'pdfwidth'=>'26%', 'field'=>'invoice_date', 'line2'=>'display_name'),
-                    array('label'=>'Item', 'pdfwidth'=>'56%', 'field'=>'code_desc'),
+                    array('label'=>'Date', 'pdfwidth'=>'12%', 'field'=>'invoice_date', 'line2'=>'display_name'),
+                    array('label'=>'Item', 'pdfwidth'=>'44%', 'field'=>'code_desc'),
                     array('label'=>'Qty', 'pdfwidth'=>'9%', 'field'=>'quantity', 'align'=>'right'),
                     array('label'=>'Amount', 'pdfwidth'=>'12%', 'type'=>'dollar', 'field'=>'amount', 'align'=>'right'),
 //                    array('label'=>'Payment', 'pdfwidth'=>'13%', 'field'=>'source', 'align'=>'right'),
                     array('label'=>'Status', 'pdfwidth'=>'13%', 'field'=>'payment_status_text', 'align'=>'right'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'colspan'=>3, 'pdfwidth'=>'75%', 'align'=>'right'),
+                    array('value'=>'Total', 'colspan'=>4, 'pdfwidth'=>'75%', 'align'=>'right'),
                     array('value'=>$total, 'pdfwidth'=>'12%', 'type'=>'dollar', 'align'=>'right'),
                     array('value'=>'', 'colspan'=>1, 'pdfwidth'=>'13%'),
                     ),
@@ -286,13 +289,13 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'type' => 'table',
                 'title' => $start_dt->format('M j, Y') . ' - Summary',
                 'columns' => array(
-                    array('label'=>'Payment', 'pdfwidth'=>'50%', 'field'=>'source', 'align'=>'right'),
-                    array('label'=>'Type', 'pdfwidth'=>'25%', 'field'=>'type_text', 'align'=>'right'),
-                    array('label'=>'Total', 'pdfwidth'=>'25%', 'type'=>'dollar', 'field'=>'total', 'align'=>'right'),
+                    array('label'=>'Payment', 'pdfwidth'=>'70%', 'field'=>'source', 'align'=>'right'),
+                    array('label'=>'Type', 'pdfwidth'=>'15%', 'field'=>'type_text', 'align'=>'right'),
+                    array('label'=>'Total', 'pdfwidth'=>'15%', 'type'=>'dollar', 'field'=>'total', 'align'=>'right'),
                     ),
                 'footer' => array(
-                    array('value'=>'Total', 'colspan'=>2, 'pdfwidth'=>'75%', 'align'=>'right'),
-                    array('value'=>$total, 'pdfwidth'=>'25%', 'align'=>'right', 'type'=>'dollar'),
+                    array('value'=>'Total', 'colspan'=>2, 'pdfwidth'=>'85%', 'align'=>'right'),
+                    array('value'=>$total, 'pdfwidth'=>'15%', 'align'=>'right', 'type'=>'dollar'),
                     ),
                 'data' => $totals,
                 'textlist' => $texttotals,
