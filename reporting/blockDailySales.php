@@ -46,7 +46,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
     if( isset($args['days']) && $args['days'] != '' && $args['days'] > 0 && $args['days'] < 366 ) {
         $days = $args['days'];
     } else {
-        $days = 7;
+        $days = 1;
     }
 
     //
@@ -54,16 +54,42 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
     //
     $chunks = array();
 
-    $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
-//$start_dt = new DateTime('2022-11-04', new DateTimezone($intl_timezone));
-//$days = 1;
-    $start_dt->setTime(0,0,0);
-    $start_dt->setTimezone(new DateTimezone('UTC'));
+    if( isset($args['start_date']) && $args['start_date'] != '' 
+        && isset($args['end_date']) && $args['end_date'] != '' 
+        ) {
+        $start_dt = new DateTime($args['start_date'] . ' 00:00:00' , new DateTimezone($intl_timezone));
+        $end_dt = new DateTime($args['end_date'] . ' 23:59:59', new DateTimezone($intl_timezone));
+        if( $start_dt > $end_dt ) {
+            $interval = $end_dt->diff($start_dt);
+            $days = $interval->format("%a");
+            $start_dt = clone $end_dt;
+            $start_dt->sub(new DateInterval('P1D'));
+        }
+        elseif( $start_dt < $end_dt ) {
+            $interval = $start_dt->diff($end_dt);
+            $days = $interval->format("%a") + 1;
+        } elseif( $start_dt == $end_dt ) {
+            $days = 1;
+        } else {
+            $days = 1;
+        }
+        $start_dt->setTimezone(new DateTimezone('UTC'));
+    }
+    elseif( isset($args['start_date']) && $args['start_date'] != '' 
+        && (!isset($args['end_date']) || $args['end_date'] == '') 
+        ) {
+        $start_dt = new DateTime($args['start_date'] . ' 00:00:00' , new DateTimezone($intl_timezone));
+        $start_dt->setTimezone(new DateTimezone('UTC'));
+    }
+    else {
+        $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
+        $start_dt->setTime(0,0,0);
+        $start_dt->sub(new DateInterval('P' . $days . 'D'));
+        $start_dt->setTimezone(new DateTimezone('UTC'));
+    }
     $end_dt = clone $start_dt;
     $end_dt->add(new DateInterval('P1D'));
     for($i = 0; $i < $days; $i++) {
-//        $end_dt->sub(new DateInterval('P1D'));
-
         //
         // Get the list of invoice items by category
         //
@@ -272,10 +298,10 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'textlist' => $texttotals,
                 );
         }
-        $start_dt->sub(new DateInterval('P1D'));
-        $end_dt->sub(new DateInterval('P1D'));
+        $start_dt->add(new DateInterval('P1D'));
+        $end_dt->add(new DateInterval('P1D'));
     }
     
-    return array('stat'=>'ok', 'chunks'=>$chunks);
+    return array('stat'=>'ok', 'dates'=>'yes', 'chunks'=>$chunks);
 }
 ?>
