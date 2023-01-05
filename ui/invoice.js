@@ -208,7 +208,7 @@ function ciniki_sapos_invoice() {
             '_buttons':{'label':'', 'buttons':{
                 'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.transaction.open(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
 //                'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
-                'submitorder':{'label':'Submit Order', 'fn':'M.ciniki_sapos_invoice.submitOrder(M.ciniki_sapos_invoice.invoice.invoice_id);'},
+//                'submitorder':{'label':'Submit Order', 'fn':'M.ciniki_sapos_invoice.submitOrder(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'applydiscount':{'label':'Apply Discount', 'fn':'M.ciniki_sapos_invoice.applyDiscount(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'picklist':{'label':'Print Pick/Pack', 'fn':'M.ciniki_sapos_invoice.printPickList(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
@@ -1813,7 +1813,11 @@ function ciniki_sapos_invoice() {
             }
         }
 */
-        p.sections._buttons.buttons.submitorder.visible = ((rsp.invoice.invoice_type=='40'||rsp.invoice.invoice_type=='20')&&rsp.invoice.items.length>0&&rsp.invoice.status==10?'yes':'no');
+//        if( M.modFlagOn('ciniki.web', 0x20) ) {
+//            p.sections._buttons.buttons.submitorder.visible = ((rsp.invoice.invoice_type=='40'||rsp.invoice.invoice_type=='20')&&rsp.invoice.items.length>0&&rsp.invoice.status==10?'yes':'no');
+//        } else {
+//            p.sections._buttons.buttons.submitorder.visible = 'no';
+//        }
         if( (M.curTenant.permissions.owners != null || M.curTenant.permissions.employees != null || (M.userPerms&0x01) > 0) 
             && rsp.invoice.invoice_type == '40' && rsp.invoice.status < 40
             ) {
@@ -1851,7 +1855,7 @@ function ciniki_sapos_invoice() {
         if( rsp.invoice.invoice_type == 90 ) {
             p.sections._buttons.buttons.record.visible = 'no';
 //            p.sections._buttons.buttons.terminal.visible = 'no';
-            p.sections._buttons.buttons.submitorder.visible = 'no';
+//            p.sections._buttons.buttons.submitorder.visible = 'no';
             p.sections._buttons.buttons.print.visible = 'no';
             p.sections._buttons.buttons.picklist.visible = 'no';
             p.sections._buttons.buttons.printquote.visible = 'yes';
