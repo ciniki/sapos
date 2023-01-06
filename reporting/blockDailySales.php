@@ -84,7 +84,9 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
     else {
         $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
         $start_dt->setTime(0,0,0);
-        $start_dt->sub(new DateInterval('P' . $days . 'D'));
+        if( $days > 1 ) {
+            $start_dt->sub(new DateInterval('P' . $days . 'D'));
+        }
         $start_dt->setTimezone(new DateTimezone('UTC'));
     }
     $end_dt = clone $start_dt;
@@ -273,7 +275,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 'data' => $report_lines,
                 'textlist' => $textlist,
                 );
-        } else {
+        } elseif( !isset($args['pdf-hide-nosales']) || $args['pdf-hide-nosales'] != 'yes' ) {
             $chunks[] = array(
                 'type' => 'text',
                 'title' => $start_dt->format('M j, Y'),
@@ -305,6 +307,13 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
         $end_dt->add(new DateInterval('P1D'));
     }
     
+    if( count($chunks) == 0 ) {
+        $chunks[] = array(
+            'type' => 'text',
+            'content' => 'No Sales',
+            );
+    }
+
     return array('stat'=>'ok', 'dates'=>'yes', 'chunks'=>$chunks);
 }
 ?>
