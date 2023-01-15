@@ -510,7 +510,6 @@ function ciniki_sapos_main() {
                 if( p.sections.years.selected == '' ) {
                     p.sections.years.selected = year;
                 }
-                console.log(rsp);
                 if( rsp.stats.max_invoice_date_year != null && year < rsp.stats.max_invoice_date_year ) {
                     year++;
                 }   
@@ -1029,7 +1028,6 @@ function ciniki_sapos_main() {
             p.sections.items.fields = {};
             if( rsp.invoice.items != null ) {
                 for(var i in rsp.invoice.items) {
-                    console.log(parseInt(rsp.invoice.items[i].item.flags&0x8000));
                     if( (rsp.invoice.items[i].item.flags&0x8000) == 0 ) {
                         continue;
                     }
@@ -1264,11 +1262,19 @@ function ciniki_sapos_main() {
             p.sections.items.fields = {};
             if( rsp.invoice.items != null ) {
                 for(var i in rsp.invoice.items) {
-                    p.sections.items.fields['item_' + rsp.invoice.items[i].item.id] = {
-                        'label':rsp.invoice.items[i].item.description, 
-                        'type':'text', 'livesearch':'yes', 'livesearchempty':'yes',
-                        'value':rsp.invoice.items[i].item.category,
-                        };
+                    if( M.modFlagOn('ciniki.sapos', 0x0400) ) {
+                        p.sections.items.fields['item_' + rsp.invoice.items[i].item.id] = {
+                            'label':rsp.invoice.items[i].item.code + (rsp.invoice.items[i].item.code != '' ? ' - ' : '') + rsp.invoice.items[i].item.description, 
+                            'type':'text', 'livesearch':'yes', 'livesearchempty':'yes',
+                            'value':rsp.invoice.items[i].item.category,
+                            };
+                    } else {
+                        p.sections.items.fields['item_' + rsp.invoice.items[i].item.id] = {
+                            'label':rsp.invoice.items[i].item.description, 
+                            'type':'text', 'livesearch':'yes', 'livesearchempty':'yes',
+                            'value':rsp.invoice.items[i].item.category,
+                            };
+                    }
                 }
             }
             p.refresh();
