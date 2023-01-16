@@ -597,6 +597,14 @@ function ciniki_sapos_main() {
     }
     this.transactions.yearSwitch = function(y) { this.open(null,y); }
     this.transactions.monthSwitch = function(m) { this.open(null,null,m); }
+    this.transactions.downloadExcel = function() {
+        var args = {'tnid':M.curTenantID, 'output':'excel'};
+        if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
+        if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
+//        if( this.invoice_type != null ) { args.type = this.invoice_type; }
+//        if( this.payment_status != null ) { args.payment_status = this.payment_status; }
+        M.api.openFile('ciniki.sapos.transactionList', args);
+    }
     this.transactions.open = function(cb, year, month) {
         this.sections.years.panel = 'transactions';
         this.sections.months.panel = 'transactions';
@@ -628,6 +636,7 @@ function ciniki_sapos_main() {
                 p.show(cb);
             });
     }
+    this.transactions.addButton('download', 'Excel', 'M.ciniki_sapos_main.transactions.downloadExcel();');
     this.transactions.addClose('Back');
 
     //

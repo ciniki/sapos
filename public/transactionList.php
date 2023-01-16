@@ -184,12 +184,11 @@ function ciniki_sapos_transactionList(&$ciniki) {
     // Check if output should be excel
     //
     if( isset($args['output']) && $args['output'] == 'excel' ) {
-    /*
         ini_set('memory_limit', '4192M');
         require($ciniki['config']['core']['lib_dir'] . '/PHPExcel/PHPExcel.php');
         $objPHPExcel = new PHPExcel();
-        $title = "Invoices";
-        $sheet_title = "Invoices";     // Will be overwritten, which is fine
+        $title = "Transactions";
+        $sheet_title = "Transactions";     // Will be overwritten, which is fine
         if( isset($args['year']) && $args['year'] != '' ) {
             $title .= " - " . $args['year'];
             $sheet_title = $args['year'];
@@ -198,10 +197,10 @@ function ciniki_sapos_transactionList(&$ciniki) {
             $title .= " - " . $args['month'];
             $sheet_title .= " - " . $args['month'];
         }
-        if( isset($args['status']) && $args['status'] > 0 ) {
-            $title .= " - " . $maps['invoice']['status'][$args['status']];
-            $sheet_title .= " - " . $maps['invoice']['status'][$args['status']];
-        }
+//        if( isset($args['status']) && $args['status'] > 0 ) {
+//            $title .= " - " . $maps['invoice']['status'][$args['status']];
+//            $sheet_title .= " - " . $maps['invoice']['status'][$args['status']];
+//        }
         $sheet = $objPHPExcel->setActiveSheetIndex(0);
         $sheet->setTitle($sheet_title);
 
@@ -209,39 +208,65 @@ function ciniki_sapos_transactionList(&$ciniki) {
         // Headers
         //
         $i = 0;
-        $sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Type', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Source', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Date', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Amount', false);
-        $sheet->setCellValueByColumnAndRow($i++, 1, 'Status', false);
-        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Fees', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Net', false);
+        if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x080000) ) {
+            $sheet->setCellValueByColumnAndRow($i++, 1, 'Status', false);
+            $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+        } else {
+            $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+        }
 
         //
         // Output the invoice list
         //
         $row = 2;
-        foreach($rsp['invoices'] as $iid => $invoice) {
-            $invoice = $invoice['invoice'];
+        foreach($rsp['transactions'] as $tid => $transaction) {
+//            $transaction = $transaction['invoice'];
             $i = 0;
-            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
-            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_date'], false);
-            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['customer_display_name'], false);
-            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['total_amount'], false);
-            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['status_text'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['transaction_type'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['source_text'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['transaction_date'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['invoice_number'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['customer_display_name'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['customer_amount'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['transaction_fees'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['tenant_amount'], false);
+            if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x080000) ) {
+                $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['status_text'], false);
+            }
             $row++;
         }
         if( $row > 2 ) {
-            $sheet->setCellValueByColumnAndRow(0, $row, $rsp['totals']['num_invoices'], false);
-            $sheet->setCellValueByColumnAndRow(3, $row, "=SUM(D2:D" . ($row-1) . ")", false);
-            $sheet->getStyle('D2:D' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
+//            $sheet->setCellValueByColumnAndRow(0, $row, $rsp['totals']['num_invoices'], false);
+            $sheet->setCellValueByColumnAndRow(5, $row, "=SUM(F2:F" . ($row-1) . ")", false);
+            $sheet->getStyle('F2:F' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
+            $sheet->setCellValueByColumnAndRow(6, $row, "=SUM(G2:G" . ($row-1) . ")", false);
+            $sheet->getStyle('G2:G' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
+            $sheet->setCellValueByColumnAndRow(7, $row, "=SUM(H2:H" . ($row-1) . ")", false);
+            $sheet->getStyle('H2:H' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
             $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-            $sheet->getStyle('D' . $row)->getFont()->setBold(true);
+            $sheet->getStyle('F' . $row)->getFont()->setBold(true);
+            $sheet->getStyle('G' . $row)->getFont()->setBold(true);
+            $sheet->getStyle('H' . $row)->getFont()->setBold(true);
         }
         $sheet->getColumnDimension('A')->setAutoSize(true);
         $sheet->getColumnDimension('B')->setAutoSize(true);
         $sheet->getColumnDimension('C')->setAutoSize(true);
         $sheet->getColumnDimension('D')->setAutoSize(true);
         $sheet->getColumnDimension('E')->setAutoSize(true);
+        $sheet->getColumnDimension('F')->setAutoSize(true);
+        $sheet->getColumnDimension('G')->setAutoSize(true);
+        $sheet->getColumnDimension('H')->setAutoSize(true);
+        if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x080000) ) {
+            $sheet->getColumnDimension('I')->setAutoSize(true);
+        }
 
         //
         // Output the excel
@@ -255,7 +280,6 @@ function ciniki_sapos_transactionList(&$ciniki) {
         $objWriter->save('php://output');
 
         return array('stat'=>'exit'); 
-        */
     }
 
     $rsp['stat'] = 'ok';
