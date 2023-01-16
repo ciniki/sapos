@@ -87,6 +87,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
         . "t.transaction_type, "
         . "t.transaction_date, "
         . "t.source, "
+        . "t.source AS source_text, "
         . "t.customer_amount, "
         . "t.transaction_fees, "
         . "t.tenant_amount, "
@@ -136,11 +137,12 @@ function ciniki_sapos_transactionList(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $container = array(
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
-            'fields'=>array('id', 'transaction_status', 'status_text', 'transaction_type', 'transaction_date', 'source', 
+            'fields'=>array('id', 'transaction_status', 'status_text', 'transaction_type', 'transaction_date', 'source', 'source_text',
                 'customer_display_name', 
                 'customer_amount', 'transaction_fees', 'tenant_amount', 'invoice_number', 'invoice_date', 'invoice_status'),
             'maps'=>array(
                 'status_text'=>$maps['transaction']['status'],
+                'source_text'=>$maps['transaction']['source'],
                 'invoice_status'=>$maps['invoice']['status'],
                 'transaction_type'=>$maps['transaction']['transaction_type'],
                 ),

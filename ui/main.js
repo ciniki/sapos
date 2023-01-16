@@ -540,13 +540,13 @@ function ciniki_sapos_main() {
     this.transactions.sections = {
         'years':this._years,
         'months':this._months,
-        'transactions':{'label':'', 'type':'simplegrid', 'num_cols':7,
+        'transactions':{'label':'', 'type':'simplegrid', 'num_cols':8,
             'visible':function() { return (M.ciniki_sapos_main._tabs.selected == 'transactions' ? 'yes' : 'no');},
-            'headerValues':['Type', 'Date', 'Invoice #', 'Customer', 'Amount', 'Fees', 'Net', 'Status'],
-            'headerClasses':['', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+            'headerValues':['Type', 'Source', 'Date', 'Invoice #', 'Customer', 'Amount', 'Fees', 'Net', 'Status'],
+            'headerClasses':['', '', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', '', '', 'alignright', 'alignright', 'alignright', 'alignright'],
             'sortable':'yes',
-            'sortTypes':['text', 'date', 'number', 'text', 'number', 'number', 'number'],
+            'sortTypes':['text', 'text', 'date', 'number', 'text', 'number', 'number', 'number'],
             'noData':'No Invoices',
             },
         }
@@ -557,13 +557,14 @@ function ciniki_sapos_main() {
         if( s == 'transactions' ) {
             switch(j) {
                 case 0: return d.transaction_type;
-                case 1: return d.transaction_date;
-                case 2: return d.invoice_number;
-                case 3: return d.customer_display_name;
-                case 4: return d.customer_amount_display;
-                case 5: return d.transaction_fees_display;
-                case 6: return d.tenant_amount_display;
-                case 7: return d.status_text;
+                case 1: return d.source_text;
+                case 2: return d.transaction_date;
+                case 3: return d.invoice_number;
+                case 4: return d.customer_display_name;
+                case 5: return d.customer_amount_display;
+                case 6: return d.transaction_fees_display;
+                case 7: return d.tenant_amount_display;
+                case 8: return d.status_text;
             }
         }
     }
@@ -2015,6 +2016,7 @@ function ciniki_sapos_main() {
             ) {
             this._tabs.tabs.reports.visible = 'yes';
         }
+        this.transactions.sections.transactions.num_cols = M.modFlagOn('ciniki.sapos',0x080000) ? 9 : 8;
         
         var ct = 0;
         var sp = '';
