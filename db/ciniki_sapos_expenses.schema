@@ -31,6 +31,9 @@
 # paid_date:        The date the invoice was paid.
 # total_amount:     The total amount due for this expense.
 #
+# object:           The object the expense is linked to.
+# object_id:        The ID of the object the expense is linked to.
+#
 # notes:            The internal notes for this expense.
 #
 # date_added:       The UTC date and time the invoice was added.
@@ -47,10 +50,12 @@ create table ciniki_sapos_expenses (
     invoice_date date not null,
     paid_date date not null,
     total_amount decimal(19,4) not null,
+    object varchar(250) not null,
+    object_id varchar(250) not null,
     notes varchar(6000) not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
     index (name, invoice_date, paid_date),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.02';
+) ENGINE='InnoDB', COMMENT='v1.03';

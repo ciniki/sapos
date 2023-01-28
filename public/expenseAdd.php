@@ -25,6 +25,8 @@ function ciniki_sapos_expenseAdd(&$ciniki) {
         'paid_date'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'type'=>'date', 
             'name'=>'Paid Date'),
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Notes'), 
+        'object'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object'), 
+        'object_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object ID'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;

@@ -227,6 +227,8 @@ function ciniki_sapos_objects($ciniki) {
             'invoice_date'=>array('name'=>'Date', 'default'=>''),
             'paid_date'=>array('name'=>'Paid Date', 'default'=>''),
             'total_amount'=>array('name'=>'Total Amount'),
+            'object'=>array('name'=>'Object Ref', 'default'=>''),
+            'object_id'=>array('name'=>'Object ID', 'default'=>''),
             'notes'=>array('name'=>'Notes', 'default'=>''),
             ),
         'history_table'=>'ciniki_sapos_history',

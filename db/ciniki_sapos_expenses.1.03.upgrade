@@ -1,0 +1,6 @@
+#
+# Add the expense type column into the expenses table.
+#
+ALTER TABLE ciniki_sapos_expenses ADD COLUMN object varchar(250) not null after total_amount;
+ALTER TABLE ciniki_sapos_expenses ADD COLUMN object_id varchar(250) not null after object;
+ALTER TABLE ciniki_sapos_expenses COMMENT='v1.03';
