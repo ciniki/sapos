@@ -217,7 +217,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
             if( $invoice['payment_status'] < 55 ) {
                 $new_payment_status = 55;
             }
-        } elseif( $amount_paid == 0 && $invoice['total_amount'] > 0 ) {
+        } elseif( $amount_paid == 0 && $invoice['total_amount'] > 0 && $new_payment_status != 20 ) {
             $new_payment_status = 10;
         }
     }
