@@ -12,9 +12,22 @@
 function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
 
     //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $intl_timezone = $rc['settings']['intl-default-timezone'];
+    $dt = new DateTime('now', new DateTimezone('UTC'));
+
+    $new_invoice_date = $dt->format("Y-m-d H:i:s");
+
+    //
     // Load the current invoice_type and status
     //
-    $strsql = "SELECT invoice_type, status, customer_id, receipt_number, payment_status, shipping_status "
+    $strsql = "SELECT invoice_type, invoice_date, status, customer_id, receipt_number, payment_status, shipping_status "
         . "FROM ciniki_sapos_invoices "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $request['session']['cart']['sapos_id']) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -62,6 +75,9 @@ function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
     }
     if( isset($cart['balance_amount']) ) {
         $args['balance_amount'] = $cart['balance_amount'];
+    }
+    if( $invoice['invoice_date'] != $new_invoice_date ) {
+        $args['invoice_date'] = $new_invoice_date;
     }
 
     //
