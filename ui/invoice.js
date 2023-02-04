@@ -867,13 +867,10 @@ function ciniki_sapos_invoice() {
                         p.sections.details.fields.unit_donation_amount.visible = 'no';
                         p.sections.details.fields.donation_category.visible = 'no';
                         if( M.modFlagOn('ciniki.sapos', 0x0c000000) ) {
-                        console.log('a');
                             p.sections.details.fields.flags1.on_fields = ['unit_donation_amount', 'donation_category'];
                         } else if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
-                        console.log('b');
                             p.sections.details.fields.flags1.on_fields = ['unit_donation_amount'];
                         } else if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
-                        console.log('c');
                             p.sections.details.fields.flags1.on_fields = ['donation_category'];
                         } 
                         if( M.modFlagOn('ciniki.sapos', 0x04000000) && (rsp.item.flags&0x8000) == 0x8000 ) {
