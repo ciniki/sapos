@@ -40,7 +40,7 @@ function ciniki_sapos_wng_cartItemFormCheck(&$ciniki, $tnid, &$request, $item) {
     //
     // Apply defaults if no submission
     //
-    if( $form['submission_id'] == 0 ) {
+    if( $form['submission_id'] == 0 || $form['submission_id'] == 'new' ) {
         //
         // Create new submission
         //
