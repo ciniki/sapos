@@ -1,3 +1,6 @@
+//
+// This file is deprecated and can be removed
+//
 function ciniki_sapos_invoices() {
     this.init = function() {
         this.invoices = new M.panel('Invoices',
@@ -110,8 +113,12 @@ function ciniki_sapos_invoices() {
                 return '';
             }
             if( s == 'invoices' ) {
-                return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_invoices.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
+                return 'M.ciniki_sapos_invoices.invoices.openInvoice(\'' + d.invoice.id + '\');';
+//                return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_invoices.showInvoices();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
             }
+        };
+        this.invoices.openInvoice = function(i) {
+            M.startApp('ciniki.sapos.invoice',null,'M.ciniki_sapos_invoices.showInvoices();','mc',{'invoice_id':i, 'list':this.data.invoices});
         };
         this.invoices.addButton('add', 'Invoice', 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_invoices.showInvoices();\',\'mc\',{});');
         this.invoices.addClose('Back');

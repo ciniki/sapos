@@ -307,12 +307,16 @@ function ciniki_sapos_main() {
             return '';
         }
         if( s == 'invoices' || s == 'donations' ) {
-            return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
+            return 'M.ciniki_sapos_main.menu.openInvoice(\'' + d.invoice.id + '\');';
+//            return 'M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.menu.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice.id + '\'});';
         }
         if( s == 'expenses' ) {
             return 'M.ciniki_sapos_main.expense.open(\'M.ciniki_sapos_main.menu.open();\',\'' + d.id + '\',\'\',\'\');';
         }
         return '';
+    }
+    this.menu.openInvoice = function(i) {
+        M.startApp('ciniki.sapos.invoice',null,'M.ciniki_sapos_main.menu.open();','mc',{'invoice_id':i, 'list':this.data.invoices});
     }
     this.menu.footerValue = function(s, i, d) {
         if( s == 'invoices' && M.ciniki_sapos_main._tabs.selected == 'invoices' && this.data.totals != null ) {
