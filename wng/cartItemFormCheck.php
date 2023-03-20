@@ -90,7 +90,9 @@ function ciniki_sapos_wng_cartItemFormCheck(&$ciniki, $tnid, &$request, $item) {
     //
     // Check if POST to update form
     //
-    if( isset($_POST['action']) && $_POST['action'] == 'submit' ) {
+    if( isset($_POST['action']) && $_POST['action'] == 'submit' 
+        && isset($_POST['f-student_id']) && $_POST['f-student_id'] == $item['student_id']
+        ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'forms', 'wng', 'formPOSTApply');
         $rc = ciniki_forms_wng_formPOSTApply($ciniki, $tnid, $request, $form);
         if( $rc['stat'] != 'ok' ) {
@@ -182,7 +184,12 @@ function ciniki_sapos_wng_cartItemFormCheck(&$ciniki, $tnid, &$request, $item) {
             }
         }
     }
-
+    $form['sections']['submit']['fields']['student_id'] = array(
+        'id' => 'student_id',
+        'ftype' => 'hidden',
+        'label' => '',
+        'value' => $item['student_id'],
+        );
     $form['sections']['submit']['fields']['submit'] = array(
         'id' => 'submit', 
         'ftype' => 'submit',
