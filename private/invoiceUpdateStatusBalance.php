@@ -351,8 +351,6 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
     if( $new_status != $invoice['status'] ) {
         $args['status'] = $new_status;
     }
-    error_log($new_status);
-    error_log($new_payment_status);
     if( $new_payment_status != $invoice['payment_status'] ) {
         $args['payment_status'] = $new_payment_status;
         if( $new_payment_status == 50 ) {
