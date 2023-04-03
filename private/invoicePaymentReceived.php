@@ -92,7 +92,6 @@ function ciniki_sapos_invoicePaymentReceived(&$ciniki, $tnid, $invoice_id) {
                     }
                 }
             }
-            
         }
     }
 
