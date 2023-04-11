@@ -75,6 +75,7 @@ function ciniki_sapos_invoicePaymentReceived(&$ciniki, $tnid, $invoice_id) {
                     'quantity'=>$item['quantity'],
                     'customer_id'=>$invoice['customer_id'],
                     'invoice_id'=>$item['invoice_id'],
+                    'invoice_item_id'=>$item['id'],
                     'invoice_number'=>$invoice['invoice_number'],
                     'invoice_date'=>$invoice['invoice_date'],
                     'total_amount'=>$item['total_amount'],
