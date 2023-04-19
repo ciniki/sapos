@@ -27,6 +27,10 @@ function ciniki_sapos_stripeTerminalPaymentCreate(&$ciniki) {
     }   
     $args = $rc['args'];
 
+    if( $args['customer_amount'] < 0.5 ) {
+        return array('stat'=>'warn', 'err'=>array('code'=>'ciniki.sapos.419', 'msg'=>'The amount must be at least $0.50'));
+    }
+
     //  
     // Check permissions
     //  
