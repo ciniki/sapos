@@ -991,6 +991,32 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         $pdf->Ln(); */
     }
 
+    //
+    // Check if tickets should be attached
+    //
+    foreach($invoice['items'] as $item) {
+        if( isset($item['item']['object']) && $item['item']['object'] != '' 
+            && isset($item['item']['object_id']) && $item['item']['object_id'] != '' 
+            && isset($item['item']['price_id'])
+            ) {
+            list($pkg,$mod,$obj) = explode('.', $item['item']['object']);
+            $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'hooks', 'ticketsPDF');
+            if( $rc['stat'] == 'ok' ) {
+                $fn = $rc['function_call'];
+                $rc = $fn($ciniki, $tnid, array(
+                    'object' => $item['item']['object'],
+                    'object_id' => $item['item']['object_id'],
+                    'price_id' => $item['item']['price_id'],
+                    'pdf' => $pdf,
+                    ));
+                if( $rc['stat'] != 'ok' ) { 
+                    return $rc;
+                }
+            }
+        }
+    }
+
+
 
     // ---------------------------------------------------------
 
