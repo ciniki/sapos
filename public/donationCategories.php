@@ -93,18 +93,19 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         . "ciniki_customers.type AS customer_type, "
         . "ciniki_customers.display_name AS customer_display_name, "
         . "ciniki_sapos_invoices.total_amount, "
-        . "ciniki_sapos_invoice_items.id AS item_id, "
-        . "IF(IFNULL(ciniki_sapos_invoice_items.donation_category, '') = '', 'Uncategorized', donation_category) AS category, "
-        . "SUM(ciniki_sapos_invoice_items.total_amount) AS amount "
+        . "items.id AS item_id, "
+        . "IF(IFNULL(items.donation_category, '') = '', 'Uncategorized', donation_category) AS category, "
+//        . "SUM(items.total_amount) AS amount "
+        . "SUM(IF((items.flags&0x0800)=0x0800, items.unit_donation_amount, items.total_amount)) AS amount "
         . "FROM ciniki_sapos_invoices "
         . "LEFT JOIN ciniki_customers ON ("
             . "ciniki_sapos_invoices.customer_id = ciniki_customers.id "
             . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "INNER JOIN ciniki_sapos_invoice_items ON ("
-            . "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
-            . "AND (ciniki_sapos_invoice_items.flags&0x8000) = 0x8000 "
-            . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "INNER JOIN ciniki_sapos_invoice_items AS items ON ("
+            . "ciniki_sapos_invoices.id = items.invoice_id "
+            . "AND (items.flags&0x8800) > 0 "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
@@ -139,8 +140,8 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         $strsql .= "AND ciniki_sapos_invoices.payment_status = '" . ciniki_core_dbQuote($ciniki, $args['payment_status']) . "' ";
     }
     $strsql .= "AND (ciniki_sapos_invoices.invoice_type = 10 || ciniki_sapos_invoices.invoice_type = 30) ";
-    $strsql .= "GROUP BY ciniki_sapos_invoices.id, ciniki_sapos_invoice_items.donation_category ";
-    $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC, ciniki_sapos_invoice_items.category ";
+    $strsql .= "GROUP BY ciniki_sapos_invoices.id, items.donation_category ";
+    $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC, items.category ";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 
