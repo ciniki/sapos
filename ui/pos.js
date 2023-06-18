@@ -573,6 +573,7 @@ function ciniki_sapos_pos() {
                 'on_fields':[],
                 'active':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
                 },
+            'unit_donation_amount':{'label':'Donation Portion', 'type':'text', 'size':'small', 'visible':'no'},
             'donation_category':{'label':'Donation Category', 'type':'text', 'visible':'no', },
             'taxtype_id':{'label':'Taxes', 'type':'select', 'options':{}},
             }},
@@ -634,11 +635,11 @@ function ciniki_sapos_pos() {
     }
     this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
         if( (f == 'code' || f == 'description') && d.item != null ) {
-            return 'M.ciniki_sapos_pos.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\',\'' + d.item.flags + '\',\'' + escape(d.item.notes) + '\');';
+            return 'M.ciniki_sapos_pos.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + escape(d.item.unit_donation_amount) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\',\'' + d.item.flags + '\',\'' + escape(d.item.notes) + '\');';
         }
     };
 
-    this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, t, pid, flags, n) {
+    this.item.updateFromSearch = function(s, fid, o, oid, c, d, q, u, uda, udp, udo, t, pid, flags, n) {
         this.object = o;
         this.object_id = oid;
         if( this.sections.details.fields.code.active == 'yes' ) {
@@ -652,6 +653,13 @@ function ciniki_sapos_pos() {
         this.setFieldValue('unit_amount', unescape(u));
         this.setFieldValue('unit_discount_amount', unescape(uda));
         this.setFieldValue('unit_discount_percentage', unescape(udp));
+        if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
+            if( udo != null && udo != 'undefined' ) {
+                this.setFieldValue('unit_donation_amount', unescape(udo));
+            } else {
+                this.setFieldValue('unit_donation_amount', '');
+            }
+        }
         if( M.curTenant.modules['ciniki.taxes'] != null ) {
             this.setFieldValue('taxtype_id', t);
         }
@@ -659,12 +667,13 @@ function ciniki_sapos_pos() {
         if( M.modFlagOn('ciniki.sapos', 0x02000000) ) {
             this.setFieldValue('flags1', flags);
         }
+        this.data.flags = flags;
         this.setFieldValue('notes', unescape(n));
         this.removeLiveSearch(s, fid);
-        if( M.modFlagOn('ciniki.sapos', 0x08000000) && (flags&0x8000) == 0x8000 ) {
+        if( M.modFlagOn('ciniki.sapos', 0x08000000) && (flags&0x80000000) == 0x80000000 ) {
             this.sections.details.fields.donation_category.visible = 'yes';
-            this.showHideFormField('details', 'donation_category');
         }
+        this.showHideFormField('details', 'donation_category');
     };
     this.item.fieldValue = function(s, i, d) {
         if( this.data != null && this.data[i] != null ) { return this.data[i]; }
@@ -690,13 +699,27 @@ function ciniki_sapos_pos() {
                 p.object = rsp.item.object;
                 p.object_id = rsp.item.object_id;
                 p.sections.details.fields.flags1.on_fields = [];
+                p.sections.details.fields.unit_donation_amount.visible = 'no';
                 p.sections.details.fields.donation_category.visible = 'no';
-                if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
+                if( M.modFlagOn('ciniki.sapos', 0x0c000000) ) {
+                    p.sections.details.fields.flags1.on_fields = ['unit_donation_amount', 'donation_category'];
+                } else if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
+                    p.sections.details.fields.flags1.on_fields = ['unit_donation_amount'];
+                } else if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
+                    p.sections.details.fields.flags1.on_fields = ['donation_category'];
+                } 
+                if( M.modFlagOn('ciniki.sapos', 0x04000000) && (rsp.item.flags&0x8000) == 0x8000 ) {
+                    p.sections.details.fields.unit_donation_amount.visible = 'yes';
+                }
+                if( M.modFlagOn('ciniki.sapos', 0x08000000) && (rsp.item.flags&0x8000) == 0x8000 ) {
+                    p.sections.details.fields.donation_category.visible = 'yes';
+                }
+/*                if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
                     p.sections.details.fields.flags1.on_fields = ['donation_category'];
                     if( (rsp.item.flags&0x8000) == 0x8000 ) {
                         p.sections.details.fields.donation_category.visible = 'yes';
                     }
-                }
+                } */
                 p.refresh();
                 p.show(cb);
             });
@@ -708,10 +731,19 @@ function ciniki_sapos_pos() {
             p.price_id = 0;
             p.sections._buttons.buttons.delete.visible = 'no';
             p.sections.details.fields.flags1.on_fields = [];
+            p.sections.details.fields.unit_donation_amount.visible = 'no';
             p.sections.details.fields.donation_category.visible = 'no';
+            if( M.modFlagOn('ciniki.sapos', 0x0c000000) ) {
+                p.sections.details.fields.flags1.on_fields = ['unit_donation_amount', 'donation_category'];
+            } else if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
+                p.sections.details.fields.flags1.on_fields = ['unit_donation_amount'];
+            } else if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
+                p.sections.details.fields.flags1.on_fields = ['donation_category'];
+            } 
+/*            p.sections.details.fields.donation_category.visible = 'no';
             if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
                 p.sections.details.fields.flags1.on_fields = ['donation_category'];
-            }
+            } */
             p.refresh();
             p.show(cb);
         }
