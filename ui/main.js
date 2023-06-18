@@ -1042,7 +1042,7 @@ function ciniki_sapos_main() {
             p.sections.items.fields = {};
             if( rsp.invoice.items != null ) {
                 for(var i in rsp.invoice.items) {
-                    if( (rsp.invoice.items[i].item.flags&0x8000) == 0 ) {
+                    if( (rsp.invoice.items[i].item.flags&0x8800) == 0 ) {
                         continue;
                     }
                     p.sections.items.fields['item_' + rsp.invoice.items[i].item.id] = {
