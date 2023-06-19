@@ -635,6 +635,7 @@ function ciniki_sapos_pos() {
     }
     this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
         if( (f == 'code' || f == 'description') && d.item != null ) {
+            console.log(d.item);
             return 'M.ciniki_sapos_pos.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + escape(d.item.unit_donation_amount) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\',\'' + d.item.flags + '\',\'' + escape(d.item.notes) + '\');';
         }
     };
@@ -664,16 +665,27 @@ function ciniki_sapos_pos() {
             this.setFieldValue('taxtype_id', t);
         }
         this.price_id = pid;
-        if( M.modFlagOn('ciniki.sapos', 0x02000000) ) {
+/*        if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
+            this.setFieldValue('flags1', flags);
+        } else if( M.modFlagOn('ciniki.sapos', 0x02000000) ) {
+            this.setFieldValue('flags1', flags);
+        } */
+        if( this.data == null ) {
+            this.data = {};
+        }
+        if( (flags&0x0800) == 0x0800 ) {    
+            this.setFieldValue('flags1', flags);
+        } else if( (flags&0x8000) == 0x8000 ) {    
             this.setFieldValue('flags1', flags);
         }
-        this.data.flags = flags;
+/*        this.data.flags = flags; */
         this.setFieldValue('notes', unescape(n));
         this.removeLiveSearch(s, fid);
-        if( M.modFlagOn('ciniki.sapos', 0x08000000) && (flags&0x80000000) == 0x80000000 ) {
+/*        if( M.modFlagOn('ciniki.sapos', 0x08000000) && (flags&0x80000000) == 0x80000000 ) {
             this.sections.details.fields.donation_category.visible = 'yes';
         }
-        this.showHideFormField('details', 'donation_category');
+        this.showHideFormField('details', 'donation_category'); */
+        this.updateDonation();
     };
     this.item.fieldValue = function(s, i, d) {
         if( this.data != null && this.data[i] != null ) { return this.data[i]; }
@@ -683,6 +695,26 @@ function ciniki_sapos_pos() {
         return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
             'object':'ciniki.sapos.invoice_item', 'object_id':this.item_id, 'field':i}};
     };
+    this.item.updateDonation = function() {
+        var f = this.formValue('flags1');
+        this.sections.details.fields.unit_donation_amount.visible = 'no';
+        if( (f&0x8800) == 0x0800 ) {
+            this.sections.details.fields.unit_donation_amount.visible = 'yes';
+        }
+        if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
+            if( M.modFlagOn('ciniki.sapos', 0x04000000) && (f&0x8800) > 0 ) {
+                this.sections.details.fields.donation_category.visible = 'yes';
+            } else if( f == 'on' ) {
+                this.sections.details.fields.donation_category.visible = 'yes';
+            } else {
+                this.sections.details.fields.donation_category.visible = 'no';
+            }
+        } else {
+            this.sections.details.fields.donation_category.visible = 'no';
+        }
+        this.showHideFormField('details', 'donation_category');
+        this.showHideFormField('details', 'unit_donation_amount');
+    }
     this.item.open = function(cb, iid, inid) {
         if( iid != null ) { this.item_id = iid; }
         if( inid != null ) { this.invoice_id = inid; }
@@ -698,7 +730,7 @@ function ciniki_sapos_pos() {
                 p.price_id = rsp.item.price_id;
                 p.object = rsp.item.object;
                 p.object_id = rsp.item.object_id;
-                p.sections.details.fields.flags1.on_fields = [];
+/*                p.sections.details.fields.flags1.on_fields = [];
                 p.sections.details.fields.unit_donation_amount.visible = 'no';
                 p.sections.details.fields.donation_category.visible = 'no';
                 if( M.modFlagOn('ciniki.sapos', 0x0c000000) ) {
@@ -713,7 +745,7 @@ function ciniki_sapos_pos() {
                 }
                 if( M.modFlagOn('ciniki.sapos', 0x08000000) && (rsp.item.flags&0x8000) == 0x8000 ) {
                     p.sections.details.fields.donation_category.visible = 'yes';
-                }
+                } */
 /*                if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
                     p.sections.details.fields.flags1.on_fields = ['donation_category'];
                     if( (rsp.item.flags&0x8000) == 0x8000 ) {
@@ -722,6 +754,7 @@ function ciniki_sapos_pos() {
                 } */
                 p.refresh();
                 p.show(cb);
+                p.updateDonation();
             });
         } else {
             var p = M.ciniki_sapos_pos.item;
@@ -730,7 +763,7 @@ function ciniki_sapos_pos() {
             p.object_id = 0;
             p.price_id = 0;
             p.sections._buttons.buttons.delete.visible = 'no';
-            p.sections.details.fields.flags1.on_fields = [];
+/*            p.sections.details.fields.flags1.on_fields = [];
             p.sections.details.fields.unit_donation_amount.visible = 'no';
             p.sections.details.fields.donation_category.visible = 'no';
             if( M.modFlagOn('ciniki.sapos', 0x0c000000) ) {
@@ -739,13 +772,14 @@ function ciniki_sapos_pos() {
                 p.sections.details.fields.flags1.on_fields = ['unit_donation_amount'];
             } else if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
                 p.sections.details.fields.flags1.on_fields = ['donation_category'];
-            } 
+            }  */
 /*            p.sections.details.fields.donation_category.visible = 'no';
             if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
                 p.sections.details.fields.flags1.on_fields = ['donation_category'];
             } */
             p.refresh();
             p.show(cb);
+            p.updateDonation();
         }
     };
 
@@ -1372,6 +1406,29 @@ function ciniki_sapos_pos() {
                 var head = document.getElementsByTagName('head')[0];
                 head.appendChild(s);
             }
+        }
+
+        //
+        // Setup the donation flags
+        //
+        this.item.sections.details.fields.flags1 = {'label':'Donation', 
+            'type':'flagtoggle', 'field':'flags', 'bit':0x8000, 'default':'off', 
+//            'on_fields':[],
+            'active':'no',
+            'onchange':'M.ciniki_sapos_pos.item.updateDonation',
+            };
+        if( M.modFlagSet('ciniki.sapos', 0x06000000) == 'yes' ) {
+            this.item.sections.details.fields.flags1 = {'label':'Donation', 
+                'type':'flagspiece', 'field':'flags', 'mask':0x8800, 
+                'toggle':'yes', 'join':'yes', 'none':'yes',
+                'flags':{'12':{'name':'Partial'},'16':{'name':'Full Amount'}},
+//                'on_fields':[],
+                'onchange':'M.ciniki_sapos_pos.item.updateDonation',
+                'active':'yes',
+                };
+        } 
+        else if( M.modFlagSet('ciniki.sapos', 0x02000000) == 'yes' ) {
+            this.item.sections.details.fields.flags1.active = 'yes';
         }
 
         //
