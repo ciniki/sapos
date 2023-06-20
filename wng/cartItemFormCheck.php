@@ -207,6 +207,13 @@ function ciniki_sapos_wng_cartItemFormCheck(&$ciniki, $tnid, &$request, $item) {
         'section-selector' => 'no',
         'problem-list' => isset($problem_list) ? $problem_list : '',
         'form-id' => $form['id'],
+        'api-save-url' => $request['api_url'] . "/ciniki/forms/submissionSave",
+        'api-image-url' => $request['api_url'] . "/ciniki/forms/submissionImage/" . $form['id'] . '/' . $form['submission_id'],
+        'api-args' => array(
+            'form_id' => $form['id'],
+            'submission_id' => $form['submission_id'],
+            'customer_id' => $form['customer_id'],
+            ),
         'guidelines' => $form['guidelines'],
         'form-sections' => $form['sections'],
         );
