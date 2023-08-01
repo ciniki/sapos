@@ -587,10 +587,11 @@ function ciniki_sapos_main() {
                 case 1: return '';
                 case 2: return '';
                 case 3: return '';
-                case 4: return this.data.totals.customer_amount_display;
-                case 5: return this.data.totals.transaction_fees_display;
-                case 6: return this.data.totals.tenant_amount_display;
-                case 7: return '';
+                case 4: return '';
+                case 5: return this.data.totals.customer_amount_display;
+                case 6: return this.data.totals.transaction_fees_display;
+                case 7: return this.data.totals.tenant_amount_display;
+                case 8: return '';
             }
         }
         return null;
