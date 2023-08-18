@@ -1463,6 +1463,7 @@ function ciniki_sapos_invoice() {
         else if( M.modFlagSet('ciniki.sapos', 0x02000000) == 'yes' ) {
             this.item.sections.details.fields.flags1.active = 'yes';
         }
+            console.log(args);
 
         if( args.item_id != null && args.item_id != '' ) {
             this.item.open(cb,args.item_id);
@@ -1488,6 +1489,8 @@ function ciniki_sapos_invoice() {
         } else if( args.invoice_type != null ) {
             // Create new invoice with just customer
             this.createInvoice(cb, null, null, null, args);
+        } else if( args.invoice_id != null && args.transaction_amount != null ) {
+            this.transaction.open(cb,0,args.invoice_id,'now',args.transaction_amount);
         } else if( args.invoice_id != null ) {
             // Edit an existing invoice
             this.showInvoice(cb, args.invoice_id, (args.list!=null?args.list:[]));

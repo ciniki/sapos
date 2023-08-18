@@ -36,6 +36,9 @@ function ciniki_sapos_settings() {
                 'transactions':{'label':'Transactions',
                     'fn':'M.ciniki_sapos_settings.transactions.open(\'M.ciniki_sapos_settings.menu.open();\');',
                     },
+                'fiscalyear':{'label':'Fiscal Year',
+                    'fn':'M.ciniki_sapos_settings.fiscalyear.open(\'M.ciniki_sapos_settings.menu.open();\');',
+                    },
             }},
         'shipments':{'label':'Shipments',
             'visible':function() { return M.modFlagAny('ciniki.sapos', 0x10000040); },
@@ -1413,6 +1416,68 @@ function ciniki_sapos_settings() {
     }
     this.transactions.addButton('save', 'Save', 'M.ciniki_sapos_settings.transactions.save();');
     this.transactions.addClose('Cancel');
+
+    //
+    // The panel to manage transaction settings
+    //
+    this.fiscalyear = new M.panel('Fiscal Year', 'ciniki_sapos_settings', 'fiscalyear', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.fiscalyear');
+    this.fiscalyear.sections = {
+        '_options':{'label':'Fiscal Year', 'fields':{
+            'fiscal-year-start-month':{'label':'Start Month', 'default':'no', 'type':'select', 'options':{
+                '1':'January',
+                '2':'February',
+                '3':'March',
+                '4':'April',
+                '5':'May',
+                '6':'June',
+                '7':'July',
+                '8':'August',
+                '9':'September',
+                '10':'October',
+                '11':'November',
+                '12':'December',
+                }},
+            'fiscal-year-start-day':{'label':'Start Day', 'default':'no', 'type':'number', 'size':'small'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.fiscalyear.save();'},
+            }},
+    }
+    this.fiscalyear.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.settingsHistory', 'args':{'tnid':M.curTenantID, 'setting':i}};
+    }
+    this.fiscalyear.fieldValue = function(s, i, d) {
+        if( this.data[i] == null && d.default != null ) { return d.default; }
+        return this.data[i];
+    }
+    this.fiscalyear.open = function(cb) {
+        M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.fiscalyear;
+            p.data = rsp.settings;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.fiscalyear.save = function() {
+        var c = this.serializeForm('no');
+        if( c != '' ) {
+            M.api.postJSONCb('ciniki.sapos.settingsUpdate', {'tnid':M.curTenantID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.fiscalyear.close();
+            });
+        } else {
+            this.close();
+        }
+    }
+    this.fiscalyear.addButton('save', 'Save', 'M.ciniki_sapos_settings.fiscalyear.save();');
+    this.fiscalyear.addClose('Cancel');
 
     //
     // The panel to list the simpleshiprate

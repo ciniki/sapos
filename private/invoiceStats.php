@@ -30,6 +30,16 @@ function ciniki_sapos__invoiceStats($ciniki, $tnid) {
     $rsp = array('stat'=>'ok', 'stats'=>array());
 
     //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', 'fiscal');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.421', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+    
+    //
     // Check the number of orders that need packing
     //
     $strsql = "SELECT status, COUNT(id) "
@@ -114,6 +124,18 @@ function ciniki_sapos__invoiceStats($ciniki, $tnid) {
         $rsp['stats']['min_invoice_date_year'] = $rc['stats'][0]['stats']['min_invoice_date_year'];
         $rsp['stats']['max_invoice_date'] = $rc['stats'][0]['stats']['max_invoice_date'];
         $rsp['stats']['max_invoice_date_year'] = $rc['stats'][0]['stats']['max_invoice_date_year'];
+        if( isset($settings['fiscal-year-start-month']) && $settings['fiscal-year-start-month'] != '' 
+            && $settings['fiscal-year-start-month'] > 1 
+            ) {
+            $dt = new DateTime($rc['stats'][0]['stats']['min_invoice_date'], new DateTimezone($intl_timezone));
+            if( $dt->format('m') > $settings['fiscal-year-start-month'] ) { 
+                $rsp['stats']['min_invoice_date_year'] += 1;
+            }
+            $dt = new DateTime($rc['stats'][0]['stats']['max_invoice_date'], new DateTimezone($intl_timezone));
+            if( $dt->format('m') > $settings['fiscal-year-start-month'] ) { 
+                $rsp['stats']['max_invoice_date_year'] += 1;
+            }
+        }
     }
 
     //

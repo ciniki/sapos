@@ -54,6 +54,16 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
     //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', 'fiscal');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.423', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+    
+    //
     // Load the status maps for the text description of each status
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
@@ -114,16 +124,34 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         // Set the start and end date for the tenant timezone, then convert to UTC
         //
         $tz = new DateTimeZone($intl_timezone);
-        if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
-            $start_date = new DateTime($args['year'] . '-' . $args['month'] . '-01 00.00.00', $tz);
-            $end_date = clone $start_date;
-            // Find the end of the month
-            $end_date->add(new DateInterval('P1M'));
+        if( isset($settings['fiscal-year-start-month']) && isset($settings['fiscal-year-start-day']) 
+            && $settings['fiscal-year-start-day'] > 0 && $settings['fiscal-year-start-day'] < 32
+            ) {
+            if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
+                if( $args['month'] >= $settings['fiscal-year-start-month'] ) {
+                    $start_date = new DateTime(($args['year']-1) . '-' . $args['month'] . '-' . $settings['fiscal-year-start-day'] . ' 00:00:00', $tz);
+                } else {
+                    $start_date = new DateTime($args['year'] . '-' . $args['month'] . '-' . $settings['fiscal-year-start-day'] . ' 00:00:00', $tz);
+                }
+                $end_date = clone $start_date;
+                $end_date->add(new DateInterval('P1M'));
+            } else {
+                $end_date = new DateTime($args['year'] . '-' . $settings['fiscal-year-start-month'] . '-' . $settings['fiscal-year-start-day'] . ' 00:00:00', $tz);
+                $start_date = clone $end_date;
+                $start_date->sub(new DateInterval('P1Y'));
+            }
         } else {
-            $start_date = new DateTime($args['year'] . '-01-01 00.00.00', $tz);
-            $end_date = clone $start_date;
-            // Find the end of the year
-            $end_date->add(new DateInterval('P1Y'));
+            if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
+                $start_date = new DateTime($args['year'] . '-' . $args['month'] . '-01 00.00.00', $tz);
+                $end_date = clone $start_date;
+                // Find the end of the month
+                $end_date->add(new DateInterval('P1M'));
+            } else {
+                $start_date = new DateTime($args['year'] . '-01-01 00.00.00', $tz);
+                $end_date = clone $start_date;
+                // Find the end of the year
+                $end_date->add(new DateInterval('P1Y'));
+            }
         }
         $start_date->setTimezone(new DateTimeZone('UTC'));
         $end_date->setTimeZone(new DateTimeZone('UTC'));

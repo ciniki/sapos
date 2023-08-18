@@ -507,10 +507,7 @@ function ciniki_sapos_main() {
             if( rsp.stats != null && rsp.stats.min_invoice_date_year != null ) {
                 var year = new Date().getFullYear();
                 p.sections.years.tabs = {};
-                p.sections.years.visible = 'no';
-                if( year != rsp.stats.min_invoice_date_year ) {
-                    p.sections.years.visible = 'yes';
-                }
+                p.sections.years.visible = 'yes';
                 if( p.sections.years.selected == '' ) {
                     p.sections.years.selected = year;
                 }
@@ -2031,6 +2028,14 @@ function ciniki_sapos_main() {
             return false;
         } 
 
+        //
+        // Initialize for tenant
+        //
+        if( this.curTenantID == null || this.curTenantID != M.curTenantID ) {
+            this.tenantInit();
+            this.curTenantID = M.curTenantID;
+        }
+
         this._tabs.tabs.repeats.visible = M.modFlagSet('ciniki.sapos', 0x1000);
         this._tabs.tabs.reports.visible = 'no';
         if( M.curTenant.modules['ciniki.taxes'] != null 
@@ -2139,6 +2144,28 @@ function ciniki_sapos_main() {
         } 
         else {
             this.menu.menutabSwitch(sp);
+        }
+    }
+
+    this.tenantInit = function() {
+        var m = M.modSetting('ciniki.sapos', 'fiscal-year-start-month');
+        if( m == '' ) {
+            m = 1;
+        } else {
+            m = parseInt(m);
+        }
+        if( m < 1 || m > 12 ) {
+            m = 1;
+        }
+        this._months.tabs = {
+            '0':{'label':'All', 'fn':'M.ciniki_sapos_main.monthSwitch(0);'},
+            };
+        for(var i = 1; i <= 12; i++) {
+            this._months.tabs[i] = {'label':M.months[(m-1)].shortname, 'id':m, 'fn':'M.ciniki_sapos_main.monthSwitch(' + m + ');'};    
+            m++;
+            if( m > 12 ) {
+                m = 1;
+            }
         }
     }
 }
