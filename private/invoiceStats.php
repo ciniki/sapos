@@ -132,10 +132,17 @@ function ciniki_sapos__invoiceStats($ciniki, $tnid) {
                 $rsp['stats']['min_invoice_date_year'] += 1;
             }
             $dt = new DateTime($rc['stats'][0]['stats']['max_invoice_date'], new DateTimezone($intl_timezone));
-            if( $dt->format('m') > $settings['fiscal-year-start-month'] ) { 
+            $now = new DateTime('now', new DateTimezone($intl_timezone));
+            if( $dt->format('m') >= $settings['fiscal-year-start-month'] 
+                || $now->format('m') >= $settings['fiscal-year-start-month']
+                ) { 
                 $rsp['stats']['max_invoice_date_year'] += 1;
             }
         }
+    } else {
+        $dt = new DateTime('now', new DateTimezone($intl_timezone));
+        $rsp['stats']['min_invoice_date_year'] = $dt->format('Y');
+        $rsp['stats']['max_invoice_date_year'] = $dt->format('Y');
     }
 
     //
