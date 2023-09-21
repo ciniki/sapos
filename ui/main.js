@@ -630,6 +630,9 @@ function ciniki_sapos_main() {
                     if( p.sections.years.selected == '' ) {
                         p.sections.years.selected = year;
                     }
+                    if( rsp.stats.max_invoice_date_year != null && year < rsp.stats.max_invoice_date_year ) {
+                        year++;
+                    }   
                     for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
                         p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.transactions.open(null,' + i + ',0);'};
                     }
@@ -830,6 +833,9 @@ function ciniki_sapos_main() {
                     if( p.sections.years.selected == '' ) {
                         p.sections.years.selected = year;
                     }
+                    if( rsp.stats.max_invoice_date_year != null && year < rsp.stats.max_invoice_date_year ) {
+                        year++;
+                    }   
                     for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
                         p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.donations.open(null,' + i + ',0);'};
                     }
@@ -943,6 +949,9 @@ function ciniki_sapos_main() {
                 p.sections.years.visible = 'yes';
                 var year = new Date().getFullYear();
                 p.sections.years.tabs = {};
+                if( rsp.stats.max_invoice_date_year != null && year < rsp.stats.max_invoice_date_year ) {
+                    year++;
+                }   
                 for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
                     p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.yearSwitch(' + i + ');'};
                 }
@@ -1173,6 +1182,9 @@ function ciniki_sapos_main() {
                 p.sections.years.visible = 'yes';
                 var year = new Date().getFullYear();
                 p.sections.years.tabs = {};
+                if( rsp.stats.max_invoice_date_year != null && year < rsp.stats.max_invoice_date_year ) {
+                    year++;
+                }
                 for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
                     p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.yearSwitch(' + i + ');'};
                 }
@@ -1442,6 +1454,9 @@ function ciniki_sapos_main() {
                 p.sections.years.visible = 'yes';
                 var year = new Date().getFullYear();
                 p.sections.years.tabs = {};
+                if( rsp.stats.max_invoice_date_year != null && year < rsp.stats.max_invoice_date_year ) {
+                    year++;
+                }
                 for(var i=rsp.stats.min_invoice_date_year;i<=year;i++) {
                     p.sections.years.tabs[i] = {'label':i, 'fn':'M.ciniki_sapos_main.yearSwitch(' + i + ');'};
                 }
