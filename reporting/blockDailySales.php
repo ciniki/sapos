@@ -7,7 +7,7 @@
 // Arguments
 // ---------
 // ciniki:
-// tnid:                The ID of the tenant to get the birthdays for.
+// tnid:                The ID of the tenant.
 // args:                The options for the query.
 //
 // Additional Arguments
