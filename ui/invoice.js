@@ -206,6 +206,10 @@ function ciniki_sapos_invoice() {
                 'addFn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);',
                 },
             '_buttons':{'label':'', 'buttons':{
+                'shipped':{'label':'Order Shipped', 
+                    'visible':function() { return M.ciniki_sapos_invoice.invoice.data.status == 30 ? 'yes' : 'no'; },
+                    'fn':'M.ciniki_sapos_invoice.orderShipped(M.ciniki_sapos_invoice.invoice.invoice_id);',
+                    },
                 'record':{'label':'Record Transaction', 'fn':'M.ciniki_sapos_invoice.transaction.open(\'M.ciniki_sapos_invoice.showInvoice();\',0,M.ciniki_sapos_invoice.invoice.invoice_id,\'now\',M.ciniki_sapos_invoice.invoice.data.balance_amount_display);'},
 //                'terminal':{'label':'Process Payment', 'fn':'M.startApp(\'ciniki.sapos.terminal\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'detailsFn\':M.ciniki_sapos_invoice.terminalDetails});'},
 //                'submitorder':{'label':'Submit Order', 'fn':'M.ciniki_sapos_invoice.submitOrder(M.ciniki_sapos_invoice.invoice.invoice_id);'},
@@ -2125,6 +2129,18 @@ function ciniki_sapos_invoice() {
                 }
                 M.ciniki_sapos_invoice.invoice.close();
             });
+    };
+    this.orderShipped = function(iid) {
+        M.confirm("Have all items on the invoice been shipped?",'All Items Shipped',function() {
+            M.api.getJSONCb('ciniki.sapos.invoiceAction', {'tnid':M.curTenantID,
+                'invoice_id':iid, 'action':'shipped'}, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    M.ciniki_sapos_invoice.invoice.close();
+                });
+        });
     };
     this.applyDiscount = function(iid) {
         var d = prompt('Enter Discount Percent', '');

@@ -134,23 +134,26 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
         //
         // Check for the shipments
         //
-        $shipments = 'none';
-        $strsql = "SELECT id, status "
-            . "FROM ciniki_sapos_shipments "
-            . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
-        if( $rc['stat'] != 'ok' ) { 
-            return $rc;
-        }   
-        if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
-            // Since there are shipments, assume all have been shipped  
-            foreach($rc['rows'] as $rid => $row) {
-                if( $row['status'] < 30 && $shipments == 'all' ) { 
-                    $shipments = 'some';
-                } elseif( $row['status'] >= 30 && $shipments == 'none' ) {
-                    $shipments = 'all';
+        $shipments = 'ignore';
+        if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x40) ) {
+            $shipments = 'none';
+            $strsql = "SELECT id, status "
+                . "FROM ciniki_sapos_shipments "
+                . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+            if( $rc['stat'] != 'ok' ) { 
+                return $rc;
+            }   
+            if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
+                // Since there are shipments, assume all have been shipped  
+                foreach($rc['rows'] as $rid => $row) {
+                    if( $row['status'] < 30 && $shipments == 'all' ) { 
+                        $shipments = 'some';
+                    } elseif( $row['status'] >= 30 && $shipments == 'none' ) {
+                        $shipments = 'all';
+                    }
                 }
             }
         }
@@ -162,7 +165,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
             // Items have "shipped" (packed)
             $new_shipping_status = 55;
         }
-        elseif( $remaining_quantity == 'none' && $shipments == 'all' && $new_shipping_status < 55 ) {
+        elseif( $remaining_quantity == 'none' && ($shipments == 'all' || $shipments == 'ignore') && $new_shipping_status < 55 ) {
             // Nothing remaining to be shipped, and all shipments have been sent
             $new_shipping_status = 50;
         }
@@ -244,7 +247,9 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
             $new_status = 50;
         }
         // Check if pending pickup and paid
-        if( $invoice['shipping_status'] == 20 && $new_payment_status == 50 ) {
+        if( $invoice['shipping_status'] == 10 && $new_payment_status == 50 ) {
+            $new_status = 30; 
+        } elseif( $new_shipping_status == 20 && $new_payment_status == 50 ) {
             $new_status = 45;
         }
     }

@@ -273,23 +273,23 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal(&$ciniki, $tnid, $invoice_
 
         $rates = isset($rc['rows']) ? $rc['rows'] : array();
 
-        $new_ship = ($shipping_required == 'yes' ? 99999.99 : 0);
-        $new_preorder_ship = ($preorder_shipping_required == 'yes' ? 99999.99 : 0);
+        $new_ship = -1;
+        $new_preorder_ship = -1;
         foreach($rates as $rate) {
-            if( $rate['minimum_amount'] <= $invoice_subtotal_amount && $rate['rate'] < $new_ship ) {
+            if( $rate['minimum_amount'] <= $invoice_subtotal_amount ) {
                 $new_ship = $rate['rate'];
             }
             if( $invoice_preorder_subtotal_amount > 0 
                 && $rate['minimum_amount'] <= $invoice_preorder_subtotal_amount 
-                && $rate['rate'] < $new_preorder_ship
+                && $rate['rate'] > $new_preorder_ship
                 ) {
                 $new_preorder_ship = $rate['rate'];
             }
         }
-        if( $new_ship != 99999.99 ) {
+        if( $new_ship != -1 ) {
             $invoice_shipping_amount = $new_ship;
         }
-        if( $new_preorder_ship != 99999.99 ) {
+        if( $new_preorder_ship != -1 ) {
             $invoice_preorder_shipping_amount = $new_preorder_ship;
         }
     }

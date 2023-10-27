@@ -111,21 +111,27 @@ function ciniki_sapos_wng_cartPaymentReceived(&$ciniki, $tnid, $request, $cart) 
         $subject = "Invoice #" . $invoice['invoice_number'];
         $textmsg = "Thank you for your order, please find the receipt attached.";
 
+        if( isset($sapos_settings['cart-email-message']) 
+            && $sapos_settings['cart-email-message'] != '' 
+            ) {
+            $textmsg = $sapos_settings['cart-email-message'];
+        }
+
         if( $invoice['shipping_status'] == 20 ) {
             if( isset($sapos_settings['instore-pickup-placed-email-subject']) 
                 && $sapos_settings['instore-pickup-placed-email-subject'] != '' 
                 ) {
                 $subject = $sapos_settings['instore-pickup-placed-email-subject'];
-                $subject = str_ireplace("{_invoicenumber_}", $invoice['invoice_number'], $subject);
             }
 
             if( isset($sapos_settings['instore-pickup-placed-email-content']) 
                 && $sapos_settings['instore-pickup-placed-email-content'] != '' 
                 ) {
                 $textmsg = $sapos_settings['instore-pickup-placed-email-content'];
-                $textmsg = str_ireplace("{_invoicenumber_}", $invoice['invoice_number'], $textmsg);
             }
         }
+        $subject = str_ireplace("{_invoicenumber_}", $invoice['invoice_number'], $subject);
+        $textmsg = str_ireplace("{_invoicenumber_}", $invoice['invoice_number'], $textmsg);
 
         ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
         $rc = ciniki_mail_hooks_addMessage($ciniki, $tnid, array(

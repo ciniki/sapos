@@ -11,6 +11,8 @@
 //
 function ciniki_sapos_wng_etransferCheckout(&$ciniki, $tnid, &$request, $cart) {
 
+    $settings = isset($request['site']['settings']) ? $request['site']['settings'] : array();
+
     //
     // Load the tenant settings
     //
@@ -255,54 +257,48 @@ function ciniki_sapos_wng_etransferCheckout(&$ciniki, $tnid, &$request, $cart) {
             return $rc;
         }
         $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$tnid);
-
-        //
-        // Email a notification if requested
-        //
-        if( isset($settings['cart-etransfer-submitted-emails']) && $settings['cart-etransfer-submitted-emails'] != '' ) {
-            $emails = explode(',', $settings['cart-etransfer-submitted-emails']);
-
-            $subject = "Invoice #" . $invoice['invoice_number'];
-            $textmsg = "You have received a new e-transfer checkout:\n";
-            $textmsg .= "\n";
-            $textmsg .= "Invoice: " . $invoice['invoice_number'] . "\n";
-            $textmsg .= "Bill To: " . $invoice['billing_name'] . "\n";
-            $textmsg .= "Total: " . $invoice['total_amount_display'] . "\n";
-            $textmsg .= "\n";
-            $textmsg .= "Items: \n";
-            foreach($invoice['items'] as $item) {
-                $item = $item['item'];
-                $textmsg .= $item['description'] . " - " . $item['total_amount_display'] . "\n";
-            }
-            $textmsg .= "\n";
-            foreach($emails as $email) {
-                $email = trim($email);
-/*                $ciniki['emailqueue'][] = array('to'=>$email,
-                    'to_name'=>'',
-                    'tnid'=>$tnid,
-                    'subject'=>$subject,
-                    'textmsg'=>$textmsg,
-                    'attachments'=>array(array('string'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
-                    ); */
-                $rc = ciniki_mail_hooks_addMessage($ciniki, $tnid, array(
-                    'object' => 'ciniki.sapos.invoice',
-                    'object_id' => $cart['id'],
-                    'customer_email' => $email,
-                    'customer_name' => '',
-                    'subject' => $subject,
-                    'html_content' => $textmsg,
-                    'text_content' => $textmsg,
-                    'attachments' => array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
-                    ));
-                if( $rc['stat'] != 'ok' ) {
-                    return $rc;
-                }
-                $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$tnid);
-            }
-
-        }
     }
 
+    //
+    // Email a notification if requested
+    //
+    if( isset($settings['cart-etransfer-submitted-emails']) && $settings['cart-etransfer-submitted-emails'] != '' ) {
+        $emails = explode(',', $settings['cart-etransfer-submitted-emails']);
+
+        $subject = "Invoice #" . $invoice['invoice_number'];
+        $textmsg = "You have received a new e-transfer checkout:\n";
+        $textmsg .= "\n";
+        $textmsg .= "Invoice: " . $invoice['invoice_number'] . "\n";
+        if( isset($cart['customer']['emails'][0]['email']['address']) ) {
+            $textmsg .= "Email: " . $cart['customer']['emails'][0]['email']['address'] . "\n";
+        }
+        $textmsg .= "Bill To: " . $invoice['billing_name'] . "\n";
+        $textmsg .= "Total: " . $invoice['total_amount_display'] . "\n";
+        $textmsg .= "\n";
+        $textmsg .= "Items: \n";
+        foreach($invoice['items'] as $item) {
+            $item = $item['item'];
+            $textmsg .= $item['description'] . " - " . $item['total_amount_display'] . "\n";
+        }
+        $textmsg .= "\n";
+        foreach($emails as $email) {
+            $email = trim($email);
+            $rc = ciniki_mail_hooks_addMessage($ciniki, $tnid, array(
+                'object' => 'ciniki.sapos.invoice',
+                'object_id' => $cart['id'],
+                'customer_email' => $email,
+                'customer_name' => '',
+                'subject' => $subject,
+                'html_content' => $textmsg,
+                'text_content' => $textmsg,
+                'attachments' => array(array('content'=>$pdf->Output('invoice', 'S'), 'filename'=>$filename)),
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$tnid);
+        }
+    }
     
     return array('stat'=>'ok');
 }

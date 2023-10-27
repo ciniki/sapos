@@ -18,7 +18,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action',
-            'validlist'=>array('submit', 'discount', 'packed', 'pickedup', 'completesale', 'completeinpersonsale')),
+            'validlist'=>array('submit', 'discount', 'packed', 'pickedup', 'completesale', 'completeinpersonsale', 'shipped')),
         'unit_discount_percentage'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Discount Percent'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -348,6 +348,42 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         if( $invoice['status'] == 45 ) {
             $update_args['status'] = 50;
         }
+    } 
+    //
+    // Mark all items as shipped
+    //
+    elseif( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x10000000)   // Simple Shipping
+        && isset($args['action']) && $args['action'] == 'shipped' 
+        ) {
+        
+        //
+        // Load the invoice
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
+        $rc = ciniki_sapos_invoiceLoad($ciniki, $args['tnid'], $args['invoice_id']);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $invoice = $rc['invoice'];
+        foreach($invoice['items'] as $item) {
+            $item = $item['item'];
+            if( ($item['flags']&0x40) == 0x40 && $item['shipped_quantity'] < $item['quantity'] ) {
+                $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice_item', $item['id'], array(
+                    'shipped_quantity' => $item['quantity'],
+                    ), 0x04);
+                if( $rc['stat'] != 'ok' ) {
+                    ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                    return $rc;
+                }
+            }
+        }
+
+        if( $invoice['shipping_status'] != 50 ) {
+            $update_args['shipping_status'] = 50;
+        }
+        if( $invoice['status'] == 30 && $invoice['payment_status'] == 50 ) {
+            $update_args['status'] = 50;
+        }
 
     } else {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
@@ -358,6 +394,8 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
     // Update the invoice
     //
     if( count($update_args) > 0 ) {
+        error_log('invoiceAction');
+        error_log(print_r($update_args,true));
         $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice', 
             $args['invoice_id'], $update_args, 0x04);
         if( $rc['stat'] != 'ok' ) {
