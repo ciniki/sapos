@@ -119,7 +119,15 @@ function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
     if( $donation_amount > 0 && ($invoice['invoice_type'] == 10 || $args['invoice_type'] == 10)
         && ($invoice['receipt_number'] == '' || $invoice['receipt_number'] == 0) 
         ) {
-        $strsql = "SELECT MAX(CAST(receipt_number AS UNSIGNED)) AS max_num "
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'hooks', 'donationReceiptNumber');
+        $rc = ciniki_sapos_hooks_donationReceiptNumber($ciniki, $tnid, array());
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.425', 'msg'=>'', 'err'=>$rc['err']));
+        }
+        $args['receipt_number'] = $rc['receipt_number'];
+
+/*      -- Removed on Nov 1, 2023. Has been causing bug where duplicate receipt numbers issued. */
+/*        $strsql = "SELECT MAX(CAST(receipt_number AS UNSIGNED)) AS max_num "
             . "FROM ciniki_sapos_invoices "
             . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
@@ -131,7 +139,7 @@ function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
             $args['receipt_number'] = $rc['num']['max_num'] + 1;
         } else {
             $args['receipt_number'] = 1;
-        }
+        } */
     }
 
     if( isset($request['session']['customer']['display_name']) ) {

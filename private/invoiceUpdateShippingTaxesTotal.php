@@ -210,7 +210,10 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal(&$ciniki, $tnid, $invoice_
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.388', 'msg'=>'Unable to load donation number', 'err'=>$rc['err']));
         }
         $receipt_number = isset($rc['item']['detail_value']) ? $rc['item']['detail_value'] : 1;
-        
+       
+        //
+        // Check invoices to see if number higher and has been a mistake
+        //
         $strsql = "SELECT MAX(CAST(receipt_number AS UNSIGNED)) AS max_num "
             . "FROM ciniki_sapos_invoices "
             . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -221,7 +224,8 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal(&$ciniki, $tnid, $invoice_
         }
         if( isset($rc['num']['max_num']) && ($rc['num']['max_num']+1) > $receipt_number ) {
             $receipt_number = $rc['num']['max_num'] + 1;
-        }
+        } 
+
         //
         // Update settings with next receipt number
         //
