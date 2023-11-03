@@ -492,6 +492,9 @@ function ciniki_sapos_invoice() {
             if( d != null && d.shipment != null && s == 'shipments' ) {
                 return 'M.startApp(\'ciniki.sapos.shipment\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'shipment_id\':\'' + d.shipment.id + '\'});';
             }
+            if( s == 'messages' ) {
+                return 'M.startApp(\'ciniki.mail.main\',null,\'M.ciniki_sapos_invoice.showInvoice();\',\'mc\',{\'message_id\':\'' + d.message.id + '\'});';
+            }
             return '';
         };
     //      this.invoice.footerValue = function(s, i, j) {
