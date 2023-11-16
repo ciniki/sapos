@@ -394,8 +394,6 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
     // Update the invoice
     //
     if( count($update_args) > 0 ) {
-        error_log('invoiceAction');
-        error_log(print_r($update_args,true));
         $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice', 
             $args['invoice_id'], $update_args, 0x04);
         if( $rc['stat'] != 'ok' ) {
