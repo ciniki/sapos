@@ -774,7 +774,7 @@ function ciniki_sapos_main() {
             'headerClasses':['', '', '', 'alignright', 'alignright'],
             'cellClasses':['', '', '', 'alignright', 'alignright'],
             'sortable':'yes',
-            'sortTypes':['date', 'text', 'number', 'text', 'text', 'text', 'number'],
+            'sortTypes':['number', 'date', 'number', 'text', 'text', 'text', 'number'],
             'noData':'No donations',
             },
         }
