@@ -774,7 +774,7 @@ function ciniki_sapos_main() {
             'headerClasses':['', '', '', 'alignright', 'alignright'],
             'cellClasses':['', '', '', 'alignright', 'alignright'],
             'sortable':'yes',
-            'sortTypes':['number', 'date', 'number', 'text', 'text', 'text', 'number'],
+            'sortTypes':['number', 'date', 'text', 'number', 'text', 'number'],
             'noData':'No donations',
             },
         }
@@ -2146,7 +2146,6 @@ function ciniki_sapos_main() {
         } else {
             this._tabs.visible = 'no';
         }
-        this._years.selected = new Date().getFullYear();
        
         if( M.modOn('ciniki.taxes') ) {
             this.menu.sections.invoices.num_cols = 7;
@@ -2179,6 +2178,10 @@ function ciniki_sapos_main() {
         }
         if( m < 1 || m > 12 ) {
             m = 1;
+        }
+        this._years.selected = new Date().getFullYear();
+        if( m > 1 && (new Date().getMonth()+1) >= m ) {
+            this._years.selected++;
         }
         this._months.tabs = {
             '0':{'label':'All', 'fn':'M.ciniki_sapos_main.monthSwitch(0);'},
