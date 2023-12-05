@@ -200,7 +200,8 @@ function ciniki_sapos_donationCategories(&$ciniki) {
             }
         }
         $rsp['totals']['total_amount'] = bcadd($rsp['totals']['total_amount'], $invoice['total_amount'], 6);
-
+        
+        $rsp['invoices'][$iid]['total_amount'] = $invoice['total_amount'];
         $rsp['invoices'][$iid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $invoice['total_amount'], $intl_currency);
     }
     $rsp['totals']['total_amount'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['total_amount'], $intl_currency);
@@ -266,6 +267,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
                 }
                 $i++;
             }
+                error_log(print_r($invoice,true));
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['total_amount'], false);
             $row++;
         }
