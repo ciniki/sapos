@@ -1470,7 +1470,6 @@ function ciniki_sapos_invoice() {
         else if( M.modFlagSet('ciniki.sapos', 0x02000000) == 'yes' ) {
             this.item.sections.details.fields.flags1.active = 'yes';
         }
-            console.log(args);
 
         if( args.item_id != null && args.item_id != '' ) {
             this.item.open(cb,args.item_id);
