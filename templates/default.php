@@ -822,7 +822,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     }
     if( $donation_amount > 0 && $donation_amount >= $donation_minimum
         && isset($sapos_settings['donation-receipt-invoice-include']) 
-        && $sapos_settings['donation-receipt-invoice-include'] == 'yes')
+        && $sapos_settings['donation-receipt-invoice-include'] == 'yes'
         ) {
         $pdf->header_details = array();
         $pdf->AddPage();
