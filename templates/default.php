@@ -75,10 +75,10 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
                 // Check if the ratio of the image will make it too large for the height,
                 // and scaled based on either height or width.
                 if( $available_ratio < $image_ratio ) {
-                    $this->Image('@'.$this->header_image->getImageBlob(), 15, 12, 
+                    $this->Image('@'.$this->header_image->getImageBlob(), 15, ($this->getY() + 7), 
                         $img_width, 0, 'JPEG', '', 'L', 2, '150');
                 } else {
-                    $this->Image('@'.$this->header_image->getImageBlob(), 15, 12, 
+                    $this->Image('@'.$this->header_image->getImageBlob(), 15, ($this->getY() + 7), 
                         0, $this->header_height-5, 'JPEG', '', 'L', 2, '150');
                 }
             }
@@ -945,32 +945,45 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         $pdf->setCellPadding(1);
         $pdf->Ln(10);
 
+        error_log('add header');
+
         $pdf->Header();
-        $pdf->Ln(15);
+        $pdf->Ln(25);
 
         $w = array(45, 45, 90);
+        $pdf->setCellPadding(0.5);
+        $pdf->SetFont('', 'B');
         $pdf->Cell($w[0], $lh, 'Receipt Number:', 0, 0, 'R', 1);
+        $pdf->SetFont('', '');
         $pdf->Cell($w[1], $lh, $invoice['receipt_number'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[0])?$addr[0]:''), 0, 0, 'L', 1);
         $pdf->Ln();
 
+        $pdf->SetFont('', 'B');
         $pdf->Cell($w[0], $lh, 'Eligible Amount:', 0, 0, 'R', 1);
+        $pdf->SetFont('', '');
         //$pdf->Cell($w[1], $lh, $donation['amount_display'], 0, 0, 'L', 1);
         $pdf->Cell($w[1], $lh, '$' . number_format($donation_amount, 2), 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[1])?$addr[1]:''), 0, 0, 'L', 1);
         $pdf->Ln();
 
+        $pdf->SetFont('', 'B');
         $pdf->Cell($w[0], $lh, 'Date Received:', 0, 0, 'R', 1);
+        $pdf->SetFont('', '');
         $pdf->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[2])?$addr[2]:''), 0, 0, 'L', 1);
         $pdf->Ln();
 
+        $pdf->SetFont('', 'B');
         $pdf->Cell($w[0], $lh, 'Date Issued:', 0, 0, 'R', 1);
+        $pdf->SetFont('', '');
         $pdf->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[3])?$addr[3]:''), 0, 0, 'L', 1);
         $pdf->Ln();
 
+        $pdf->SetFont('', 'B');
         $pdf->Cell($w[0], $lh, 'Location Issued:', 0, 0, 'R', 1);
+        $pdf->SetFont('', '');
 //        $pdf->Cell($w[1], $lh, $donation['location_issued'], 0, 0, 'L', 1);
         $pdf->Cell($w[1], $lh, $sapos_settings['donation-receipt-location-issued'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[4])?$addr[4]:''), 0, 0, 'L', 1);
@@ -988,6 +1001,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         //
         // Output charity information and signature
         //
+        $pdf->setCellPadding(2);
         $pdf->Cell($w[0]+$w[1], $lh, 'Charity BN/Registration #: ' . $sapos_settings['donation-receipt-charity-number'], 0, 0, 'L', 1);
         $pdf->Ln();
 
