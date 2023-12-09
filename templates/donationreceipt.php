@@ -425,6 +425,7 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $invoice_id, $t
         //
         // Separator between official receipt and summary for customer to keep
         //
+        $pdf->Ln(5);
         $pdf->Cell(180, $lh, 'detach and retain for your records', array('T'=>array('dash'=>4, 'color'=>array(125,125,125))), 0, 'C', 1);
 
         $pdf->setCellPadding(1);

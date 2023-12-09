@@ -939,7 +939,8 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         //
         // Separator between official receipt and summary for customer to keep
         //
-/*        $pdf->Cell(180, $lh, 'detach and retain for your records', array('T'=>array('dash'=>4, 'color'=>array(125,125,125))), 0, 'C', 1);
+        $pdf->Ln(5);
+        $pdf->Cell(180, $lh, 'detach and retain for your records', array('T'=>array('dash'=>4, 'color'=>array(125,125,125))), 0, 'C', 1);
 
         $pdf->setCellPadding(1);
         $pdf->Ln(10);
@@ -949,31 +950,33 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
 
         $w = array(45, 45, 90);
         $pdf->Cell($w[0], $lh, 'Receipt Number:', 0, 0, 'R', 1);
-        $pdf->Cell($w[1], $lh, $donation['receipt_number'], 0, 0, 'L', 1);
+        $pdf->Cell($w[1], $lh, $invoice['receipt_number'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[0])?$addr[0]:''), 0, 0, 'L', 1);
         $pdf->Ln();
 
         $pdf->Cell($w[0], $lh, 'Eligible Amount:', 0, 0, 'R', 1);
-        $pdf->Cell($w[1], $lh, $donation['amount_display'], 0, 0, 'L', 1);
+        //$pdf->Cell($w[1], $lh, $donation['amount_display'], 0, 0, 'L', 1);
+        $pdf->Cell($w[1], $lh, '$' . number_format($donation_amount, 2), 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[1])?$addr[1]:''), 0, 0, 'L', 1);
         $pdf->Ln();
 
         $pdf->Cell($w[0], $lh, 'Date Received:', 0, 0, 'R', 1);
-        $pdf->Cell($w[1], $lh, $donation['date_received'], 0, 0, 'L', 1);
+        $pdf->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[2])?$addr[2]:''), 0, 0, 'L', 1);
         $pdf->Ln();
 
         $pdf->Cell($w[0], $lh, 'Date Issued:', 0, 0, 'R', 1);
-        $pdf->Cell($w[1], $lh, $donation['date_issued'], 0, 0, 'L', 1);
+        $pdf->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[3])?$addr[3]:''), 0, 0, 'L', 1);
         $pdf->Ln();
 
         $pdf->Cell($w[0], $lh, 'Location Issued:', 0, 0, 'R', 1);
-        $pdf->Cell($w[1], $lh, $donation['location_issued'], 0, 0, 'L', 1);
+//        $pdf->Cell($w[1], $lh, $donation['location_issued'], 0, 0, 'L', 1);
+        $pdf->Cell($w[1], $lh, $sapos_settings['donation-receipt-location-issued'], 0, 0, 'L', 1);
         $pdf->Cell($w[2], $lh, (isset($addr[4])?$addr[4]:''), 0, 0, 'L', 1);
         $pdf->Ln();
         
-        if( isset($settings['receipt-thankyou-message']) && $settings['receipt-thankyou-message'] != '' ) {
+        if( isset($sapos_settings['receipt-thankyou-message']) && $sapos_settings['receipt-thankyou-message'] != '' ) {
             $pdf->SetFont('', 'B');
             $pdf->Cell(180, $lh*2, $settings['receipt-thankyou-message'], 0, 0, 'C', 1);
         } else {
@@ -985,11 +988,11 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         //
         // Output charity information and signature
         //
-        $pdf->Cell($w[0]+$w[1], $lh, 'Charity BN/Registration #: ' . $settings['receipt-charity-number'], 0, 0, 'L', 1);
+        $pdf->Cell($w[0]+$w[1], $lh, 'Charity BN/Registration #: ' . $sapos_settings['donation-receipt-charity-number'], 0, 0, 'L', 1);
         $pdf->Ln();
 
         $pdf->Cell($w[0] + $w[1], $lh, 'Canada Revenue Agency: www.cra.gc.ca/charitiesandgiving', 0, 0, 'L', 1);
-        $pdf->Ln(); */
+        $pdf->Ln();
     }
 
     //
