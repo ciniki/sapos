@@ -147,6 +147,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'donation-receipt-signing-officer',
         'donation-receipt-charity-number',
         'donation-receipt-location-issued',
+        'donation-receipt-next-number',
         'donation-invoice-message',
         'donation-receipt-thankyou-message',
         'donation-receipt-signature-image',

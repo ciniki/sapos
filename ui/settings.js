@@ -1073,6 +1073,7 @@ function ciniki_sapos_settings() {
             'donation-receipt-signing-officer':{'label':'Signing Officer', 'type':'text'},
             'donation-receipt-charity-number':{'label':'Charity Number', 'type':'text'},
             'donation-receipt-location-issued':{'label':'Location Issued', 'type':'text'},
+            'donation-receipt-next-number':{'label':'Next Receipt Number', 'type':'text', 'size':'small'},
             }},
         '_invoice_msg':{'label':'Invoice Message', 'fields':{
             'donation-invoice-message':{'label':'', 'hidelabel':'yes', 'type':'text'},
