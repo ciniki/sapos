@@ -197,6 +197,7 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
             && $settings['instore-pickup-ready-email-subject'] != ''
             && isset($settings['instore-pickup-ready-email-content']) 
             && $settings['instore-pickup-ready-email-content'] != ''
+            && isset($invoice['customer']['emails'][0]['email']['address']) 
             ) {
             $subject = $settings['instore-pickup-ready-email-subject'];
             $textmsg = $settings['instore-pickup-ready-email-content'];
