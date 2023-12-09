@@ -945,10 +945,8 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         $pdf->setCellPadding(1);
         $pdf->Ln(10);
 
-        error_log('add header');
-
         $pdf->Header();
-        $pdf->Ln(25);
+        $pdf->Ln(15);
 
         $w = array(45, 45, 90);
         $pdf->setCellPadding(0.5);
