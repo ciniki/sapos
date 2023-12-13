@@ -95,7 +95,7 @@ function ciniki_sapos_hooks_invoiceStatus($ciniki, $tnid, $args) {
             return $rc;
         }
         if( !isset($rc['invoices']) || count($rc['invoices']) == 0 ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.390', 'msg'=>'No invoice found'));
+            return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.sapos.390', 'msg'=>'No invoice found'));
         }
         $invoice = $rc['invoices'][$args['invoice_id']];
         return array('stat'=>'ok', 'invoice'=>$invoice);
