@@ -27,7 +27,7 @@ function ciniki_sapos_wng_cartItemUpdate($ciniki, $tnid, $request, $args) {
         // Get the existing item details
         //
         $strsql = "SELECT id, invoice_id, object, object_id, price_id, "
-            . "quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
+            . "code, description, quantity, unit_amount, unit_discount_amount, unit_discount_percentage, "
             . "unit_preorder_amount, subtotal_amount, discount_amount, total_amount, unit_donation_amount "
             . "FROM ciniki_sapos_invoice_items "
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['item_id']) . "' "

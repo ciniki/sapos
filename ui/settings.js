@@ -70,7 +70,8 @@ function ciniki_sapos_settings() {
 //                'paypalapi':{'label':'Paypal', 'fn':'M.ciniki_sapos_settings.paypalapi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
 //            }},
         'stripe':{'label':'Payments', 
-            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x800000); },
+            // Visible to stripe checkout and POS flags (Checkout in UI with terminal)
+            'visible':function() { return M.modFlagSet('ciniki.sapos', 0x800010); },
             'list':{
                 'stripe':{'label':'Stripe', 'fn':'M.ciniki_sapos_settings.stripe.open(\'M.ciniki_sapos_settings.menu.open();\');'},
             }},
