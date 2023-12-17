@@ -1,0 +1,2 @@
+ALTER TABLE ciniki_sapos_invoice_items MODIFY COLUMN flags int unsigned not null;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.12';

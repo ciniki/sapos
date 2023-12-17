@@ -44,6 +44,10 @@
 #                       0x2000 - Message, display description only, do not display quantity/amount.
 #                       0x4000 - Promotional Item, do not include in item counts and MW/Smart Border Reports
 #                       0x8000 - Donation, generate a tax receipt
+#                       0x010000 - Required Item, it cannot be removed but customer
+#                       0x020000 - 
+#                       0x040000 - 
+#                       0x080000 - 
 #
 # object:               The object for the item in the invoice.  This is the reference to
 #                       the package.module.object.  When combined with the object_id the refering
@@ -111,7 +115,7 @@ create table ciniki_sapos_invoice_items (
     status tinyint unsigned not null,
     category varchar(150) not null,
     donation_category varchar(150) not null,
-    flags smallint unsigned not null,
+    flags int unsigned not null,
     object varchar(100) not null,
     object_id varchar(100) not null,
     price_id varchar(100) not null,
@@ -137,4 +141,4 @@ create table ciniki_sapos_invoice_items (
     primary key (id),
     index (invoice_id, object, object_id, taxtype_id),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.11';
+) ENGINE='InnoDB', COMMENT='v1.12';
