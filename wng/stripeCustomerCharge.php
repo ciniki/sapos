@@ -43,6 +43,7 @@ function ciniki_sapos_wng_stripeCustomerCharge(&$ciniki, $tnid, $request, $args)
     //
     require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/Stripe/init.php');
     \Stripe\Stripe::setApiKey($settings['stripe-sk']);
+//    \Stripe\Stripe::setApiVersion('2023-10-16');
 
     //
     // Create customer
