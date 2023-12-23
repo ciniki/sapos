@@ -267,7 +267,6 @@ function ciniki_sapos_donationCategories(&$ciniki) {
                 }
                 $i++;
             }
-                error_log(print_r($invoice,true));
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['total_amount'], false);
             $row++;
         }
