@@ -26,6 +26,7 @@ function ciniki_sapos_sapos_itemSearch($ciniki, $tnid, $args) {
         . "ciniki_sapos_donation_packages.invoice_name, "
         . "ciniki_sapos_donation_packages.flags, "
         . "ciniki_sapos_donation_packages.category, "
+        . "ciniki_sapos_donation_packages.subcategory, "
         . "ciniki_sapos_donation_packages.sequence, "
         . "ciniki_sapos_donation_packages.amount, "
         . "ciniki_sapos_donation_packages.primary_image_id, "
@@ -37,7 +38,6 @@ function ciniki_sapos_sapos_itemSearch($ciniki, $tnid, $args) {
             . "OR ciniki_sapos_donation_packages.invoice_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "OR ciniki_sapos_donation_packages.invoice_name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . ") "
-        . "AND (flags&0x01) = 0x01 "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'package');
@@ -56,6 +56,7 @@ function ciniki_sapos_sapos_itemSearch($ciniki, $tnid, $args) {
                 'flags'=>0x8000,
                 'price_id'=>0,
                 'code'=>'',
+                'subcategory'=>$package['subcategory'],
                 'description'=>$package['invoice_name'],
                 'quantity'=>1,
                 'object'=>'ciniki.sapos.donationpackage',

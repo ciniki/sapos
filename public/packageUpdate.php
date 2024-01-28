@@ -23,6 +23,7 @@ function ciniki_sapos_packageUpdate(&$ciniki) {
         'invoice_name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Invoice Name'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Options'),
         'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
+        'subcategory'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Subcategory'),
         'sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Sequence'),
         'amount'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Amount'),
         'primary_image_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Image'),

@@ -96,6 +96,7 @@ function ciniki_sapos_packageGet($ciniki) {
             . "ciniki_sapos_donation_packages.invoice_name, "
             . "ciniki_sapos_donation_packages.flags, "
             . "ciniki_sapos_donation_packages.category, "
+            . "ciniki_sapos_donation_packages.subcategory, "
             . "ciniki_sapos_donation_packages.sequence, "
             . "ciniki_sapos_donation_packages.amount, "
             . "ciniki_sapos_donation_packages.primary_image_id, "
@@ -108,8 +109,9 @@ function ciniki_sapos_packageGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
             array('container'=>'packages', 'fname'=>'id', 
-                'fields'=>array('invoice_name', 'name', 'subname', 'permalink', 'sequence', 'flags', 'category', 'amount', 'primary_image_id', 'synopsis', 'description'),
-                ),
+                'fields'=>array('invoice_name', 'name', 'subname', 'permalink', 'sequence', 'flags', 
+                    'category', 'subcategory', 'amount', 'primary_image_id', 'synopsis', 'description',
+                    )),
             ));
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.218', 'msg'=>'Donation Package not found', 'err'=>$rc['err']));

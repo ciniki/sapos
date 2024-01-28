@@ -1225,6 +1225,12 @@ function ciniki_sapos_settings() {
 //            'category':{'label':'Category', 'type':'text'},
             'amount':{'label':'Amount', 'type':'text', 'size':'medium'},
             'invoice_name':{'label':'Invoice Description', 'required':'yes', 'type':'text'},
+            'category':{'label':'Accounting Category', 'type':'text',
+                'visible':function() { return M.modFlagSet('ciniki.sapos', 0x01000000); },
+                },
+            'subcategory':{'label':'Donation Category', 'type':'text',
+                'visible':function() { return M.modFlagSet('ciniki.sapos', 0x08000000); },
+                },
             }},
         '_synopsis':{'label':'Synopsis', 'fields':{
             'synopsis':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},

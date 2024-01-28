@@ -23,7 +23,8 @@
 #                           0x04 - 
 #                           0x08 - 
 #
-# category:             The category of the package. **future** 
+# category:             The accounting category of the package.
+# subcategory:          The accounting subcategory (donation category) of the package.
 #
 # sequence:             The sort order for the packages.
 #
@@ -47,6 +48,7 @@ create table ciniki_sapos_donation_packages (
     invoice_name varchar(150) not null,
     flags tinyint unsigned not null,
     category varchar(150) not null,
+    subcategory varchar(150) not null,
     sequence tinyint unsigned not null,
     amount decimal(19,4) not null,
     primary_image_id int not null,
@@ -57,4 +59,4 @@ create table ciniki_sapos_donation_packages (
     primary key (id),
     unique index (tnid, permalink),
     index tenant_uuid (tnid, uuid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';
