@@ -713,7 +713,8 @@ function ciniki_sapos_invoice() {
                 'unit_discount_amount':{'label':'Discount Amount', 'type':'text', 'size':'small'},
                 'unit_discount_percentage':{'label':'Discount %', 'type':'text', 'size':'small'},
                 'flags1':{'label':'Donation', 'type':'flagtoggle', 'field':'flags', 'bit':0x8000, 'default':'off', 
-                    'active':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
+                    'visible':'yes',
+//                    'active':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
 //                    'on_fields':[],
 //                    'onchange':'M.ciniki_sapos_invoice.item.donationToggle',
                     },
@@ -856,6 +857,11 @@ function ciniki_sapos_invoice() {
                 'object':'ciniki.sapos.invoice_item', 'object_id':this.item_id, 'field':i}};
         };
         this.item.updateDonation = function() {
+            if( this.object == 'ciniki.sponsors.package' ) {
+                this.sections.details.fields.flags1.visible = 'no';
+            } else {
+                this.sections.details.fields.flags1.visible = 'yes';
+            }
             var f = this.formValue('flags1');
             this.sections.details.fields.unit_donation_amount.visible = 'no';
             if( (f&0x8800) == 0x0800 ) {
@@ -872,6 +878,7 @@ function ciniki_sapos_invoice() {
             } else {
                 this.sections.details.fields.subcategory.visible = 'no';
             }
+            this.showHideFormField('details', 'flags1');
             this.showHideFormField('details', 'subcategory');
             this.showHideFormField('details', 'unit_donation_amount');
         }

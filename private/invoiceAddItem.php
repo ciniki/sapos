@@ -126,6 +126,14 @@ function ciniki_sapos_invoiceAddItem($ciniki, $tnid, $args) {
                     }
                 }
                 //
+                // Check if subcategory passed
+                //
+                if( (!isset($args['subcategory']) || $args['subcategory'] == '') 
+                    && isset($rc['item']['subcategory']) && $rc['item']['subcategory'] != '' 
+                    ) {
+                    $args['subcategory'] = $rc['item']['subcategory'];
+                }
+                //
                 // Setup any missing fields
                 //
                 foreach($rc['item'] as $k => $v) {

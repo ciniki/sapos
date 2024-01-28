@@ -571,7 +571,8 @@ function ciniki_sapos_pos() {
             'unit_discount_percentage':{'label':'Discount %', 'type':'text', 'size':'small'},
             'flags1':{'label':'Donation', 'type':'flagtoggle', 'field':'flags', 'bit':0x8000, 'default':'off', 
                 'on_fields':[],
-                'active':function() { return M.modFlagSet('ciniki.sapos', 0x02000000); },
+                'visible':'yes',
+//                'active':function() { console.log(M.ciniki_sapos_pos.item.object); return (M.ciniki_sapos_pos.item.object != 'ciniki.sponsors.package' && M.modFlagOn('ciniki.sapos', 0x02000000) ? 'yes' : 'no'); },
                 },
             'unit_donation_amount':{'label':'Donation Portion', 'type':'text', 'size':'small', 'visible':'no'},
             'subcategory':{'label':'Donation Category', 'type':'text', 'visible':'no', },
@@ -635,7 +636,6 @@ function ciniki_sapos_pos() {
     }
     this.item.liveSearchResultRowFn = function(s,f,i,j,d) {
         if( (f == 'code' || f == 'description') && d.item != null ) {
-            console.log(d.item);
             return 'M.ciniki_sapos_pos.item.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.item.object + '\',\'' + d.item.object_id + '\',\'' + escape(d.item.code!=null?d.item.code:'') + '\',\'' + escape(d.item.description) + '\',\'' + d.item.quantity + '\',\'' + escape(d.item.unit_amount) + '\',\'' + escape(d.item.unit_discount_amount) + '\',\'' + escape(d.item.unit_discount_percentage) + '\',\'' + escape(d.item.unit_donation_amount) + '\',\'' + d.item.taxtype_id + '\',\'' + d.item.price_id + '\',\'' + d.item.flags + '\',\'' + escape(d.item.notes) + '\');';
         }
     };
@@ -678,13 +678,8 @@ function ciniki_sapos_pos() {
         } else if( (flags&0x8000) == 0x8000 ) {    
             this.setFieldValue('flags1', flags);
         }
-/*        this.data.flags = flags; */
         this.setFieldValue('notes', unescape(n));
         this.removeLiveSearch(s, fid);
-/*        if( M.modFlagOn('ciniki.sapos', 0x08000000) && (flags&0x80000000) == 0x80000000 ) {
-            this.sections.details.fields.subcategory.visible = 'yes';
-        }
-        this.showHideFormField('details', 'subcategory'); */
         this.updateDonation();
     };
     this.item.fieldValue = function(s, i, d) {
@@ -696,6 +691,11 @@ function ciniki_sapos_pos() {
             'object':'ciniki.sapos.invoice_item', 'object_id':this.item_id, 'field':i}};
     };
     this.item.updateDonation = function() {
+        if( this.object == 'ciniki.sponsors.package' ) {
+            this.sections.details.fields.flags1.visible = 'no';
+        } else {
+            this.sections.details.fields.flags1.visible = 'yes';
+        }
         var f = this.formValue('flags1');
         this.sections.details.fields.unit_donation_amount.visible = 'no';
         if( (f&0x8800) == 0x0800 ) {
@@ -712,6 +712,7 @@ function ciniki_sapos_pos() {
         } else {
             this.sections.details.fields.subcategory.visible = 'no';
         }
+        this.showHideFormField('details', 'flags1');
         this.showHideFormField('details', 'subcategory');
         this.showHideFormField('details', 'unit_donation_amount');
     }
