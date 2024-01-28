@@ -23,7 +23,7 @@
 #
 # category:             The category for the invoice item when running reports.
 #
-# donation_category:    The category for the donation, only used for donations.
+# subcategory:          The category for the donation, only used for donations.
 #                       The donation can still be in the 'category' field for income categories.
 #                   
 # flags:                The flags for the item in the invoice/order.
@@ -114,7 +114,7 @@ create table ciniki_sapos_invoice_items (
     line_number int not null,
     status tinyint unsigned not null,
     category varchar(150) not null,
-    donation_category varchar(150) not null,
+    subcategory varchar(150) not null,
     flags int unsigned not null,
     object varchar(100) not null,
     object_id varchar(100) not null,
@@ -141,4 +141,4 @@ create table ciniki_sapos_invoice_items (
     primary key (id),
     index (invoice_id, object, object_id, taxtype_id),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.12';
+) ENGINE='InnoDB', COMMENT='v1.13';

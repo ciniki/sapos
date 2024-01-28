@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_donationCategories(&$ciniki) {
+function ciniki_sapos_sponsorshipCategories(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -82,10 +82,10 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     if( isset($rc['stats']) ) {
         $rsp['stats'] = $rc['stats'];
     }
-    $rsp['categories'] = array();
-    if( isset($rsp['stats']['donationcategories']) ) {
-        foreach($rsp['stats']['donationcategories'] as $cid => $c) {
-            $rsp['categories'][$c['name']] = array('name'=>$c['name'], 'total_amount'=>0);
+    $rsp['subcategories'] = array();
+    if( isset($rsp['stats']['sponsorshipcategories']) ) {
+        foreach($rsp['stats']['sponsorshipcategories'] as $cid => $c) {
+            $rsp['subcategories'][$c['name']] = array('name'=>$c['name'], 'total_amount'=>0);
         }
     }
     $rsp['totals']['total_amount'] = 0;
@@ -104,9 +104,9 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         . "ciniki_customers.display_name AS customer_display_name, "
         . "ciniki_sapos_invoices.total_amount, "
         . "items.id AS item_id, "
-        . "IF(IFNULL(items.subcategory, '') = '', 'Uncategorized', subcategory) AS category, "
+        . "IF(IFNULL(items.subcategory, '') = '', 'Uncategorized', subcategory) AS subcategory, "
 //        . "SUM(items.total_amount) AS amount "
-        . "SUM(IF((items.flags&0x0800)=0x0800, items.unit_donation_amount, items.total_amount)) AS amount "
+        . "SUM(items.total_amount) AS amount "
         . "FROM ciniki_sapos_invoices "
         . "LEFT JOIN ciniki_customers ON ("
             . "ciniki_sapos_invoices.customer_id = ciniki_customers.id "
@@ -114,7 +114,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
             . ") "
         . "INNER JOIN ciniki_sapos_invoice_items AS items ON ("
             . "ciniki_sapos_invoices.id = items.invoice_id "
-            . "AND (items.flags&0x8800) > 0 "
+            . "AND items.object = 'ciniki.sponsors.package' "
             . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
@@ -169,7 +169,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     }
     $strsql .= "AND (ciniki_sapos_invoices.invoice_type = 10 || ciniki_sapos_invoices.invoice_type = 30) ";
     $strsql .= "GROUP BY ciniki_sapos_invoices.id, items.subcategory ";
-    $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC, items.category ";
+    $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC, items.subcategory ";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 
@@ -177,7 +177,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
             'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
             ),
-        array('container'=>'cats', 'fname'=>'category', 'fields'=>array('name'=>'category', 'amount')),
+        array('container'=>'subcats', 'fname'=>'subcategory', 'fields'=>array('name'=>'subcategory', 'amount')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -187,16 +187,19 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     } else {
         $rsp['invoices'] = $rc['invoices'];
     }
+    $rsp['subcategories'] = array();
     foreach($rsp['invoices'] as $iid => $invoice) {
-        $rsp['invoices'][$iid]['categories'] = array();
+        $rsp['invoices'][$iid]['subcategories'] = array();
         $invoice['total_amount'] = 0;
-        if( isset($invoice['cats']) ) {
-            foreach($invoice['cats'] as $cid => $category) {
-                $category['amount_display'] = numfmt_format_currency($intl_currency_fmt, $category['amount'], $intl_currency);
-                $rsp['invoices'][$iid]['categories'][$category['name']] = $category;
-//                $rsp['invoices'][$iid]['categories'][$cid]['amount_display'] = numfmt_format_currency($intl_currency_fmt, $category['amount'], $intl_currency);
-                $rsp['categories'][$category['name']]['total_amount'] = bcadd($rsp['categories'][$category['name']]['total_amount'], $category['amount'], 6);
-                $invoice['total_amount'] = bcadd($invoice['total_amount'], $category['amount'], 2);
+        if( isset($invoice['subcats']) ) {
+            foreach($invoice['subcats'] as $cid => $subcategory) {
+                $subcategory['amount_display'] = numfmt_format_currency($intl_currency_fmt, $subcategory['amount'], $intl_currency);
+                $rsp['invoices'][$iid]['subcategories'][$subcategory['name']] = $subcategory;
+                if( !isset($rsp['subcategories'][$subcategory['name']]) ) {
+                    $rsp['subcategories'][$subcategory['name']] = array('name'=>$subcategory['name'], 'total_amount' => 0);
+                }
+                $rsp['subcategories'][$subcategory['name']]['total_amount'] = bcadd($rsp['subcategories'][$subcategory['name']]['total_amount'], $subcategory['amount'], 6);
+                $invoice['total_amount'] = bcadd($invoice['total_amount'], $subcategory['amount'], 2);
             }
         }
         $rsp['totals']['total_amount'] = bcadd($rsp['totals']['total_amount'], $invoice['total_amount'], 6);
@@ -207,13 +210,13 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     $rsp['totals']['total_amount'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['total_amount'], $intl_currency);
     $rsp['totals']['num_invoices'] = count($rsp['invoices']);
 
-    if( isset($rsp['stats']['categories']) ) {
-        foreach($rsp['categories'] as $cid => $c) {
-            $rsp['categories'][$cid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $c['total_amount'], $intl_currency);
+    if( isset($rsp['stats']['subcategories']) ) {
+        foreach($rsp['subcategories'] as $cid => $c) {
+            $rsp['subcategories'][$cid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $c['total_amount'], $intl_currency);
         }
     }
 
-    $rsp['categories'] = array_values($rsp['categories']);
+    $rsp['subcategories'] = array_values($rsp['subcategories']);
     
     //
     // Check if output should be excel
@@ -246,7 +249,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Date', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
-        foreach($rsp['categories'] as $c) {
+        foreach($rsp['subcategories'] as $c) {
             $sheet->setCellValueByColumnAndRow($i++, 1, $c['name'], false);
         }
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
@@ -261,9 +264,9 @@ function ciniki_sapos_donationCategories(&$ciniki) {
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_date'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['customer_display_name'], false);
-            foreach($rsp['categories'] as $c) {
-                if( isset($invoice['categories'][$c['name']]['amount']) ) {
-                    $sheet->setCellValueByColumnAndRow($i, $row, $invoice['categories'][$c['name']]['amount'], false);
+            foreach($rsp['subcategories'] as $c) {
+                if( isset($invoice['subcategories'][$c['name']]['amount']) ) {
+                    $sheet->setCellValueByColumnAndRow($i, $row, $invoice['subcategories'][$c['name']]['amount'], false);
                 }
                 $i++;
             }
@@ -273,7 +276,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         if( $row > 2 ) {
             $sheet->setCellValueByColumnAndRow(0, $row, $rsp['totals']['num_invoices'], false);
             $i = 3;
-            foreach($rsp['categories'] as $c) {
+            foreach($rsp['subcategories'] as $c) {
                 $sheet->setCellValueByColumnAndRow($i, $row, "=SUM(" . chr($i+65) . "2:" . chr($i+65) . ($row-1) . ")", false);
                 $sheet->getStyle(chr($i+65) . '2:' . chr($i+65) . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
                 $sheet->getStyle(chr($i+65) . $row)->getFont()->setBold(true);
@@ -288,7 +291,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         $sheet->getColumnDimension('B')->setAutoSize(true);
         $sheet->getColumnDimension('C')->setAutoSize(true);
         $i = 3;
-        foreach($rsp['categories'] as $c) {
+        foreach($rsp['subcategories'] as $c) {
             $sheet->getColumnDimension(chr($i+65))->setAutoSize(true);
             $i++;
         }

@@ -61,7 +61,7 @@ function ciniki_sapos_invoiceItemGet(&$ciniki) {
         . "flags, "
         . "invoice_id, "
         . "category, "
-        . "donation_category, "
+        . "subcategory, "
         . "object, "
         . "object_id, "
         . "code, "

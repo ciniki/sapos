@@ -718,7 +718,7 @@ function ciniki_sapos_invoice() {
 //                    'onchange':'M.ciniki_sapos_invoice.item.donationToggle',
                     },
                 'unit_donation_amount':{'label':'Donation Portion', 'type':'text', 'size':'small', 'visible':'no'},
-                'donation_category':{'label':'Donation Category', 'type':'text', 'visible':'no'},
+                'subcategory':{'label':'Donation Category', 'type':'text', 'visible':'no'},
                 'taxtype_id':{'label':'Taxes', 'type':'select', 'options':{}},
                 'force_backorder':{'label':'Backorder', 'active':'no', 'type':'toggle', 'default':'no', 'toggles':{'no':'No', 'yes':'Yes'}},
                 }},
@@ -759,7 +759,7 @@ function ciniki_sapos_invoice() {
                 }
             }
             if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
-                this.showHideFormField('details', 'donation_category');
+                this.showHideFormField('details', 'subcategory');
             }
         } */
         this.item.liveSearchResultValue = function(s,f,i,j,d) {
@@ -841,9 +841,9 @@ function ciniki_sapos_invoice() {
             this.setFieldValue('notes', unescape(n));
             this.removeLiveSearch(s, fid);
 /*            if( M.modFlagOn('ciniki.sapos', 0x08000000) && (flags&0x80000000) == 0x80000000 ) {
-                this.sections.details.fields.donation_category.visible = 'yes';
+                this.sections.details.fields.subcategory.visible = 'yes';
             }
-            this.showHideFormField('details', 'donation_category'); */
+            this.showHideFormField('details', 'subcategory'); */
 //            this.donationToggle();
             this.updateDonation();
         };
@@ -863,16 +863,16 @@ function ciniki_sapos_invoice() {
             }
             if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
                 if( M.modFlagOn('ciniki.sapos', 0x04000000) && (f&0x8800) > 0 ) {
-                    this.sections.details.fields.donation_category.visible = 'yes';
+                    this.sections.details.fields.subcategory.visible = 'yes';
                 } else if( f == 'on' ) {
-                    this.sections.details.fields.donation_category.visible = 'yes';
+                    this.sections.details.fields.subcategory.visible = 'yes';
                 } else {
-                    this.sections.details.fields.donation_category.visible = 'no';
+                    this.sections.details.fields.subcategory.visible = 'no';
                 }
             } else {
-                this.sections.details.fields.donation_category.visible = 'no';
+                this.sections.details.fields.subcategory.visible = 'no';
             }
-            this.showHideFormField('details', 'donation_category');
+            this.showHideFormField('details', 'subcategory');
             this.showHideFormField('details', 'unit_donation_amount');
         }
         this.item.open = function(cb, iid, inid) {
@@ -900,19 +900,19 @@ function ciniki_sapos_invoice() {
                         // Removed on Jun 19, 2023, implemented better way to handle partial donations
 /*                        p.sections.details.fields.flags1.on_fields = [];
                         p.sections.details.fields.unit_donation_amount.visible = 'no';
-                        p.sections.details.fields.donation_category.visible = 'no';
+                        p.sections.details.fields.subcategory.visible = 'no';
                         if( M.modFlagOn('ciniki.sapos', 0x0c000000) ) {
-                            p.sections.details.fields.flags1.on_fields = ['unit_donation_amount', 'donation_category'];
+                            p.sections.details.fields.flags1.on_fields = ['unit_donation_amount', 'subcategory'];
                         } else if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
                             p.sections.details.fields.flags1.on_fields = ['unit_donation_amount'];
                         } else if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
-                            p.sections.details.fields.flags1.on_fields = ['donation_category'];
+                            p.sections.details.fields.flags1.on_fields = ['subcategory'];
                         } 
                         if( M.modFlagOn('ciniki.sapos', 0x04000000) && (rsp.item.flags&0x8000) == 0x8000 ) {
                             p.sections.details.fields.unit_donation_amount.visible = 'yes';
                         }
                         if( M.modFlagOn('ciniki.sapos', 0x08000000) && (rsp.item.flags&0x8000) == 0x8000 ) {
-                            p.sections.details.fields.donation_category.visible = 'yes';
+                            p.sections.details.fields.subcategory.visible = 'yes';
                         } */
     //                  if( rsp.taxtypes != null ) {
     //                      p.sections.details.fields.taxtype_id.active = 'yes';
@@ -939,13 +939,13 @@ function ciniki_sapos_invoice() {
                 p.sections.details.fields.force_backorder.active = 'no';
 /*                p.sections.details.fields.flags1.on_fields = [];
                 p.sections.details.fields.unit_donation_amount.visible = 'no';
-                p.sections.details.fields.donation_category.visible = 'no';
+                p.sections.details.fields.subcategory.visible = 'no';
                 if( M.modFlagOn('ciniki.sapos', 0x0c000000) ) {
-                    p.sections.details.fields.flags1.on_fields = ['unit_donation_amount', 'donation_category'];
+                    p.sections.details.fields.flags1.on_fields = ['unit_donation_amount', 'subcategory'];
                 } else if( M.modFlagOn('ciniki.sapos', 0x04000000) ) {
                     p.sections.details.fields.flags1.on_fields = ['unit_donation_amount'];
                 } else if( M.modFlagOn('ciniki.sapos', 0x08000000) ) {
-                    p.sections.details.fields.flags1.on_fields = ['donation_category'];
+                    p.sections.details.fields.flags1.on_fields = ['subcategory'];
                 }  */
     //          if( M.curTenant.modules['ciniki.taxes'] != null ) {
     //              M.api.getJSONCb('ciniki.taxes.typeList', {'tnid':M.curTenantID}, function(rsp) {

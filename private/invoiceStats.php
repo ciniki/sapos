@@ -168,9 +168,10 @@ function ciniki_sapos__invoiceStats($ciniki, $tnid) {
     //
     if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x08000000) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
-        $strsql = "SELECT DISTINCT BINARY IF(donation_category = '', 'Uncategorized', donation_category) AS category "
-            . "FROM ciniki_sapos_invoice_items "
-            . "WHERE ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        $strsql = "SELECT DISTINCT BINARY IF(subcategory = '', 'Uncategorized', subcategory) AS category "
+            . "FROM ciniki_sapos_invoice_items AS items "
+            . "WHERE items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND (items.flags&0x8800) > 0 "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array( 
             array('container'=>'categories', 'fname'=>'category', 'fields'=>array('name'=>'category')),
@@ -179,6 +180,25 @@ function ciniki_sapos__invoiceStats($ciniki, $tnid) {
             return $rc;
         }
         $rsp['stats']['donationcategories'] = isset($rc['categories']) ? $rc['categories'] : array();
+    }
+
+    //
+    // Get the list of sponsorship categories used in invoices
+    //
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sponsors', 0x10) ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $strsql = "SELECT DISTINCT BINARY IF(items.subcategory = '', 'Uncategorized', subcategory) AS category "
+            . "FROM ciniki_sapos_invoice_items AS items "
+            . "WHERE items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND items.object = 'ciniki.sponsors.package' "
+            . "";
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array( 
+            array('container'=>'categories', 'fname'=>'category', 'fields'=>array('name'=>'category')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $rsp['stats']['sponsorshipcategories'] = isset($rc['categories']) ? $rc['categories'] : array();
     }
 
     return $rsp;

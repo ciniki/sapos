@@ -22,7 +22,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         'status'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Status'),
         'flags'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Options'),
         'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
-        'donation_category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Donation Category'),
+        'subcategory'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Subcategory'),
         'object'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object'),
         'object_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Object ID'),
         'price_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Price'),

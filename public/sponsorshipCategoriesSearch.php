@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_donationCategoriesSearch(&$ciniki) {
+function ciniki_sapos_sponsorshipCategoriesSearch(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -30,7 +30,7 @@ function ciniki_sapos_donationCategoriesSearch(&$ciniki) {
     // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.donationCategoriesSearch'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.sponsorshipCategoriesSearch'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -41,7 +41,7 @@ function ciniki_sapos_donationCategoriesSearch(&$ciniki) {
     $strsql = "SELECT DISTINCT subcategory AS category "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-        . "AND (flags&0x8800) > 0 "
+        . "AND object = 'ciniki.sponsors.package' "
         . "AND subcategory <> '' "
         . "";
     if( isset($args['start_needle']) && $args['start_needle'] != '' ) {

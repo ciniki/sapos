@@ -10,7 +10,7 @@
 // Returns
 // -------
 //
-function ciniki_sapos_donationCategoriesUpdate(&$ciniki) {
+function ciniki_sapos_sponsorshipCategoriesUpdate(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -29,7 +29,7 @@ function ciniki_sapos_donationCategoriesUpdate(&$ciniki) {
     // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'checkAccess');
-    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.donationCategoriesUpdate'); 
+    $rc = ciniki_sapos_checkAccess($ciniki, $args['tnid'], 'ciniki.sapos.sponsorshipCategoriesUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }

@@ -21,7 +21,7 @@ function ciniki_sapos_invoiceItemAdd(&$ciniki) {
         'line_number'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Line Number'),
         'status'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Status'),
         'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
-        'donation_category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Donation Category'),
+        'subcategory'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Subcategory'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Options'),
         'object'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Object'),
         'object_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Object ID'),

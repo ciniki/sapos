@@ -85,7 +85,7 @@ function ciniki_sapos_objects($ciniki) {
             'line_number'=>array('name'=>'Line Number', 'default'=>'1'),
             'status'=>array('name'=>'Status', 'default'=>'0'),
             'category'=>array('name'=>'Category', 'default'=>''),
-            'donation_category'=>array('name'=>'Donation Category', 'default'=>''),
+            'subcategory'=>array('name'=>'Subcategory', 'default'=>''),
             'flags'=>array('name'=>'Flags', 'default'=>'0'),
             'object'=>array('name'=>'Object', 'default'=>''),
             'object_id'=>array('name'=>'Object ID', 'default'=>'0'),

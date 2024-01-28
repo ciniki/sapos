@@ -1,0 +1,2 @@
+ALTER TABLE ciniki_sapos_invoice_items CHANGE COLUMN donation_category subcategory varchar(150) not null;
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.13';
