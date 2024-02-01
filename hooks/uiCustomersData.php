@@ -252,6 +252,7 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
     $rsp['tabs'][] = array(
         'id' => 'ciniki.sapos.invoices',
         'label' => 'Invoices',
+        'priority' => 8000,
         'sections' => $sections,
         );
     if( isset($carts) ) {
