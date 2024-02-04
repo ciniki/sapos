@@ -42,6 +42,8 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
 
     class MYPDF extends TCPDF {
         //Page header
+        public $left_margin = 18;
+        public $right_margin = 18;
         public $header_image = null;
         public $header_name = '';
         public $header_addr = array();
@@ -75,10 +77,10 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
                 // Check if the ratio of the image will make it too large for the height,
                 // and scaled based on either height or width.
                 if( $available_ratio < $image_ratio ) {
-                    $this->Image('@'.$this->header_image->getImageBlob(), 15, ($this->getY() + 7), 
+                    $this->Image('@'.$this->header_image->getImageBlob(), 18, ($this->getY() + 7), 
                         $img_width, 0, 'JPEG', '', 'L', 2, '150');
                 } else {
-                    $this->Image('@'.$this->header_image->getImageBlob(), 15, ($this->getY() + 7), 
+                    $this->Image('@'.$this->header_image->getImageBlob(), 18, ($this->getY() + 7), 
                         0, $this->header_height-5, 'JPEG', '', 'L', 2, '150');
                 }
             }
@@ -121,6 +123,8 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             //
             // Output the invoice details which should be at the top of each page.
             //
+            $this->SetLineWidth(0.15);
+            $this->SetDrawColor(51);
             $this->SetCellPadding(2);
             if( count($this->header_details) > 0 && count($this->header_details) <= 6 ) {
                 if( $this->header_name == '' && count($this->header_addr) == 0 ) {
@@ -340,7 +344,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     $pdf->SetKeywords('');
 
     // set margins
-    $pdf->SetMargins(PDF_MARGIN_LEFT, $pdf->header_height+33, PDF_MARGIN_RIGHT);
+    $pdf->SetMargins($pdf->left_margin, $pdf->header_height+33, $pdf->right_margin);
     $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
     $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 
@@ -349,12 +353,13 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     $pdf->SetFont('times', 'BI', 10);
     $pdf->SetCellPadding(2);
 
-    // add a page
-    $pdf->AddPage();
     $pdf->SetFillColor(255);
     $pdf->SetTextColor(0);
     $pdf->SetDrawColor(51);
     $pdf->SetLineWidth(0.15);
+
+    // add a page
+    $pdf->AddPage();
 
     //
     // Determine the billing address information
@@ -555,16 +560,22 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         if( isset($item['item']['code']) && $item['item']['code'] != '' ) {
             $item['item']['description'] = $item['item']['code'] . ' - ' . $item['item']['description'];
         }
+//        if( isset($item['item']['notes']) && $item['item']['notes'] != '' ) {
+//            $item['item']['description'] .= "\n    " . preg_replace('/\n/', "\n    ", $item['item']['notes']);
+//        }
+//        $nlines = $pdf->getNumLines($item['item']['description'], $w[0]);
+//        if( $nlines == 2 ) {
+//            $lh = 3+($nlines*5);
+//        } elseif( $nlines > 2 ) {
+//            $lh = 3+($nlines*5);
+//        }
+        $lh = $pdf->getStringHeight($w[0], $item['item']['description']);
+        $height = $lh;
+        $border = 1;
         if( isset($item['item']['notes']) && $item['item']['notes'] != '' ) {
-            $item['item']['description'] .= "\n    " . preg_replace('/\n/', "\n    ", $item['item']['notes']);
+            $height += $pdf->getStringHeight($w[0]-5, $item['item']['notes']);
+            $border = 'TRL';
         }
-        $nlines = $pdf->getNumLines($item['item']['description'], $w[0]);
-        if( $nlines == 2 ) {
-            $lh = 3+($nlines*5);
-        } elseif( $nlines > 2 ) {
-            $lh = 3+($nlines*5);
-        }
-        $height = $pdf->getStringHeight($w[0], $item['item']['description']);
         // Check if we need a page break
         if( $pdf->getY() > ($pdf->getPageHeight() - 30 - $height) ) {
             $pdf->AddPage();
@@ -578,23 +589,34 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             $pdf->SetTextColor(0);
             $pdf->SetFont('');
         }
-        $pdf->MultiCell($w[0], $lh, $item['item']['description'], 1, 'L', $fill, 
+        $pdf->SetCellPaddings(2, 2, 2, 0);
+        $pdf->MultiCell($w[0], $lh, $item['item']['description'], $border, 'L', $fill, 
             0, '', '', true, 0, false, true, 0, 'T', false);
         $quantity = (($item['item']['quantity']>0&&$item['item']['quantity']!=1)?($item['item']['quantity'].' @ '):'');
         if( ($invoice['flags']&0x01) > 0 ) {
-            $pdf->MultiCell($w[1], $lh, $quantity . $item['item']['unit_discounted_amount_display'], 1, 'R', $fill, 
+            $pdf->MultiCell($w[1], $lh, $quantity . $item['item']['unit_discounted_amount_display'], $border, 'R', $fill, 
                 0, '', '', true, 0, false, true, 0, 'T', false);
         } else if( $discount == '' ) {
 //          $pdf->Cell($w[1], $lh, $quantity . $item['item']['unit_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-            $pdf->MultiCell($w[1], $lh, $quantity . $item['item']['unit_amount_display'], 1, 'R', $fill, 
+            $pdf->MultiCell($w[1], $lh, $quantity . $item['item']['unit_amount_display'], $border, 'R', $fill, 
                 0, '', '', true, 0, false, true, 0, 'T', false);
         } else {
-            $pdf->MultiCell($w[1], $lh, $quantity . '' . $item['item']['unit_amount_display'] . (($discount!='')?"\n" . $discount:""), 1, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
+            $pdf->MultiCell($w[1], $lh, $quantity . '' . $item['item']['unit_amount_display'] . (($discount!='')?"\n" . $discount:""), $border, 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
         }
 //      $pdf->Cell($w[2], $lh, $item['item']['total_amount_display'], 1, 0, 'R', $fill, '', 0, false, 'T', 'T');
-        $pdf->MultiCell($w[2], $lh, $item['item']['total_amount_display'], 1, 'R', $fill, 
+        $pdf->MultiCell($w[2], $lh, $item['item']['total_amount_display'], $border, 'R', $fill, 
             0, '', '', true, 0, false, true, 0, 'T', false);
         $pdf->Ln(); 
+        if( isset($item['item']['notes']) && $item['item']['notes'] != '' ) {
+            $pdf->SetCellPaddings(7, 0, 2, 2);
+            $lh = $pdf->getStringHeight($w[0]-5, $item['item']['notes']);
+            $pdf->MultiCell($w[0], $lh, $item['item']['notes'], 'LRB', 'L', $fill, 
+                0, '', '', true, 0, false, true, 0, 'T', false);
+            $pdf->MultiCell($w[1], $lh, '', 'RBL', 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
+            $pdf->MultiCell($w[2], $lh, '', 'RBL', 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
+            $pdf->Ln(); 
+        }
+        $pdf->SetCellPaddings(2, 2, 2, 2);
         $fill=!$fill;
     }
 
@@ -1045,7 +1067,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         return array('stat'=>'ok', 'filename'=>$filename_prefix . $invoice['invoice_number'] . '.pdf', 'pdf'=>$pdf, 'invoice'=>$invoice);
     } else {
         //Close and output PDF document
-        $pdf->Output($filename_prefix . $invoice['invoice_number'] . '.pdf', 'D');
+        $pdf->Output($filename_prefix . $invoice['invoice_number'] . '.pdf', 'I');
     }
 
     return array('stat'=>'exit');
