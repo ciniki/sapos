@@ -68,6 +68,9 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
             'unit_discount_percentage'=>0,
             'taxtype_id'=>0,
             );
+        if( isset($args['user_amount']) ) {
+            $args['user_amount'] = preg_replace("/[^0-9\.]/", '', $args['user_amount']);
+        }
         if( ($package['flags']&0x02) == 0x02 ) {    
             $product['unit_amount'] = $package['amount'];
         } elseif( isset($args['user_amount']) && is_numeric($args['user_amount']) ) {
