@@ -71,6 +71,9 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
         if( ($package['flags']&0x02) == 0x02 ) {    
             $product['unit_amount'] = $package['amount'];
         } elseif( isset($args['user_amount']) && is_numeric($args['user_amount']) ) {
+            if( $args['user_amount'] < 0 ) {
+                return array('stat'=>'warn', 'err'=>array('code'=>'ciniki.sapos.426', 'msg'=>'You cannot specify a negative donation.'));
+            } 
             $product['unit_amount'] = $args['user_amount'];
         } else {
             return array('stat'=>'warn', 'err'=>array('code'=>'ciniki.sapos.426', 'msg'=>'You must specify the amount of the donation.'));
