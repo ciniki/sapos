@@ -56,7 +56,9 @@ function ciniki_sapos_wng_cartItemAdd($ciniki, $tnid, $request, $args) {
                 if( $rc['stat'] == 'ok' ) {
                     $fn = $rc['function_call'];
                     $rc = $fn($ciniki, $tnid, $request['session']['customer'], $args);
-                    if( $rc['stat'] != 'ok' ) {
+                    if( $rc['stat'] == 'warn' ) {
+                        return $rc;
+                    } elseif( $rc['stat'] != 'ok' ) {
                         return array('stat'=>'404', 'err'=>array('code'=>'ciniki.sapos.325', 'msg'=>'Unable to find item', 'err'=>$rc['err']));
                     }
                     $item = $rc['item'];

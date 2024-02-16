@@ -57,7 +57,7 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
         // Setup the product
         //
         $product = array(
-            'flags'=>0x8000,
+            'flags'=>0x8008,
             'price_id'=>0,
             'code'=>'',
             'description'=>$package['invoice_name'],
@@ -73,7 +73,7 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
         } elseif( isset($args['user_amount']) && is_numeric($args['user_amount']) ) {
             $product['unit_amount'] = $args['user_amount'];
         } else {
-            $product['unit_amount'] = 0;
+            return array('stat'=>'warn', 'err'=>array('code'=>'ciniki.sapos.426', 'msg'=>'You must specify the amount of the donation.'));
         }
 
         return array('stat'=>'ok', 'item'=>$product);
