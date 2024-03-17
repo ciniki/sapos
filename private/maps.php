@@ -145,6 +145,7 @@ function ciniki_sapos_maps($ciniki) {
         );
     $maps['transaction'] = array(
         'status'=>array(
+            '10'=>'Paid',
             '40'=>'Completed',
             '60'=>'Deposited',
             ),

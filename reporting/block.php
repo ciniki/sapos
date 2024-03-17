@@ -53,6 +53,10 @@ function ciniki_sapos_reporting_block(&$ciniki, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockOntarioQuarterlyHST');
         return ciniki_sapos_reporting_blockOntarioQuarterlyHST($ciniki, $tnid, $args['options']);
     }
+    elseif( $args['block_ref'] == 'ciniki.sapos.categorypaymenttypessummary' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockCategoryPaymentTypesSummary');
+        return ciniki_sapos_reporting_blockCategoryPaymentTypesSummary($ciniki, $tnid, $args['options']);
+    }
 
     return array('stat'=>'ok');
 }

@@ -111,6 +111,18 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
             );
     }
 
+    //
+    // Category Payment Types Summary 
+    //
+    $blocks['ciniki.sapos.categorypaymenttypessummary'] = array(
+        'name'=>'Category Payment Types Summary',
+        'module' => 'Accounting',
+        'dates' => 'yes',
+        'options'=>array(
+//            'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
+            ),
+        );
+
     return array('stat'=>'ok', 'blocks'=>$blocks);
 }
 ?>

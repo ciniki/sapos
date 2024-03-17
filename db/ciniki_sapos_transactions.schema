@@ -30,7 +30,7 @@
 #                       20 - Payment
 #                       60 - Refund
 #
-# transaction_date:     The date the transaction occured.
+# transaction_date:     The UTC date and time of the transaction occured.
 #
 # source:               The source of the payment
 #

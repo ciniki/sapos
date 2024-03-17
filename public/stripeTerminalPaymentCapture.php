@@ -106,7 +106,7 @@ function ciniki_sapos_stripeTerminalPaymentCapture(&$ciniki) {
     //
     // Setup the fields needed for a transaction
     //
-    $args['status'] = 10;
+    $args['status'] = 40;   // Completed
     $args['transaction_type'] = 20;
     $args['source'] = 30;
     if( !isset($args['transaction_date']) || $args['transaction_date'] == '' ) {
