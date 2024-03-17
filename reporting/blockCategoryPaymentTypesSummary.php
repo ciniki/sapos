@@ -149,6 +149,7 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
             . ") "
         . "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d H:i:s')) . "' "
         . "AND invoices.invoice_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d H:i:s')) . "' "
+        . "ORDER BY invoices.id, items.id "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -180,6 +181,7 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
         . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d H:i:s')) . "' "
         . "AND invoices.invoice_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d H:i:s')) . "' "
+        . "ORDER BY invoices.id, transactions.id "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -220,6 +222,7 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
                 if( !isset($invoice_sources[$transaction['source']]) ) {
                     $invoice_sources[$transaction['source']] = $transaction['customer_amount'];
                 } else {
+                error_log('add: ' . $transaction['customer_amount']);
                     $invoice_sources[$transaction['source']] += $transaction['customer_amount'];
                 }
             }
