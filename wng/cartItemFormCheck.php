@@ -34,7 +34,7 @@ function ciniki_sapos_wng_cartItemFormCheck(&$ciniki, $tnid, &$request, $item) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'forms', 'wng', 'submissionLoad');
     $rc = ciniki_forms_wng_submissionLoad($ciniki, $tnid, $request, $form);
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.406', 'msg'=>'Unable to load form', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.450', 'msg'=>'Unable to load form', 'err'=>$rc['err']));
     }
 
     //
@@ -55,7 +55,7 @@ function ciniki_sapos_wng_cartItemFormCheck(&$ciniki, $tnid, &$request, $item) {
             'label' => 'New Submission',
             ), 0x04);
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.forms.71', 'msg'=>'Unable to add the submission', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.forms.446', 'msg'=>'Unable to add the submission', 'err'=>$rc['err']));
         }
         $form['submission_id'] = $rc['id'];
         $form['submission_uuid'] = $rc['uuid'];
