@@ -81,6 +81,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
         . "FROM ciniki_sapos_transactions "
         . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+        . "AND status >= 40 "   // Only transactions that have completed.
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
     if( $rc['stat'] != 'ok' ) { 
@@ -188,7 +189,7 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
     //
     if( ($ciniki['tenant']['modules']['ciniki.sapos']['flags']&0x10800200) > 0 || $invoice['payment_status'] > 0 ) {
         if( $amount_paid > 0 && $amount_paid < $invoice['total_amount'] ) {
-            if( $invoice['payment_status'] == 10 || $invoice['payment_status'] == 50 ) {
+            if( $invoice['payment_status'] == 10 || $invoice['payment_status'] == 50 || $invoice['payment_status'] == 55 ) {
                 $new_payment_status = 40;
             }
         } elseif( $amount_paid == 0 && $invoice['total_amount'] == 0 && $invoice['num_items'] > 0 ) {
