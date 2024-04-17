@@ -112,45 +112,8 @@ function ciniki_sapos_wng_etransferCheckout(&$ciniki, $tnid, &$request, $cart) {
                     }
                 }
             }
-/*            if( ($item['flags']&0x8000) == 0x8000 ) {
-                $donation_amount = bcadd($donation_amount, $item['total_amount'], 6);
-            } elseif( ($item['flags']&0x0800) == 0x0800 ) {
-                $donation_amount = bcadd($donation_amount, ($item['quantity'] * $item['unit_donation_amount']), 6);
-            } */
-        }
-/*    } else {
-        $items = array(); */
-    }
-/*
-    //
-    // Check if invoice should have a receipt_number
-    //
-    if( $donation_amount > 0 && ($invoice['invoice_type'] == 10 || $args['invoice_type'] == 10)
-        && ($invoice['receipt_number'] == '' || $invoice['receipt_number'] == 0) 
-        ) {
-        $strsql = "SELECT MAX(CAST(receipt_number AS UNSIGNED)) AS max_num "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
-        if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.378', 'msg'=>'Unable to find next available receipt number', 'err'=>$rc['err']));
-        }
-        if( isset($rc['num']['max_num']) ) {
-            $args['receipt_number'] = $rc['num']['max_num'] + 1;
-        } else {
-            $args['receipt_number'] = 1;
         }
     }
-*/
-/*    if( isset($request['session']['customer']['display_name']) ) {
-        $args['submitted_by'] = $request['session']['customer']['display_name'];
-    } else {
-        $args['submitted_by'] = '';
-    } 
-    if( isset($request['session']['customer']['email']) && $request['session']['customer']['email'] != '' ) {
-        $args['submitted_by'] .= ($args['submitted_by']!='' ? ' [' . $request['session']['customer']['email'] . ']' : $request['session']['customer']['email']);
-    } */
 
     //
     // Update the invoice with new settings
