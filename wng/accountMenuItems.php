@@ -27,14 +27,12 @@ function ciniki_sapos_wng_accountMenuItems($ciniki, $tnid, $request, $args) {
         . "AND (invoices.invoice_type = 10 OR invoices.invoice_type = 30) "
         . "AND invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
-        error_log(print_r($strsql,true));
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
     $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.sapos', 'num');
     if( $rc['stat'] != 'ok' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.428', 'msg'=>'Unable to load get the number of items', 'err'=>$rc['err']));
     }
     $num_items = isset($rc['num']) ? $rc['num'] : 0;
-    error_log(print_r($rc,true));
 
     if( $num_items > 0 ) {
         $items[] = array(
