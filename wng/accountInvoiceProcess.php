@@ -94,7 +94,7 @@ function ciniki_sapos_wng_accountInvoiceProcess(&$ciniki, $tnid, &$request, $arg
             'type' => 'buttons',
             'align' => 'center',
             'items' => array(
-                array('text'=>'Continue', 'url'=>'/account/invoices'), 
+                array('text'=>'Continue', 'url'=>"{$request['ssl_domain_base_url']}/account/invoices"), 
                 ),
             ];
         return array('stat'=>'ok', 'blocks'=>$blocks);
@@ -331,8 +331,8 @@ function ciniki_sapos_wng_accountInvoiceProcess(&$ciniki, $tnid, &$request, $arg
     // Setup default buttons
     //
     $buttons = array(
-        array('text' => 'Back', 'url' => '/account/invoices'),
-        array('text' => 'Save PDF', 'target'=>'_blank', 'url' => "/account/invoices/download/{$invoice['invoice_number']}.pdf"),
+        array('text' => 'Back', 'url' => $request['ssl_domain_base_url'] . '/account/invoices'),
+        array('text' => 'Save PDF', 'target'=>'_blank', 'url' => "{$request['ssl_domain_base_url']}/account/invoices/download/{$invoice['invoice_number']}.pdf"),
         );
 
     //

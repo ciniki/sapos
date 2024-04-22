@@ -146,7 +146,7 @@ function ciniki_sapos_wng_accountInvoicesProcess(&$ciniki, $tnid, &$request, $ar
             $unpaid_invoices[$pid]['actions'] = '';
             if( $invoice['status'] == 40 ) {
                 // FIXME: Add pay now capability
-                $unpaid_invoices[$pid]['actions'] .= "<a class='button' href='/account/invoices/view/" . $invoice['invoice_number'] . "'>Open</a>";
+                $unpaid_invoices[$pid]['actions'] .= "<a class='button' href='{$request['ssl_domain_base_url']}/account/invoices/view/" . $invoice['invoice_number'] . "'>Open</a>";
             }
 //            $unpaid_invoices[$pid]['actions'] .= ($unpaid_invoices[$pid]['actions'] != '' ? ' ' : '') 
 //                . "<a class='button' href='/account/invoices/download/" . $invoice['invoice_number'] . ".pdf'>Open PDF</a>";
@@ -168,7 +168,7 @@ function ciniki_sapos_wng_accountInvoicesProcess(&$ciniki, $tnid, &$request, $ar
     if( count($paid_invoices) > 0 ) {
         foreach($paid_invoices as $pid => $invoice) {
             $paid_invoices[$pid]['actions'] = '';
-            $paid_invoices[$pid]['actions'] .= "<a class='button' href='/account/invoices/view/" . $invoice['invoice_number'] . "'>Open</a>";
+            $paid_invoices[$pid]['actions'] .= "<a class='button' href='{$request['ssl_domain_base_url']}/account/invoices/view/" . $invoice['invoice_number'] . "'>Open</a>";
         }
         $blocks[] = array(
             'type' => 'table', 
