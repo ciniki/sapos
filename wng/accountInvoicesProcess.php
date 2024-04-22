@@ -161,7 +161,7 @@ function ciniki_sapos_wng_accountInvoicesProcess(&$ciniki, $tnid, &$request, $ar
                 array('label'=>'Date', 'fold-label'=>'Date:', 'field'=>'invoice_date', 'class'=>'', ),
                 array('label'=>'Status', 'fold-label'=>'Status:', 'field'=>'typestatus', 'class'=>'', ),
                 array('label'=>'Total', 'fold-label'=>'Total:', 'field'=>'total_amount_display', 'class'=>'', ),
-                array('label'=>'', 'field'=>'actions', 'class'=>'alignright', ),
+                array('label'=>'', 'field'=>'actions', 'class'=>'alignright buttons', ),
                 ),
             'rows' => $unpaid_invoices,
             );
@@ -177,11 +177,11 @@ function ciniki_sapos_wng_accountInvoicesProcess(&$ciniki, $tnid, &$request, $ar
             'title' => 'Paid Invoices',
             'class' => 'fold-at-40 limit-width limit-width-60',
             'columns' => array(
-                array('label'=>'Number', 'fold-label'=>'Invoice:', 'field'=>'invoice_number_text', 'class'=>'', ),
-                array('label'=>'Date', 'fold-label'=>'Date:', 'field'=>'invoice_date', 'class'=>'', ),
-                array('label'=>'Status', 'fold-label'=>'Status:', 'field'=>'typestatus', 'class'=>'', ),
-                array('label'=>'Total', 'fold-label'=>'Total:', 'field'=>'total_amount_display', 'class'=>'', ),
-                array('label'=>'', 'field'=>'actions', 'class'=>'alignright', ),
+                array('label'=>'Number', 'fold-label'=>'Invoice:', 'field'=>'invoice_number_text', 'class'=>''),
+                array('label'=>'Date', 'fold-label'=>'Date:', 'field'=>'invoice_date', 'class'=>''),
+                array('label'=>'Status', 'fold-label'=>'Status:', 'field'=>'typestatus', 'class'=>''),
+                array('label'=>'Total', 'fold-label'=>'Total:', 'field'=>'total_amount_display', 'class'=>''),
+                array('label'=>'', 'field'=>'actions', 'class'=>'alignright buttons'),
                 ),
             'rows' => $paid_invoices,
             );
