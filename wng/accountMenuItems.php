@@ -18,13 +18,6 @@ function ciniki_sapos_wng_accountMenuItems($ciniki, $tnid, $request, $args) {
     $base_url = isset($args['base_url']) ? $args['base_url'] : '';
 
     //
-    // By default hide the Orders menu
-    //
-    if( !isset($settings['account-menu-ciniki-sapos']) || $settings['account-menu-ciniki-sapos'] == 'off' ) {
-        return array('stat'=>'ok');
-    }
-
-    //
     // Check if any past reports
     //
     $strsql = "SELECT COUNT(invoices.id) AS num_invoices "
