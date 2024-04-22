@@ -37,7 +37,7 @@ function ciniki_sapos_maps($ciniki) {
             '65'=>'Refunded',
             ),
         'typestatus'=>array(
-            '10.10'=>'Payment Required',
+            '10.10'=>'Entered',
             '10.20'=>'Processing',
             '10.30'=>'Pending Shipping',
             '10.40'=>'Payment Required',

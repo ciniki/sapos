@@ -648,9 +648,9 @@ function ciniki_sapos_invoice() {
                 this.sections.details.fields.manufacturing_status.visible = 'no';
                 this.sections.details.fields.due_date.visible = 'no';
             } else {
-                if( t == '10' && e_is.value == '10' ) {
+/*                if( t == '10' && e_is.value == '10' ) {
                     this.setFieldValue('status', 40);
-                }
+                } */
                 this.sections.details.fields.po_number.visible = 'yes';
                 this.sections.details.fields.status.visible = 'yes';
                 this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x800200)>0||this.data.payment_status>0)?'yes':'no';
