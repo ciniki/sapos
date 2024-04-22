@@ -148,7 +148,7 @@ function ciniki_sapos_stripeTerminalPaymentRefund(&$ciniki) {
         if( isset($intent['charges']['data'][0]['payment_method_details']) ) {
             $charge = $intent['charges']['data'][0];
             if( isset($charge['refunded']) && $charge['refunded'] == true ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.400', 'msg'=>'A refund has already issued for this transaction'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.453', 'msg'=>'A refund has already issued for this transaction'));
             }
             if( !isset($charge['amount_captured']) || $charge['amount_captured'] <= 0 ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.401', 'msg'=>'This transaction was never completed, no refund issued.'));

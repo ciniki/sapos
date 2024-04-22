@@ -79,7 +79,7 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
             } 
             $product['unit_amount'] = $args['user_amount'];
         } else {
-            return array('stat'=>'warn', 'err'=>array('code'=>'ciniki.sapos.426', 'msg'=>'You must specify the amount of the donation.'));
+            return array('stat'=>'warn', 'err'=>array('code'=>'ciniki.sapos.451', 'msg'=>'You must specify the amount of the donation.'));
         }
 
         return array('stat'=>'ok', 'item'=>$product);

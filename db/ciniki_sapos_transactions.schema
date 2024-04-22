@@ -20,6 +20,8 @@
 #
 # status:               The current status of the transaction. This is used to track transfers into tenant bank account.
 #
+#                           20 - Processing - Used when a payment intent is created at stripe
+#                           30 - Pending - When it takes up to 2 days to complete transaction
 #                           40 - Completed
 #                           60 - Deposited
 #
@@ -72,6 +74,7 @@
 #
 # gateway_token:        The ID for the transaction with the external payment system.
 #                       This was added to track the paypal ID of in the response.
+#                       This is used to store the payment_intent id from stripe.
 #
 # gateway_status:       The status or state of the transaction with the payment gateway.  This allows
 #                       tracking of payments to make sure they are completed.  Was added for paypal

@@ -125,7 +125,8 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 . "AND m.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_sapos_transactions AS t ON ("
-                . "i.id = t.invoice_id "
+                . "i.id = t.invoice_it "
+                . "AND t.status >= 40 "
                 . "AND t.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "WHERE i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -154,7 +155,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.237', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.449', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
         }
         $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
 //        $items = isset($rc['items']) ? $rc['items'] : array();

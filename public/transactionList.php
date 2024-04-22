@@ -115,6 +115,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
             . "AND c.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "WHERE t.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "AND t.status >= 40 "
         . "";
     if( isset($args['year']) && $args['year'] != '' ) {
         //

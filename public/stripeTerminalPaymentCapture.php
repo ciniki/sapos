@@ -43,7 +43,7 @@ function ciniki_sapos_stripeTerminalPaymentCapture(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
     $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', '');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.391', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.444', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
     }
     $settings = isset($rc['settings']) ? $rc['settings'] : array();
 
@@ -71,7 +71,7 @@ function ciniki_sapos_stripeTerminalPaymentCapture(&$ciniki) {
         || !isset($settings['stripe-pk']) || $settings['stripe-pk'] == '' 
         || !isset($settings['stripe-sk']) || $settings['stripe-sk'] == '' 
         ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.392', 'msg'=>'Stripe Terminal not setup'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.445', 'msg'=>'Stripe Terminal not setup'));
     }
 
     //

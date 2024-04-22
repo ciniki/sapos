@@ -99,6 +99,7 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
         . "FROM ciniki_sapos_invoices AS invoices "
         . "INNER JOIN ciniki_sapos_transactions AS transactions ON ("
             . "invoices.id = transactions.invoice_id "
+            . "AND transactions.status >= 40 "
             . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -176,6 +177,7 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
         . "FROM ciniki_sapos_invoices AS invoices "
         . "INNER JOIN ciniki_sapos_transactions AS transactions ON ("
             . "invoices.id = transactions.invoice_id "
+            . "AND transactions.status >= 40 "
             . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -193,7 +195,7 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
             ),
         ));
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.427', 'msg'=>'Unable to load transactions', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.442', 'msg'=>'Unable to load transactions', 'err'=>$rc['err']));
     }
     $transactions = isset($rc['invoices']) ? $rc['invoices'] : array();
 

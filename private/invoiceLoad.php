@@ -6,8 +6,7 @@
 //
 // Arguments
 // ---------
-// ciniki:
-// tnid:         The tenant ID to check the session user against.
+// ciniki: // tnid:         The tenant ID to check the session user against.
 // method:              The requested method.
 //
 // Returns
@@ -515,6 +514,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "FROM ciniki_sapos_transactions "
         . "WHERE ciniki_sapos_transactions.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND ciniki_sapos_transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND ciniki_sapos_transactions.status > 20 "
         . "ORDER BY transaction_date "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -640,6 +640,63 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
             'margin' => '$' . number_format($total_margin, 0),
             'margin_percent' => ($total_total != 0 && $total_margin != 0 ? number_format(($total_margin/$total_total)*100, 0) : ''),
             );
+    }
+
+    //
+    // Format address information
+    //
+    $invoice['billing_nameaddress'] = '';
+    if( isset($invoice['billing_name']) && $invoice['billing_name'] != '' ) {
+        $invoice['billing_nameaddress'] .= ($invoice['billing_nameaddress']!=''?"\n":'') . $invoice['billing_name'];
+    }
+    if( isset($invoice['billing_address1']) && $invoice['billing_address1'] != '' ) {
+        $invoice['billing_nameaddress'] .= ($invoice['billing_nameaddress']!=''?"\n":'') . $invoice['billing_address1'];
+    }
+    if( isset($invoice['billing_nameaddress2']) && $invoice['billing_nameaddress2'] != '' ) {
+        $invoice['billing_nameaddress'] .= ($invoice['billing_nameaddress']!=''?"\n":'') . $invoice['billing_address2'];
+    }
+    $city = '';
+    if( isset($invoice['billing_city']) && $invoice['billing_city'] != '' ) {
+        $city .= ($city!=''?'':'') . $invoice['billing_city'];
+    }
+    if( isset($invoice['billing_province']) && $invoice['billing_province'] != '' ) {
+        $city .= ($city!=''?', ':'') . $invoice['billing_province'];
+    }
+    if( isset($invoice['billing_postal']) && $invoice['billing_postal'] != '' ) {
+        $city .= ($city!=''?'  ':'') . $invoice['billing_postal'];
+    }
+    if( $city != '' ) { 
+        $invoice['billing_nameaddress'] .= ($invoice['billing_nameaddress']!=''?"\n":'') . $city;
+    }
+    if( isset($invoice['billing_country']) && $invoice['billing_country'] != '' ) {
+        $invoice['billing_nameaddress'] .= ($invoice['billing_nameaddress']!=''?"\n":'') . $invoice['billing_country'];
+    }
+
+    $invoice['shipping_nameaddress'] = '';
+    if( isset($invoice['shipping_name']) && $invoice['shipping_name'] != '' ) {
+        $invoice['shipping_nameaddress'] .= ($invoice['shipping_nameaddress']!=''?"\n":'') . $invoice['shipping_name'];
+    }
+    if( isset($invoice['shipping_address1']) && $invoice['shipping_address1'] != '' ) {
+        $invoice['shipping_nameaddress'] .= ($invoice['shipping_nameaddress']!=''?"\n":'') . $invoice['shipping_address1'];
+    }
+    if( isset($invoice['shipping_address2']) && $invoice['shipping_address2'] != '' ) {
+        $invoice['shipping_nameaddress'] .= ($invoice['shipping_nameaddress']!=''?"\n":'') . $invoice['shipping_address2'];
+    }
+    $city = '';
+    if( isset($invoice['shipping_city']) && $invoice['shipping_city'] != '' ) {
+        $city .= ($city!=''?'':'') . $invoice['shipping_city'];
+    }
+    if( isset($invoicinvoice['shipping_province']) && $invoice['shipping_province'] != '' ) {
+        $city .= ($city!=''?', ':'') . $invoice['shipping_province'];
+    }
+    if( isset($invoice['shipping_postal']) && $invoice['shipping_postal'] != '' ) {
+        $city .= ($city!=''?'  ':'') . $invoice['shipping_postal'];
+    }
+    if( $city != '' ) { 
+        $invoice['shipping_nameaddress'] .= ($invoice['shipping_nameaddress']!=''?"\n":'') . $city;
+    }
+    if( isset($invoice['shipping_country']) && $invoice['shipping_country'] != '' ) {
+        $invoice['shipping_nameaddress'] .= ($invoice['shipping_nameaddress']!=''?"\n":'') . $invoice['shipping_country'];
     }
 
     //

@@ -454,6 +454,7 @@ function ciniki_sapos_posInvoiceLoad($ciniki, $tnid, $invoice_id) {
         . "FROM ciniki_sapos_transactions "
         . "WHERE ciniki_sapos_transactions.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND ciniki_sapos_transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND ciniki_sapos_transactions.status >= 40 "
         . "ORDER BY transaction_date "
         . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(

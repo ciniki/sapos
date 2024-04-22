@@ -145,7 +145,9 @@ function ciniki_sapos_maps($ciniki) {
         );
     $maps['transaction'] = array(
         'status'=>array(
-            '10'=>'Paid',
+//            '10'=>'Paid',     // Old status used for stripe terminal
+            '20'=>'Processing', // Stripe payment intent created, waiting for payment details
+            '30'=>'Pending',    // Payment information collected, waiting for stripe to finish
             '40'=>'Completed',
             '60'=>'Deposited',
             ),

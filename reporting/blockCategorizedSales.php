@@ -119,6 +119,7 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
             . ") "
         . "LEFT JOIN ciniki_sapos_transactions AS transactions ON ("
             . "ciniki_sapos_invoices.id = transactions.invoice_id "
+            . "AND transactions.status >= 40 "
             . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "

@@ -23,7 +23,7 @@ function ciniki_sapos_hooks_donationReceiptNumber(&$ciniki, $tnid, $args) {
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.388', 'msg'=>'Unable to load donation number', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.452', 'msg'=>'Unable to load donation number', 'err'=>$rc['err']));
     }
     $receipt_number = isset($rc['item']['detail_value']) ? $rc['item']['detail_value'] : 1;
    
@@ -36,7 +36,7 @@ function ciniki_sapos_hooks_donationReceiptNumber(&$ciniki, $tnid, $args) {
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.225', 'msg'=>'Unable to find next available receipt number', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.448', 'msg'=>'Unable to find next available receipt number', 'err'=>$rc['err']));
     }
     if( isset($rc['num']['max_num']) && ($rc['num']['max_num']+1) > $receipt_number ) {
         $receipt_number = $rc['num']['max_num'] + 1;

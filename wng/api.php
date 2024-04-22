@@ -25,6 +25,22 @@ function ciniki_sapos_wng_api(&$ciniki, $tnid, &$request) {
     }
 
     //
+    // Check if start to stripe session
+    //
+    if( isset($request['uri_split'][$request['cur_uri_pos']]) 
+        && $request['uri_split'][$request['cur_uri_pos']] == 'invoiceStripeIntentCreate' 
+        ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'apiInvoiceStripeIntentCreate');
+        return ciniki_sapos_wng_apiInvoiceStripeIntentCreate($ciniki, $tnid, $request); 
+    }
+    elseif( isset($request['uri_split'][$request['cur_uri_pos']]) 
+        && $request['uri_split'][$request['cur_uri_pos']] == 'invoiceStripeIntentCancel' 
+        ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'apiInvoiceStripeIntentCancel');
+        return ciniki_sapos_wng_apiInvoiceStripeIntentCancel($ciniki, $tnid, $request); 
+    }
+
+    //
     // If no cart created, then create one now
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartLoad');
