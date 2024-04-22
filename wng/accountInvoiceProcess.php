@@ -222,7 +222,7 @@ function ciniki_sapos_wng_accountInvoiceProcess(&$ciniki, $tnid, &$request, $arg
     //
     // Display list of existing transactions and balance due
     //
-    if( isset($invoice['transactions']) && count($invoice['transactions']) > 0 ) {
+    if( (isset($invoice['transactions']) && count($invoice['transactions']) > 0) || $invoice['paid_amount'] > 0 ) {
         $footers[] = array(
             array('value'=>'', 'colspan'=>1, 'class'=>'spacer'),
             array('value'=>"Total:", 'colspan'=>2, 'class'=>'bold alignright'),
@@ -230,13 +230,22 @@ function ciniki_sapos_wng_accountInvoiceProcess(&$ciniki, $tnid, &$request, $arg
                 'class'=>'alignright'),
             );
 
-        foreach($invoice['transactions'] as $transaction) {
+        // FIXME: Add option to allow for individual transaction list (included stripe type and last 4 digits)
+/*        foreach($invoice['transactions'] as $transaction) {
             $footers[] = array(
                 array('value'=>'', 'colspan'=>1, 'class'=>'spacer'),
                 array('value'=>"Payment:", 'colspan'=>2, 'class'=>'alignright'),
                 array('value'=>$transaction['transaction']['customer_amount'], 'class'=>'alignright'),
                 );
-        }
+        } */
+
+        $footers[] = array(
+            array('value'=>'', 'colspan'=>1, 'class'=>'spacer'),
+            array('value'=>"Paid:", 'colspan'=>2, 'class'=>'alignright'),
+            array('value'=>numfmt_format_currency($intl_currency_fmt, $invoice['paid_amount'], $intl_currency),
+                'class'=>'alignright'),
+            );
+
         $footers[] = array(
             array('value'=>'', 'colspan'=>1, 'class'=>'spacer'),
             array('value'=>"Balance{$duenow}:", 'colspan'=>2, 'class'=>'bold alignright'),
