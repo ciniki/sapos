@@ -133,6 +133,7 @@ function ciniki_sapos_wng_accountInvoicesProcess(&$ciniki, $tnid, &$request, $ar
             }
         }
 
+        $invoice['total_amount_display'] = '$' . number_format($invoice['total_amount'], 2);
         if( $invoice['status'] == 40 || $invoice['status'] == 42 ) {
             $unpaid_invoices[] = $invoice;
         } elseif( $invoice['status'] >= 45 ) {
@@ -154,11 +155,12 @@ function ciniki_sapos_wng_accountInvoicesProcess(&$ciniki, $tnid, &$request, $ar
         $blocks[] = array(
             'type' => 'table', 
             'title' => 'Unpaid Invoices',
-            'class' => 'fold-at-50 limit-width limit-width-60',
+            'class' => 'fold-at-40 limit-width limit-width-60',
             'columns' => array(
-                array('label'=>'Number', 'field'=>'invoice_number_text', 'class'=>'', ),
-                array('label'=>'Date', 'field'=>'invoice_date', 'class'=>'', ),
-                array('label'=>'Status', 'field'=>'typestatus', 'class'=>'', ),
+                array('label'=>'Number', 'fold-label'=>'Invoice:', 'field'=>'invoice_number_text', 'class'=>'', ),
+                array('label'=>'Date', 'fold-label'=>'Date:', 'field'=>'invoice_date', 'class'=>'', ),
+                array('label'=>'Status', 'fold-label'=>'Status:', 'field'=>'typestatus', 'class'=>'', ),
+                array('label'=>'Total', 'fold-label'=>'Total:', 'field'=>'total_amount_display', 'class'=>'', ),
                 array('label'=>'', 'field'=>'actions', 'class'=>'alignright', ),
                 ),
             'rows' => $unpaid_invoices,
@@ -175,9 +177,10 @@ function ciniki_sapos_wng_accountInvoicesProcess(&$ciniki, $tnid, &$request, $ar
             'title' => 'Paid Invoices',
             'class' => 'fold-at-40 limit-width limit-width-60',
             'columns' => array(
-                array('label'=>'Number', 'field'=>'invoice_number_text', 'class'=>'', ),
-                array('label'=>'Date', 'field'=>'invoice_date', 'class'=>'', ),
-                array('label'=>'Status', 'field'=>'typestatus', 'class'=>'', ),
+                array('label'=>'Number', 'fold-label'=>'Invoice:', 'field'=>'invoice_number_text', 'class'=>'', ),
+                array('label'=>'Date', 'fold-label'=>'Date:', 'field'=>'invoice_date', 'class'=>'', ),
+                array('label'=>'Status', 'fold-label'=>'Status:', 'field'=>'typestatus', 'class'=>'', ),
+                array('label'=>'Total', 'fold-label'=>'Total:', 'field'=>'total_amount_display', 'class'=>'', ),
                 array('label'=>'', 'field'=>'actions', 'class'=>'alignright', ),
                 ),
             'rows' => $paid_invoices,
