@@ -18,7 +18,7 @@ function ciniki_sapos_wng_accountMenuItems($ciniki, $tnid, $request, $args) {
     $base_url = isset($args['base_url']) ? $args['base_url'] : '';
 
     //
-    // Check if any past reports
+    // Check if any invoices for customer, otherwise hide the menu item
     //
     $strsql = "SELECT COUNT(invoices.id) AS num_invoices "
         . "FROM ciniki_sapos_invoices AS invoices "
