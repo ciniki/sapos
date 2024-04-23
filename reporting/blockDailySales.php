@@ -125,7 +125,7 @@ function ciniki_sapos_reporting_blockDailySales(&$ciniki, $tnid, $args) {
                 . "AND m.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_sapos_transactions AS t ON ("
-                . "i.id = t.invoice_it "
+                . "i.id = t.invoice_id "
                 . "AND t.status >= 40 "
                 . "AND t.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
