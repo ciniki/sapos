@@ -71,7 +71,7 @@ function ciniki_sapos_wng_stripeChargeUpdated(&$ciniki, $tnid, &$request, $args)
                 $update_args['transaction_fees'] = ($txn->fee/100);
                 $update_args['tenant_amount'] = $transaction['customer_amount'] - $update_args['transaction_fees'];
             }
-            $serialized_txn = serialize($txn);
+            $serialized_txn = json_encode($txn);
             if( $transaction['gateway_response'] != $serialized_txn ) {
                 $update_args['gateway_response'] = $serialized_txn;
             }
