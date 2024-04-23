@@ -55,7 +55,7 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
             && $ciniki['config']['ciniki.wng']['webhook.stripe.log'] == 1
             ) {
             $dt = new DateTime('now', new DateTimezone('UTC'));
-            file_put_contents($ciniki['config']['ciniki.core']['log_dir'] . '/stripe-' . $dt->format('Y-m') . '.log', $dt->format('Y-m-d H:i:s') . " [{$tnid}-{$event->type}] " . json_encode($event) . "\n", FILE_APPEND);
+            file_put_contents($ciniki['config']['ciniki.core']['log_dir'] . '/stripe-' . $dt->format('Y-m') . '.log', $dt->format('Y-m-d H:i:s') . " [{$tnid}:{$event->type}] " . json_encode($event) . "\n", FILE_APPEND);
         }
 
         if( $event->type == 'charge.succeeded' ) {
