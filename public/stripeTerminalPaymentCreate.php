@@ -117,7 +117,7 @@ function ciniki_sapos_stripeTerminalPaymentCreate(&$ciniki) {
             'currency' => 'cad',
             'payment_method_types' => ['card_present', 'interac_present'],
             'capture_method' => 'manual',
-            'receipt_email' => $email,
+//            'receipt_email' => $email,
             'metadata' => [
                 'invoice_number' => $invoice['invoice_number'],
                 ],
