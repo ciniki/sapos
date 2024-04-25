@@ -4,6 +4,8 @@
 // ===========
 // This function is the final call in express checkout to collect the payment.
 //
+// This is the old cart method and will be deprecated once all carts are upgraded to v14 elements
+//
 // Arguments
 // ---------
 // 
@@ -122,7 +124,8 @@ function ciniki_sapos_wng_stripeCustomerCharge(&$ciniki, $tnid, $request, $args)
             'gateway'=>30,
             'gateway_token'=>$charge['id'],
             'gateway_status'=>$gateway_status,
-            'gateway_response'=>serialize($charge),
+            'gateway_response'=>'',
+//            'gateway_response'=>json_encode($charge),
             );
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
         $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.transaction', $transaction_args);

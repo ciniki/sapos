@@ -78,16 +78,44 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
             }
         } 
         elseif( $event->type == 'charge.updated' ) {
+            //
+            // charge.updated - From website payment
+            //
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'stripeChargeUpdated');
             $rc = ciniki_sapos_wng_stripeChargeUpdated($ciniki, $tnid, $request, array(
-                'gateway_token'=>$event->data->object->payment_intent,
+                'gateway_token'=>$event->data->object->payment_intent,  // References the payment intent: pi_
                 'balance_transaction'=>$event->data->object->balance_transaction,
                 'stripe' => $stripe,
                 ));
             if( $rc['stat'] != 'ok' ) {
-                error_log('STRIPE-WEBHOOK: Unable to cancel transaction');
+                error_log('STRIPE-WEBHOOK: Unable to process charge.updated');
             }
-        } 
+        }
+        elseif( $event->type == 'charge.captured' ) {
+            // charge.captured - From POS Terminal payment
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'stripeChargeUpdated');
+            $rc = ciniki_sapos_wng_stripeChargeUpdated($ciniki, $tnid, $request, array(
+                'gateway_token'=>$event->data->object->payment_intent,  // References the payment intent: pi_
+                'balance_transaction'=>$event->data->object->balance_transaction,
+                'stripe' => $stripe,
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                error_log('STRIPE-WEBHOOK: Unable to process charge.updated');
+            }
+
+        }
+        elseif( $event->type == 'charge.refund.updated' ) {
+            // change.refund.updated - From POS Refund (refunding transaction[payment_intent])
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'stripeChargeUpdated');
+            $rc = ciniki_sapos_wng_stripeChargeUpdated($ciniki, $tnid, $request, array(
+                'gateway_token'=>$event->data->object->id,   // Refereneces the refund id: re_
+                'balance_transaction'=>$event->data->object->balance_transaction,
+                'stripe' => $stripe,
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                error_log('STRIPE-WEBHOOK: Unable to process charge.updated');
+            }
+        }
         else {
 
         }

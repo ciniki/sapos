@@ -2,6 +2,9 @@
 //
 // Description
 // ===========
+//
+// **Deprecated** This function will be removed. The web module no longer supports stripe checkout.
+//
 // This function is the final call in express checkout to collect the payment.
 //
 // Arguments
@@ -129,7 +132,7 @@ function ciniki_sapos_web_stripeCustomerCharge(&$ciniki, $tnid, $args) {
             'gateway'=>30,
             'gateway_token'=>$charge['id'],
             'gateway_status'=>$gateway_status,
-            'gateway_response'=>serialize($charge),
+            'gateway_response'=>json_encode($charge),
             );
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
         $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.sapos.transaction', $transaction_args);

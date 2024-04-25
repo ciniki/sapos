@@ -129,59 +129,81 @@ function ciniki_sapos_stripeTerminalPaymentRefund(&$ciniki) {
     //
     if( isset($args['interac']) && $args['interac'] == 'refunded' && isset($args['result']) ) {
         $refund = $args['result'];
-        error_log(print_r($refund,true));
-    } else {
+    } 
+    //
+    // No refund via UI, now get the original payment intent
+    //
+    else {
         //
         // Load stripe
         //
-        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/stripev7/init.php');
+        require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/stripev14/init.php');
        
-        \Stripe\Stripe::setApiKey($settings['stripe-sk']);
+        $stripe = new \Stripe\StripeClient([
+            'api_key' => $settings['stripe-sk'],
+            'stripe_version' => '2024-04-10',
+            ]);
 
         try {
-            $intent = \Stripe\PaymentIntent::retrieve($transaction['gateway_token']);
-            file_put_contents("/tmp/intent.json", print_r($intent, true));
+            $intent = $stripe->paymentIntents->retrieve($transaction['gateway_token'], []);
         } catch( Error $e ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.396', 'msg'=>'Unable to complete transaction: ' . $e->getMessage()));
         }
 
-        if( isset($intent['charges']['data'][0]['payment_method_details']) ) {
-            $charge = $intent['charges']['data'][0];
-            if( isset($charge['refunded']) && $charge['refunded'] == true ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.453', 'msg'=>'A refund has already issued for this transaction'));
-            }
-            if( !isset($charge['amount_captured']) || $charge['amount_captured'] <= 0 ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.401', 'msg'=>'This transaction was never completed, no refund issued.'));
-            }
-            if( !isset($charge['payment_intent']) || $charge['payment_intent'] == '' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.402', 'msg'=>'This was not an in person sale and cannot be refunded.'));
-            }
+        //
+        // Check to make sure it can be refunded
+        //
+        if( !isset($intent->amount_received) || $intent->amount_received <= 0 ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.401', 'msg'=>'This transaction was never completed, no refund issued.'));
+        }
 
-            //
-            // Refund a credit card
-            //
-            if( isset($charge['payment_method_details']['card_present']) ) {
-                try {
-                    $refund = \Stripe\Refund::create([
-                        // Refund full amount
-                        'payment_intent' => $charge['payment_intent'],
-                        ]);
-                } catch( Error $e ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.403', 'msg'=>'Unable to issue refund: ' . $e->getMessage()));
-                }
+        //
+        // Make sute latest_charge is available
+        //
+        if( !isset($intent->latest_charge) ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.402', 'msg'=>'This transaction was never charged.'));
+        }
 
-            }
-            //
-            // Refund a interac card
-            //
-            elseif( isset($charge['payment_method_details']['interac_present']) ) {
-                error_log('refund interac');
-                $connection_token = \Stripe\Terminal\ConnectionToken::create();
-                return array('stat'=>'interacrefund', 'connection_token'=>$connection_token->secret, 'charge_id'=>$charge['id'], 'amount'=>$charge['amount_captured'], 'err'=>array('code'=>'ciniki.sapos.404', 'msg'=>'Interac Refund required'));
-            }
+        //
+        // Get the latest charge
+        //
+        try {
+            $charge = $stripe->charges->retrieve($intent->latest_charge);
+        } catch(Exception $e) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.403', 'msg'=>'Unable to issue refund: ' . $e->getMessage()));
+        }
+
+        //
+        // Check to make sure it was not already refunded
+        //
+        if( isset($charge->refunded) && $charge->refunded == true ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.453', 'msg'=>'A refund has already been issued for this transaction.'));
+        }
+
+        //
+        // Check to make sure it can be refunded
+        //
+        if( !isset($charge->amount_captured) || $charge->amount_captured <= 0 ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.404', 'msg'=>'This transaction was never completed, no refund issued.'));
+        }
+
+        //
+        // Handle interac refund differently
+        //
+        if( isset($charge->payment_method_details->type) && $charge->payment_method_details->type == 'interac_present' ) {
+             $connection_token = $stripe->terminal->connectionTokens->create([]);
+             return array('stat'=>'interacrefund', 'connection_token'=>$connection_token->secret, 'charge_id'=>$charge->id, 'amount'=>$charge->amount_captured, 'err'=>array('code'=>'ciniki.sapos.404', 'msg'=>'Interac Refund required'));
+        }
+
+        try {
+            $refund = $stripe->refunds->create([
+                // Refund full amount
+                'payment_intent' => $intent->id,
+                ]);
+        } catch( Exception $e ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.403', 'msg'=>'Unable to issue refund: ' . $e->getMessage()));
         }
     }
-
 
     //
     // Create the refund transaction
@@ -193,7 +215,7 @@ function ciniki_sapos_stripeTerminalPaymentRefund(&$ciniki) {
         $dt = new DateTime('now', new DateTimezone('UTC'));
         $args['transaction_date'] = $dt->format('Y-m-d H:i:s');
         $args['invoice_id'] = $transaction['invoice_id'];
-        $args['status'] = 10;
+        $args['status'] = 40;
         $args['transaction_type'] = 60;
         $args['source'] = 30;
         $args['user_id'] = $ciniki['session']['user']['id'];
@@ -205,7 +227,7 @@ function ciniki_sapos_stripeTerminalPaymentRefund(&$ciniki) {
         $args['gateway'] = 30;
         $args['gateway_token'] = $refund['id'];
         $args['gateway_status'] = isset($refund['status']) ? $refund['status'] : '';
-        $args['gateway_response'] = serialize($refund);
+        $args['gateway_response'] = json_encode($refund);
 
         //
         // Start transaction

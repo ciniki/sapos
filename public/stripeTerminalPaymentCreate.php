@@ -67,8 +67,6 @@ function ciniki_sapos_stripeTerminalPaymentCreate(&$ciniki) {
         $currency = 'usd';
     }
     
-    
-
     //
     // Verify stripe terminal is setup
     //
@@ -100,14 +98,21 @@ function ciniki_sapos_stripeTerminalPaymentCreate(&$ciniki) {
     //
     // Load stripe
     //
-    require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/stripev7/init.php');
-   
-    \Stripe\Stripe::setApiKey($settings['stripe-sk']);
+    require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/stripev14/init.php');
 
-    $connection_token = \Stripe\Terminal\ConnectionToken::create();
+    try {
+        $stripe = new \Stripe\StripeClient([
+            'api_key' => $settings['stripe-sk'],
+            'stripe_version' => '2024-04-10',
+            ]);
+    } catch(Exception $e) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.464', 'msg'=>$e->getMessage(), 'err'=>$rc['err']));
+    }
+
+    $connection_token = $stripe->terminal->connectionTokens->create([]);
 
     if( $currency == 'cad' ) {
-        $intent = \Stripe\PaymentIntent::create([
+        $intent = $stripe->paymentIntents->create([
             'amount' => intval($args['customer_amount']*100),
             'currency' => 'cad',
             'payment_method_types' => ['card_present', 'interac_present'],
@@ -118,7 +123,7 @@ function ciniki_sapos_stripeTerminalPaymentCreate(&$ciniki) {
                 ],
             ]);
     } else {
-        $intent = \Stripe\PaymentIntent::create([
+        $intent = $stripe->paymentIntents->create([
             'amount' => intval($args['customer_amount']*100),
             'currency' => $currency,
             'payment_method_types' => ['card_present'],

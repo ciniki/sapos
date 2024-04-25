@@ -87,12 +87,15 @@ function ciniki_sapos_stripeTerminalPaymentCapture(&$ciniki) {
     //
     // Load stripe
     //
-    require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/stripev7/init.php');
+    require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/stripev14/init.php');
    
-    \Stripe\Stripe::setApiKey($settings['stripe-sk']);
+    $stripe = new \Stripe\StripeClient([
+        'api_key' => $settings['stripe-sk'],
+        'stripe_version' => '2024-04-10',
+        ]);
 
     try {
-        $intent = \Stripe\PaymentIntent::retrieve($args['payment_intent']['id']);
+        $intent = $stripe->paymentIntents->retrieve($args['payment_intent']['id']);
         //
         // If the intent requires capture (interac charges don't require capture)
         //
@@ -124,14 +127,16 @@ function ciniki_sapos_stripeTerminalPaymentCapture(&$ciniki) {
     //
     $args['customer_amount'] = ($args['payment_intent']['amount']/100);
     $args['transaction_fees'] = 0;
-    // FIXME: Add or capture transaction fees, the following line doesn't work for terminal
-    // $args['transaction_fees'] = round(bcadd(bcmul($args['customer_amount'], 0.029, 6), 0.30, 6), 2);
+    //
+    // Transaction Fees are sent via webhook 'charge.captured'
+    //
     $args['tenant_amount'] = ($args['customer_amount'] - $args['transaction_fees']);
 
     $args['gateway'] = 30;
-    $args['gateway_token'] = $intent['id'];
-    $args['gateway_status'] = isset($intent['status']) ? $intent['status'] : '';
-    $args['gateway_response'] = serialize($intent);
+    $args['gateway_token'] = $intent->id;
+//    $args['gateway_token'] = $intent['balance_transaction'];
+    $args['gateway_status'] = isset($intent->status) ? $intent->status : '';
+    $args['gateway_response'] = json_encode($intent);
 
     //
     // Start transaction
