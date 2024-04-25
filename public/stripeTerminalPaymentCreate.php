@@ -112,27 +112,59 @@ function ciniki_sapos_stripeTerminalPaymentCreate(&$ciniki) {
     $connection_token = $stripe->terminal->connectionTokens->create([]);
 
     if( $currency == 'cad' ) {
-        $intent = $stripe->paymentIntents->create([
-            'amount' => intval($args['customer_amount']*100),
-            'currency' => 'cad',
-            'payment_method_types' => ['card_present', 'interac_present'],
-            'capture_method' => 'manual',
-//            'receipt_email' => $email,
-            'metadata' => [
-                'invoice_number' => $invoice['invoice_number'],
-                ],
-            ]);
+        try {
+            if( $email != null && $email != '' ) {
+                $intent = $stripe->paymentIntents->create([
+                    'amount' => intval($args['customer_amount']*100),
+                    'currency' => 'cad',
+                    'payment_method_types' => ['card_present', 'interac_present'],
+                    'capture_method' => 'manual',
+                    'receipt_email' => $email,
+                    'metadata' => [
+                        'invoice_number' => $invoice['invoice_number'],
+                        ],
+                    ]);
+            } else {
+                $intent = $stripe->paymentIntents->create([
+                    'amount' => intval($args['customer_amount']*100),
+                    'currency' => 'cad',
+                    'payment_method_types' => ['card_present', 'interac_present'],
+                    'capture_method' => 'manual',
+                    'metadata' => [
+                        'invoice_number' => $invoice['invoice_number'],
+                        ],
+                    ]);
+            }
+        } catch(Exception $e) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.467', 'msg'=>$e->getMessage()));
+        }
     } else {
-        $intent = $stripe->paymentIntents->create([
-            'amount' => intval($args['customer_amount']*100),
-            'currency' => $currency,
-            'payment_method_types' => ['card_present'],
-            'capture_method' => 'manual',
-            'receipt_email' => $email,
-            'metadata' => [
-                'invoice_number' => $invoice['invoice_number'],
-                ],
-            ]);
+        try {
+            if( $email != null && $email != '' ) {
+                $intent = $stripe->paymentIntents->create([
+                    'amount' => intval($args['customer_amount']*100),
+                    'currency' => $currency,
+                    'payment_method_types' => ['card_present'],
+                    'capture_method' => 'manual',
+                    'receipt_email' => $email,
+                    'metadata' => [
+                        'invoice_number' => $invoice['invoice_number'],
+                        ],
+                    ]);
+            } else {
+                $intent = $stripe->paymentIntents->create([
+                    'amount' => intval($args['customer_amount']*100),
+                    'currency' => $currency,
+                    'payment_method_types' => ['card_present'],
+                    'capture_method' => 'manual',
+                    'metadata' => [
+                        'invoice_number' => $invoice['invoice_number'],
+                        ],
+                    ]);
+            }
+        } catch(Exception $e) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.468', 'msg'=>$e->getMessage()));
+        }
     }
 
     return array('stat'=>'ok', 'connection_token'=>$connection_token->secret, 'payment_secret'=>$intent->client_secret);
