@@ -858,7 +858,7 @@ function ciniki_sapos_invoice() {
         };
         this.item.updateDonation = function() {
             if( this.object == 'ciniki.sponsors.package' ) {
-                this.sections.details.fields.flags1.visible = 'no';
+                this.sections.details.fields.flags1.visible = 'hidden';
             } else {
                 this.sections.details.fields.flags1.visible = 'yes';
             }
@@ -878,7 +878,9 @@ function ciniki_sapos_invoice() {
             } else {
                 this.sections.details.fields.subcategory.visible = 'no';
             }
-            this.showHideFormField('details', 'flags1');
+            if( this.sections.details.fields.flags1.active == 'yes' ) {
+                this.showHideFormField('details', 'flags1');
+            }
             this.showHideFormField('details', 'subcategory');
             this.showHideFormField('details', 'unit_donation_amount');
         }
