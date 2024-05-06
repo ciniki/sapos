@@ -251,8 +251,8 @@ function ciniki_sapos_donationList(&$ciniki) {
         ini_set('memory_limit', '4192M');
         require($ciniki['config']['core']['lib_dir'] . '/PHPExcel/PHPExcel.php');
         $objPHPExcel = new PHPExcel();
-        $title = "Invoices";
-        $sheet_title = "Invoices";     // Will be overwritten, which is fine
+        $title = "Donations";
+        $sheet_title = "Donations";     // Will be overwritten, which is fine
         if( isset($args['year']) && $args['year'] != '' ) {
             $title .= " - " . $args['year'];
             $sheet_title = $args['year'];
