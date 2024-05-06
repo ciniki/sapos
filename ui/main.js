@@ -853,6 +853,14 @@ function ciniki_sapos_main() {
                 p.show(cb);
             });
     }
+    this.donations.downloadExcel = function() {
+        var args = {'tnid':M.curTenantID, 'output':'excel', 'sort':'invoice_date'};
+        if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
+        if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
+        args.payment_status = 50;
+        M.api.openFile('ciniki.sapos.donationList', args);
+    }
+    this.donations.addButton('download', 'Excel', 'M.ciniki_sapos_main.donations.downloadExcel();');
     this.donations.addClose('Back');
 
     //

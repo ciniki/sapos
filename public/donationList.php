@@ -110,6 +110,7 @@ function ciniki_sapos_donationList(&$ciniki) {
     //
     $strsql = "SELECT ciniki_sapos_invoices.id, "
         . "ciniki_sapos_invoices.invoice_number, "
+        . "ciniki_sapos_invoices.receipt_number, "
         . "ciniki_sapos_invoices.invoice_date, "
         . "ciniki_sapos_invoices.status, "
         . "ciniki_sapos_invoices.po_number, "
@@ -210,7 +211,7 @@ function ciniki_sapos_donationList(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
     $container = array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-            'fields'=>array('id', 'invoice_number', 'invoice_date', 'status', 'po_number', 'status_text', 
+            'fields'=>array('id', 'invoice_number', 'receipt_number', 'invoice_date', 'status', 'po_number', 'status_text', 
                 'donationreceipt_status', 'donationreceipt_status_text',
                 'customer_type', 'customer_display_name', 'donation_amount', 'total_amount',),
             'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
@@ -272,6 +273,7 @@ function ciniki_sapos_donationList(&$ciniki) {
         //
         $i = 0;
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Receipt #', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Date', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Donation Amount', false);
@@ -283,9 +285,10 @@ function ciniki_sapos_donationList(&$ciniki) {
         //
         $row = 2;
         foreach($rsp['invoices'] as $iid => $invoice) {
-            $invoice = $invoice['invoice'];
+//            $invoice = $invoice['invoice'];
             $i = 0;
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['receipt_number'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_date'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['customer_display_name'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['donation_amount'], false);
@@ -294,16 +297,17 @@ function ciniki_sapos_donationList(&$ciniki) {
         }
         if( $row > 2 ) {
             $sheet->setCellValueByColumnAndRow(0, $row, $rsp['totals']['num_invoices'], false);
-            $sheet->setCellValueByColumnAndRow(3, $row, "=SUM(D2:D" . ($row-1) . ")", false);
-            $sheet->getStyle('D2:D' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
+            $sheet->setCellValueByColumnAndRow(4, $row, "=SUM(E2:E" . ($row-1) . ")", false);
+            $sheet->getStyle('E2:E' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
             $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-            $sheet->getStyle('D' . $row)->getFont()->setBold(true);
+            $sheet->getStyle('E' . $row)->getFont()->setBold(true);
         }
         $sheet->getColumnDimension('A')->setAutoSize(true);
         $sheet->getColumnDimension('B')->setAutoSize(true);
         $sheet->getColumnDimension('C')->setAutoSize(true);
         $sheet->getColumnDimension('D')->setAutoSize(true);
         $sheet->getColumnDimension('E')->setAutoSize(true);
+        $sheet->getColumnDimension('F')->setAutoSize(true);
 
         //
         // Output the excel
