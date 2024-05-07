@@ -81,7 +81,7 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
                     // FIXME: Need to examine possibly merge cartPaymentReceived and invoicePaymentReceived
                     //
                     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartPaymentReceived');
-                    $rc = ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice);
+                    $rc = ciniki_sapos_invoicePaymentReceived($ciniki, $tnid, $invoice['id']);
                     if( $rc['stat'] != 'ok' ) {
                         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.474', 'msg'=>'', 'err'=>$rc['err']));
                     }
