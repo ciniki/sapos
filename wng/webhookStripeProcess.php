@@ -77,6 +77,7 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
                 ));
             if( $rc['stat'] != 'ok' ) {
                 error_log('STRIPE-WEBHOOK: Unable to succeed transaction');
+                error_log(print_r($rc,true));
             }
         }
         elseif( $event->type == 'payment_intent.canceled' ) {
@@ -84,6 +85,7 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
             $rc = ciniki_sapos_wng_stripeCheckoutCancel($ciniki, $tnid, $request, array('gateway_token'=>$event->data->object->id));
             if( $rc['stat'] != 'ok' ) {
                 error_log('STRIPE-WEBHOOK: Unable to cancel transaction');
+                error_log(print_r($rc,true));
             }
         } 
         elseif( $event->type == 'charge.updated' ) {
@@ -98,6 +100,7 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
                 ));
             if( $rc['stat'] != 'ok' ) {
                 error_log('STRIPE-WEBHOOK: Unable to process charge.updated');
+                error_log(print_r($rc,true));
             }
         }
         elseif( $event->type == 'charge.captured' ) {
@@ -110,6 +113,7 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
                 ));
             if( $rc['stat'] != 'ok' ) {
                 error_log('STRIPE-WEBHOOK: Unable to process charge.updated');
+                error_log(print_r($rc,true));
             }
 
         }
@@ -123,6 +127,7 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
                 ));
             if( $rc['stat'] != 'ok' ) {
                 error_log('STRIPE-WEBHOOK: Unable to process charge.updated');
+                error_log(print_r($rc,true));
             }
         }
         else {
