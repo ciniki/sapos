@@ -45,7 +45,7 @@
 #                       0x4000 - Promotional Item, do not include in item counts and MW/Smart Border Reports
 #                       0x8000 - Donation, generate a tax receipt
 #                       0x010000 - Required Item, it cannot be removed but customer
-#                       0x020000 - 
+#                       0x020000 - Subscription/Recurring payment item
 #                       0x040000 - 
 #                       0x080000 - 
 #

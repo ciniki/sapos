@@ -72,50 +72,66 @@ function ciniki_sapos_wng_apiInvoiceStripeIntentCreate(&$ciniki, $tnid, &$reques
         // Setup the stripe customer 
         //
         if( !isset($invoice['customer']['stripe_customer_id']) || $invoice['customer']['stripe_customer_id'] == '' ) {
-            try {
-                $customer = $stripe->customers->create([
-                    'name' => $invoice['customer']['display_name'],
-                    'email' => $receipt_email,
-                    'metadata' => [
-                        'customer_uuid' => $invoice['customer']['uuid'],
-                        ],
-                    ]);
-            } catch(Exception $e) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.441', 'msg'=>$e->getMessage()));
-            }
-            
-            //
-            // Save the stripe customer id for future use
-            //
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.customers.customer', $invoice['customer']['id'], array(
-                'stripe_customer_id' => $customer->id,
-                ), 0x07);
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'stripeCustomerCreate');
+            $rc = ciniki_sapos_stripeCustomerCreate($ciniki, $tnid, [
+                'customer_id' => $invoice['customer']['id'],
+                'stripe' => $stripe,
+                ]);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.455', 'msg'=>'Unable to update customer account', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.472', 'msg'=>'Unable to initialize customer record', 'err'=>$rc['err']));
             }
-            $invoice['customer']['stripe_customer_id'] = $customer->id;
+            $invoice['customer']['stripe_customer_id'] = $rc['stripe_customer_id'];
         }
 
         //
         // Create the payment intent
         //
+        $intent_args = [
+            'amount' => intval($invoice['balance_amount'] * 100),
+            'currency' => $currency,
+            'customer' => $invoice['customer']['stripe_customer_id'],
+            'receipt_email' => $receipt_email,
+            'automatic_payment_methods' => ['enabled' => true],
+            'description' => "Invoice #{$invoice['invoice_number']} Payment",
+            // FIXME: Only use when setting up recurring payments (donations or memberships)
+            //'setup_future_usage' => 'off_session', 
+            'metadata' => [
+                'invoice_number' => $invoice['invoice_number'],
+                ],
+            ];
         try {
-            $paymentIntent = $stripe->paymentIntents->create([
-                'amount' => intval($invoice['balance_amount'] * 100),
-                'currency' => $currency,
-                'customer' => $invoice['customer']['stripe_customer_id'],
-                'receipt_email' => $receipt_email,
-                'automatic_payment_methods' => ['enabled' => true],
-                'description' => "Invoice #{$invoice['invoice_number']} Payment",
-                // FIXME: Only use when setting up recurring payments (donations or memberships)
-                //'setup_future_usage' => 'off_session', 
-                'metadata' => [
-                    'invoice_number' => $invoice['invoice_number'],
-                    ],
-                ]);
+            $paymentIntent = $stripe->paymentIntents->create($intent_args);
         } catch(Exception $e) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.439', 'msg'=>$e->getMessage()));
+            error_log("API-STRIPE [{$invoice['id']}]: " . $e->getMessage());
+
+            //
+            // Check if customer does not exist in stripe (should not happen!)
+            //
+            if( isset($e->getError()->code) && isset($e->getError()->param) && $e->getError()->code == 'resource_missing' && $e->getError()->param == 'customer' ) {
+                ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'stripeCustomerCreate');
+                $rc = ciniki_sapos_stripeCustomerCreate($ciniki, $tnid, [
+                    'customer_id' => $invoice['customer']['id'],
+                    'stripe' => $stripe,
+                    ]);
+                if( $rc['stat'] != 'ok' ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.473', 'msg'=>'Unable to reset customer record', 'err'=>$rc['err']));
+                }
+                $invoice['customer']['stripe_customer_id'] = $rc['stripe_customer_id'];
+                
+                //
+                // Try the intent again
+                //
+                $intent_args['customer'] = $invoice['customer']['stripe_customer_id'];
+                try {
+                    $paymentIntent = $stripe->paymentIntents->create($intent_args);
+                } catch(Exception $e) {
+                    error_log("API-STRIPE [{$invoice['id']}]: " . $e->getMessage());
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.470', 'msg'=>$e->getMessage()));
+                }
+
+            } else {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.439', 'msg'=>$e->getMessage()));
+            }
         }
 
         //
@@ -148,7 +164,7 @@ function ciniki_sapos_wng_apiInvoiceStripeIntentCreate(&$ciniki, $tnid, &$reques
             }
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.458', 'msg'=>'Error occured setting up payment, please try again or contact us for help'));
         }
-            
+           
         return array('stat'=>'ok', 'payment_secret'=>$paymentIntent->client_secret, 'intent_id'=>$paymentIntent->id, 'button_text'=>$button_text);
     }
     

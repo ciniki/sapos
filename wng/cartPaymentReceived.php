@@ -22,6 +22,7 @@ function ciniki_sapos_wng_cartPaymentReceived(&$ciniki, $tnid, $request, $cart) 
             'invoice_id' => $cart['id'],
             'item_id' => $item['item']['id'],
             'student_id' => $item['item']['student_id'],
+            'customer' => $cart['customer'],
             ));
         if( $rc['stat'] != 'ok' ) {
             return $rc;

@@ -51,6 +51,9 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.436', 'msg'=>'Invalid stripe signature'));
         }
 
+        //
+        // Log the webhook request
+        //
         if( isset($ciniki['config']['ciniki.wng']['webhook.stripe.log']) 
             && $ciniki['config']['ciniki.wng']['webhook.stripe.log'] == 1
             ) {
@@ -58,7 +61,13 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
             file_put_contents($ciniki['config']['ciniki.core']['log_dir'] . '/stripe-' . $dt->format('Y-m') . '.log', $dt->format('Y-m-d H:i:s') . " [{$tnid}:{$event->type}] " . json_encode($event) . "\n", FILE_APPEND);
         }
 
+        //
+        // Check for webhook event type and process
+        //
         if( $event->type == 'charge.succeeded' ) {
+            //
+            // On succeeded, it will email receipts, etc
+            //
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'stripeCheckoutSucceeded');
             $rc = ciniki_sapos_wng_stripeCheckoutSucceeded($ciniki, $tnid, $request, array(
                 'gateway_token' => $event->data->object->payment_intent,
@@ -122,11 +131,8 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
 
         // FIXME: Add handling for delayed processed payments
 
-
         return array('stat'=>'ok');
     }
-
-
 
     return array('stat'=>'404', 'err'=>array('code'=>'ciniki.sapos.434', 'msg'=>"I'm sorry, the page you requested does not exist."));
 }

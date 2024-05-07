@@ -66,13 +66,13 @@ function ciniki_sapos_wng_cartItemPaymentReceived(&$ciniki, $tnid, $request, $ar
         $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'cartItemPaymentReceived');
         if( $rc['stat'] == 'ok' ) {
             $fn = $rc['function_call'];
-            $rc = $fn($ciniki, $tnid, $request['session']['customer'], array(
+            $rc = $fn($ciniki, $tnid, $args['customer'], array(
                 'object' => $item['object'],
                 'object_id' => $item['object_id'],
                 'price_id' => $item['price_id'],
                 'student_id' => $item['student_id'],
                 'quantity' => $item['quantity'],
-                'customer_id' => $request['session']['customer']['id'],
+                'customer_id' => $args['customer']['id'],
                 'invoice_id' => $item['invoice_id'],
                 'total_amount' => $item['total_amount'],
                 ));

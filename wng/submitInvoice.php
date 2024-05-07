@@ -22,6 +22,7 @@ function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
     $intl_timezone = $rc['settings']['intl-default-timezone'];
     $dt = new DateTime('now', new DateTimezone('UTC'));
 
+    
     $new_invoice_date = $dt->format("Y-m-d H:i:s");
 
     //
@@ -29,7 +30,7 @@ function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
     //
     $strsql = "SELECT invoice_type, invoice_date, status, customer_id, receipt_number, payment_status, shipping_status "
         . "FROM ciniki_sapos_invoices "
-        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $request['session']['cart']['sapos_id']) . "' "
+        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $cart['id']) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
@@ -76,7 +77,10 @@ function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
     if( isset($cart['balance_amount']) ) {
         $args['balance_amount'] = $cart['balance_amount'];
     }
-    if( $invoice['invoice_date'] != $new_invoice_date ) {
+    // 
+    // Change date if it was a cart
+    //
+    if( $invoice['invoice_type'] == 20 && $invoice['invoice_date'] != $new_invoice_date ) {
         $args['invoice_date'] = $new_invoice_date;
     }
 
@@ -92,7 +96,7 @@ function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
         . "unit_donation_amount, "
         . "taxtype_id "
         . "FROM ciniki_sapos_invoice_items "
-        . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $request['session']['cart']['sapos_id']) . "' "
+        . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $cart['id']) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
@@ -142,17 +146,17 @@ function ciniki_sapos_wng_submitInvoice($ciniki, $tnid, $request, $cart) {
         } */
     }
 
-    if( isset($request['session']['customer']['display_name']) ) {
-        $args['submitted_by'] = $request['session']['customer']['display_name'];
+    if( isset($cart['customer']['display_name']) ) {
+        $args['submitted_by'] = $cart['customer']['display_name'];
     } else {
         $args['submitted_by'] = '';
     }
-    if( isset($request['session']['customer']['email']) && $request['session']['customer']['email'] != '' ) {
-        $args['submitted_by'] .= ($args['submitted_by']!='' ? ' [' . $request['session']['customer']['email'] . ']' : $request['session']['customer']['email']);
+    if( isset($cart['customer']['emails'][0]['email']['address']) && $cart['customer']['emails'][0]['email']['address'] != '' ) {
+        $args['submitted_by'] .= ($args['submitted_by']!='' ? ' [' . $cart['customer']['emails'][0]['email']['address'] . ']' : $cart['customer']['emails'][0]['email']['address']);
     }
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
     $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', 
-        $request['session']['cart']['sapos_id'], $args, 0x07);
+        $cart['id'], $args, 0x07);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
