@@ -95,6 +95,8 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
     $strsql = "SELECT ciniki_sapos_invoices.id, "
         . "ciniki_sapos_invoices.invoice_number, "
         . "ciniki_sapos_invoices.invoice_date, "
+        . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status, "
+        . "CONCAT_WS('.', ciniki_sapos_invoices.invoice_type, ciniki_sapos_invoices.status) AS status_text, "
         . "ciniki_sapos_invoices.payment_status, "
         . "ciniki_sapos_invoices.payment_status AS payment_status_text, "
         . "ciniki_sapos_invoices.po_number, "
@@ -169,9 +171,15 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 
-            'fields'=>array('id', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'customer_type', 'customer_display_name', 'total_amount'),
+            'fields'=>array('id', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 
+                'status', 'status_text',
+                'customer_type', 'customer_display_name', 'total_amount',
+                ),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
-            'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
+            'maps'=>array(
+                'payment_status_text'=>$maps['invoice']['payment_status'],
+                'status_text'=>$maps['invoice']['typestatus'],
+                ),
             ),
         array('container'=>'cats', 'fname'=>'category', 'fields'=>array('name'=>'category', 'amount')),
         ));
@@ -248,6 +256,7 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
             $sheet->setCellValueByColumnAndRow($i++, 1, $c['name'], false);
         }
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Total', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Status', false);
         $sheet->getStyle('A1:' . chr($i+65) . '1')->getFont()->setBold(true);
 
         //
@@ -266,6 +275,7 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
                 $i++;
             }
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['total_amount'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['status_text'], false);
             $row++;
         }
         if( $row > 2 ) {
@@ -291,6 +301,7 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
             $i++;
         }
         $sheet->getColumnDimension(chr($i+65))->setAutoSize(true);
+        $sheet->getColumnDimension(chr($i+66))->setAutoSize(true);
         $sheet->freezePane('A2');
 
         //
