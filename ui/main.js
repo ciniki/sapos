@@ -17,7 +17,7 @@ function ciniki_sapos_main() {
         '80':'Credit',
         '90':'Interac',
         '100':'Cash',
-        '105':'Check',
+        '105':'Cheque',
         '110':'Email Transfer',
         '115':'Gift Certificate',
         '120':'Other',

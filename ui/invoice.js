@@ -74,7 +74,7 @@ function ciniki_sapos_invoice() {
         '80':'Credit Card',
         '90':'Debit Card',
         '100':'Cash',
-        '105':'Check',
+        '105':'Cheque',
         '110':'Email Transfer',
         '115':'Gift Certificate',
         '120':'Other',
