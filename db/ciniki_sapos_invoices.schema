@@ -33,8 +33,8 @@
 #                       0 - Unknown
 #                       10 - Invoice/Services
 #                       11 - Monthly Recurring Invoice/Services
-#                       12 - Yearly Recurring Invoice/Services
-#                       13 - Quarterly Recurring Invoice/Services
+#                       16 - Quarterly Recurring Invoice/Services
+#                       19 - Yearly Recurring Invoice/Services
 #                       20 - Shopping Cart
 #                       30 - POS
 #                       40 - Purchase Order
@@ -106,7 +106,7 @@
 #                       0x01 - Don't show discounts/savings, only show the final price with quantity.
 #                       0x02 - Drop ship
 #                       0x04 - Preorder Items
-#                       0x08 - 
+#                       0x08 - Auto charge via stripe (recurring invoices only)
 #
 # invoice_date:         The UTC date and time for the invoice.  When returning to the tenant,
 #                       it should be converted to local timezone.  Most tenants won't care about
@@ -163,6 +163,8 @@
 #
 # user_id:              The ID of the user who created the invoice.  If the invoice was created
 #                       online, it should be set to zero (0).
+#
+# stripe_pm_id:         The Stripe Payment Method id used for recurring invoices auto bill.
 #
 # customer_notes:       Notes that the customer can edit and see on the website shopping cart.
 # invoice_notes:        Notes that will appear on the invoice.
@@ -229,6 +231,7 @@ create table ciniki_sapos_invoices (
     paid_amount decimal(19,4) not null,
     balance_amount decimal(19,4) not null,
     user_id int not null,
+    stripe_pm_id varchar(150) not null,
     customer_notes text not null,
     invoice_notes text not null,
     internal_notes text not null,
@@ -236,7 +239,7 @@ create table ciniki_sapos_invoices (
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
-    index (customer_id, status, invoice_date),
     unique index (tnid, invoice_number),
+    index date_status (id, tnid, customer_id, status, invoice_date),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.14';
+) ENGINE='InnoDB', COMMENT='v1.15';

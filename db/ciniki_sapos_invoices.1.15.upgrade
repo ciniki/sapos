@@ -1,0 +1,3 @@
+ALTER TABLE ciniki_sapos_invoices ADD COLUMN stripe_pm_id varchar(150) not null AFTER user_id;
+ALTER TABLE ciniki_sapos_invoices COMMENT='v1.15';
+CREATE INDEX date_status ON ciniki_sapos_invoices (id, tnid, customer_id, status, invoice_date);
