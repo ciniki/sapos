@@ -47,15 +47,6 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.462', 'msg'=>'Unable to update the transaction', 'err'=>$rc['err']));
                 }
-
-                //
-                // Run an update on the invoice
-                //
-                ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-                $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $transaction['invoice_id']);
-                if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.463', 'msg'=>'Unable to update invoice', 'err'=>$rc['err']));
-                }
             }
 
             //
@@ -85,6 +76,33 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
                     if( $rc['stat'] != 'ok' ) {
                         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.474', 'msg'=>'', 'err'=>$rc['err']));
                     }
+                }
+
+                //
+                // Check if recurring items and invoice was not created automatically from a recurring invoice
+                // This will be the first time the recurring item(s) were purchased either from
+                // Invoice or POS or Cart
+                //
+                if( $invoice['recurring'] == 'yes' && $invoice['source_id'] == 0 ) {
+                    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceRecurringSetup');
+                    $rc = ciniki_sapos_invoiceRecurringSetup($ciniki, $tnid, [
+                        'invoice' => $invoice,
+                        'payment_method' => $args['payment_method'],
+                        ]);
+                    if( $rc['stat'] != 'ok' ) {
+                        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.482', 'msg'=>'Error setting up recurring invoices', 'err'=>$rc['err']));
+                    }
+                }
+            }
+
+            else {
+                //
+                // Run an update on the invoice
+                //
+                ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+                $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $transaction['invoice_id']);
+                if( $rc['stat'] != 'ok' ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.463', 'msg'=>'Unable to update invoice', 'err'=>$rc['err']));
                 }
             }
         }
