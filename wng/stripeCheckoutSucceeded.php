@@ -83,7 +83,7 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
                 // This will be the first time the recurring item(s) were purchased either from
                 // Invoice or POS or Cart
                 //
-                if( $invoice['recurring'] == 'yes' && $invoice['source_id'] == 0 ) {
+                if( isset($invoice['recurring']) && $invoice['recurring'] == 'yes' && $invoice['source_id'] == 0 ) {
                     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceRecurringSetup');
                     $rc = ciniki_sapos_invoiceRecurringSetup($ciniki, $tnid, [
                         'invoice' => $invoice,
