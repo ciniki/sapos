@@ -22,6 +22,7 @@ function ciniki_sapos_packageGet($ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'package_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Donation Package'),
+        'dpcategory'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -61,6 +62,9 @@ function ciniki_sapos_packageGet($ciniki) {
             . "FROM ciniki_sapos_donation_packages "
             . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
+        if( isset($args['dpcategory']) ) {
+            $strsql .= "AND dpcategory = '" . ciniki_core_dbQuote($ciniki, $args['dpcategory']) . "' ";
+        }
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
         $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.sapos', 'max');
         if( $rc['stat'] != 'ok' ) {
@@ -70,18 +74,19 @@ function ciniki_sapos_packageGet($ciniki) {
         if( isset($rc['max']) && $rc['max'] > 1 ) {
             $seq = $rc['max'] + 1;
         }
-        $package = array('id'=>0,
-            'name'=>'',
-            'invoice_name'=>'',
-            'subname'=>'',
-            'permalink'=>'',
-            'flags'=>0x01,
-            'sequence'=>$seq,
-            'category'=>'',
-            'amount'=>'',
-            'primary_image_id'=>'0',
-            'synopsis'=>'',
-            'description'=>'',
+        $package = array(
+            'id' => 0,
+            'name' => '',
+            'invoice_name' => '',
+            'subname' => '',
+            'permalink' => '',
+            'flags' => 0x01,
+            'sequence' => $seq,
+            'category' => '',
+            'amount' => '',
+            'primary_image_id' => '0',
+            'synopsis' => '',
+            'description' => '',
         );
     }
 
@@ -95,6 +100,7 @@ function ciniki_sapos_packageGet($ciniki) {
             . "ciniki_sapos_donation_packages.permalink, "
             . "ciniki_sapos_donation_packages.invoice_name, "
             . "ciniki_sapos_donation_packages.flags, "
+            . "ciniki_sapos_donation_packages.dpcategory, "
             . "ciniki_sapos_donation_packages.category, "
             . "ciniki_sapos_donation_packages.subcategory, "
             . "ciniki_sapos_donation_packages.sequence, "
@@ -109,7 +115,7 @@ function ciniki_sapos_packageGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
             array('container'=>'packages', 'fname'=>'id', 
-                'fields'=>array('invoice_name', 'name', 'subname', 'permalink', 'sequence', 'flags', 
+                'fields'=>array('invoice_name', 'name', 'subname', 'permalink', 'sequence', 'flags', 'dpcategory',
                     'category', 'subcategory', 'amount', 'primary_image_id', 'synopsis', 'description',
                     )),
             ));

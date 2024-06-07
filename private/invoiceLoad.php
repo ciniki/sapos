@@ -61,6 +61,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     // The the invoice details
     //
     $strsql = "SELECT id, "
+        . "source_id, "         // invoice was created from a recurring invoice
         . "invoice_number, "
         . "po_number, "
         . "receipt_number, "
@@ -123,6 +124,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "total_savings, "
         . "paid_amount, "
         . "balance_amount, "
+        . "stripe_pm_id, "
         . "customer_notes, "
         . "invoice_notes, "
         . "internal_notes, "
@@ -133,7 +135,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 'name'=>'invoice',
-            'fields'=>array('id', 'invoice_number', 'po_number', 'receipt_number', 'customer_id',
+            'fields'=>array('id', 'source_id', 'invoice_number', 'po_number', 'receipt_number', 'customer_id',
                 'invoice_type', 'invoice_type_text', 'status', 'status_text',
                 'payment_status', 'payment_status_text',
                 'shipping_status', 'shipping_status_text',
@@ -150,7 +152,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 'preorder_subtotal_amount', 'preorder_shipping_amount', 'preorder_total_amount',
                 'subtotal_amount', 'subtotal_discount_percentage', 'subtotal_discount_amount', 
                 'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
-                'paid_amount', 'balance_amount',
+                'paid_amount', 'balance_amount', 'stripe_pm_id',
                 'customer_notes', 'invoice_notes', 'internal_notes', 'submitted_by'),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
                 'donation_year'=>array('timezone'=>$intl_timezone, 'format'=>'Y'),
@@ -305,6 +307,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
+    $invoice['recurring'] = 'no';
     $invoice['total_quantity'] = 0;
     $invoice['total_nopromo_quantity'] = 0;
     $invoice['total_required_quantity'] = 0;
@@ -315,6 +318,9 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         $invoice['items'] = $rc['items'];
         $objects = array();
         foreach($invoice['items'] as $iid => $item) {
+            if( ($item['item']['flags']&0xe00000) > 0 ) {
+                $invoice['recurring'] = 'yes';
+            }
             if( ($item['item']['flags']&0x8000) == 0x8000 ) {
                 $invoice['donations'] = 'yes';
             }

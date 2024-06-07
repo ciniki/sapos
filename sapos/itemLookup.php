@@ -68,6 +68,14 @@ function ciniki_sapos_sapos_itemLookup($ciniki, $tnid, $args) {
             'unit_discount_percentage'=>0,
             'taxtype_id'=>0,
             );
+        //
+        // Check if donation package is recurring monthly (0x20) or yearly (0x80)
+        //
+        if( ($package['flags']&0x20) == 0x20 ) {
+            $product['flags'] |= 0x200000;
+        } elseif( ($package['flags']&0x80) == 0x80 ) {
+            $product['flags'] |= 0x800000;
+        }
         if( ($package['flags']&0x02) == 0x02 ) {    
             $product['unit_amount'] = $package['amount'];
         } elseif( isset($args['user_amount']) ) {

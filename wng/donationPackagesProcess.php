@@ -29,8 +29,11 @@ function ciniki_sapos_wng_donationPackagesProcess($ciniki, $tnid, &$request, $se
         . "synopsis AS description "
         . "FROM ciniki_sapos_donation_packages "
         . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "AND (flags&0x01) = 0x01 "
-        . "ORDER BY sequence "
+        . "AND (flags&0x01) = 0x01 ";
+    if( isset($s['dpcategory']) && $s['dpcategory'] != '' && $s['dpcategory'] != 'All' ) {
+        $strsql .= "AND dpcategory = '" . ciniki_core_dbQuote($ciniki, $s['dpcategory']) . "' ";
+    }
+    $strsql .= "ORDER BY sequence "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'package');
     if( $rc['stat'] != 'ok' ) {

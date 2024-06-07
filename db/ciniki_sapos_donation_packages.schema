@@ -22,11 +22,17 @@
 #                           0x02 - Fixed Amount, used the amount field.
 #                           0x04 - 
 #                           0x08 - 
+#                           0x10 - 
+#                           0x20 - Recurring Monthly
+#                           0x40 - Recurring Quarterly **future**
+#                           0x80 - Recurring Yearly
+#
+# dpcategory:           The donation package category, for organizing packages on website.
 #
 # category:             The accounting category of the package.
 # subcategory:          The accounting subcategory (donation category) of the package.
 #
-# sequence:             The sort order for the packages.
+# sequence:             The sort order for the packages, within the group.
 #
 # amount:               The donation amount if the flag 0x02 has been set.
 #
@@ -47,6 +53,7 @@ create table ciniki_sapos_donation_packages (
     permalink varchar(250) not null,
     invoice_name varchar(150) not null,
     flags tinyint unsigned not null,
+    dpcategory varchar(100) not null,
     category varchar(150) not null,
     subcategory varchar(150) not null,
     sequence tinyint unsigned not null,
@@ -59,4 +66,4 @@ create table ciniki_sapos_donation_packages (
     primary key (id),
     unique index (tnid, permalink),
     index tenant_uuid (tnid, uuid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.02';
+) ENGINE='InnoDB', COMMENT='v1.03';

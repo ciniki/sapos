@@ -20,6 +20,7 @@ function ciniki_sapos_packageList($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
+        'dpcategory'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'dpcategory'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -49,6 +50,11 @@ function ciniki_sapos_packageList($ciniki) {
         . "FROM ciniki_sapos_donation_packages "
         . "WHERE ciniki_sapos_donation_packages.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
+    if( isset($args['dpcategory']) && $args['dpcategory'] != '' && $args['dpcategory'] != 'All' ) {
+        $strsql .= "AND dpcategory = '" . ciniki_core_dbQuote($ciniki, $args['dpcategory']) . "' ";
+    }
+    $strsql .= "ORDER BY sequence ";
+    
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'packages', 'fname'=>'id', 
@@ -68,6 +74,27 @@ function ciniki_sapos_packageList($ciniki) {
         $package_ids = array();
     }
 
-    return array('stat'=>'ok', 'packages'=>$packages, 'nplist'=>$package_ids);
+    $rsp = array('stat'=>'ok', 'packages'=>$packages, 'nplist'=>$package_ids);
+
+    //
+    // Get the categories
+    //
+    $strsql = "SELECT DISTINCT dpcategory "
+        . "FROM ciniki_sapos_donation_packages "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "AND dpcategory <> '' "
+        . "ORDER BY dpcategory "
+        . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'categories', 'fname'=>'dpcategory', 'fields'=>array('name'=>'dpcategory')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.478', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
+    }
+    $rsp['dpcategories'] = isset($rc['categories']) ? $rc['categories'] : array();
+    array_unshift($rsp['dpcategories'], array('name'=>'All'));
+
+    return $rsp;
 }
 ?>

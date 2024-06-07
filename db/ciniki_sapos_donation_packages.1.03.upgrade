@@ -1,0 +1,2 @@
+ALTER TABLE ciniki_sapos_donation_packages ADD COLUMN dpcategory varchar(100) not null after flags;
+ALTER TABLE ciniki_sapos_donation_packages COMMENT='v1.03';

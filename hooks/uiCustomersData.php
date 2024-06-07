@@ -198,6 +198,40 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
             $sections['ciniki.sapos.quotes']['cellValues']['0'] = 'M.multiline(d.invoice_number, d.work_address);';
         }
     }
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x1000) ) {   // Recurring
+        $recurring['ciniki.sapos.monthly'] = array(
+            'id' => 'ciniki.sapos.monthly',
+            'label' => 'Monthly',
+            'type' => 'simplegrid', 
+            'num_cols' => 3,
+            'headerValues' => array('Invoice #', 'Date', 'Amount'),
+            'cellClasses' => array('', ''),
+            'noData' => 'No monthly recurring invoices',
+            'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
+            'data' => array(),
+            'cellValues' => array(
+                '0' => 'd.invoice_number;',
+                '1' => 'd.invoice_date;',
+                '2' => 'd.total_amount_display;',
+                ),
+            );
+        $recurring['ciniki.sapos.yearly'] = array(
+            'id' => 'ciniki.sapos.yearly',
+            'label' => 'Yearly',
+            'type' => 'simplegrid', 
+            'num_cols' => 3,
+            'headerValues' => array('Invoice #', 'Date', 'Amount'),
+            'cellClasses' => array('', ''),
+            'noData' => 'No yearly recurring invoices',
+            'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
+            'data' => array(),
+            'cellValues' => array(
+                '0' => 'd.invoice_number;',
+                '1' => 'd.invoice_date;',
+                '2' => 'd.total_amount_display;',
+                ),
+            );
+    }
     if( !isset($rc['types']) ) {
         return array('stat'=>'ok', 'tabs'=>array(array(
             'id' => 'ciniki.sapos.invoices',
@@ -206,7 +240,6 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
             )));
     }
     $types = $rc['types'];
-
     foreach($types as $tid => $type) {
         foreach($type['invoices'] as $iid => $invoice) {
             if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x020000) ) { 
@@ -230,6 +263,10 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
                 $sections['ciniki.sapos.invoices']['data'][] = $invoice;
             } elseif( $type['type'] == 20 && isset($carts['ciniki.sapos.carts']) ) {
                 $carts['ciniki.sapos.carts']['data'][] = $invoice;
+            } elseif( $type['type'] == 11 ) {
+                $recurring['ciniki.sapos.monthly']['data'][] = $invoice;
+            } elseif( $type['type'] == 19 ) {
+                $recurring['ciniki.sapos.yearly']['data'][] = $invoice;
             } elseif( $type['type'] == 30 && isset($sections['ciniki.sapos.invoices']) ) {
                 $sections['ciniki.sapos.invoices']['data'][] = $invoice;
             } elseif( $type['type'] == 40 && isset($sections['ciniki.sapos.orders']) ) {
@@ -252,13 +289,22 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
     $rsp['tabs'][] = array(
         'id' => 'ciniki.sapos.invoices',
         'label' => 'Invoices',
-        'priority' => 8000,
+        'priority' => 8010,
         'sections' => $sections,
         );
+    if( isset($recurring) ) {
+        $rsp['tabs'][] = array(
+            'id' => 'ciniki.sapos.recurring',
+            'label' => 'Recurring',
+            'priority' => 8006,
+            'sections' => $recurring,
+            );
+    }
     if( isset($carts) ) {
         $rsp['tabs'][] = array(
             'id' => 'ciniki.sapos.carts',
             'label' => 'Carts',
+            'priority' => 8001,
             'sections' => $carts,
             );
     }
@@ -266,6 +312,7 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         $rsp['tabs'][] = array(
             'id' => 'ciniki.sapos.quotes',
             'label' => 'Quotes',
+            'priority' => 8005,
             'sections' => $quotes,
             );
     }

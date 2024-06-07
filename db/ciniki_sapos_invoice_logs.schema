@@ -1,0 +1,55 @@
+#
+# Description
+# -----------
+# This table stores the logs of action applied to an invoice. Typically used for stripe logging.
+#
+#
+# Fields
+# ------
+# id:                       The ID assigned to the record.
+# uuid:                     The Universal Unique ID.
+# tnid:                     The Tenant ID the record belongs to.
+#
+# invoice_id:               The ID of the invoice.
+# customer_id:              The ID of the customer on the invoice. 
+#                           This is used to get a list of all billing actions for a customer.
+#
+# log_date:                 The UTC date and time of the log entry.
+#
+# status:                   The status of the log message
+#
+#                               10 - Success
+#                               30 - Warning
+#                               50 - Error
+#
+# ip_address:               The IP Address the request was made from.
+#
+# action:                   The action that was attempted performed.
+#
+# error_code:               The error code generated.
+# error_msg:                The error message.
+#
+# date_added:               The UTC date and time the record was added.
+# last_updated:             The UTC date and time the record was last update.
+#
+#
+create table ciniki_sapos_invoice_logs (
+    id bigint not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+
+    invoice_id int not null,
+    customer_id int not null,
+    log_date datetime not null,
+    status tinyint unsigned not null,
+    ip_address varchar(50) not null,
+    action varchar(250) not null,
+    error_code varchar(50) not null,
+    error_msg varchar(1000) not null,
+
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    index sync (tnid, uuid, last_updated)
+) ENGINE=InnoDB, COMMENT='v1.01';

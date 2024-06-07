@@ -93,12 +93,16 @@ function ciniki_sapos_wng_apiInvoiceStripeIntentCreate(&$ciniki, $tnid, &$reques
             'receipt_email' => $receipt_email,
             'automatic_payment_methods' => ['enabled' => true],
             'description' => "Invoice #{$invoice['invoice_number']} Payment",
-            // FIXME: Only use when setting up recurring payments (donations or memberships)
-            //'setup_future_usage' => 'off_session', 
             'metadata' => [
                 'invoice_number' => $invoice['invoice_number'],
                 ],
             ];
+        //
+        // Check if future usage needs to be set
+        //
+        if( isset($invoice['recurring']) && $invoice['recurring'] == 'yes' ) {
+            $intent_args['setup_future_usage'] = 'off_session';
+        }
         try {
             $paymentIntent = $stripe->paymentIntents->create($intent_args);
         } catch(Exception $e) {

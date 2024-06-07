@@ -97,6 +97,7 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $tnid, $invoice_id) {
         . "paid_amount, "
         . "balance_amount, "
         . "user_id, "
+        . "stripe_pm_id, "
         . "customer_notes, "
         . "invoice_notes, "
         . "internal_notes, "
@@ -117,7 +118,7 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $tnid, $invoice_id) {
                 'tax_location_id',
                 'subtotal_amount', 'subtotal_discount_amount', 'subtotal_discount_percentage', 
                 'discount_amount', 'shipping_amount', 'total_amount', 'total_savings', 
-                'paid_amount', 'balance_amount', 'user_id',
+                'paid_amount', 'balance_amount', 'user_id', 'stripe_pm_id',
                 'customer_notes', 'invoice_notes', 'internal_notes', 'submitted_by'),
 //          'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
 //              'invoice_time'=>array('timezone'=>$intl_timezone, 'format'=>$time_format),
@@ -203,7 +204,7 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $tnid, $invoice_id) {
     }   
 
     //
-    // Check if the invoice already exists
+    // Check if the invoice already exists for the new invoice date
     //
     $strsql = "SELECT id, invoice_date "
         . "FROM ciniki_sapos_invoices "
@@ -369,6 +370,17 @@ function ciniki_sapos_invoiceAddFromRecurring($ciniki, $tnid, $invoice_id) {
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
+    }
+
+    //
+    // Check if auto charge is enabled
+    //
+    if( ($invoice['flags']&0x08) == 0x08 && isset($new_invoice_id) ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'stripeInvoiceAutoCharge');
+        $rc = ciniki_sapos_stripeInvoiceAutoCharge($ciniki, $tnid, $new_invoice_id);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
     }
 
     //

@@ -1137,8 +1137,9 @@ function ciniki_sapos_settings() {
     //
     // The panel to list the package
     //
-    this.packages = new M.panel('Packages', 'ciniki_sapos_settings', 'packages', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.packages');
+    this.packages = new M.panel('Packages', 'ciniki_sapos_settings', 'packages', 'mc', 'medium narrowaside', 'sectioned', 'ciniki.sapos.settings.packages');
     this.packages.data = {};
+    this.packages.dpcategory = 'All';
     this.packages.nplist = [];
     this.packages.sections = {
 //        'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':1,
@@ -1146,9 +1147,11 @@ function ciniki_sapos_settings() {
 //            'hint':'Search package',
 //            'noData':'No package found',
 //            },
-        'packages':{'label':'Donation Package', 'type':'simplegrid', 'num_cols':1,
-            'noData':'No package',
-            'addTxt':'Add Donation Package',
+        'dpcategories':{'label':'Categories', 'type':'simplegrid', 'aside':'yes', 'num_cols':1,
+            },
+        'packages':{'label':'Donation Packages', 'type':'simplegrid', 'num_cols':1,
+            'noData':'No packages',
+            'addTxt':'Add Package',
             'addFn':'M.ciniki_sapos_settings.package.open(\'M.ciniki_sapos_settings.packages.open();\',0,null);'
             },
     }
@@ -1166,6 +1169,11 @@ function ciniki_sapos_settings() {
         return 'M.ciniki_sapos_settings.package.open(\'M.ciniki_sapos_settings.packages.open();\',\'' + d.id + '\');';
     } */
     this.packages.cellValue = function(s, i, j, d) {
+        if( s == 'dpcategories' ) {
+            switch(j) {
+                case 0: return d.name;
+            }
+        }
         if( s == 'packages' ) {
             switch(j) {
                 case 0: return d.name;
@@ -1176,12 +1184,26 @@ function ciniki_sapos_settings() {
         if( d == null ) {
             return '';
         }
+        if( s == 'dpcategories' ) {
+            return 'M.ciniki_sapos_settings.packages.switchCategory(\'' + M.eU(d.name) + '\');';
+        }
         if( s == 'packages' ) {
             return 'M.ciniki_sapos_settings.package.open(\'M.ciniki_sapos_settings.packages.open();\',\'' + d.id + '\',M.ciniki_sapos_settings.package.nplist);';
         }
     }
+    this.packages.rowClass = function(s, i, d) {
+        if( s == 'dpcategories' && d.name == this.dpcategory ) {
+            return 'highlight';
+        }
+        return '';
+    }
+    this.packages.switchCategory = function(n) {
+        console.log(n);
+        this.dpcategory = M.dU(n);
+        this.open();
+    }
     this.packages.open = function(cb) {
-        M.api.getJSONCb('ciniki.sapos.packageList', {'tnid':M.curTenantID}, function(rsp) {
+        M.api.getJSONCb('ciniki.sapos.packageList', {'tnid':M.curTenantID, 'dpcategory':this.dpcategory}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -1216,21 +1238,29 @@ function ciniki_sapos_settings() {
                  },
              },
         }},*/
-        'general':{'label':'', 'aside':'yes', 'fields':{
+        'general':{'label':'Package Details', 'aside':'yes', 'fields':{
+            'dpcategory':{'label':'Category', 'type':'text', 'livesearch':'yes', 'livesearchempty':'yes'},
             'name':{'label':'Name', 'required':'yes', 'type':'text'},
             'subname':{'label':'Price Display', 'type':'text', 'size':'small'},
             'sequence':{'label':'Order', 'type':'text', 'size':'small'},
             'flags1':{'label':'Visible', 'type':'flagtoggle', 'field':'flags', 'bit':0x01, 'default':'off'},
             'flags2':{'label':'Fixed Amount', 'type':'flagtoggle', 'field':'flags', 'bit':0x02, 'default':'on', 'on_fields':['amount']},
-//            'category':{'label':'Category', 'type':'text'},
+            'flags6':{'label':'Recurring', 'type':'flagspiece', 'field':'flags', 'mask':0xa0, 'default':'0', 'join':'yes', 'toggle':'yes',
+                'visible':function() { return M.modFlagSet('ciniki.sapos', 0x1000); },
+                'flags':{'0':{'name':'No'}, '6':{'name':'Monthly'}, '8':{'name':'Yearly'}},
+                },
             'amount':{'label':'Amount', 'type':'text', 'size':'medium'},
             'invoice_name':{'label':'Invoice Description', 'required':'yes', 'type':'text'},
-            'category':{'label':'Accounting Category', 'type':'text',
-                'visible':function() { return M.modFlagSet('ciniki.sapos', 0x01000000); },
-                },
-            'subcategory':{'label':'Donation Category', 'type':'text',
-                'visible':function() { return M.modFlagSet('ciniki.sapos', 0x08000000); },
-                },
+            }},
+        'accounting':{'label':'Accounting Organization', 'aside':'yes', 
+            'visible':function() { return M.modFlagAny('ciniki.sapos', 0x09000000); },
+            'fields':{
+                'category':{'label':'Accounting Category', 'type':'text',
+                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x01000000); },
+                    },
+                'subcategory':{'label':'Donation Category', 'type':'text',
+                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x08000000); },
+                    },
             }},
         '_synopsis':{'label':'Synopsis', 'fields':{
             'synopsis':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -1245,6 +1275,23 @@ function ciniki_sapos_settings() {
                 'fn':'M.ciniki_sapos_settings.package.remove();'},
             }},
         }
+    this.package.liveSearchCb = function(s, i, v) {
+        if( i == 'dpcategory' ) {
+            M.api.getJSONBgCb('ciniki.sapos.packageFieldSearch', {'tnid':M.curTenantID, 'field':'dpcategory', 'start_needle':v, 'limit':'25'}, function(rsp) {
+                M.ciniki_sapos_settings.package.liveSearchShow(s,i,M.gE(M.ciniki_sapos_settings.package.panelUID + '_' + i), rsp.results);
+                });
+        }
+    }
+    this.package.liveSearchResultValue = function(s, f, i, j, d) {
+        return d.value;
+    }
+    this.package.liveSearchResultRowFn = function(s, f, i, j, d) {
+        return 'M.ciniki_sapos_settings.package.updateField(\'' + s + '\',\'' + f + '\',\'' + M.eU(d.value) + '\');';
+    }
+    this.package.updateField = function(s, fid, result) {
+        M.gE(this.panelUID + '_' + fid).value = M.dU(result);
+        this.removeLiveSearch(s, fid);
+    };
     this.package.fieldValue = function(s, i, d) { return this.data[i]; }
     this.package.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.packageHistory', 'args':{'tnid':M.curTenantID, 'package_id':this.package_id, 'field':i}};
@@ -1959,6 +2006,7 @@ function ciniki_sapos_settings() {
             M.alert('App Error');
             return false;
         } 
+        this.packages.dpcategory = 'All';
 
         //
         // Decide what should be visible

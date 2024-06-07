@@ -71,6 +71,14 @@ function ciniki_sapos_sapos_cartItemLookup($ciniki, $tnid, $customer, $args) {
         if( isset($args['user_amount']) ) {
             $args['user_amount'] = preg_replace("/[^0-9\.]/", '', $args['user_amount']);
         }
+        //
+        // Check if donation package is recurring monthly (0x20) or yearly (0x80)
+        //
+        if( ($package['flags']&0x20) == 0x20 ) {
+            $product['flags'] |= 0x200000;
+        } elseif( ($package['flags']&0x80) == 0x80 ) {
+            $product['flags'] |= 0x800000;
+        }
         if( ($package['flags']&0x02) == 0x02 ) {    
             $product['unit_amount'] = $package['amount'];
         } elseif( isset($args['user_amount']) && is_numeric($args['user_amount']) ) {

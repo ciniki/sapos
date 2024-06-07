@@ -71,6 +71,7 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'stripeCheckoutSucceeded');
             $rc = ciniki_sapos_wng_stripeCheckoutSucceeded($ciniki, $tnid, $request, array(
                 'gateway_token' => $event->data->object->payment_intent,
+                'payment_method' => $event->data->object->payment_method,
                 'balance_transaction' => $event->data->object->balance_transaction,
                 'event' => $event,
                 'stripe' => $stripe,

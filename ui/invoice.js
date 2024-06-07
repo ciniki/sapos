@@ -111,6 +111,7 @@ function ciniki_sapos_invoice() {
                 'due_date':{'label':'Due Date'},
                 'flags_text':{'label':'Options', 'visible':'no'},
                 'submitted_by':{'label':'Submitted By', 'visible':'no'},
+                'stripe_pm_id':{'label':'Stripe PM', 'visible':'no'},
                 }},
             'customer_notes':{'label':'Customer Notes', 'aside':'yes', 'visible':'no', 'type':'html'},
             'internal_notes':{'label':'Internal Notes', 'aside':'yes', 'visible':'no', 'type':'html'},
@@ -1659,6 +1660,9 @@ function ciniki_sapos_invoice() {
                 this.invoice.sections._buttons.buttons.delete.label = 'Delete Recurring Invoice';
                 this.invoice.sections.details.list.submitted_by.visible = 'no';
                 this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
+                if( M.modFlagOn('ciniki.sapos', 0x800000) ) {
+                    this.invoice.sections.details.list.stripe_pm_id.visible = 'yes';
+                }
                 break;
             case '16': 
                 this.invoice.title = 'Quarterly Invoice';
@@ -1667,6 +1671,9 @@ function ciniki_sapos_invoice() {
                 this.invoice.sections._buttons.buttons.delete.label = 'Delete Recurring Invoice';
                 this.invoice.sections.details.list.submitted_by.visible = 'no';
                 this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
+                if( M.modFlagOn('ciniki.sapos', 0x800000) ) {
+                    this.invoice.sections.details.list.stripe_pm_id.visible = 'yes';
+                }
                 break;
             case '19': 
                 this.invoice.title = 'Yearly Invoice';
@@ -1675,6 +1682,9 @@ function ciniki_sapos_invoice() {
                 this.invoice.sections._buttons.buttons.delete.label = 'Delete Recurring Invoice';
                 this.invoice.sections.details.list.submitted_by.visible = 'no';
                 this.edit.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
+                if( M.modFlagOn('ciniki.sapos', 0x800000) ) {
+                    this.invoice.sections.details.list.stripe_pm_id.visible = 'yes';
+                }
                 break;
             case '20': 
                 this.invoice.title = 'Shopping Cart';
