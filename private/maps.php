@@ -142,6 +142,12 @@ function ciniki_sapos_maps($ciniki) {
             '30'=>'Shipped',
             '50'=>'Completed',
             ),
+        'flags' => array(
+            0x01 => 'Discounts Hidden',
+            0x02 => 'Drop Ship',
+            0x04 => 'Preorder Items',
+            0x08 => 'Stripe Auto Bill',
+            ),
         );
     $maps['transaction'] = array(
         'status'=>array(

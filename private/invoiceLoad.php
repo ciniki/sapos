@@ -81,6 +81,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
         . "preorder_status, "
         . "preorder_status AS preorder_status_text, "
         . "flags, "
+        . "flags AS flags_text, "
         . "invoice_date, "
         . "invoice_date AS donation_year, "
         . "invoice_date AS invoice_time, "
@@ -142,7 +143,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 'manufacturing_status', 'manufacturing_status_text',
                 'donationreceipt_status', 'donationreceipt_status_text',
                 'preorder_status', 'preorder_status_text',
-                'flags', 'invoice_date', 'donation_year', 'invoice_time', 'invoice_datetime', 'due_date',
+                'flags', 'flags_text', 'invoice_date', 'donation_year', 'invoice_time', 'invoice_datetime', 'due_date',
                 'billing_name', 'billing_address1', 'billing_address2', 'billing_city', 
                 'billing_province', 'billing_postal', 'billing_country',
                 'shipping_name', 'shipping_address1', 'shipping_address2', 'shipping_city', 
@@ -169,6 +170,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 'manufacturing_status_text'=>$maps['invoice']['manufacturing_status'],
                 'donationreceipt_status_text'=>$maps['invoice']['donationreceipt_status'],
                 'preorder_status_text'=>$maps['invoice']['preorder_status'],
+                'flags_text' => $maps['invoice']['flags'],
                 )),
         ));
     if( $rc['stat'] != 'ok' ) {

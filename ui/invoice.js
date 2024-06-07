@@ -1637,12 +1637,12 @@ function ciniki_sapos_invoice() {
 //        } else {
 //            p.sections._buttons.buttons.record.visible='no';
 //        }
-        p.data.flags_text = '';
+/*        p.data.flags_text = '';
         for(i in this.invoiceFlags) {
             if( (rsp.invoice.flags&Math.pow(2,i-1)) > 0 ) {
                 p.data.flags_text += (p.data.flags_text!=''?', ':'') + this.invoiceFlags[i].name;
             }
-        }
+        } */
         this.edit.sections.details.fields.status.visible = 'yes';
         switch(rsp.invoice.invoice_type) {
             case '10': 
