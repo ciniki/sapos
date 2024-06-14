@@ -1456,7 +1456,7 @@ function ciniki_sapos_pos() {
         this.menu.open(cb,0);
     };
 
-    this.stripeInit = function(ct,ps) {
+    this.stripeInit = function(ct) {
         return new Promise((resolve, reject) => {
             if( M.ciniki_sapos_pos.st == null ) {
                 M.ciniki_sapos_pos.reader = null;   // Reset reader
@@ -1490,6 +1490,7 @@ function ciniki_sapos_pos() {
                         M.ciniki_sapos_pos.reader = discoverResult.discoveredReaders[0];
                         M.ciniki_sapos_pos.st.connectReader(M.ciniki_sapos_pos.reader, {fail_if_in_use:true}).then(function(result) {
                             if( result.error ) {
+                                M.ciniki_sapos_pos.st = null;
                                 M.ciniki_sapos_pos.reader = null;
                                 reject({'msg':'Error: ' + result.error.message});
                             } else {
@@ -1512,6 +1513,7 @@ function ciniki_sapos_pos() {
                                 M.ciniki_sapos_pos.reader = discoverResult.discoveredReaders[i];
                                 M.ciniki_sapos_pos.st.connectReader(M.ciniki_sapos_pos.reader, {fail_if_in_use:true}).then(function(result) {
                                     if( result.error ) {
+                                        M.ciniki_sapos_pos.st = null;
                                         M.ciniki_sapos_pos.reader = null;
                                         localStorage.removeItem('ciniki.sapos.stripe-terminal-id');
                                         reject({'msg':'Error: ' + result.error.message});
