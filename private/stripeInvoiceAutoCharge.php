@@ -14,6 +14,8 @@
 // 
 function ciniki_sapos_stripeInvoiceAutoCharge(&$ciniki, $tnid, $invoice_id) {
 
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLogAdd');
+
     //
     // Load the invoice
     //
