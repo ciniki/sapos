@@ -12,11 +12,8 @@
 // Returns
 // -------
 //
-function ciniki_sapos_wng_logAdd($ciniki, $tnid, $args);
-
-    
-$status, $action, $customer_id, $email, $code, $msg) {
-
+function ciniki_sapos_invoiceLogAdd($ciniki, $tnid, $args) {
+/*
     if( isset($_SERVER['HTTP_X_FORWARDED_FOR']) ) {
         $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
     } elseif( isset($_SERVER['REMOTE_ADDR']) ) {
@@ -59,7 +56,7 @@ $status, $action, $customer_id, $email, $code, $msg) {
     if( isset($args['notify']) && $args['notify'] == 'yes' ) {
         
     }
-
+*/
     return array('stat'=>'ok');
 }
 ?>
