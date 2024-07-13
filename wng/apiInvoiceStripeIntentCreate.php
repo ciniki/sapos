@@ -2,6 +2,8 @@
 //
 // Description
 // -----------
+// This function will create a payment intent and is called 
+// only when the user clicks a button to start a payment collection.
 //
 // Returns
 // -------
