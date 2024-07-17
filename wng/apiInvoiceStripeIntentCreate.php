@@ -23,7 +23,7 @@ function ciniki_sapos_wng_apiInvoiceStripeIntentCreate(&$ciniki, $tnid, &$reques
         }
 
         //
-        // FIXME: Load the invoice
+        // Load the invoice
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
         $rc = ciniki_sapos_invoiceLoad($ciniki, $tnid, $request['args']['invoice_id']);

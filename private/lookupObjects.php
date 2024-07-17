@@ -35,7 +35,9 @@ function ciniki_sapos_lookupObjects(&$ciniki, $tnid, $objects) {
         //
         // sapos functions in other modules require object_id field
         //
-        $object['object_id'] = $object['id'];
+        if( !isset($object['object_id']) && isset($object['id']) ) {
+            $object['object_id'] = $object['id'];
+        }
         $rc = $lookup_function($ciniki, $tnid, $object);
         if( $rc['stat'] == 'warn' ) {   
             return $rc;

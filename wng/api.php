@@ -39,6 +39,12 @@ function ciniki_sapos_wng_api(&$ciniki, $tnid, &$request) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'apiInvoiceStripeIntentCancel');
         return ciniki_sapos_wng_apiInvoiceStripeIntentCancel($ciniki, $tnid, $request); 
     }
+    elseif( isset($request['uri_split'][$request['cur_uri_pos']]) 
+        && $request['uri_split'][$request['cur_uri_pos']] == 'invoiceCheckoutCreate' 
+        ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'apiInvoiceCheckoutCreate');
+        return ciniki_sapos_wng_apiInvoiceCheckoutCreate($ciniki, $tnid, $request); 
+    }
 
     //
     // If no cart created, then create one now
