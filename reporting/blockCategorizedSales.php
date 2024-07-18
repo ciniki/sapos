@@ -94,38 +94,39 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
     //
     // Build the query to get the list of invoices
     //
-    $strsql = "SELECT ciniki_sapos_invoices.id, "
-        . "ciniki_sapos_invoices.invoice_number, "
-        . "ciniki_sapos_invoices.invoice_date, "
-        . "IFNULL(transactions.transaction_date, ciniki_sapos_invoices.invoice_date) AS invoice_date, "
-        . "ciniki_sapos_invoices.payment_status, "
-        . "ciniki_sapos_invoices.payment_status AS payment_status_text, "
-        . "ciniki_sapos_invoices.po_number, "
-        . "ciniki_customers.type AS customer_type, "
-        . "ciniki_customers.display_name AS customer_display_name, "
-        . "ciniki_sapos_invoices.total_amount, "
-        . "ciniki_sapos_invoice_items.id AS item_id, "
-        . "IF(IFNULL(ciniki_sapos_invoice_items.category, '') = '', 'Uncategorized', category) AS category, "
+    $strsql = "SELECT invoices.id, "
+        . "invoices.invoice_number, "
+        . "invoices.invoice_date, "
+//        . "IFNULL(transactions.transaction_date, invoices.invoice_date) AS invoice_date, "
+        . "invoices.payment_status, "
+        . "invoices.payment_status AS payment_status_text, "
+        . "invoices.po_number, "
+        . "customers.type AS customer_type, "
+        . "customers.display_name AS customer_display_name, "
+        . "invoices.total_amount, "
+        . "items.id AS item_id, "
+        . "IF(IFNULL(items.category, '') = '', 'Uncategorized', category) AS category, "
+        . "items.total_amount AS amount, "
+        . "IFNULL(transactions.id, 0) AS transaction_id, "
         . "IFNULL(transactions.source, '') AS source, "
-        . "SUM(ciniki_sapos_invoice_items.total_amount) AS amount "
-        . "FROM ciniki_sapos_invoices "
-        . "LEFT JOIN ciniki_customers ON ("
-            . "ciniki_sapos_invoices.customer_id = ciniki_customers.id "
-            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "IFNULL(transactions.customer_amount, 0) AS customer_amount "
+        . "FROM ciniki_sapos_invoices AS invoices "
+        . "LEFT JOIN ciniki_customers AS customers ON ("
+            . "invoices.customer_id = customers.id "
+            . "AND customers.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "LEFT JOIN ciniki_sapos_invoice_items ON ("
-            . "ciniki_sapos_invoices.id = ciniki_sapos_invoice_items.invoice_id "
-            . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "LEFT JOIN ciniki_sapos_invoice_items AS items ON ("
+            . "invoices.id = items.invoice_id "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_sapos_transactions AS transactions ON ("
-            . "ciniki_sapos_invoices.id = transactions.invoice_id "
+            . "invoices.id = transactions.invoice_id "
             . "AND transactions.status >= 40 "
             . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "AND invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
-        . "AND (ciniki_sapos_invoices.invoice_type = 10 OR ciniki_sapos_invoices.invoice_type = 30) "
-        . "AND (ciniki_sapos_invoices.status = 45 OR ciniki_sapos_invoices.status = 50) "
+        . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
+        . "AND (invoices.status = 45 OR invoices.status = 50) "
         . "";
     if( isset($args['year']) && $args['year'] != '' ) {
         //
@@ -148,29 +149,36 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
         //
         // Add to SQL string
         //
-        $strsql .= "AND ciniki_sapos_invoices.invoice_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
-        $strsql .= "AND ciniki_sapos_invoices.invoice_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
+        $strsql .= "AND invoices.invoice_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
+        $strsql .= "AND invoices.invoice_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
     }
     if( isset($args['status']) && $args['status'] > 0 ) {
-        $strsql .= "AND ciniki_sapos_invoices.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
+        $strsql .= "AND invoices.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
     }
     if( isset($args['payment_status']) && $args['payment_status'] > 0 ) {
-        $strsql .= "AND ciniki_sapos_invoices.payment_status = '" . ciniki_core_dbQuote($ciniki, $args['payment_status']) . "' ";
+        $strsql .= "AND invoices.payment_status = '" . ciniki_core_dbQuote($ciniki, $args['payment_status']) . "' ";
     }
-    $strsql .= "AND (ciniki_sapos_invoices.invoice_type = 10 || ciniki_sapos_invoices.invoice_type = 30) ";
-    $strsql .= "GROUP BY ciniki_sapos_invoices.id, ciniki_sapos_invoice_items.category ";
-    $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC, ciniki_sapos_invoice_items.category ";
+    $strsql .= "AND (invoices.invoice_type = 10 || invoices.invoice_type = 30) ";
+//    $strsql .= "GROUP BY invoices.id, items.id, transaction_id ";
+    $strsql .= "ORDER BY invoices.invoice_date ASC, invoices.invoice_number COLLATE latin1_general_cs ASC, items.id, transaction_id ";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 
-            'fields'=>array('id', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'customer_type', 'customer_display_name', 'total_amount', 'source'),
+            'fields'=>array('id', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 
+                'customer_type', 'customer_display_name', 'total_amount',
+                ),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
             'maps'=>array(
                 'payment_status_text'=>$maps['invoice']['payment_status'],
+                ),
+            ),
+        array('container'=>'items', 'fname'=>'item_id', 'fields'=>array('id'=>'item_id', 'category', 'amount')),
+        array('container'=>'transactions', 'fname'=>'transaction_id', 
+            'fields'=>array('id'=>'transaction_id', 'source', 'customer_amount'),
+            'maps'=>array(
                 'source'=>$maps['transaction']['source'],
                 ),
             ),
-        array('container'=>'cats', 'fname'=>'category', 'fields'=>array('name'=>'category', 'amount')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -178,13 +186,36 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
     $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
 
     foreach($invoices as $iid => $invoice) {
+        if( $invoice['invoice_number'] == '18214' ) {
+            error_log(print_r($invoice,true));
+        }
         $invoices[$iid]['invoice_number_date'] = $invoice['invoice_number'] . ' - ' . $invoice['invoice_date'];
         $invoices[$iid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $invoice['total_amount'], $intl_currency);
-        if( isset($invoice['cats']) ) {
-            foreach($invoice['cats'] as $cid => $category) {    
-                $category['amount_display'] = numfmt_format_currency($intl_currency_fmt, $category['amount'], $intl_currency);
-                $invoices[$iid][$category['name']] = $category['amount_display'];
-                $categories[$category['name']]['total_amount'] = bcadd($categories[$category['name']]['total_amount'], $category['amount'], 6);
+        if( !isset($invoice['items']) ) {
+            continue;
+        }
+        $invoice_sources = array();
+        if( isset($invoice['items'][0]['transactions']) ) {
+            foreach($invoice['items'][0]['transactions'] as $transaction) {
+                if( !isset($invoice_sources[$transaction['source']]) ) {
+                    $invoice_sources[$transaction['source']] = $transaction['customer_amount'];
+                } else {
+                    $invoice_sources[$transaction['source']] += $transaction['customer_amount'];
+                }
+            }
+        }
+        $invoices[$iid]['source'] = implode(',', array_keys($invoice_sources));
+        foreach($invoice['items'] as $item) {
+            if( !isset($invoices[$iid][$item['category']]) ) {
+                $invoices[$iid][$item['category']] = $item['amount'];
+            } else {
+                $invoices[$iid][$item['category']] += $item['amount'];
+            }
+            $categories[$item['category']]['total_amount'] += $item['amount'];
+        }
+        foreach($categories as $cid => $c) {
+            if( isset($invoices[$iid][$cid]) ) {
+                $invoices[$iid][$cid] = '$' . number_format($invoices[$iid][$cid], 2);
             }
         }
         $totals['total_amount'] = bcadd($totals['total_amount'], $invoice['total_amount'], 6);
