@@ -186,9 +186,6 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
     $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
 
     foreach($invoices as $iid => $invoice) {
-        if( $invoice['invoice_number'] == '18214' ) {
-            error_log(print_r($invoice,true));
-        }
         $invoices[$iid]['invoice_number_date'] = $invoice['invoice_number'] . ' - ' . $invoice['invoice_date'];
         $invoices[$iid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $invoice['total_amount'], $intl_currency);
         if( !isset($invoice['items']) ) {
