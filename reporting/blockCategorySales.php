@@ -92,6 +92,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         . "m.description, "
         . "IF(IFNULL(m.category, '') = '', 'Uncategorized', category) AS category, "
         . "m.total_amount AS amount, "
+        . "t.id AS transaction_id, "
         . "t.source "
         . "FROM ciniki_sapos_invoices AS i "
         . "LEFT JOIN ciniki_customers AS c ON ("
@@ -120,11 +121,13 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         array('container'=>'categories', 'fname'=>'category', 'fields'=>array('name'=>'category')),
         array('container'=>'items', 'fname'=>'id', 
             'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 
-                'category', 'code', 'description', 'amount', 'source', 'quantity',
+                'category', 'code', 'description', 'amount', 'quantity',
                 ),
-            'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status'],
-                'source'=>$maps['transaction']['source'],
-                ),
+            'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
+            ),
+        array('container'=>'transactions', 'fname'=>'transaction_id', 
+            'fields'=>array('id'=>'transaction_id', 'source'),
+            'maps'=>array('source'=>$maps['transaction']['source']),
             ),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -145,6 +148,13 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
                 $categories[$cid]['items'][$iid]['code_desc'] = ($item['code'] != '' ? $item['code'] . ' - ' : '') . $item['description'];
                 $categories[$cid]['total'] = bcadd($categories[$cid]['total'], $item['amount'], 6);
                 $categories[$cid]['textlist'] .= '#' . $item['invoice_number'] . ' ' . $item['display_name'] . ' ' . $categories[$cid]['items'][$iid]['code_desc'] . ' ' . '$' . number_format($item['amount'], 2) . "\n";
+                $sources = array();
+                foreach($item['transactions'] as $transaction) {
+                    if( !isset($sources[$transaction['source']]) ) {
+                        $sources[$transaction['source']] = 'yes';
+                    }
+                }
+                $categories[$cid]['items'][$iid]['source'] = implode(',', array_keys($sources));
             }
             $categories[$cid]['textlist'] .= 'Total: ' . '$' . number_format($categories[$cid]['total'], 2) . "\n";
         }
