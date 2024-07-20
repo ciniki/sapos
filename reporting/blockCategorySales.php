@@ -149,9 +149,11 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
                 $categories[$cid]['total'] = bcadd($categories[$cid]['total'], $item['amount'], 6);
                 $categories[$cid]['textlist'] .= '#' . $item['invoice_number'] . ' ' . $item['display_name'] . ' ' . $categories[$cid]['items'][$iid]['code_desc'] . ' ' . '$' . number_format($item['amount'], 2) . "\n";
                 $sources = array();
-                foreach($item['transactions'] as $transaction) {
-                    if( !isset($sources[$transaction['source']]) ) {
-                        $sources[$transaction['source']] = 'yes';
+                if( isset($item['transactions']) ) {
+                    foreach($item['transactions'] as $transaction) {
+                        if( !isset($sources[$transaction['source']]) ) {
+                            $sources[$transaction['source']] = 'yes';
+                        }
                     }
                 }
                 $categories[$cid]['items'][$iid]['source'] = implode(',', array_keys($sources));

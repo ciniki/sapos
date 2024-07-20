@@ -237,7 +237,11 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
                 elseif( $category_total >= $source_total ) {
                     $amt = $source_total;
                 }
-                $categories[$cid][$sid] += $amt;
+                if( !isset($categories[$cid][$sid]) ) {
+                    $categories[$cid][$sid] = $amt;
+                } else {
+                    $categories[$cid][$sid] += $amt;
+                }
                 $categories[$cid]['total'] += $amt;
                 $sources[$sid]['total'] += $amt;
                 // 
