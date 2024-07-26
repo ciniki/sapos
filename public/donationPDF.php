@@ -67,6 +67,17 @@ function ciniki_sapos_donationPDF(&$ciniki) {
     }
 
     //
+    // Load the invoice
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
+    $rc = ciniki_sapos_invoiceLoad($ciniki, $args['tnid'], $args['invoice_id']);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $invoice = $rc['invoice'];
+
+
+    //
     // check for invoice-default-template
     //
     if( !isset($sapos_settings['donation-default-template']) || $sapos_settings['donation-default-template'] == '' ) {
@@ -82,16 +93,19 @@ function ciniki_sapos_donationPDF(&$ciniki) {
     $fn = $rc['function_call'];
 
     if( isset($args['email']) && $args['email'] == 'yes' ) {
-        $rc = $fn($ciniki, $args['tnid'], $args['invoice_id'],
-            $tenant_details, $sapos_settings, 'email');
+        $rc = $fn($ciniki, $args['tnid'], [
+            'invoice' => $invoice,
+            'tenant_details' => $tenant_details, 
+            'sapos_settings' => $sapos_settings, 
+            'output' => 'email',
+            ]);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
         //
         // Email the pdf to the customer
         //
-        $filename = $rc['filename'];
-        $invoice = $rc['invoice'];
+        $filename = "receipt_{$invoice['receipt_number']}.pdf";
         $pdf = $rc['pdf'];
 
         //
@@ -207,7 +221,20 @@ function ciniki_sapos_donationPDF(&$ciniki) {
         return array('stat'=>'ok');
     }
 
-    return $fn($ciniki, $args['tnid'], $args['invoice_id'],
-        $tenant_details, $sapos_settings);
+    $rc = $fn($ciniki, $args['tnid'], [
+        'invoice' => $invoice,
+        'tenant_details' => $tenant_details, 
+        'sapos_settings' => $sapos_settings,
+        ]);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+
+    //
+    // Output the pdf
+    //
+    $rc['pdf']->Output('receipt_' . $invoice['receipt_number'] . '.pdf', 'I');
+
+    return array('stat'=>'exit');
 }
 ?>

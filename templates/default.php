@@ -845,8 +845,21 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     if( $donation_amount > 0 && $donation_amount >= $donation_minimum
         && isset($sapos_settings['donation-receipt-invoice-include']) 
         && $sapos_settings['donation-receipt-invoice-include'] == 'yes'
+        && $invoice['status'] != 42
+        && $invoice['payment_status'] != 20
         ) {
-        $pdf->header_details = array();
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'templates', 'donationreceipt');
+        $rc = ciniki_sapos_templates_donationreceipt($ciniki, $tnid, [
+            'invoice' => $invoice,
+            'tenant_details' => $tenant_details,
+            'sapos_settings' => $sapos_settings,
+            'pdf' => $pdf,
+            ]);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+
+/*        $pdf->header_details = array();
         $pdf->AddPage();
         $pdf->setY(($pdf->header_height)+15);
 
@@ -1026,7 +1039,9 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         $pdf->Ln();
 
         $pdf->Cell($w[0] + $w[1], $lh, 'Canada Revenue Agency: www.cra.gc.ca/charitiesandgiving', 0, 0, 'L', 1);
-        $pdf->Ln();
+        $pdf->Ln(); 
+
+        */
     }
 
     //

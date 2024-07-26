@@ -190,7 +190,7 @@ function ciniki_sapos_invoice() {
                 'headerValues':null,
                 'cellClasses':['alignright','alignright'],
                 },
-            'transactions':{'label':'', 'type':'simplegrid', 'num_cols':3,
+            'transactions':{'label':'Transactions', 'type':'simplegrid', 'num_cols':3,
                 'headerValues':null,
                 'cellClasses':['', '', 'alignright'],
                 },
@@ -222,7 +222,7 @@ function ciniki_sapos_invoice() {
                     'fn':'M.ciniki_sapos_invoice.printDonationReceipt(M.ciniki_sapos_invoice.invoice.invoice_id);',
                     },
                 'printquote':{'label':'Print Quote', 'fn':'M.ciniki_sapos_invoice.printQuote(M.ciniki_sapos_invoice.invoice.invoice_id);'},
-                'printenv':{'label':'Print Envelope', 'fn':'M.ciniki_sapos_invoice.printEnvelope(M.ciniki_sapos_invoice.invoice.invoice_id);'},
+//                'printenv':{'label':'Print Envelope', 'fn':'M.ciniki_sapos_invoice.printEnvelope(M.ciniki_sapos_invoice.invoice.invoice_id);'},
     //              'email':{'label':'Email Customer', 'fn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);'},
                 'delete':{'label':'Delete Invoice', 'fn':'M.ciniki_sapos_invoice.deleteInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 }},
@@ -1922,13 +1922,13 @@ function ciniki_sapos_invoice() {
         } else {
             p.sections._buttons.buttons.print.visible = 'no';
         }
-        if( rsp.invoice.status > 10 && (M.curTenant.sapos.settings['ui-options-print-envelope'] == null 
+/*        if( rsp.invoice.status > 10 && (M.curTenant.sapos.settings['ui-options-print-envelope'] == null 
             || M.curTenant.sapos.settings['ui-options-print-envelope'] == 'yes') 
             ) {
             p.sections._buttons.buttons.printenv.visible = 'yes';
         } else {
             p.sections._buttons.buttons.printenv.visible = 'no';
-        }
+        } */
         if( rsp.invoice.invoice_type == 90 ) {
             p.sections._buttons.buttons.record.visible = 'no';
 //            p.sections._buttons.buttons.terminal.visible = 'no';
@@ -1937,7 +1937,7 @@ function ciniki_sapos_invoice() {
             p.sections._buttons.buttons.picklist.visible = 'no';
             p.sections._buttons.buttons.printquote.visible = 'yes';
             p.sections._buttons.buttons.delete.visible = 'yes';
-            p.sections._buttons.buttons.printenv.visible = 'no';
+//            p.sections._buttons.buttons.printenv.visible = 'no';
         } else {
             p.sections._buttons.buttons.printquote.visible = 'no';
         }
