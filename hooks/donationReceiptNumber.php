@@ -54,6 +54,7 @@ function ciniki_sapos_hooks_donationReceiptNumber(&$ciniki, $tnid, $args) {
         . "ON DUPLICATE KEY UPDATE detail_value = '" . ciniki_core_dbQuote($ciniki, $next_receipt_number) . "' "
         . ", last_updated = UTC_TIMESTAMP() "
         . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
     $rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.sapos');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
