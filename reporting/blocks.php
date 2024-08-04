@@ -95,6 +95,22 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
         );
 
     //
+    // Daily sales report
+    //
+    $blocks['ciniki.sapos.dailydeposits'] = array(
+        'name'=>'Daily Deposits',
+        'module' => 'Accounting',
+        'dates' => 'yes',
+        'options'=>array(
+            'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
+            'pdf-hide-nosales'=>array('label'=>'Hide No Sales Days in PDF', 'type'=>'toggle', 'default'=>'no', 'toggles'=>array(
+                'no'=>'No',
+                'yes'=>'Yes',
+                )),
+            ),
+        );
+
+    //
     // Ontario HST Report, designed to run quarterly
     //
     if( ciniki_core_checkModuleActive($ciniki, 'ciniki.taxes') ) {

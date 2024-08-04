@@ -37,6 +37,10 @@ function ciniki_sapos_reporting_block(&$ciniki, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockSales');
         return ciniki_sapos_reporting_blockSales($ciniki, $tnid, $args['options']);
     } 
+    elseif( $args['block_ref'] == 'ciniki.sapos.dailydeposits' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockDailyDeposits');
+        return ciniki_sapos_reporting_blockDailyDeposits($ciniki, $tnid, $args['options']);
+    } 
     elseif( $args['block_ref'] == 'ciniki.sapos.dailysales' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'reporting', 'blockDailySales');
         return ciniki_sapos_reporting_blockDailySales($ciniki, $tnid, $args['options']);
