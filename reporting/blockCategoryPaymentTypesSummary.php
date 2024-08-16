@@ -130,6 +130,45 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
     }
 
     //
+    // Get the invoice transactions
+    //
+    $strsql = "SELECT invoices.id, "
+        . "transactions.id AS transaction_id, "
+        . "transactions.source, "
+        . "transactions.customer_amount, "
+        . "transactions.transaction_fees "
+        . "FROM ciniki_sapos_invoices AS invoices "
+        . "INNER JOIN ciniki_sapos_transactions AS transactions ON ("
+            . "invoices.id = transactions.invoice_id "
+            . "AND transactions.status >= 40 "
+            . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . ") "
+        . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' ";
+    if( isset($args['use-date']) && $args['use-date'] == 'transaction' ) {
+        $strsql .= "AND transactions.transaction_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d H:i:s')) . "' "
+            . "AND transactions.transaction_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d H:i:s')) . "' ";
+    } else {
+        $strsql .= "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d H:i:s')) . "' "
+            . "AND invoices.invoice_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d H:i:s')) . "' ";
+    }
+    $strsql .= "ORDER BY invoices.id, transactions.id "
+        . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+    $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'invoices', 'fname'=>'id', 
+            'fields'=>array('id'),
+            ),
+        array('container'=>'transactions', 'fname'=>'transaction_id', 
+            'fields'=>array('id'=>'transaction_id', 'invoice_id'=>'id', 'source', 'customer_amount', 'transaction_fees'),
+            ),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.442', 'msg'=>'Unable to load transactions', 'err'=>$rc['err']));
+    }
+    $transactions = isset($rc['invoices']) ? $rc['invoices'] : array();
+    $invoice_ids = array_keys($transactions);
+
+    //
     // Get the invoice items and their categories
     //
     $strsql = "SELECT invoices.id, "
@@ -147,10 +186,14 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
         . "AND (invoices.invoice_type = 10 "
             . "OR invoices.invoice_type = 30 "
             . "OR invoices.invoice_type = 40 "
-            . ") "
-        . "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d H:i:s')) . "' "
-        . "AND invoices.invoice_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d H:i:s')) . "' "
-        . "ORDER BY invoices.id, items.id "
+            . ") ";
+    if( isset($args['use-date']) && $args['use-date'] == 'transaction' && count($invoice_ids) > 0 ) {
+        $strsql .= "AND invoices.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $invoice_ids) . ") ";
+    } else {
+        $strsql .= "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d H:i:s')) . "' "
+            . "AND invoices.invoice_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d H:i:s')) . "' ";
+    }
+    $strsql .= "ORDER BY invoices.id, items.id "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
@@ -165,39 +208,6 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.427', 'msg'=>'Unable to load items', 'err'=>$rc['err']));
     }
     $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
-
-    //
-    // Get the invoice transactions
-    //
-    $strsql = "SELECT invoices.id, "
-        . "transactions.id AS transaction_id, "
-        . "transactions.source, "
-        . "transactions.customer_amount, "
-        . "transactions.transaction_fees "
-        . "FROM ciniki_sapos_invoices AS invoices "
-        . "INNER JOIN ciniki_sapos_transactions AS transactions ON ("
-            . "invoices.id = transactions.invoice_id "
-            . "AND transactions.status >= 40 "
-            . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . ") "
-        . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $start_dt->format('Y-m-d H:i:s')) . "' "
-        . "AND invoices.invoice_date <= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d H:i:s')) . "' "
-        . "ORDER BY invoices.id, transactions.id "
-        . "";
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
-    $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.sapos', array(
-        array('container'=>'invoices', 'fname'=>'id', 
-            'fields'=>array('id'),
-            ),
-        array('container'=>'transactions', 'fname'=>'transaction_id', 
-            'fields'=>array('id'=>'transaction_id', 'invoice_id'=>'id', 'source', 'customer_amount', 'transaction_fees'),
-            ),
-        ));
-    if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.442', 'msg'=>'Unable to load transactions', 'err'=>$rc['err']));
-    }
-    $transactions = isset($rc['invoices']) ? $rc['invoices'] : array();
 
     //
     // Go through items and add totals to categories

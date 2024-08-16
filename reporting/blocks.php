@@ -135,6 +135,10 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
         'module' => 'Accounting',
         'dates' => 'yes',
         'options'=>array(
+            'use-date'=>array('label'=>'Based On', 'type'=>'toggle', 'default'=>'invoice', 'toggles'=>array(
+                'invoice'=>'Invoice Date',
+                'transaction'=>'Transaction Date',
+                )),
 //            'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
             ),
         );
