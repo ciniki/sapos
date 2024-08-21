@@ -628,6 +628,7 @@ function ciniki_sapos_invoice() {
                 'object':'ciniki.sapos.invoice', 'object_id':this.invoice_id, 'field':i}};
         };
         this.edit.updateForm = function() {
+            console.log('update');
             var t = this.formFieldValue(this.sections.details.fields.invoice_type, 'invoice_type');
             var e_po = M.gE(this.panelUID + '_po_number');
             var e_is = M.gE(this.panelUID + '_status');
@@ -655,6 +656,11 @@ function ciniki_sapos_invoice() {
                 this.sections.details.fields.po_number.visible = 'yes';
                 this.sections.details.fields.status.visible = 'yes';
                 this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x800200)>0||this.data.payment_status>0)?'yes':'no';
+                if( t == '10' || t == 10 ) {
+                    this.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
+                } else if( t == '20' ) {
+                    this.sections.details.fields.status.options = M.ciniki_sapos_invoice.orderStatuses;
+                }
                 this.sections.details.fields.shipping_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x400040)>0||this.data.shipping_status>0||this.data.preorder_status>0)?'yes':'no';
                 this.sections.details.fields.manufacturing_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x80)>0||this.data.manufacturing_status>0)?'yes':'no';
                 this.sections.details.fields.due_date.visible = 'yes';
@@ -676,6 +682,10 @@ function ciniki_sapos_invoice() {
                 if( e_dd != null && this.sections.details.fields.due_date.visible == 'yes' ) {
                     e_dd.parentNode.parentNode.style.display = 'table-row';
                 }
+                var v = this.formValue('status');
+                this.refreshFormField('details', 'status');
+                this.setFieldValue('status', v);
+
             }
             return true;
         };
