@@ -725,7 +725,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     $invoice['shipping_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
         $invoice['shipping_amount'], $intl_currency);
     $invoice['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
-        $invoice['total_amount'], $intl_currency);
+        round($invoice['total_amount'], 2), $intl_currency);
     $invoice['total_savings_display'] = numfmt_format_currency($intl_currency_fmt, 
         $invoice['total_savings'], $intl_currency);
     $invoice['taxes_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
