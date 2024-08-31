@@ -575,8 +575,9 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal(&$ciniki, $tnid, $invoice_
     if( $invoice_shipping_amount != floatval($invoice['shipping_amount']) ) {
         $args['shipping_amount'] = $invoice_shipping_amount;
     }
+    $invoice_total_amount = round($invoice_total_amount, 2);
     if( $invoice_total_amount != floatval($invoice['total_amount']) ) {
-        $args['total_amount'] = $invoice_total_amount;
+        $args['total_amount'] = round($invoice_total_amount, 2);
     }
     if( $invoice_total_savings != floatval($invoice['total_savings']) ) {
         $args['total_savings'] = $invoice_total_savings;

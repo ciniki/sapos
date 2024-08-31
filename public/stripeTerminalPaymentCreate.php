@@ -129,7 +129,7 @@ function ciniki_sapos_stripeTerminalPaymentCreate(&$ciniki) {
     // Build the arguments for the payment intent
     //
     $intent_args = [
-        'amount' => intval($args['customer_amount']*100),
+        'amount' => round($args['customer_amount']*100, 0),
         'currency' => $currency,
         'capture_method' => 'manual',
 //        'automatic_payment_methods' => ['enabled' => true],

@@ -26,6 +26,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     }
     $intl_timezone = $rc['settings']['intl-default-timezone'];
     $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+    numfmt_set_attribute($intl_currency_fmt, NumberFormatter::ROUNDING_MODE, NumberFormatter::ROUND_HALFUP);
     $intl_currency = $rc['settings']['intl-default-currency'];
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'timeFormat');
@@ -725,7 +726,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     $invoice['shipping_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
         $invoice['shipping_amount'], $intl_currency);
     $invoice['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
-        round($invoice['total_amount'], 2), $intl_currency);
+        $invoice['total_amount'], $intl_currency);
     $invoice['total_savings_display'] = numfmt_format_currency($intl_currency_fmt, 
         $invoice['total_savings'], $intl_currency);
     $invoice['taxes_amount_display'] = numfmt_format_currency($intl_currency_fmt, 
