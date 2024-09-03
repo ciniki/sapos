@@ -168,7 +168,7 @@ function ciniki_sapos_invoiceCategories(&$ciniki) {
     }
     $strsql .= "AND (ciniki_sapos_invoices.invoice_type = 10 || ciniki_sapos_invoices.invoice_type = 30) ";
     $strsql .= "GROUP BY ciniki_sapos_invoices.id, ciniki_sapos_invoice_items.category ";
-    $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC, ciniki_sapos_invoice_items.category ";
+    $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number ASC, ciniki_sapos_invoice_items.category ";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 

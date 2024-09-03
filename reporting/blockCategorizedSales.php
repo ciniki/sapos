@@ -161,7 +161,7 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
     }
     $strsql .= "AND (invoices.invoice_type = 10 || invoices.invoice_type = 30) ";
 //    $strsql .= "GROUP BY invoices.id, items.id, transaction_id ";
-    $strsql .= "ORDER BY invoices.invoice_date ASC, invoices.invoice_number COLLATE latin1_general_cs ASC, items.id, transaction_id ";
+    $strsql .= "ORDER BY invoices.invoice_date ASC, invoices.invoice_number ASC, items.id, transaction_id ";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 

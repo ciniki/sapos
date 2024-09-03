@@ -246,9 +246,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
         if( $args['sort'] == 'latest' ) {
             $strsql .= "ORDER BY ciniki_sapos_invoices.last_updated DESC ";
         } elseif( $args['sort'] == 'invoice_date' ) {
-            $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC ";
+            $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number ASC ";
         } elseif( $args['sort'] == 'invoice_date_desc' ) {
-            $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date DESC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs DESC ";
+            $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date DESC, ciniki_sapos_invoices.invoice_number DESC ";
         }
     }
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {

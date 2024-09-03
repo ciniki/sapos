@@ -169,7 +169,7 @@ function ciniki_sapos_shipmentList(&$ciniki) {
         if( $args['sort'] == 'latest' ) {
             $strsql .= "ORDER BY ciniki_sapos_invoices.last_updated DESC ";
         } elseif( $args['sort'] == 'invoice_date' ) {
-            $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number COLLATE latin1_general_cs ASC ";
+            $strsql .= "ORDER BY ciniki_sapos_invoices.invoice_date ASC, ciniki_sapos_invoices.invoice_number ASC ";
         }
     }
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
