@@ -57,6 +57,7 @@ function ciniki_sapos_wng_donationPackagesProcess($ciniki, $tnid, &$request, $se
         $blocks[] = array(
             'title' => isset($s['title']) ? $s['title'] : '',
             'type' => 'pricelist', 
+            'class' => 'donations',
             'prices' => $packages, 
             'descriptions' => 'yes',
             );
