@@ -155,7 +155,7 @@ function ciniki_sapos_reporting_blockDailyDeposits(&$ciniki, $tnid, $args) {
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.449', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.494', 'msg'=>'Unable to load categories', 'err'=>$rc['err']));
         }
         $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
 //        $items = isset($rc['items']) ? $rc['items'] : array();

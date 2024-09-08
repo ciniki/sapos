@@ -29,7 +29,7 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'transaction');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.460', 'msg'=>'Unable to load transaction', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.495', 'msg'=>'Unable to load transaction', 'err'=>$rc['err']));
         }
         if( isset($rc['transaction']) ) {
             $transaction = $rc['transaction'];
@@ -45,7 +45,7 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
                 ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
                 $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.transaction', $transaction['id'], $update_args, 0x07);
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.462', 'msg'=>'Unable to update the transaction', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.496', 'msg'=>'Unable to update the transaction', 'err'=>$rc['err']));
                 }
             }
 
@@ -64,7 +64,7 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
                     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartPaymentReceived');
                     $rc = ciniki_sapos_wng_cartPaymentReceived($ciniki, $tnid, $request, $invoice);
                     if( $rc['stat'] != 'ok' ) {
-                        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.474', 'msg'=>'', 'err'=>$rc['err']));
+                        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.497', 'msg'=>'', 'err'=>$rc['err']));
                     }
                 }
                 else {

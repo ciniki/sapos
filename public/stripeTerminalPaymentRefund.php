@@ -192,7 +192,7 @@ function ciniki_sapos_stripeTerminalPaymentRefund(&$ciniki) {
         //
         if( isset($charge->payment_method_details->type) && $charge->payment_method_details->type == 'interac_present' ) {
              $connection_token = $stripe->terminal->connectionTokens->create([]);
-             return array('stat'=>'interacrefund', 'connection_token'=>$connection_token->secret, 'charge_id'=>$charge->id, 'amount'=>$charge->amount_captured, 'err'=>array('code'=>'ciniki.sapos.404', 'msg'=>'Interac Refund required'));
+             return array('stat'=>'interacrefund', 'connection_token'=>$connection_token->secret, 'charge_id'=>$charge->id, 'amount'=>$charge->amount_captured, 'err'=>array('code'=>'ciniki.sapos.493', 'msg'=>'Interac Refund required'));
         }
 
         try {
@@ -201,7 +201,7 @@ function ciniki_sapos_stripeTerminalPaymentRefund(&$ciniki) {
                 'payment_intent' => $intent->id,
                 ]);
         } catch( Exception $e ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.403', 'msg'=>'Unable to issue refund: ' . $e->getMessage()));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.492', 'msg'=>'Unable to issue refund: ' . $e->getMessage()));
         }
     }
 
