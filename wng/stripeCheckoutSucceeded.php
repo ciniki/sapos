@@ -95,15 +95,13 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
                 }
             }
 
-            else {
-                //
-                // Run an update on the invoice
-                //
-                ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
-                $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $transaction['invoice_id']);
-                if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.463', 'msg'=>'Unable to update invoice', 'err'=>$rc['err']));
-                }
+            //
+            // Run an update on the invoice
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+            $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $transaction['invoice_id']);
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.463', 'msg'=>'Unable to update invoice', 'err'=>$rc['err']));
             }
         }
     }
