@@ -56,13 +56,24 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
         $days = ($months > 0 ? 0 : 7);
     }
 
-    $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
-    $end_dt = clone $start_dt;
-    if( $days != 0 ) {
-        $start_dt->sub(new DateInterval('P' . $days . 'D'));
-    }
-    if( $months != 0 ) {
-        $start_dt->sub(new DateInterval('P' . $months . 'M'));
+    //
+    // Date are backwards to other start end dates in reports.
+    // 
+    //
+    if( isset($args['start_date']) && $args['start_date'] != '' 
+        && isset($args['end_date']) && $args['end_date'] != '' 
+        ) {
+        $start_dt = new DateTime($args['start_date'], new DateTimezone($intl_timezone));
+        $end_dt = new DateTime($args['end_date'], new DateTimezone($intl_timezone));
+    } else {
+        $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
+        $end_dt = clone $start_dt;
+        if( $days != 0 ) {
+            $start_dt->sub(new DateInterval('P' . $days . 'D'));
+        }
+        if( $months != 0 ) {
+            $start_dt->sub(new DateInterval('P' . $months . 'M'));
+        }
     }
 
     //

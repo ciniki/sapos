@@ -63,9 +63,18 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
         $days = 7;
     }
 
-    $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
-    $end_dt = clone $start_dt;
-    $end_dt->sub(new DateInterval('P' . $days . 'D'));
+    if( isset($args['start_date']) && $args['start_date'] != '' 
+        && isset($args['end_date']) && $args['end_date'] != '' 
+        ) {
+        $start_dt = new DateTime($args['start_date'], new DateTimezone($intl_timezone));
+        $start_dt->setTime(0, 0, 0);
+        $end_dt = new DateTime($args['end_date'], new DateTimezone($intl_timezone));
+        $end_dt->setTime(23, 59, 59);
+    } else {
+        $start_dt = new DateTime('now', new DateTimezone($intl_timezone));
+        $end_dt = clone $start_dt;
+        $end_dt->sub(new DateInterval('P' . $days . 'D'));
+    }
 
     //
     // Store the report block chunks
@@ -126,7 +135,6 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
             . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' "
         . "AND (invoices.status = 45 OR invoices.status = 50) "
         . "";
     if( isset($args['year']) && $args['year'] != '' ) {
@@ -152,6 +160,13 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
         //
         $strsql .= "AND invoices.invoice_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
         $strsql .= "AND invoices.invoice_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
+    } elseif( isset($args['start_date']) && $args['start_date'] != '' 
+        && isset($args['end_date']) && $args['end_date'] != '' 
+        ) {
+        $strsql .= "AND invoices.invoice_date >= '" . $start_dt->format('Y-m-d H:i:s') . "' ";
+        $strsql .= "AND invoices.invoice_date <= '" . $end_dt->format('Y-m-d H:i:s') . "' ";
+    } else {
+        $strsql .= "AND invoices.invoice_date >= '" . ciniki_core_dbQuote($ciniki, $end_dt->format('Y-m-d')) . "' ";
     }
     if( isset($args['status']) && $args['status'] > 0 ) {
         $strsql .= "AND invoices.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
@@ -261,6 +276,6 @@ function ciniki_sapos_reporting_blockCategorizedSales(&$ciniki, $tnid, $args) {
         $chunks[] = array('type'=>'message', 'content'=>'No sales in the last ' . ($days == 1 ? 'day' : $days . ' days') . '.');
     }
 
-    return array('stat'=>'ok', 'chunks'=>$chunks);
+    return array('stat'=>'ok', 'dates'=>'yes', 'chunks'=>$chunks);
 }
 ?>

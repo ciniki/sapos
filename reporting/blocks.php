@@ -61,6 +61,7 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
         $blocks['ciniki.sapos.categorizedsales'] = array(
             'name'=>'Categorized Sales',
             'module' => 'Accounting',
+            'dates' => 'yes',
             'options'=>array(
                 'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
                 ),
