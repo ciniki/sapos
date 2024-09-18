@@ -434,7 +434,9 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
         $w = array(50, 50, 80);
         if( isset($sapos_settings['donation-receipt-thankyou-message']) && $sapos_settings['donation-receipt-thankyou-message'] != '' ) {
             $args['pdf']->SetFont('', 'B');
-            $args['pdf']->Cell($w[0]+$w[1], $lh*4, $sapos_settings['donation-receipt-thankyou-message'], 0, 0, 'L', 1);
+//            $args['pdf']->Cell($w[0]+$w[1], $lh*4, $sapos_settings['donation-receipt-thankyou-message'], 0, 0, 'L', 1);
+            $args['pdf']->Ln(10);
+            $args['pdf']->MultiCell($w[0]+$w[1]-10, 20, $sapos_settings['donation-receipt-thankyou-message'], 0, 'L', 0, 0);
         } else {
             $args['pdf']->Cell($w[0]+$w[1], $lh*4, '', 0, 0, 'L', 1);
         }
