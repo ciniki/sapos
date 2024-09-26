@@ -208,13 +208,11 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     $rsp['totals']['total_amount'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['total_amount'], $intl_currency);
     $rsp['totals']['num_invoices'] = count($rsp['invoices']);
 
-    if( isset($rsp['stats']['categories']) ) {
-        foreach($rsp['categories'] as $cid => $c) {
-            $rsp['categories'][$cid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $c['total_amount'], $intl_currency);
-        }
-    }
 
     $rsp['categories'] = array_values($rsp['categories']);
+    foreach($rsp['categories'] as $cid => $c) {
+        $rsp['categories'][$cid]['total_amount_display'] = numfmt_format_currency($intl_currency_fmt, $c['total_amount'], $intl_currency);
+    }
     
     //
     // Check if output should be excel
