@@ -146,7 +146,7 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
         return $rc;
     }
-    
+
     //
     // Update the item values for callbacks
     //
@@ -154,7 +154,16 @@ function ciniki_sapos_invoiceItemUpdate(&$ciniki) {
         $item['old_quantity'] = $item['quantity'];
         $item['quantity'] = $args['quantity'];
     }
-
+    
+    //
+    // Copy new settings to pass to itemUpdate
+    //
+    foreach($args as $k => $v) {
+        if( isset($item[$k]) && $item[$k] != $v ) {
+            $item[$k] = $v;
+        }
+    }
+    
     //
     // Check for a callback to the object
     //

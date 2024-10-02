@@ -184,7 +184,7 @@ function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
         //
         // Check if there's a callback for the object
         //
-        if( $item['object'] != '' && $item['object_id'] != '' ) {
+        if( isset($item['object']) && $item['object'] != '' && $item['object_id'] != '' ) {
             list($pkg,$mod,$obj) = explode('.', $item['object']);
             $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemAdd');
             if( $rc['stat'] == 'ok' ) {
