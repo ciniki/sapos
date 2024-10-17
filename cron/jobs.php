@@ -137,11 +137,11 @@ function ciniki_sapos_cron_jobs(&$ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'cartDelete');
         foreach($carts as $cart) {
             // 
-            // Expire customer carts after 30 days
-            // OR Expire non-customer carts after 1 days
+            // Expire customer carts after 90 days
+            // OR Expire non-customer carts after 7 days
             //
             if( ($cart['customer_id'] > 0 && $cart['age'] > 90) 
-                || ($cart['customer_id'] == 0 && $cart['age'] > 1) 
+                || ($cart['customer_id'] == 0 && $cart['age'] > 7) 
                 ) {
                 error_log('removing cart: ' . $cart['tnid'] . '-' . $cart['id']);
                 $rc = ciniki_sapos_cartDelete($ciniki, $cart['tnid'], $cart['id']);
