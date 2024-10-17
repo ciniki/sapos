@@ -297,7 +297,7 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
             . ") "
         . "WHERE ciniki_sapos_invoice_items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND ciniki_sapos_invoice_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "ORDER BY ciniki_sapos_invoice_items.line_number, ciniki_sapos_invoice_items.date_added "
+        . "ORDER BY (ciniki_sapos_invoice_items.flags&0x1000), ciniki_sapos_invoice_items.line_number, ciniki_sapos_invoice_items.date_added "
         . "";
     $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'items', 'fname'=>'id', 'name'=>'item',
