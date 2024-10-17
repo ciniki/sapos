@@ -98,31 +98,32 @@ function ciniki_sapos_hooks_invoiceItemUpdate($ciniki, $tnid, $args) {
     }
 
 //
-// Callbacks may loop, don't do them
+// *NOTE** Added back calbacks on Oct 13, 2024, needed for music festivals 
+// OLD: Callbacks may loop, don't do them
 //
 
     //
     // Update the item values for callbacks
     //
-//  if( isset($args['quantity']) && $args['quantity'] != $item['quantity'] ) {
-//      $item['old_quantity'] = $item['quantity'];
-//      $item['quantity'] = $args['quantity'];
-//  }
+    if( isset($args['quantity']) && $args['quantity'] != $item['quantity'] ) {
+        $item['old_quantity'] = $item['quantity'];
+        $item['quantity'] = $args['quantity'];
+    }
 
     //
     // Check for a callback to the object
     //
-//  if( $item['object'] != '' && $item['object_id'] != '' ) {
-//      list($pkg,$mod,$obj) = explode('.', $item['object']);
-//      $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemUpdate');
-//      if( $rc['stat'] == 'ok' ) {
-//          $fn = $rc['function_call'];
-//          $rc = $fn($ciniki, $tnid, $item['invoice_id'], $item);
-//          if( $rc['stat'] != 'ok' ) {
-//              return $rc;
-//          }
-//      }
-//  }
+    if( $item['object'] != '' && $item['object_id'] != '' ) {
+        list($pkg,$mod,$obj) = explode('.', $item['object']);
+        $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemUpdate');
+        if( $rc['stat'] == 'ok' ) {
+            $fn = $rc['function_call'];
+            $rc = $fn($ciniki, $tnid, $item['invoice_id'], $item);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+        }
+    }
 
     //
     // Update the taxes
