@@ -318,6 +318,102 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
             );
     }
 
+    //
+    // Check for donations
+    //
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x02000000) ) {
+        $strsql = "SELECT invoices.id, "
+            . "invoices.invoice_type, "
+            . "invoices.invoice_number, "
+            . "invoices.invoice_date, "
+            . "invoices.invoice_date AS sort_date, "
+            . "invoices.status, "
+            . "CONCAT_WS('.', invoices.invoice_type, invoices.status) AS status_text, "
+            . "items.id AS item_id, "
+            . "items.flags AS item_flags, "
+            . "items.quantity, "
+            . "items.unit_donation_amount, "
+            . "items.total_amount "
+            . "FROM ciniki_sapos_invoices AS invoices "
+            . "INNER JOIN ciniki_sapos_invoice_items AS items ON ("
+                . "invoices.id = items.invoice_id "
+                . "AND (items.flags&0x8800) > 0 "   // Full or partial donation
+                . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND invoices.invoice_type IN (10,30) "
+            . "";
+        if( isset($args['customer_id']) ) {
+            $strsql .= "AND invoices.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' ";
+        } elseif( isset($args['customer_ids']) && count($args['customer_ids']) > 0 ) {
+            $strsql .= "AND invoices.customer_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['customer_ids']) . ") ";
+        } else {
+            return array('stat'=>'ok');
+        }
+        $strsql .= "ORDER BY invoices.invoice_date DESC "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+            array('container'=>'invoices', 'fname'=>'id', 
+                'fields'=>array('id', 'invoice_number', 'invoice_date', 'sort_date', 'status', 'status_text'),
+                'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
+                'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
+                ), 
+            array('container'=>'items', 'fname'=>'item_id', 
+                'fields'=>array('id'=>'item_id', 'flags'=>'item_flags', 'quantity', 'unit_donation_amount', 'total_amount'),
+                ),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+            error_log(print_r($rc,true));
+        $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
+        foreach($invoices as $iid => $invoice) {
+            $invoices[$iid]['donation_amount'] = 0;
+            if( isset($invoice['items']) ) {
+                foreach($invoice['items'] as $item) {
+                    if( ($item['flags']&0x0800) == 0x0800 ) {
+                        $invoices[$iid]['donation_amount'] = bcadd($invoices[$iid]['donation_amount'], ($item['quantity'] * $item['unit_donation_amount']), 6);
+                    } elseif( ($item['flags']&0x8000) == 0x8000 ) {
+                        $invoices[$iid]['donation_amount'] = bcadd($invoices[$iid]['donation_amount'], $item['total_amount'], 6);
+                    } 
+                }
+            }
+            $invoices[$iid]['donation_amount'] = '$' . number_format($invoices[$iid]['donation_amount'], 2);
+        }
+        $donations = array(
+            'label' => 'Donations',
+            'type' => 'simplegrid', 
+            'num_cols' => 4,
+            'headerValues' => array('Invoice #', 'Date', 'Amount', 'Status'),
+            'cellClasses' => array('', ''),
+            'noData' => 'No donations',
+            'addTxt' => 'Add Invoice',
+            'addApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array(
+                'customer_id'=>(isset($args['customer_ids'][0]) ? $args['customer_ids'][0] : $args['customer_id']),
+                'invoice_type'=>'10',
+                )),
+            'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
+            'data' => $invoices,
+            'sortable' => 'yes',
+            'sortTypes' => array('number', 'date', 'number', 'text'),
+            'cellValues' => array(
+                '0' => 'd.invoice_number;',
+                '1' => 'd.invoice_date;',
+                '2' => 'd.donation_amount;',
+                '3' => 'd.status_text;',
+                ),
+            );
+        $rsp['tabs'][] = array(
+            'id' => 'ciniki.sapos.donations',
+            'label' => 'Donations',
+            'priority' => 1501,
+            'sections' => array(
+                'ciniki.sapos.donations' => $donations,
+                ),
+            );
+    }
+
     return $rsp;
 }
 ?>
