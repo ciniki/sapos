@@ -366,7 +366,6 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
-            error_log(print_r($rc,true));
         $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
         foreach($invoices as $iid => $invoice) {
             $invoices[$iid]['donation_amount'] = 0;
