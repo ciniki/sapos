@@ -103,6 +103,11 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         . "ciniki_sapos_invoices.po_number, "
         . "ciniki_customers.type AS customer_type, "
         . "ciniki_customers.display_name AS customer_display_name, "
+        . "(SELECT GROUP_CONCAT(email) AS emails "
+            . "FROM ciniki_customer_emails AS emails "
+            . "WHERE ciniki_customers.id = emails.customer_id "
+            . "AND emails.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . ") AS emails, "
         . "ciniki_sapos_invoices.total_amount, "
         . "items.id AS item_id, "
         . "IF(IFNULL(items.subcategory, '') = '', 'Uncategorized', subcategory) AS category, "
@@ -174,7 +179,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 
-            'fields'=>array('id', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'customer_type', 'customer_display_name', 'total_amount'),
+            'fields'=>array('id', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'customer_type', 'customer_display_name', 'emails', 'total_amount'),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
             'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
             ),
@@ -245,6 +250,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Date', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Email', false);
         foreach($rsp['categories'] as $c) {
             $sheet->setCellValueByColumnAndRow($i++, 1, $c['name'], false);
         }
@@ -260,6 +266,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_date'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['customer_display_name'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['emails'], false);
             foreach($rsp['categories'] as $c) {
                 if( isset($invoice['categories'][$c['name']]['amount']) ) {
                     $sheet->setCellValueByColumnAndRow($i, $row, $invoice['categories'][$c['name']]['amount'], false);
