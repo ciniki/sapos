@@ -628,7 +628,6 @@ function ciniki_sapos_invoice() {
                 'object':'ciniki.sapos.invoice', 'object_id':this.invoice_id, 'field':i}};
         };
         this.edit.updateForm = function() {
-            console.log('update');
             var t = this.formFieldValue(this.sections.details.fields.invoice_type, 'invoice_type');
             var e_po = M.gE(this.panelUID + '_po_number');
             var e_is = M.gE(this.panelUID + '_status');
@@ -650,9 +649,6 @@ function ciniki_sapos_invoice() {
                 this.sections.details.fields.manufacturing_status.visible = 'no';
                 this.sections.details.fields.due_date.visible = 'no';
             } else {
-/*                if( t == '10' && e_is.value == '10' ) {
-                    this.setFieldValue('status', 40);
-                } */
                 this.sections.details.fields.po_number.visible = 'yes';
                 this.sections.details.fields.status.visible = 'yes';
                 this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x800200)>0||this.data.payment_status>0)?'yes':'no';
@@ -685,6 +681,10 @@ function ciniki_sapos_invoice() {
                 var v = this.formValue('status');
                 this.refreshFormField('details', 'status');
                 this.setFieldValue('status', v);
+
+                if( (t == '10' || t == 10) && (e_is.value == '10' || e_is.value == 10) ) {
+                    this.setFieldValue('status', '40');
+                } 
 
             }
             return true;
