@@ -682,8 +682,17 @@ function ciniki_sapos_invoice() {
                 this.refreshFormField('details', 'status');
                 this.setFieldValue('status', v);
 
-                if( (t == '10' || t == 10) && (e_is.value == '10' || e_is.value == 10) ) {
-                    this.setFieldValue('status', '40');
+                // Change status if switching from cart to invoice
+                if( this.data.invoice_type == 20 && (t == '10' || t == 10) ) {
+                    if( (e_ps.value == '10' || e_ps.value == '20' || e_ps.value == '40') ) {
+                        this.setFieldValue('status', '40');
+                    } else if( (e_ps.value == '50') ) {
+                        this.setFieldValue('status', '50');
+                    } else if( (e_ps.value == '55') ) {
+                        this.setFieldValue('status', '55');
+                    } else if( (e_ps.value == '60') ) {
+                        this.setFieldValue('status', '60');
+                    }
                 } 
 
             }
