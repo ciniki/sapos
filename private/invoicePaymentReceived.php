@@ -45,7 +45,7 @@ function ciniki_sapos_invoicePaymentReceived(&$ciniki, $tnid, $invoice_id) {
     //
     // Get the items on the invoice
     //
-    $strsql = "SELECT id, object, object_id, price_id, student_id, quantity, invoice_id, total_amount "
+    $strsql = "SELECT id, flags, object, object_id, price_id, student_id, quantity, invoice_id, total_amount "
         . "FROM ciniki_sapos_invoice_items "
         . "WHERE invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -61,6 +61,7 @@ function ciniki_sapos_invoicePaymentReceived(&$ciniki, $tnid, $invoice_id) {
     //
     // Check for hooks for each item
     //
+    $donation_amount = 0;
     foreach($items as $iid => $item) {
         if( $item['object'] != '' && $item['object_id'] != '' ) {
             list($pkg,$mod,$obj) = explode('.', $item['object']);
@@ -92,6 +93,37 @@ function ciniki_sapos_invoicePaymentReceived(&$ciniki, $tnid, $invoice_id) {
                         return $rc;
                     }
                 }
+            }
+        }
+
+        //
+        // Check for donations
+        //
+        if( ($item['flags']&0x8000) == 0x8000 ) {
+            $donation_amount = bcadd($donation_amount, $item['total_amount'], 6);
+        } elseif( ($item['flags']&0x0800) == 0x0800 ) {
+            $donation_amount = bcadd($donation_amount, ($item['quantity'] * $item['unit_donation_amount']), 6);
+        }
+    }
+
+    //
+    // Check if donation required
+    //
+    if( $donation_amount > 0 && ($invoice['invoice_type'] == 10 || $args['invoice_type'] == 10)
+        && ($invoice['receipt_number'] == '' || $invoice['receipt_number'] == 0) 
+        ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'hooks', 'donationReceiptNumber');
+        $rc = ciniki_sapos_hooks_donationReceiptNumber($ciniki, $tnid, array());
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( $rc['receipt_number'] != '' ) {
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', $invoice_id, [
+                'receipt_number'=>$rc['receipt_number'],
+                ], 0x07);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
             }
         }
     }
