@@ -218,7 +218,7 @@ function ciniki_sapos_invoice() {
                 'picklist':{'label':'Print Pick/Pack', 'fn':'M.ciniki_sapos_invoice.printPickList(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'print':{'label':'Print Invoice', 'fn':'M.ciniki_sapos_invoice.printInvoice(M.ciniki_sapos_invoice.invoice.invoice_id);'},
                 'printdonationreceipt':{'label':'Print Donation Receipt', 
-                    'visible':function() { return M.ciniki_sapos_invoice.invoice.data.donations != null && M.ciniki_sapos_invoice.invoice.data.donations == 'yes' ? 'yes' : 'no'; },
+                    'visible':function() { return M.ciniki_sapos_invoice.invoice.data.donations != null && M.ciniki_sapos_invoice.invoice.data.donations == 'yes' && M.ciniki_sapos_invoice.invoice.data.receipt_number != '' ? 'yes' : 'no'; },
                     'fn':'M.ciniki_sapos_invoice.printDonationReceipt(M.ciniki_sapos_invoice.invoice.invoice_id);',
                     },
                 'printquote':{'label':'Print Quote', 'fn':'M.ciniki_sapos_invoice.printQuote(M.ciniki_sapos_invoice.invoice.invoice_id);'},
