@@ -846,7 +846,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         && isset($sapos_settings['donation-receipt-invoice-include']) 
         && $sapos_settings['donation-receipt-invoice-include'] == 'yes'
         && $invoice['status'] != 42
-        && $invoice['payment_status'] != 20
+        && $invoice['payment_status'] >= 50
         ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'templates', 'donationreceipt');
         $rc = ciniki_sapos_templates_donationreceipt($ciniki, $tnid, [
