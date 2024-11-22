@@ -87,7 +87,7 @@ function ciniki_sapos_invoicePaymentReceived(&$ciniki, $tnid, $invoice_id) {
                 //
                 // Update the invoice item with the new object and object_id
                 //
-                if( (isset($rc['object']) && $rc['object'] != $item['object']) || (isset($rc['flags']) && $rc['flags'] != $args['flags'])) {
+                if( (isset($rc['object']) && $rc['object'] != $item['object']) || (isset($rc['flags']) && $rc['flags'] != $item['flags'])) {
                     $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice_item', $item['id'], $rc, 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
@@ -109,7 +109,7 @@ function ciniki_sapos_invoicePaymentReceived(&$ciniki, $tnid, $invoice_id) {
     //
     // Check if donation required
     //
-    if( $donation_amount > 0 && ($invoice['invoice_type'] == 10 || $args['invoice_type'] == 10)
+    if( $donation_amount > 0 && ($invoice['invoice_type'] == 10 || $invoice['invoice_type'] == 10)
         && ($invoice['receipt_number'] == '' || $invoice['receipt_number'] == 0) 
         ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'hooks', 'donationReceiptNumber');
