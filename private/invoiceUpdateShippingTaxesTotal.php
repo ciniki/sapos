@@ -218,6 +218,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal(&$ciniki, $tnid, $invoice_
             . "FROM ciniki_sapos_invoices "
             . "WHERE ciniki_sapos_invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'num');
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.225', 'msg'=>'Unable to find next available receipt number', 'err'=>$rc['err']));
@@ -238,11 +239,13 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal(&$ciniki, $tnid, $invoice_
             . "ON DUPLICATE KEY UPDATE detail_value = '" . ciniki_core_dbQuote($ciniki, $next_receipt_number) . "' "
             . ", last_updated = UTC_TIMESTAMP() "
             . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
         $rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.sapos');
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
             return $rc;
         }
+       ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
         ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $tnid, 
             2, 'ciniki_sapos_settings', 'donation-receipt-next-number', 'detail_value', $next_receipt_number);
     }

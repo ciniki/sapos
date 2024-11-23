@@ -59,6 +59,31 @@ function ciniki_sapos_wng_sections(&$ciniki, $tnid, $args) {
             ),
         );
 
+    //
+    // Donation cards
+    //
+    $sections['ciniki.sapos.donationcards'] = [
+        'name'=>'Donation Cards',
+        'module' => 'Accounting',
+        'settings' => [
+            'title' => ['label' => 'Title', 'type' => 'text'],
+            ],
+        'repeats' => [
+            'label' => 'Cards',
+            'headerValues' => ['Title'],
+            'cellClasses' => [''],
+            'dataMaps' => ['title'],
+            'addTxt' => 'Add Card',
+            'fields' => [
+                'title' => ['label' => 'Card Title', 'type' => 'text'],
+                'synopsis' => ['label' => 'Synopsis', 'type' => 'textarea', 'size' => 'medium'],
+                'package-1' => ['label' => 'Package', 'type' => 'select', 'options' => $packages],
+                'package-2' => ['label' => 'Package', 'type' => 'select', 'options' => $packages],
+                ],
+            ],
+        ];
+
+
     return array('stat'=>'ok', 'sections'=>$sections);
 }
 ?>
