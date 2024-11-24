@@ -58,6 +58,27 @@ function ciniki_sapos_wng_sections(&$ciniki, $tnid, $args) {
                 'options'=>$dpcategories),
             ),
         );
+/*
+    $strsql = "SELECT id, dpcategory, name "
+        . "FROM ciniki_sapos_donation_packages "
+        . "WHERE (flags&0x01) = 0x01 "   // Visible
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "ORDER BY dpcategory, name "
+        . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'packages', 'fname'=>'id', 'fields'=>array('id', 'dpcategory', 'name')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.502', 'msg'=>'Unable to load packages', 'err'=>$rc['err']));
+    }
+    $packages = isset($rc['packages']) ? $rc['packages'] : array();
+    foreach($packages as $pid => $package) {
+        if( $package['dpcategory'] != '' ) {
+            $packages[$pid]['name'] = $package['dpcategory'] . ' - ' . $package['name'];
+        }
+    }
+    array_unshift($packages, ['name'=>'None']);
 
     //
     // Donation cards
@@ -67,6 +88,7 @@ function ciniki_sapos_wng_sections(&$ciniki, $tnid, $args) {
         'module' => 'Accounting',
         'settings' => [
             'title' => ['label' => 'Title', 'type' => 'text'],
+            'content' => ['label' => 'Intro', 'type' => 'textarea', 'size'=>'medium'],
             ],
         'repeats' => [
             'label' => 'Cards',
@@ -77,12 +99,20 @@ function ciniki_sapos_wng_sections(&$ciniki, $tnid, $args) {
             'fields' => [
                 'title' => ['label' => 'Card Title', 'type' => 'text'],
                 'synopsis' => ['label' => 'Synopsis', 'type' => 'textarea', 'size' => 'medium'],
-                'package-1' => ['label' => 'Package', 'type' => 'select', 'options' => $packages],
-                'package-2' => ['label' => 'Package', 'type' => 'select', 'options' => $packages],
+                'package-1-id' => ['label' => 'Package 1', 'type' => 'select', 'separator'=>'yes',
+                    'options' => $packages,
+                    'complex_options' => ['name'=>'name', 'value'=>'id'],
+                    ],
+                'package-1-text' => ['label' => 'Button Text', 'type' => 'text'],
+                'package-2-id' => ['label' => 'Package 2', 'type' => 'select', 'separator'=>'yes',
+                    'options' => $packages,
+                    'complex_options' => ['name'=>'name', 'value'=>'id'],
+                    ],
+                'package-2-text' => ['label' => 'Button Text', 'type' => 'text'],
                 ],
             ],
         ];
-
+*/
 
     return array('stat'=>'ok', 'sections'=>$sections);
 }
