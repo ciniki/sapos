@@ -950,7 +950,10 @@ function ciniki_sapos_pos() {
     }
     this.terminal.paymentCapture = function(pi) {
         M.processingShow('Capturing payment...', '', null, 'Cancel', function() { M.ciniki_sapos_pos.terminal.paymentCancel(); });
-        var c = 'payment_intent=' + JSON.stringify(pi) + '&notes=' + M.eU(this.formValue('notes'));
+        // Dec 10, 2024 - Bank with name M&T bank in US giving problems with JSON.stringify
+        // Switched to sending only payment intent id and payment amount.
+//        var c = 'payment_intent=' + JSON.stringify(pi) + '&notes=' + M.eU(this.formValue('notes'));
+        var c = 'payment_intent_id=' + pi.id + '&payment_amount=' + pi.amount + '&notes=' + M.eU(this.formValue('notes'));
         M.api.postJSONCb('ciniki.sapos.stripeTerminalPaymentCapture', {'tnid':M.curTenantID, 'invoice_id':this.invoice_id}, c, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.hide('m_processing');

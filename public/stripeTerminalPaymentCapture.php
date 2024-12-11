@@ -20,7 +20,9 @@ function ciniki_sapos_stripeTerminalPaymentCapture(&$ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
-        'payment_intent'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'json', 'name'=>'PaymentIntent'), 
+//        'payment_intent'=>array('required'=>'yes', 'blank'=>'no', 'type'=>'json', 'name'=>'PaymentIntent'), 
+        'payment_intent_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Payment Intent ID'), 
+        'payment_amount'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Payment Amount'), 
         'notes'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Notes'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -95,7 +97,7 @@ function ciniki_sapos_stripeTerminalPaymentCapture(&$ciniki) {
         ]);
 
     try {
-        $intent = $stripe->paymentIntents->retrieve($args['payment_intent']['id']);
+        $intent = $stripe->paymentIntents->retrieve($args['payment_intent_id']);
         //
         // If the intent requires capture (interac charges don't require capture)
         //
@@ -125,7 +127,7 @@ function ciniki_sapos_stripeTerminalPaymentCapture(&$ciniki) {
     //
     // Calculate transaction fees
     //
-    $args['customer_amount'] = ($args['payment_intent']['amount']/100);
+    $args['customer_amount'] = ($args['payment_amount']/100);
     $args['transaction_fees'] = 0;
     //
     // Transaction Fees are sent via webhook 'charge.captured'
