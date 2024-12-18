@@ -102,6 +102,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
         . "t.customer_amount, "
         . "t.transaction_fees, "
         . "t.tenant_amount, "
+        . "t.notes, "
         . "i.invoice_number, "
         . "i.invoice_date, "
         . "i.status AS invoice_status, "
@@ -169,7 +170,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
             'fields'=>array('id', 'transaction_status', 'status_text', 'transaction_type', 'transaction_date', 'source', 'source_text',
                 'customer_display_name', 
-                'customer_amount', 'transaction_fees', 'tenant_amount', 'invoice_number', 'invoice_date', 'invoice_status'),
+                'customer_amount', 'transaction_fees', 'tenant_amount', 'invoice_number', 'invoice_date', 'invoice_status', 'notes'),
             'maps'=>array(
                 'status_text'=>$maps['transaction']['status'],
                 'source_text'=>$maps['transaction']['source'],
@@ -248,10 +249,8 @@ function ciniki_sapos_transactionList(&$ciniki) {
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Net', false);
         if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x080000) ) {
             $sheet->setCellValueByColumnAndRow($i++, 1, 'Status', false);
-            $sheet->getStyle('A1:I1')->getFont()->setBold(true);
-        } else {
-            $sheet->getStyle('A1:H1')->getFont()->setBold(true);
         }
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Notes', false);
 
         //
         // Output the invoice list
@@ -271,6 +270,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
             if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x080000) ) {
                 $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['status_text'], false);
             }
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['notes'], false);
             $row++;
         }
         if( $row > 2 ) {
@@ -285,6 +285,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
             $sheet->getStyle('F' . $row)->getFont()->setBold(true);
             $sheet->getStyle('G' . $row)->getFont()->setBold(true);
             $sheet->getStyle('H' . $row)->getFont()->setBold(true);
+            $sheet->getStyle('I' . $row)->getFont()->setBold(true);
         }
         $sheet->getColumnDimension('A')->setAutoSize(true);
         $sheet->getColumnDimension('B')->setAutoSize(true);
@@ -294,8 +295,12 @@ function ciniki_sapos_transactionList(&$ciniki) {
         $sheet->getColumnDimension('F')->setAutoSize(true);
         $sheet->getColumnDimension('G')->setAutoSize(true);
         $sheet->getColumnDimension('H')->setAutoSize(true);
+        $sheet->getColumnDimension('I')->setAutoSize(true);
         if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x080000) ) {
-            $sheet->getColumnDimension('I')->setAutoSize(true);
+            $sheet->getColumnDimension('J')->setAutoSize(true);
+            $sheet->getStyle('A1:J1')->getFont()->setBold(true);
+        } else {
+            $sheet->getStyle('A1:I1')->getFont()->setBold(true);
         }
 
         //
