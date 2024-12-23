@@ -53,6 +53,15 @@ function ciniki_sapos_wng_cartCustomerUpdate($ciniki, $tnid, $request) {
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.321', 'msg'=>'Unable to update cart', 'err'=>$rc['err']));
             }
+
+            //
+            // Update the status balance
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+            $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $request['session']['cart']['sapos_id']);
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.504', 'msg'=>'Unable to update cart', 'err'=>$rc['err']));
+            }
         }
 
         return array('stat'=>'ok');
