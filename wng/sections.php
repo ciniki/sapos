@@ -58,7 +58,7 @@ function ciniki_sapos_wng_sections(&$ciniki, $tnid, $args) {
                 'options'=>$dpcategories),
             ),
         );
-/*
+
     $strsql = "SELECT id, dpcategory, name "
         . "FROM ciniki_sapos_donation_packages "
         . "WHERE (flags&0x01) = 0x01 "   // Visible
@@ -98,7 +98,18 @@ function ciniki_sapos_wng_sections(&$ciniki, $tnid, $args) {
             'addTxt' => 'Add Card',
             'fields' => [
                 'title' => ['label' => 'Card Title', 'type' => 'text'],
-                'synopsis' => ['label' => 'Synopsis', 'type' => 'textarea', 'size' => 'medium'],
+                'subtitle' => ['label' => 'Subtitle', 'type' => 'text'],
+                'intro' => ['label' => 'intro', 'type' => 'textarea', 'size' => 'medium'],
+                'benefit-1' => ['label' => 'Benefit 1', 'type' => 'text'],
+                'benefit-2' => ['label' => 'Benefit 2', 'type' => 'text'],
+                'benefit-3' => ['label' => 'Benefit 3', 'type' => 'text'],
+                'benefit-4' => ['label' => 'Benefit 4', 'type' => 'text'],
+                'benefit-5' => ['label' => 'Benefit 5', 'type' => 'text'],
+                'benefit-6' => ['label' => 'Benefit 6', 'type' => 'text'],
+                'benefit-7' => ['label' => 'Benefit 7', 'type' => 'text'],
+                'benefit-8' => ['label' => 'Benefit 8', 'type' => 'text'],
+                'benefit-9' => ['label' => 'Benefit 9', 'type' => 'text'],
+                'ending' => ['label' => 'intro', 'type' => 'textarea', 'size' => 'medium'],
                 'package-1-id' => ['label' => 'Package 1', 'type' => 'select', 'separator'=>'yes',
                     'options' => $packages,
                     'complex_options' => ['name'=>'name', 'value'=>'id'],
@@ -109,10 +120,15 @@ function ciniki_sapos_wng_sections(&$ciniki, $tnid, $args) {
                     'complex_options' => ['name'=>'name', 'value'=>'id'],
                     ],
                 'package-2-text' => ['label' => 'Button Text', 'type' => 'text'],
+                'package-3-id' => ['label' => 'Package 3', 'type' => 'select', 'separator'=>'yes',
+                    'options' => $packages,
+                    'complex_options' => ['name'=>'name', 'value'=>'id'],
+                    ],
+                'package-3-text' => ['label' => 'Button Text', 'type' => 'text'],
                 ],
             ],
         ];
-*/
+
 
     return array('stat'=>'ok', 'sections'=>$sections);
 }
