@@ -452,12 +452,13 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
                 if( $available_ratio < $image_ratio ) {
                     $args['pdf']->Image('@'.$rc['image']->getImageBlob(), '', '', $w[2], 0, 'JPEG', '', 'C', 2, '150');
                 } else {
-                    $left_padding = floor(($w[2] - floor($image_ratio * 25))/2);
-                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), $args['pdf']->getX() + $left_padding, '', 0, 25, 'JPEG', '', 'C', 2, '150');
+                    $left_padding = floor(($w[2] - ceil($image_ratio * 25))/2);
+                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), 115 + $left_padding, '', 0, 25, 'JPEG', '', 'C', 0, '150', '', false, false, 0, true);
+//                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), $args['pdf']->getX() + $left_padding, '', 0, 25, 'JPEG', '', 'C', 2, '150', '', false, false, 1);
                 }
             }
         }
-        $args['pdf']->Ln();
+        $args['pdf']->Ln(25);
         $args['pdf']->SetFont('', '');
         $args['pdf']->setCellPadding(2);
         //
