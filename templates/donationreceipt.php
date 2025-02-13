@@ -413,7 +413,7 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
         $args['pdf']->SetFont('', 'B');
         $args['pdf']->Cell($w[0], $lh, 'Date Received:', 0, 0, 'R', 1);
         $args['pdf']->SetFont('', '');
-        $args['pdf']->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
+        $args['pdf']->Cell($w[1], $lh, (isset($invoice['received_date']) ? $invoice['received_date'] : $invoice['invoice_date']), 0, 0, 'L', 1);
         $args['pdf']->Cell($w[2], $lh, (isset($addr[2])?$addr[2]:''), 0, 0, 'L', 1);
         $args['pdf']->Ln();
 
@@ -502,7 +502,7 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
         $args['pdf']->SetFont('', 'B');
         $args['pdf']->Cell($w[0], $lh, 'Date Received:', 0, 0, 'R', 1);
         $args['pdf']->SetFont('', '');
-        $args['pdf']->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
+        $args['pdf']->Cell($w[1], $lh, (isset($invoice['received_date']) ? $invoice['received_date'] : $invoice['invoice_date']), 0, 0, 'L', 1);
         $args['pdf']->Cell($w[2], $lh, (isset($addr[2])?$addr[2]:''), 0, 0, 'L', 1);
         $args['pdf']->Ln();
 
