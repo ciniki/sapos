@@ -651,7 +651,7 @@ function ciniki_sapos_invoice() {
             } else {
                 this.sections.details.fields.po_number.visible = 'yes';
                 this.sections.details.fields.status.visible = 'yes';
-                this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x800200)>0||this.data.payment_status>0)?'yes':'no';
+                this.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x40800200)>0||this.data.payment_status>0)?'yes':'no';
                 if( t == '10' || t == 10 ) {
                     this.sections.details.fields.status.options = M.ciniki_sapos_invoice.invoiceStatuses;
                 } else if( t == '20' ) {
@@ -1336,7 +1336,7 @@ function ciniki_sapos_invoice() {
             this.orderStatuses['30'] = 'Pending Shipping';
         }
         this.invoiceStatuses['40'] = 'Payment Required';
-        if( (M.curTenant.modules['ciniki.sapos'].flags&0x0200) > 0 ) {
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x40000200) > 0 ) {
             this.orderStatuses['40'] = 'Payment Required';
         }
         if( M.modFlagOn('ciniki.sapos', 0x20000000) ) {
@@ -2019,7 +2019,7 @@ function ciniki_sapos_invoice() {
                     p.data = rsp.invoice;
                     p.sections.shipping.fields.flags_2.active = M.modFlagSet('ciniki.sapos', 0x040000);
                     if( p.sections.details.fields.payment_status.visible == 'yes' ) {
-                        p.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x0200)>0||rsp.invoice.payment_status>0)?'yes':'no';
+                        p.sections.details.fields.payment_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x40000200)>0||rsp.invoice.payment_status>0)?'yes':'no';
                     }
                     if( p.sections.details.fields.shipping_status.visible == 'yes' ) {
                         p.sections.details.fields.shipping_status.visible = ((M.curTenant.modules['ciniki.sapos'].flags&0x40)>0||rsp.invoice.shipping_status>0)?'yes':'no';
