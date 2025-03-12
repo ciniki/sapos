@@ -95,7 +95,7 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     //
     // Get the existing invoice details to compare fields
     //
-    $strsql = "SELECT invoice_number, customer_id, flags, tax_location_id "
+    $strsql = "SELECT invoice_number, customer_id, flags, tax_location_id, status, payment_status "
         . "FROM ciniki_sapos_invoices "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
@@ -116,6 +116,21 @@ function ciniki_sapos_invoiceUpdate(&$ciniki) {
     }
     if( ($invoice['flags']&0x02) && isset($args['shipping_phone']) && $args['shipping_phone'] == '' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.208', 'msg'=>'A shipping phone number must be specified'));
+    }
+
+    //
+    // Check to make sure they can't change to Paid status without record transaction
+    //
+    if( isset($args['status']) && $args['status'] == 50 && $invoice['status'] < 50
+        && (
+            !isset($args['payment_status']) 
+            || $args['payment_status'] < 50 
+            || ($args['payment_status'] == 50 && $invoice['payment_status'] < 50) 
+            )
+        && $invoice['status'] < 50 
+        && $invoice['payment_status'] > 0 && $invoice['payment_status'] < 50
+        ) {
+        return array('stat'=>'warn', 'err'=>array('code'=>'ciniki.sapos.505', 'msg'=>'Please click "Record Transaction" on the invoice to change the status to Paid.'));
     }
 
     //
