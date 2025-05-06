@@ -807,6 +807,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         $pdf->SetFont('');
         $message = $sapos_settings['invoice-etransfer-message'];
         $message = str_replace('{_invoice_total_}', $invoice['balance_amount_display'], $message);
+        $message = str_replace('{_invoice_number_}', $invoice['invoice_number'], $message);
         $pdf->MultiCell(180, 5, $message, 0, 'L',0,1,'','',true,0,true);
     }
 

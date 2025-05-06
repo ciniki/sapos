@@ -187,6 +187,7 @@ function ciniki_sapos_wng_etransferCheckout(&$ciniki, $tnid, &$request, $cart) {
             $textmsg = $sapos_settings['cart-etransfer-submitted-message'];
         }
         $textmsg = str_replace('{_invoice_total_}', '$' . number_format($invoice['total_amount'], 2), $textmsg);
+        $textmsg = str_replace('{_invoice_number_}', $invoice['invoice_number'], $textmsg);
 
 /*        if( $invoice['shipping_status'] == 20 ) {
             if( isset($sapos_settings['instore-pickup-placed-email-subject']) 

@@ -145,7 +145,7 @@ function ciniki_sapos_wng_accountInvoicesProcess(&$ciniki, $tnid, &$request, $ar
     if( count($unpaid_invoices) > 0 ) {
         foreach($unpaid_invoices as $pid => $invoice) {
             $unpaid_invoices[$pid]['actions'] = '';
-            if( $invoice['status'] == 40 ) {
+            if( $invoice['status'] == 40 || $invoice['status'] == 42 ) {
                 // FIXME: Add pay now capability
                 $unpaid_invoices[$pid]['actions'] .= "<a class='button' href='{$request['ssl_domain_base_url']}/account/invoices/view/" . $invoice['invoice_number'] . "'>Open</a>";
             }
