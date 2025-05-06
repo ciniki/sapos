@@ -991,7 +991,10 @@ function ciniki_sapos_invoice() {
     //                  p.show(cb);
     //              });
     //          } else {
-                    p.data = {'force_backorder':'no'};
+                    p.data = {
+                        'force_backorder':'no',
+                        'quantity':1,
+                        };
     //              p.sections.details.fields.taxtype_id.active = 'no';
                     p.refresh();
                     p.show(cb);
