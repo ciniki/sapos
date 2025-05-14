@@ -31,7 +31,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
-    $date_format = ciniki_users_dateFormat($ciniki, 'mysql');
+    $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
     //
     // Load maps
@@ -91,7 +91,8 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
     //
     $strsql = "SELECT m.id, "
         . "i.invoice_number, "
-        . "DATE_FORMAT(IFNULL(t.transaction_date, i.invoice_date), '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
+        . "IFNULL(t.transaction_date, i.invoice_date) AS invoice_date, "
+//        . "DATE_FORMAT(IFNULL(t.transaction_date, i.invoice_date), '" . ciniki_core_dbQuote($ciniki, $date_format) . "') AS invoice_date, "
         . "i.payment_status, "
         . "i.payment_status AS payment_status_text, "
         . "i.po_number, "
@@ -134,6 +135,7 @@ function ciniki_sapos_reporting_blockCategorySales(&$ciniki, $tnid, $args) {
             'fields'=>array('id', 'display_name', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 
                 'category', 'code', 'description', 'amount', 'quantity',
                 ),
+            'utctotz'=>array('invoice_date'=>array('format'=>$date_format, 'timezone'=>$intl_timezone)),
             'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
             ),
         array('container'=>'transactions', 'fname'=>'transaction_id', 
