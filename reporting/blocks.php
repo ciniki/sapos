@@ -140,6 +140,10 @@ function ciniki_sapos_reporting_blocks(&$ciniki, $tnid, $args) {
                 'invoice'=>'Invoice Date',
                 'transaction'=>'Transaction Date',
                 )),
+            'transaction-type'=>array('label'=>'Transaction Type', 'type'=>'toggle', 'default'=>'payment', 'toggles'=>array(
+                'payment'=>'Deposit/Payment',
+                'refund'=>'Refund',
+                )),
 //            'days'=>array('label'=>'Number of Days Previous', 'type'=>'text', 'size'=>'small', 'default'=>'7'),
             ),
         );

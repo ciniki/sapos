@@ -70,6 +70,10 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
     $start_dt->setTimezone(new DateTimezone('UTC'));
     $end_dt->setTimezone(new DateTimezone('UTC'));
 
+    $transaction_type_sql = "AND transactions.transaction_type <= 20 ";
+    if( isset($args['transaction-type']) && $args['transaction-type'] == 'refund' ) {
+        $transaction_type_sql = "AND transactions.transaction_type = 60 ";
+    }
     //
     // Store the report block chunks
     //
@@ -141,6 +145,7 @@ function ciniki_sapos_reporting_blockCategoryPaymentTypesSummary(&$ciniki, $tnid
         . "INNER JOIN ciniki_sapos_transactions AS transactions ON ("
             . "invoices.id = transactions.invoice_id "
             . "AND transactions.status >= 40 "
+            . $transaction_type_sql
             . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE invoices.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' ";
