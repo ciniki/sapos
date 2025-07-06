@@ -770,12 +770,12 @@ function ciniki_sapos_main() {
     this.donations.sections = {
         'years':this._years,
         'months':this._months,
-        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':5,
-            'headerValues':['Invoice #', 'Date', 'Customer', 'Amount', 'Status', 'Receipt'],
-            'headerClasses':['', '', '', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', 'alignright', 'alignright'],
+        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':6,
+            'headerValues':['Invoice #', 'Rcpt #', 'Date', 'Customer', 'Amount', 'Status', 'Receipt'],
+            'headerClasses':['', '', '', '', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', '', 'alignright', 'alignright'],
             'sortable':'yes',
-            'sortTypes':['number', 'date', 'text', 'number', 'text', 'number'],
+            'sortTypes':['number', 'number', 'date', 'text', 'number', 'text', 'number'],
             'noData':'No donations',
             },
         }
@@ -786,11 +786,12 @@ function ciniki_sapos_main() {
         if( s == 'invoices' ) {
             switch(j) {
                 case 0: return d.invoice_number;
-                case 1: return d.invoice_date;
-                case 2: return d.customer_display_name;
-                case 3: return d.donation_amount_display;
-                case 4: return d.status_text;
-                case 5: return d.donationreceipt_status_text;
+                case 1: return d.receipt_number;
+                case 2: return d.invoice_date;
+                case 3: return d.customer_display_name;
+                case 4: return d.donation_amount_display;
+                case 5: return d.status_text;
+                case 6: return d.donationreceipt_status_text;
             }
         }
     }
@@ -808,7 +809,8 @@ function ciniki_sapos_main() {
                 case 0: return this.data.totals.num_invoices;
                 case 1: return '';
                 case 2: return '';
-                case 3: return this.data.totals.donation_amount;
+                case 3: return '';
+                case 4: return this.data.totals.donation_amount;
             }
         }
         return null;
@@ -886,40 +888,52 @@ function ciniki_sapos_main() {
     }
     this.donationcategories.headerValue = function(s, i, d) {
         if( i == 0 ) { return 'Invoice #'; }
-        if( i == 1 ) { return 'Date'; }
-        if( i == 2 ) { return 'Customer'; }
+        if( i == 1 ) { return 'Rcpt #'; }
+        if( i == 2 ) { return 'Date'; }
+        if( i == 3 ) { return 'Customer'; }
         if( i < this.sections[s].num_cols-1 ) {
-            return this.categories[(i-3)].name;
+            return this.categories[(i-4)].name;
         } else {
             return 'Total';
         }
     }
     this.donationcategories.cellValue = function(s, i, j, d) {
         if( j == 0 ) { return d.invoice_number; }
-        if( j == 1 ) { return d.invoice_date; }
-        if( j == 2 ) { return d.customer_display_name; }
+        if( j == 1 ) { return d.receipt_number; }
+        if( j == 2 ) { return d.invoice_date; }
+        if( j == 3 ) { return d.customer_display_name; }
         if( j < this.sections[s].num_cols-1 ) {
-            if( d.categories[this.categories[(j-3)].name] != null ) {
-                return d.categories[this.categories[(j-3)].name].amount_display;
+            if( d.categories[this.categories[(j-4)].name] != null ) {
+                return d.categories[this.categories[(j-4)].name].amount_display;
             }
             return '';
         } else {
             return d.total_amount_display;
         }
     }
+    this.donationcategories.cellFn = function(s, i, j, d) {
+        if( j > 3 && j < this.sections[s].num_cols-1 ) {
+            return 'event.stopPropagation(); M.ciniki_sapos_main.dc.open(\'M.ciniki_sapos_main.donationcategories.open();\',\'' + d.id + '\');';
+        }
+        return '';
+    }
     this.donationcategories.rowFn = function(s, i, d) {
         if( d == null ) {
             return '';
         }
         if( s == 'invoices' ) {
-            return 'M.ciniki_sapos_main.dc.open(\'M.ciniki_sapos_main.donationcategories.open();\',\'' + d.id + '\');';
+            return 'M.ciniki_sapos_main.donationcategories.openInvoice(\'' + d.id + '\');';
+//            return 'M.ciniki_sapos_main.dc.open(\'M.ciniki_sapos_main.donationcategories.open();\',\'' + d.id + '\');';
         }
+    }
+    this.donationcategories.openInvoice = function(i) {
+        M.startApp('ciniki.sapos.invoice',null,'M.ciniki_sapos_main.donationcategories.open();','mc',{'invoice_id':i});
     }
     this.donationcategories.footerValue = function(s, i, j, d) {
         if( i == 0 ) { return this.data.totals.num_invoices; }
-        if( i < 3 ) { return ''; }
+        if( i < 4 ) { return ''; }
         if( i < this.sections[s].num_cols-1 ) {
-            return this.categories[(i-3)].total_amount_display;
+            return this.categories[(i-4)].total_amount_display;
         } else {
             return this.data.totals.total_amount;
         }
@@ -944,11 +958,11 @@ function ciniki_sapos_main() {
             var p = M.ciniki_sapos_main.donationcategories;
             p.data = rsp;
             p.categories = rsp.categories;
-            p.sections.invoices.headerValues = ['Invoice #', 'Date', 'Customer'];
-            p.sections.invoices.headerClasses = ['', '', ''];
-            p.sections.invoices.cellClasses = ['', '', ''];
-            p.sections.invoices.sortTypes = ['number', 'date', 'text'];
-            p.sections.invoices.num_cols = 3;
+            p.sections.invoices.headerValues = ['Invoice #', 'Rcpt #', 'Date', 'Customer'];
+            p.sections.invoices.headerClasses = ['', '', '', ''];
+            p.sections.invoices.cellClasses = ['', '', '', ''];
+            p.sections.invoices.sortTypes = ['number', 'number', 'date', 'text'];
+            p.sections.invoices.num_cols = 4;
             for(var i in p.categories) {
                 p.sections.invoices.headerValues.push(p.categories[i].name);
                 p.sections.invoices.headerClasses.push('alignright');

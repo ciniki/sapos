@@ -97,6 +97,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     //
     $strsql = "SELECT ciniki_sapos_invoices.id, "
         . "ciniki_sapos_invoices.invoice_number, "
+        . "ciniki_sapos_invoices.receipt_number, "
         . "ciniki_sapos_invoices.invoice_date, "
         . "ciniki_sapos_invoices.payment_status, "
         . "ciniki_sapos_invoices.payment_status AS payment_status_text, "
@@ -179,7 +180,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 
-            'fields'=>array('id', 'invoice_number', 'invoice_date', 'payment_status', 'payment_status_text', 'customer_type', 'customer_display_name', 'emails', 'total_amount'),
+            'fields'=>array('id', 'invoice_number', 'receipt_number', 'invoice_date', 'payment_status', 'payment_status_text', 'customer_type', 'customer_display_name', 'emails', 'total_amount'),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
             'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
             ),
@@ -248,6 +249,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         //
         $i = 0;
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Rcpt #', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Date', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Email', false);
@@ -264,6 +266,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         foreach($rsp['invoices'] as $iid => $invoice) {
             $i = 0;
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['receipt_number'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_date'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['customer_display_name'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['emails'], false);
