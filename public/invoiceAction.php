@@ -295,25 +295,35 @@ function ciniki_sapos_invoiceAction(&$ciniki) {
         //
         // Load the invoice
         //
-        $strsql = "SELECT po_number, customer_id, invoice_type, status, payment_status, balance_amount, submitted_by "
-            . "FROM ciniki_sapos_invoices "
-            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceLoad');
+        $rc = ciniki_sapos_invoiceLoad($ciniki, $args['tnid'], $args['invoice_id']);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
             return $rc;
         }
-        if( !isset($rc['invoice']) ) {
-            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to find invoice'));
-        }
         $invoice = $rc['invoice'];
-
+    
         $update_args = array();
         if( $invoice['balance_amount'] == 0 && $invoice['payment_status'] < 50 ) {
             $update_args['payment_status'] = 50;
+            if( isset($invoice['items']) ) {
+                foreach($invoice['items'] as $iid => $item) {
+                    $item = $item['item'];
+                    if( $item['object'] != '' && $item['object_id'] != '' ) {
+                        $item['invoice_id'] = $invoice['id'];
+                        list($pkg,$mod,$obj) = explode('.', $item['object']);
+                        $rc = ciniki_core_loadMethod($ciniki, $pkg, $mod, 'sapos', 'itemPaymentReceived');
+                        if( $rc['stat'] == 'ok' ) {
+                            $fn = $rc['function_call'];
+                            $rc = $fn($ciniki, $args['tnid'], $item);
+                            if( $rc['stat'] != 'ok' ) {
+                                ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
+                                return $rc;
+                            }
+                        }
+                    }
+                }
+            }
         }
     } 
     //
