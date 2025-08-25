@@ -770,12 +770,12 @@ function ciniki_sapos_main() {
     this.donations.sections = {
         'years':this._years,
         'months':this._months,
-        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':6,
-            'headerValues':['Invoice #', 'Rcpt #', 'Date', 'Customer', 'Amount', 'Status', 'Receipt'],
-            'headerClasses':['', '', '', '', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', '', 'alignright', 'alignright'],
+        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':7,
+            'headerValues':['Invoice #', 'Date', 'Rcpt #', 'Status', 'Customer', 'Amount', 'Status'],
+            'headerClasses':['', '', '', '', '', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', '', '', 'alignright', 'alignright'],
             'sortable':'yes',
-            'sortTypes':['number', 'number', 'date', 'text', 'number', 'text', 'number'],
+            'sortTypes':['number', 'date', 'number', 'text', 'text', 'number', 'text', 'number'],
             'noData':'No donations',
             },
         }
@@ -786,12 +786,12 @@ function ciniki_sapos_main() {
         if( s == 'invoices' ) {
             switch(j) {
                 case 0: return d.invoice_number;
-                case 1: return d.receipt_number;
-                case 2: return d.invoice_date;
-                case 3: return d.customer_display_name;
-                case 4: return d.donation_amount_display;
-                case 5: return d.status_text;
-                case 6: return d.donationreceipt_status_text;
+                case 1: return d.invoice_date;
+                case 2: return d.receipt_number;
+                case 3: return d.donationreceipt_status_text;
+                case 4: return d.customer_display_name;
+                case 5: return d.donation_amount_display;
+                case 6: return d.status_text;
             }
         }
     }

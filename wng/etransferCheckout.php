@@ -234,7 +234,7 @@ function ciniki_sapos_wng_etransferCheckout(&$ciniki, $tnid, &$request, $cart) {
         $textmsg .= "\n";
         $textmsg .= "Invoice: " . $invoice['invoice_number'] . "\n";
         if( isset($cart['customer']['emails'][0]['email']['address']) ) {
-            $textmsg .= "Email: " . $cart['customer']['emails'][0]['email']['address'] . "\n";
+            $textmsg .= "Email: " . $cart['customer']['emails'][0]['email']['address'] . " \n";
         }
         $textmsg .= "Bill To: " . $invoice['billing_name'] . "\n";
         $textmsg .= "Total: " . $invoice['total_amount_display'] . "\n";

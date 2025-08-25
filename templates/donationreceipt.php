@@ -546,6 +546,17 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
         $args['pdf']->Cell(180, 12, 'Minimum donation amount not received, receipt not printed.', 0, 0, 'L', 1);
     }
 
+    //
+    // Check if invoice.donationreceipt_status should be updated
+    //
+    if( isset($args['output']) && $args['output'] == 'email' && $invoice['donationreceipt_status'] < 40 ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.sapos.invoice', $invoice['id'], ['donationreceipt_status' => 70], 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.57', 'msg'=>'Unable to update the invoice', 'err'=>$rc['err']));
+        }
+    }
+
 
     // ---------------------------------------------------------
 

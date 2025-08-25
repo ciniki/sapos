@@ -22,6 +22,7 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
         'subject'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Subject'),
         'textmsg'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Text Message'),
         'email'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Email PDF'),
+        'email_attach'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'invoice-donationreceipt', 'name'=>'Attachments'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -88,7 +89,7 @@ function ciniki_sapos_invoicePDF(&$ciniki) {
 
     if( isset($args['email']) && $args['email'] == 'yes' ) {
         $rc = $fn($ciniki, $args['tnid'], $args['invoice_id'],
-            $tenant_details, $sapos_settings, 'email');
+            $tenant_details, $sapos_settings, 'email', $args['email_attach']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }

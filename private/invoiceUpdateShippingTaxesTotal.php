@@ -245,7 +245,7 @@ function ciniki_sapos_invoiceUpdateShippingTaxesTotal(&$ciniki, $tnid, $invoice_
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
             return $rc;
         }
-       ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
         ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $tnid, 
             2, 'ciniki_sapos_settings', 'donation-receipt-next-number', 'detail_value', $next_receipt_number);
     }

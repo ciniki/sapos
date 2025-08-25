@@ -92,7 +92,8 @@
 #                               20 - Pending
 #                               40 - Printed
 #                               60 - Mailed
-#                               90 - Received
+#                               70 - emailed
+#                               80 - Received
 #
 # preorder_status:      The current status for the preorder portion of the order
 #

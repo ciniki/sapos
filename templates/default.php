@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_details, $sapos_settings, $output='download') {
+function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_details, $sapos_settings, $output='download', $attach='') {
     //
     // Get the invoice record
     //
@@ -840,8 +840,14 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         $donation_minimum = preg_replace("/[^0-9\.]/", '', $sapos_settings['donation-receipt-minimum-amount']);
     }
     if( $donation_amount > 0 && $donation_amount >= $donation_minimum
-        && isset($sapos_settings['donation-receipt-invoice-include']) 
-        && $sapos_settings['donation-receipt-invoice-include'] == 'yes'
+        && (
+            $attach == 'invoice-donationreceipt'
+            || 
+            ( $attach != 'invoice'
+                && isset($sapos_settings['donation-receipt-invoice-include']) 
+                && $sapos_settings['donation-receipt-invoice-include'] == 'yes'
+            )
+        )
         && $invoice['status'] != 42
         && $invoice['payment_status'] >= 50
         ) {
@@ -851,194 +857,11 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             'tenant_details' => $tenant_details,
             'sapos_settings' => $sapos_settings,
             'pdf' => $pdf,
+            'output' => $output,
             ]);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
-
-/*        $pdf->header_details = array();
-        $pdf->AddPage();
-        $pdf->setY(($pdf->header_height)+15);
-
-        //
-        // Determine the billing address information
-        //
-        $addr = array();
-        if( isset($invoice['billing_name']) && $invoice['billing_name'] != '' ) {
-            $addr[] = $invoice['billing_name'];
-        }
-        if( isset($invoice['billing_address1']) && $invoice['billing_address1'] != '' ) {
-            $addr[] = $invoice['billing_address1'];
-        }
-        if( isset($invoice['billing_address2']) && $invoice['billing_address2'] != '' ) {
-            $addr[] = $invoice['billing_address2'];
-        }
-        $city = '';
-        if( isset($invoice['billing_city']) && $invoice['billing_city'] != '' ) {
-            $city = $invoice['billing_city'];
-        }
-        if( isset($invoice['billing_province']) && $invoice['billing_province'] != '' ) {
-            $city .= (($city!='')?', ':'') . $invoice['billing_province'];
-        }
-        if( isset($invoice['billing_postal']) && $invoice['billing_postal'] != '' ) {
-            $city .= (($city!='')?',  ':'') . $invoice['billing_postal'];
-        }
-        if( $city != '' ) {
-            $addr[] = $city;
-        }
-        if( isset($invoice['billing_country']) && $invoice['billing_country'] != '' ) {
-            $addr[] = $invoice['billing_country'];
-        }
-
-        //
-        // Output the details
-        //
-        $w = array(45, 45, 90);
-        $lh = 6;
-        $pdf->SetFillColor(255);
-        $pdf->setCellPadding(0.5);
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Receipt Number:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        $pdf->Cell($w[1], $lh, $invoice['receipt_number'], 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[0])?$addr[0]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Amount Received:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        $pdf->Cell($w[1], $lh, '$' . number_format($donation_amount, 2), 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[1])?$addr[1]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Date Received:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        $pdf->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[2])?$addr[2]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Date Issued:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        $pdf->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[3])?$addr[3]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Location Issued:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        $pdf->Cell($w[1], $lh, $sapos_settings['donation-receipt-location-issued'], 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[4])?$addr[4]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-        
-        $w = array(50, 50, 80);
-        if( isset($sapos_settings['donation-receipt-thankyou-message']) && $sapos_settings['donation-receipt-thankyou-message'] != '' ) {
-            $pdf->SetFont('', 'B');
-            $pdf->Cell($w[0]+$w[1], $lh*4, $sapos_settings['donation-receipt-thankyou-message'], 0, 0, 'L', 1);
-        } else {
-            $pdf->Cell($w[0]+$w[1], $lh*4, '', 0, 0, 'L', 1);
-        }
-        if( isset($sapos_settings['donation-receipt-signature-image']) && $sapos_settings['donation-receipt-signature-image'] != '' ) {
-            $pdf->getY();
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'images', 'private', 'loadImage');
-            $rc = ciniki_images_loadImage($ciniki, $tnid, $sapos_settings['donation-receipt-signature-image'], 'original');
-            if( $rc['stat'] == 'ok' ) {
-                $height = $rc['image']->getImageHeight();
-                $width = $rc['image']->getImageWidth();
-                $image_ratio = $width/$height;
-                $available_ratio = $w[2]/25;
-                if( $available_ratio < $image_ratio ) {
-                    $pdf->Image('@'.$rc['image']->getImageBlob(), '', '', $w[2], 0, 'JPEG', '', 'C', 2, '150');
-                } else {
-                    $pdf->Image('@'.$rc['image']->getImageBlob(), '', '', 0, 25, 'JPEG', '', 'C', 2, '150');
-                }
-            }
-        }
-        $pdf->Ln();
-        $pdf->SetFont('', '');
-        $pdf->setCellPadding(2);
-        //
-        // Output charity information and signature
-        //
-        $pdf->Cell($w[0]+$w[1], $lh, 'Charity BN/Registration #: ' . $sapos_settings['donation-receipt-charity-number'], 0, 0, 'L', 1);
-
-        $pdf->Cell($w[2], $lh, $sapos_settings['donation-receipt-signing-officer'], 'T', 0, 'R', 1); 
-        $pdf->Ln(10);
-        $pdf->Cell(180, $lh, 'Official ' . $invoice['donation_year'] . ' Donation Receipt for Income Tax Purposes, Canada Revenue Agency: www.cra.gc.ca/charitiesandgiving', 0, 0, 'C', 1);
-        $pdf->Ln(10);
-
-        //
-        // Separator between official receipt and summary for customer to keep
-        //
-        $pdf->Ln(5);
-        $pdf->Cell(180, $lh, 'detach and retain for your records', array('T'=>array('dash'=>4, 'color'=>array(125,125,125))), 0, 'C', 1);
-
-        $pdf->setCellPadding(1);
-        $pdf->Ln(10);
-
-        $pdf->Header();
-        $pdf->Ln(15);
-
-        $w = array(45, 45, 90);
-        $pdf->setCellPadding(0.5);
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Receipt Number:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        $pdf->Cell($w[1], $lh, $invoice['receipt_number'], 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[0])?$addr[0]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Eligible Amount:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        //$pdf->Cell($w[1], $lh, $donation['amount_display'], 0, 0, 'L', 1);
-        $pdf->Cell($w[1], $lh, '$' . number_format($donation_amount, 2), 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[1])?$addr[1]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Date Received:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        $pdf->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[2])?$addr[2]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Date Issued:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-        $pdf->Cell($w[1], $lh, $invoice['invoice_date'], 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[3])?$addr[3]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->SetFont('', 'B');
-        $pdf->Cell($w[0], $lh, 'Location Issued:', 0, 0, 'R', 1);
-        $pdf->SetFont('', '');
-//        $pdf->Cell($w[1], $lh, $donation['location_issued'], 0, 0, 'L', 1);
-        $pdf->Cell($w[1], $lh, $sapos_settings['donation-receipt-location-issued'], 0, 0, 'L', 1);
-        $pdf->Cell($w[2], $lh, (isset($addr[4])?$addr[4]:''), 0, 0, 'L', 1);
-        $pdf->Ln();
-        
-        if( isset($sapos_settings['receipt-thankyou-message']) && $sapos_settings['receipt-thankyou-message'] != '' ) {
-            $pdf->SetFont('', 'B');
-            $pdf->Cell(180, $lh*2, $settings['receipt-thankyou-message'], 0, 0, 'C', 1);
-        } else {
-            $pdf->Cell(180, $lh, '', 0, 0, 'C', 1);
-        }
-        $pdf->SetFont('', '');
-        $pdf->Ln();
-
-        //
-        // Output charity information and signature
-        //
-        $pdf->setCellPadding(2);
-        $pdf->Cell($w[0]+$w[1], $lh, 'Charity BN/Registration #: ' . $sapos_settings['donation-receipt-charity-number'], 0, 0, 'L', 1);
-        $pdf->Ln();
-
-        $pdf->Cell($w[0] + $w[1], $lh, 'Canada Revenue Agency: www.cra.gc.ca/charitiesandgiving', 0, 0, 'L', 1);
-        $pdf->Ln(); 
-
-        */
     }
 
     //
@@ -1065,7 +888,6 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             }
         }
     }
-
 
 
     // ---------------------------------------------------------

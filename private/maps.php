@@ -130,10 +130,11 @@ function ciniki_sapos_maps($ciniki) {
             '50'=>'Manufactured',
             ),
         'donationreceipt_status'=>array(
-            '0'=>'Not Applicable',
+            '0'=>'n/a',
             '20'=>'Pending',
             '40'=>'Printed',
             '60'=>'Mailed',
+            '70'=>'Emailed',
             '80'=>'Received',
             ),
         'preorder_status'=>array(

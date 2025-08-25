@@ -23,13 +23,27 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
     // Apply any rules to the invoice
     //
 
+    //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', '');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.507', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+    
 
     //
     // Get the invoice details
     //
     $strsql = "SELECT invoices.customer_id, invoices.invoice_type, invoices.status, "
         . "invoices.receipt_number, "
-        . "invoices.payment_status, invoices.shipping_status, invoices.manufacturing_status, invoices.preorder_status, "
+        . "invoices.payment_status, "
+        . "invoices.shipping_status, "
+        . "invoices.manufacturing_status, "
+        . "invoices.preorder_status, "
+        . "invoices.donationreceipt_status, "
         . "ROUND(invoices.total_amount, 2) AS total_amount, "
         . "ROUND(invoices.paid_amount, 2) AS paid_amount, "
         . "ROUND(invoices.balance_amount, 2) AS balance_amount, "
@@ -51,6 +65,36 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.27', 'msg'=>'Unable to locate the invoice'));
     }
     $invoice = $rc['invoice'];
+
+    //
+    // Get the list of items for calculating donation amount
+    //
+    $strsql = "SELECT items.id, "
+        . "items.flags, "
+        . "items.quantity, "
+        . "items.unit_donation_amount, "
+        . "items.total_amount "
+        . "FROM ciniki_sapos_invoice_items AS items "
+        . "WHERE items.invoice_id = '" . ciniki_core_dbQuote($ciniki, $invoice_id) . "' "
+        . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.506', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+    }
+    $items = isset($rc['rows']) ? $rc['rows'] : array();
+   
+    $donation_amount = 0;
+    foreach($items as $item) {
+        //
+        // Check for donations
+        //
+        if( ($item['flags']&0x8000) == 0x8000 ) {
+            $donation_amount = bcadd($donation_amount, $item['total_amount'], 6);
+        } elseif( ($item['flags']&0x0800) == 0x0800 ) {
+            $donation_amount = bcadd($donation_amount, ($item['quantity'] * $item['unit_donation_amount']), 6);
+        }
+    }
 
     //
     // Get the customer status
@@ -387,6 +431,16 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
     }
     if( $balance_amount != $invoice['balance_amount'] ) {
         $args['balance_amount'] = $balance_amount;
+    }
+
+    //
+    // Check if donationreceipt_status should be updated
+    //
+    if( $donation_amount > 0 && $donation_amount >= $settings['donation-receipt-minimum-amount'] 
+        && $invoice['donationreceipt_status'] == 0 
+        && ((isset($new_payment_status) && $new_payment_status >= 50) || $invoice['payment_status'] >= 50) 
+        ) {
+        $args['donationreceipt_status'] = 20;
     }
 
     if( count($args) > 0 ) {

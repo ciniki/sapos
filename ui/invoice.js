@@ -49,6 +49,7 @@ function ciniki_sapos_invoice() {
         '20':'Pending',
         '40':'Printed',
         '60':'Mailed',
+        '70':'Emailed',
         '80':'Received',
         };
     this.preorderStatuses = {
@@ -106,11 +107,11 @@ function ciniki_sapos_invoice() {
                 'payment_status_text':{'label':'Payment'},
                 'shipping_status_text':{'label':'Shipping'},
                 'manufacturing_status_text':{'label':'Manufacturing'},
-//                'donationreceipt_status_text':{'label':'Donation Receipt'},
                 'invoice_date':{'label':'Invoice Date'},
                 'due_date':{'label':'Due Date'},
                 'flags_text':{'label':'Options', 'visible':'no'},
                 'submitted_by':{'label':'Submitted By', 'visible':'no'},
+                'receipt_number':{'label':'Receipt #', 'visible':'no'},
                 'stripe_pm_id':{'label':'Stripe PM', 'visible':'no'},
                 }},
             'customer_notes':{'label':'Customer Notes', 'aside':'yes', 'visible':'no', 'type':'html'},
@@ -204,7 +205,7 @@ function ciniki_sapos_invoice() {
             'messages':{'label':'Messages', 'visible':'yes', 'type':'simplegrid', 'num_cols':2,
                 'cellClasses':['multiline', 'multiline'],
                 'addTxt':'Email Customer',
-                'addFn':'M.ciniki_sapos_invoice.emailCustomer(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);',
+                'addFn':'M.ciniki_sapos_invoice.email.open(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.data);',
                 },
             '_buttons':{'label':'', 'buttons':{
                 'shipped':{'label':'Order Shipped', 
@@ -250,6 +251,9 @@ function ciniki_sapos_invoice() {
                     return this.data[i];
                 } 
                 return this.data[i] + ' <span class="subdue">[' + this.data['status_text'] + ']</span>';
+            }
+            if( i == 'receipt_number' ) {
+                return this.data[i] + ' <span class="subdue">[' + this.data['donationreceipt_status_text'] + ']</span>';
             }
             return this.data[i];
         };
@@ -538,12 +542,88 @@ function ciniki_sapos_invoice() {
             '_textmsg':{'label':'Message', 'fields':{
                 'textmsg':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large', 'history':'no'},
                 }},
+            '_attach':{'label':'', 'fields':{
+                'attach':{'label':'Attach', 'type':'toggle', 'default':'invoice-donationreceipt', 'toggles':[]},
+                }},
             '_buttons':{'label':'', 'buttons':{
-                'send':{'label':'Send', 'fn':'M.ciniki_sapos_invoice.sendEmail();'},
+                'send':{'label':'Send', 'fn':'M.ciniki_sapos_invoice.email.send();'},
                 }},
         };
         this.email.fieldValue = function(s, i, d) {
             return this.data[i];
+        };
+        this.email.open = function(cb, invoice) {
+            this.invoice_id = invoice.id;
+            this.data.subject = 'Invoice #' + invoice.invoice_number;
+            if( M.curTenant.sapos.settings['invoice-email-message'] != null ) {
+                this.data.textmsg = M.curTenant.sapos.settings['invoice-email-message'];
+            } else {
+                this.data.textmsg = 'Please find your invoice attached.';
+            }
+            if( invoice.invoice_type == 20 ) {
+                this.data.subject = 'Shopping Cart #' + invoice.invoice_number;
+                if( M.curTenant.sapos.settings['cart-email-message'] != null ) {
+                    this.data.textmsg = M.curTenant.sapos.settings['cart-email-message'];
+                } 
+            } else if( invoice.invoice_type == 30 ) {
+                this.data.subject = 'Receipt #' + invoice.invoice_number;
+                if( M.curTenant.sapos.settings['pos-email-message'] != null ) {
+                    this.data.textmsg = M.curTenant.sapos.settings['pos-email-message'];
+                } 
+            } else if( invoice.invoice_type == 40 ) {
+                this.data.subject = 'Order #' + invoice.invoice_number;
+                if( M.curTenant.sapos.settings['order-email-message'] != null ) {
+                    this.data.textmsg = M.curTenant.sapos.settings['order-email-message'];
+                } 
+            } else if( invoice.invoice_type == 90 ) {
+                this.data.subject = 'Quote #' + invoice.invoice_number;
+                if( M.curTenant.sapos.settings['quote-email-message'] != null ) {
+                    this.data.textmsg = M.curTenant.sapos.settings['quote-email-message'];
+                } 
+            }
+            this.sections._attach.fields.attach.toggles = {'invoice':'Invoice'};
+            this.sections._attach.fields.attach['default'] = 'invoice';
+            if( M.ciniki_sapos_invoice.invoice.data.donationreceipt_status >= 20 ) {
+                if( M.modSettingSet('ciniki.sapos','donation-receipt-invoice-include') == 'yes' ) {
+                    this.sections._attach.fields.attach.toggles = {
+                        'invoice-donationreceipt':'Invoice & Donation Receipt',
+                        'invoice':'Invoice',
+                        'donationreceipt':'Donation Receipt',
+                        };
+                    this.sections._attach.fields.attach['default'] = 'invoice-donationreceipt';
+                } else {
+                    this.sections._attach.fields.attach.toggles = {
+                        'invoice':'Invoice',
+                        'donationreceipt':'Donation Receipt',
+                        };
+                }
+            }
+            this.refresh();
+            this.show(cb);
+        };
+        this.email.send = function() {
+            var subject = this.formFieldValue(this.sections._subject.fields.subject, 'subject');
+            var textmsg = this.formFieldValue(this.sections._textmsg.fields.textmsg, 'textmsg');
+            var attach = this.formFieldValue(this.sections._attach.fields.attach, 'attach');
+            if( attach == 'donationreceipt' ) {
+                M.api.getJSONCb('ciniki.sapos.donationPDF', {'tnid':M.curTenantID, 
+                    'invoice_id':this.invoice_id, 'subject':subject, 'textmsg':textmsg, 'output':'pdf', 'email':'yes'}, function(rsp) {
+                        if( rsp.stat != 'ok' ) {
+                            M.api.err(rsp);
+                            return false;
+                        }
+                        M.ciniki_sapos_invoice.email.close();
+                    });
+            } else {
+                M.api.getJSONCb('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 
+                    'invoice_id':this.invoice_id, 'subject':subject, 'textmsg':textmsg, 'output':'pdf', 'email':'yes', 'email_attach':attach}, function(rsp) {
+                        if( rsp.stat != 'ok' ) {
+                            M.api.err(rsp);
+                            return false;
+                        }
+                        M.ciniki_sapos_invoice.email.close();
+                    });
+            }
         };
         this.email.addClose('Cancel');
 
@@ -1745,6 +1825,7 @@ function ciniki_sapos_invoice() {
         p.sections.details.list.flags_text.visible=(rsp.invoice.flags>0)?'yes':'no';
         p.sections.details.list.po_number.visible=(rsp.invoice.po_number!='')?'yes':'no';
         p.sections.details.list.submitted_by.visible=(rsp.invoice.submitted_by!='')?'yes':'no';
+        p.sections.details.list.receipt_number.visible=(rsp.invoice.receipt_number!='')?'yes':'no';
         if( M.curTenant.sapos.settings['rules-invoice-submit-require-po_number']
             && M.curTenant.sapos.settings['rules-invoice-submit-require-po_number'] == 'yes' ) {
             // Force visible if required field
@@ -2092,52 +2173,6 @@ function ciniki_sapos_invoice() {
 //      window.open(M.api.getUploadURL('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 'invoice_id':iid}));
 //        M.api.openPDF('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 'invoice_id':iid});
         M.showPDF('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 'invoice_id':iid});
-    };
-
-    this.emailCustomer = function(cb, invoice) {
-        this.email.invoice_id = invoice.id;
-        this.email.data.subject = 'Invoice #' + invoice.invoice_number;
-        if( M.curTenant.sapos.settings['invoice-email-message'] != null ) {
-            this.email.data.textmsg = M.curTenant.sapos.settings['invoice-email-message'];
-        } else {
-            this.email.data.textmsg = 'Please find your invoice attached.';
-        }
-        if( invoice.invoice_type == 20 ) {
-            this.email.data.subject = 'Shopping Cart #' + invoice.invoice_number;
-            if( M.curTenant.sapos.settings['cart-email-message'] != null ) {
-                this.email.data.textmsg = M.curTenant.sapos.settings['cart-email-message'];
-            } 
-        } else if( invoice.invoice_type == 30 ) {
-            this.email.data.subject = 'Receipt #' + invoice.invoice_number;
-            if( M.curTenant.sapos.settings['pos-email-message'] != null ) {
-                this.email.data.textmsg = M.curTenant.sapos.settings['pos-email-message'];
-            } 
-        } else if( invoice.invoice_type == 40 ) {
-            this.email.data.subject = 'Order #' + invoice.invoice_number;
-            if( M.curTenant.sapos.settings['order-email-message'] != null ) {
-                this.email.data.textmsg = M.curTenant.sapos.settings['order-email-message'];
-            } 
-        } else if( invoice.invoice_type == 90 ) {
-            this.email.data.subject = 'Quote #' + invoice.invoice_number;
-            if( M.curTenant.sapos.settings['quote-email-message'] != null ) {
-                this.email.data.textmsg = M.curTenant.sapos.settings['quote-email-message'];
-            } 
-        }
-        this.email.refresh();
-        this.email.show(cb);
-    };
-
-    this.sendEmail = function() {
-        var subject = this.email.formFieldValue(this.email.sections._subject.fields.subject, 'subject');
-        var textmsg = this.email.formFieldValue(this.email.sections._textmsg.fields.textmsg, 'textmsg');
-        M.api.getJSONCb('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 
-            'invoice_id':this.email.invoice_id, 'subject':subject, 'textmsg':textmsg, 'output':'pdf', 'email':'yes'}, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
-                }
-                M.ciniki_sapos_invoice.email.close();
-            });
     };
 
     this.printQuote = function(iid) {

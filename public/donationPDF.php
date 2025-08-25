@@ -105,7 +105,7 @@ function ciniki_sapos_donationPDF(&$ciniki) {
         //
         // Email the pdf to the customer
         //
-        $filename = "receipt_{$invoice['receipt_number']}.pdf";
+        $filename = "donationreceipt_{$invoice['receipt_number']}.pdf";
         $pdf = $rc['pdf'];
 
         //
@@ -233,7 +233,7 @@ function ciniki_sapos_donationPDF(&$ciniki) {
     //
     // Output the pdf
     //
-    $rc['pdf']->Output('receipt_' . $invoice['receipt_number'] . '.pdf', 'I');
+    $rc['pdf']->Output('donationreceipt_' . $invoice['receipt_number'] . '.pdf', 'I');
 
     return array('stat'=>'exit');
 }
