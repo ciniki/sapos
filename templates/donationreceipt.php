@@ -108,6 +108,9 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
                 if( $this->header_image != null ) {
                     $height = $this->header_image->getImageHeight();
                     $width = $this->header_image->getImageWidth();
+                    if( $width > 600 ) {
+                        $this->header_image->scaleImage(600, 0);
+                    }
                     $image_ratio = $width/$height;
                     if( count($this->header_addr) == 0 && $this->header_name == '' ) {
                         $img_width = 180;
@@ -123,12 +126,12 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
                     // and scaled based on either height or width.
                     if( $available_ratio < $image_ratio ) {
                         $this->Image('@'.$this->header_image->getImageBlob(), 15, ($this->getY() + 7), 
-                            $img_width, 0, 'JPEG', '', 'L', 2, '150');
+                            $img_width, 0, '', '', 'L', 2, '150');
                     } else {
                         $this->Image('@'.$this->header_image->getImageBlob(), 15, ($this->getY() + 7), 
-                            0, $this->header_height-5, 'JPEG', '', 'L', 2, '150');
+                            0, $this->header_height-5, '', '', 'L', 2, '150');
     //                    $this->Image('@'.$this->header_image->getImageBlob(), 15, ($this->getY() + 12), 
-    //                        0, $this->header_height-5, 'JPEG', '', 'L', 2, '150', '', false, false, 1);
+    //                        0, $this->header_height-5, '', '', 'L', 2, '150', '', false, false, 1);
                     }
                 }
 
@@ -447,14 +450,17 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
             if( $rc['stat'] == 'ok' ) {
                 $height = $rc['image']->getImageHeight();
                 $width = $rc['image']->getImageWidth();
+                if( $width > 800 ) {
+                    $this->header_image->scaleImage(800, 0);
+                }
                 $image_ratio = $width/$height;
                 $available_ratio = $w[2]/25;
                 if( $available_ratio < $image_ratio ) {
-                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), '', '', $w[2], 0, 'JPEG', '', 'C', 2, '150');
+                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), '', '', $w[2], 0, '', '', 'C', 2, '150');
                 } else {
                     $left_padding = floor(($w[2] - ceil($image_ratio * 25))/2);
-                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), 115 + $left_padding, '', 0, 25, 'JPEG', '', 'C', 0, '150', '', false, false, 0, true);
-//                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), $args['pdf']->getX() + $left_padding, '', 0, 25, 'JPEG', '', 'C', 2, '150', '', false, false, 1);
+                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), 115 + $left_padding, '', 0, 25, '', '', 'C', 0, '150', '', false, false, 0, true);
+//                    $args['pdf']->Image('@'.$rc['image']->getImageBlob(), $args['pdf']->getX() + $left_padding, '', 0, 25, '', '', 'C', 2, '150', '', false, false, 1);
                 }
             }
         }

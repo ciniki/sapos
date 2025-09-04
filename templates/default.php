@@ -63,6 +63,9 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             if( $this->header_image != null ) {
                 $height = $this->header_image->getImageHeight();
                 $width = $this->header_image->getImageWidth();
+                if( $width > 600 ) {
+                    $this->header_image->scaleImage(600, 0);
+                }
                 $image_ratio = $width/$height;
                 if( count($this->header_addr) == 0 && $this->header_name == '' ) {
                     $img_width = 180;
@@ -78,10 +81,10 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
                 // and scaled based on either height or width.
                 if( $available_ratio < $image_ratio ) {
                     $this->Image('@'.$this->header_image->getImageBlob(), 18, ($this->getY() + 7), 
-                        $img_width, 0, 'JPEG', '', 'L', 2, '150');
+                        $img_width, 0, '', '', 'L', 2, '150');
                 } else {
                     $this->Image('@'.$this->header_image->getImageBlob(), 18, ($this->getY() + 7), 
-                        0, $this->header_height-5, 'JPEG', '', 'L', 2, '150');
+                        0, $this->header_height-5, '', '', 'L', 2, '150');
                 }
             }
 

@@ -59,10 +59,10 @@ function ciniki_sapos_templates_packingslip(&$ciniki, $tnid, $shipment_id, $tena
                 // and scaled based on either height or width.
                 if( $available_ratio < $image_ratio ) {
                     $this->Image('@'.$this->header_image->getImageBlob(), 15, 12, 
-                        $img_width, 0, 'JPEG', '', 'L', 2, '150');
+                        $img_width, 0, '', '', 'L', 2, '150');
                 } else {
                     $this->Image('@'.$this->header_image->getImageBlob(), 15, 12, 
-                        0, $this->header_height-5, 'JPEG', '', 'L', 2, '150');
+                        0, $this->header_height-5, '', '', 'L', 2, '150');
                 }
             }
 
