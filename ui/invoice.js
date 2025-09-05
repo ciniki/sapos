@@ -1448,7 +1448,7 @@ function ciniki_sapos_invoice() {
         this.edit.sections.details.fields.status.options = this.invoiceStatuses;
         this.edit.sections.details.fields.payment_status.options = this.paymentStatuses;
         this.edit.sections.details.fields.shipping_status.options = this.shippingStatuses;
-        this.edit.sections.shipping.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x400040)>0)?'yes':'no';
+        this.edit.sections.shipping.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x20400040)>0)?'yes':'no';
         this.edit.sections.work.active = ((M.curTenant.modules['ciniki.sapos'].flags&0x020000)>0)?'yes':'no';
 
         //
