@@ -11,7 +11,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_sapos_lookupObjects(&$ciniki, $tnid, $objects) {
+function ciniki_sapos_lookupObjects(&$ciniki, $tnid, $objects, $customer_id = 0) {
     $items = array();
     foreach($objects as $o => $object) {
         list($pkg, $mod, $obj) = explode('.', $object['object']);
@@ -37,6 +37,9 @@ function ciniki_sapos_lookupObjects(&$ciniki, $tnid, $objects) {
         //
         if( !isset($object['object_id']) && isset($object['id']) ) {
             $object['object_id'] = $object['id'];
+        }
+        if( $customer_id > 0 ) {
+            $object['customer_id'] = $customer_id;
         }
         $rc = $lookup_function($ciniki, $tnid, $object);
         if( $rc['stat'] == 'warn' ) {   
