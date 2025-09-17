@@ -70,7 +70,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
                 if( count($this->header_addr) == 0 && $this->header_name == '' ) {
                     $img_width = 180;
                 } else {
-                    $img_width = 120;
+                    $img_width = 90;
                     $name_width = $this->getStringWidth($this->header_name, 'times', 'B', 20);
                     if( $name_width > 60 ) {
                         $img_width = 180 - $name_width - 10;
