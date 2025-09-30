@@ -436,7 +436,9 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
     //
     // Check if donationreceipt_status should be updated
     //
-    if( $donation_amount > 0 && $donation_amount >= $settings['donation-receipt-minimum-amount'] 
+    if( $donation_amount > 0 
+        && isset($settings['donation-receipt-minimum-amount']) 
+        && $donation_amount >= $settings['donation-receipt-minimum-amount'] 
         && $invoice['donationreceipt_status'] == 0 
         && ((isset($new_payment_status) && $new_payment_status >= 50) || $invoice['payment_status'] >= 50) 
         ) {
