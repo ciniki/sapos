@@ -39,6 +39,9 @@ function ciniki_sapos_wng_process(&$ciniki, $tnid, &$request, $section) {
     } elseif( $section['ref'] == 'ciniki.sapos.donationcards' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'donationCardsProcess');
         return ciniki_sapos_wng_donationCardsProcess($ciniki, $tnid, $request, $section);
+    } elseif( $section['ref'] == 'ciniki.sapos.donationbuttons' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'donationButtonsProcess');
+        return ciniki_sapos_wng_donationButtonsProcess($ciniki, $tnid, $request, $section);
     }
 
     return array('stat'=>'ok');
