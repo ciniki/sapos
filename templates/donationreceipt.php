@@ -451,7 +451,7 @@ function ciniki_sapos_templates_donationreceipt(&$ciniki, $tnid, $args) {
                 $height = $rc['image']->getImageHeight();
                 $width = $rc['image']->getImageWidth();
                 if( $width > 800 ) {
-                    $this->header_image->scaleImage(800, 0);
+                    $args['pdf']->header_image->scaleImage(800, 0);
                 }
                 $image_ratio = $width/$height;
                 $available_ratio = $w[2]/25;
