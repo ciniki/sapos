@@ -325,6 +325,8 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         $strsql = "SELECT invoices.id, "
             . "invoices.invoice_type, "
             . "invoices.invoice_number, "
+            . "invoices.receipt_number, "
+            . "invoices.donationreceipt_status, "
             . "invoices.invoice_date, "
             . "invoices.invoice_date AS sort_date, "
             . "invoices.status, "
@@ -355,8 +357,12 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
             array('container'=>'invoices', 'fname'=>'id', 
-                'fields'=>array('id', 'invoice_number', 'invoice_date', 'sort_date', 'status', 'status_text'),
-                'maps'=>array('status_text'=>$maps['invoice']['typestatus']),
+                'fields'=>array('id', 'invoice_number', 'receipt_number', 'donationreceipt_status', 
+                    'invoice_date', 'sort_date', 'status', 'status_text',
+                    ),
+                'maps'=>array('status_text'=>$maps['invoice']['typestatus'],
+                    'donationreceipt_status'=>$maps['invoice']['donationreceipt_status'],
+                    ),
                 'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
                 ), 
             array('container'=>'items', 'fname'=>'item_id', 
@@ -369,6 +375,9 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         $invoices = isset($rc['invoices']) ? $rc['invoices'] : array();
         foreach($invoices as $iid => $invoice) {
             $invoices[$iid]['donation_amount'] = 0;
+            if( $invoice['donationreceipt_status'] != '' ) {
+                $invoices[$iid]['receipt_number'] .= ' <span class="subdue">[' . $invoice['donationreceipt_status'] . ']</span>';
+            }
             if( isset($invoice['items']) ) {
                 foreach($invoice['items'] as $item) {
                     if( ($item['flags']&0x0800) == 0x0800 ) {
@@ -383,8 +392,8 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
         $donations = array(
             'label' => 'Donations',
             'type' => 'simplegrid', 
-            'num_cols' => 4,
-            'headerValues' => array('Invoice #', 'Date', 'Amount', 'Status'),
+            'num_cols' => 5,
+            'headerValues' => array('Invoice #', 'Receipt #', 'Date', 'Amount', 'Status'),
             'cellClasses' => array('', ''),
             'noData' => 'No donations',
             'addTxt' => 'Add Invoice',
@@ -395,12 +404,13 @@ function ciniki_sapos_hooks_uiCustomersData($ciniki, $tnid, $args) {
             'editApp' => array('app'=>'ciniki.sapos.invoice', 'args'=>array('invoice_id'=>'d.id;')),
             'data' => $invoices,
             'sortable' => 'yes',
-            'sortTypes' => array('number', 'date', 'number', 'text'),
+            'sortTypes' => array('number', 'number', 'date', 'number', 'text'),
             'cellValues' => array(
                 '0' => 'd.invoice_number;',
-                '1' => 'd.invoice_date;',
-                '2' => 'd.donation_amount;',
-                '3' => 'd.status_text;',
+                '1' => 'd.receipt_number;',
+                '2' => 'd.invoice_date;',
+                '3' => 'd.donation_amount;',
+                '4' => 'd.status_text;',
                 ),
             );
         $rsp['tabs'][] = array(
