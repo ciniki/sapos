@@ -37,6 +37,16 @@ function ciniki_sapos_transactionGet(&$ciniki) {
     $modules = $rc['modules'];
 
     //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', '');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.512', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+
+    //
     // Get tenant/user settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
@@ -59,13 +69,21 @@ function ciniki_sapos_transactionGet(&$ciniki) {
             'id' => 0,
             'status' => 40,
             'transaction_type' => 20,
-            'course' => 0,
+            'sourse' => 0,
             'transaction_date' => $dt->format($datetime_format),
             'customer_amount' => '',
             'transaction_fees' => '',
             'tenant_amount' => '',
             'notes' => '',
             );
+
+        //
+        // Check if etransfer checkout enabled
+        //
+        if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x40000000) ) {
+            $transaction['source'] = 110;
+        }
+
         //
         // Lookup invoice if specified
         //

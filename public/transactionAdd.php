@@ -84,6 +84,37 @@ function ciniki_sapos_transactionAdd(&$ciniki) {
         $args['tenant_amount'] = bcsub($args['customer_amount'], $args['transaction_fees'], 4);
     }
 
+    //
+    // Load the invoice and check invoice type
+    //
+    $strsql = "SELECT invoices.id, "
+        . "invoices.invoice_type "
+        . "FROM ciniki_sapos_invoices AS invoices "
+        . "WHERE invoices.id = '" . ciniki_core_dbQuote($ciniki, $args['invoice_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.509', 'msg'=>'Unable to load invoice', 'err'=>$rc['err']));
+    }
+    if( !isset($rc['invoice']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.510', 'msg'=>'Unable to find requested invoice'));
+    }
+    $invoice = $rc['invoice'];
+   
+    //
+    // Check if cart and switch to invoice
+    //
+    if( $invoice['invoice_type'] == 20 ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+        $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.sapos.invoice', $invoice['id'], [
+            'invoice_type' => 10,
+            ], 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.511', 'msg'=>'Unable to update the invoice', 'err'=>$rc['err']));
+        }
+    }
+
     $args['gateway'] = '';
     $args['gateway_token'] = '';
     $args['gateway_status'] = '';
