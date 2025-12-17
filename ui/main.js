@@ -566,7 +566,7 @@ function ciniki_sapos_main() {
     this.transactions.cellValue = function(s, i, j, d) {
         if( s == 'transactions' ) {
             switch(j) {
-                case 0: return d.transaction_type;
+                case 0: return d.transaction_type_text;
                 case 1: return d.source_text;
                 case 2: return d.transaction_date;
                 case 3: return d.invoice_number;

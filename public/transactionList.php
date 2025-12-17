@@ -96,6 +96,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
         . "t.status AS transaction_status, "
         . "t.status AS status_text, "
         . "t.transaction_type, "
+        . "t.transaction_type AS transaction_type_text, "
         . "t.transaction_date, "
         . "t.source, "
         . "t.source AS source_text, "
@@ -168,14 +169,15 @@ function ciniki_sapos_transactionList(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $container = array(
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
-            'fields'=>array('id', 'transaction_status', 'status_text', 'transaction_type', 'transaction_date', 'source', 'source_text',
+            'fields'=>array('id', 'transaction_status', 'status_text', 
+                'transaction_type', 'transaction_type_text', 'transaction_date', 'source', 'source_text',
                 'customer_display_name', 
                 'customer_amount', 'transaction_fees', 'tenant_amount', 'invoice_number', 'invoice_date', 'invoice_status', 'notes'),
             'maps'=>array(
                 'status_text'=>$maps['transaction']['status'],
                 'source_text'=>$maps['transaction']['source'],
                 'invoice_status'=>$maps['invoice']['status'],
-                'transaction_type'=>$maps['transaction']['transaction_type'],
+                'transaction_type_text'=>$maps['transaction']['transaction_type'],
                 ),
             'utctotz'=>array(
                 'transaction_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format),
@@ -200,9 +202,18 @@ function ciniki_sapos_transactionList(&$ciniki) {
         $rsp['transactions'][$tid]['customer_amount_display'] = numfmt_format_currency($intl_currency_fmt, $transaction['customer_amount'], $intl_currency);
         $rsp['transactions'][$tid]['transaction_fees_display'] = numfmt_format_currency($intl_currency_fmt, $transaction['transaction_fees'], $intl_currency);
         $rsp['transactions'][$tid]['tenant_amount_display'] = numfmt_format_currency($intl_currency_fmt, $transaction['tenant_amount'], $intl_currency);
-        $rsp['totals']['customer_amount'] = bcadd($rsp['totals']['customer_amount'], $transaction['customer_amount'], 2);
-        $rsp['totals']['transaction_fees'] = bcadd($rsp['totals']['transaction_fees'], $transaction['transaction_fees'], 2);
-        $rsp['totals']['tenant_amount'] = bcadd($rsp['totals']['tenant_amount'], $transaction['tenant_amount'], 2);
+        if( $transaction['transaction_type'] == 60 ) {
+            $rsp['transactions'][$tid]['customer_amount_display'] = '-' . $rsp['transactions'][$tid]['customer_amount_display'];
+            $rsp['transactions'][$tid]['transaction_fees_display'] = '-' . $rsp['transactions'][$tid]['transaction_fees_display'];
+            $rsp['transactions'][$tid]['tenant_amount_display'] = '-' . $rsp['transactions'][$tid]['tenant_amount_display'];
+            $rsp['totals']['customer_amount'] = bcsub($rsp['totals']['customer_amount'], $transaction['customer_amount'], 2);
+            $rsp['totals']['transaction_fees'] = bcsub($rsp['totals']['transaction_fees'], $transaction['transaction_fees'], 2);
+            $rsp['totals']['tenant_amount'] = bcsub($rsp['totals']['tenant_amount'], $transaction['tenant_amount'], 2);
+        } else {
+            $rsp['totals']['customer_amount'] = bcadd($rsp['totals']['customer_amount'], $transaction['customer_amount'], 2);
+            $rsp['totals']['transaction_fees'] = bcadd($rsp['totals']['transaction_fees'], $transaction['transaction_fees'], 2);
+            $rsp['totals']['tenant_amount'] = bcadd($rsp['totals']['tenant_amount'], $transaction['tenant_amount'], 2);
+        }
     }
 
     $rsp['totals']['customer_amount_display'] = numfmt_format_currency($intl_currency_fmt, $rsp['totals']['customer_amount'], $intl_currency);
