@@ -423,10 +423,11 @@ function ciniki_sapos_invoiceUpdateStatusBalance(&$ciniki, $tnid, $invoice_id) {
 
     $balance_amount = bcsub($invoice['total_amount'], $amount_paid, 2);
     //
-    // Only remove if NOT giving a full refund
-    // Full refunds are handled differently above
+    // Note: Dec 2025 - Not sure why this note is here, it causes problems when refunding full amount.
+    // OLD: Only remove if NOT giving a full refund, Full refunds are handled differently above
     //
-    if( $amount_refunded != $amount_paid ) {
+//    OLD: if( $amount_refunded != $amount_paid ) {
+    if( $amount_refunded != 0 ) {
         $balance_amount = bcadd($balance_amount, $amount_refunded, 2);
     }
     if( $balance_amount != $invoice['balance_amount'] ) {
