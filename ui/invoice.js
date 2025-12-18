@@ -1104,7 +1104,7 @@ function ciniki_sapos_invoice() {
                 'transaction_date':{'label':'Date', 'type':'text', 'size':'medium'},
                 'source':{'label':'Source', 'type':'select', 'options':M.ciniki_sapos_invoice.transactionSources},
                 'customer_amount':{'label':'Customer Amount', 'type':'text', 'size':'small'},
-                'transaction_fees':{'label':'Fees', 'type':'text', 'size':'small'},
+                'transaction_fees':{'label':'Stripe Fees', 'type':'text', 'size':'small'},
                 'tenant_amount':{'label':'Business Amount', 'type':'text', 'size':'small'},
                 }},
             '_notes':{'label':'Notes', 'fields':{
@@ -1138,6 +1138,17 @@ function ciniki_sapos_invoice() {
                     }
                     var p = M.ciniki_sapos_invoice.transaction;
                     p.data = rsp.transaction;
+                    if( M.modFlagOn('ciniki.sapos', 0x800000) 
+                        || rsp.transaction.transaction_fees > 0
+                        ) {
+                        p.sections.details.fields.customer_amount.label = 'Customer Amount';
+                        p.sections.details.fields.transaction_fees.visible = 'yes';
+                        p.sections.details.fields.tenant_amount.visible = 'yes';
+                    } else {
+                        p.sections.details.fields.customer_amount.label = 'Amount';
+                        p.sections.details.fields.transaction_fees.visible = 'no';
+                        p.sections.details.fields.tenant_amount.visible = 'no';
+                    }
                     if( amount != null && amount != '' ) { 
                         p.data.customer_amount = amount;
                     }

@@ -578,6 +578,12 @@ function ciniki_sapos_main() {
             }
         }
     }
+    this.transactions.cellFn = function(s, i, j, d) {
+        if( j == 3 ) {
+            return 'event.stopPropagation();M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.transactions.open();\',\'mc\',{\'invoice_id\':\'' + d.invoice_id + '\'});';
+        }
+        return '';
+    }
     this.transactions.rowFn = function(s, i, d) {
         if( d == null ) {
             return '';
@@ -668,8 +674,8 @@ function ciniki_sapos_main() {
             'transaction_date':{'label':'Date', 'type':'text', 'size':'medium'},
             'source':{'label':'Source', 'type':'select', 'options':this.transactionSources},
             'customer_amount':{'label':'Customer Amount', 'type':'text', 'size':'small'},
-            'transaction_fees':{'label':'Fees', 'type':'text', 'size':'small'},
-            'tenant_amount':{'label':'Tenant Amount', 'type':'text', 'size':'small'},
+            'transaction_fees':{'label':'Stripe Fees', 'type':'text', 'size':'small', 'visible':'yes'},
+            'tenant_amount':{'label':'Tenant Amount', 'type':'text', 'size':'small', 'visible':'yes'},
             }},
         '_notes':{'label':'Notes', 'fields':{
             'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -687,6 +693,7 @@ function ciniki_sapos_main() {
         return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
             'object':'ciniki.sapos.transaction', 'object_id':this.transaction_id, 'field':i}};
     }
+    // FIXME: this is duplicated in ui/invoices.js
     this.transaction.open = function(cb, tid, inid, date, amount) {
         if( tid != null ) { this.transaction_id = tid; }
         if( inid != null ) { this.invoice_id = inid; }
@@ -698,6 +705,17 @@ function ciniki_sapos_main() {
                 }
                 var p = M.ciniki_sapos_main.transaction;
                 p.data = rsp.transaction;
+                if( M.modFlagOn('ciniki.sapos', 0x800000) 
+                    || rsp.transaction.transaction_fees > 0
+                    ) {
+                    p.sections.details.fields.customer_amount.label = 'Customer Amount';
+                    p.sections.details.fields.transaction_fees.visible = 'yes';
+                    p.sections.details.fields.tenant_amount.visible = 'yes';
+                } else {
+                    p.sections.details.fields.customer_amount.label = 'Amount';
+                    p.sections.details.fields.transaction_fees.visible = 'no';
+                    p.sections.details.fields.tenant_amount.visible = 'no';
+                }
                 p.sections._buttons.buttons.delete.visible='yes';
                 p.refresh();
                 p.show(cb);

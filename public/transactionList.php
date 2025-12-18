@@ -92,33 +92,34 @@ function ciniki_sapos_transactionList(&$ciniki) {
     //
     // Get the list of transactions
     //
-    $strsql = "SELECT t.id, "
-        . "t.status AS transaction_status, "
-        . "t.status AS status_text, "
-        . "t.transaction_type, "
-        . "t.transaction_type AS transaction_type_text, "
-        . "t.transaction_date, "
-        . "t.source, "
-        . "t.source AS source_text, "
-        . "t.customer_amount, "
-        . "t.transaction_fees, "
-        . "t.tenant_amount, "
-        . "t.notes, "
-        . "i.invoice_number, "
-        . "i.invoice_date, "
-        . "i.status AS invoice_status, "
-        . "c.display_name AS customer_display_name "
-        . "FROM ciniki_sapos_transactions AS t "
-        . "LEFT JOIN ciniki_sapos_invoices AS i ON ("
-            . "t.invoice_id = i.id "
-            . "AND i.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+    $strsql = "SELECT transactions.id, "
+        . "transactions.status AS transaction_status, "
+        . "transactions.status AS status_text, "
+        . "transactions.transaction_type, "
+        . "transactions.transaction_type AS transaction_type_text, "
+        . "transactions.transaction_date, "
+        . "transactions.source, "
+        . "transactions.source AS source_text, "
+        . "transactions.customer_amount, "
+        . "transactions.transaction_fees, "
+        . "transactions.tenant_amount, "
+        . "transactions.notes, "
+        . "invoices.id AS invoice_id, "
+        . "invoices.invoice_number, "
+        . "invoices.invoice_date, "
+        . "invoices.status AS invoice_status, "
+        . "customers.display_name AS customer_display_name "
+        . "FROM ciniki_sapos_transactions AS transactions "
+        . "LEFT JOIN ciniki_sapos_invoices AS invoices ON ("
+            . "transactions.invoice_id = invoices.id "
+            . "AND transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "LEFT JOIN ciniki_customers AS c ON ("
-            . "i.customer_id = c.id "
-            . "AND c.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "LEFT JOIN ciniki_customers AS customers ON ("
+            . "invoices.customer_id = customers.id "
+            . "AND customers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE t.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-        . "AND t.status >= 40 "
+        . "WHERE transactions.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "AND transactions.status >= 40 "
         . "";
     if( isset($args['year']) && $args['year'] != '' ) {
         //
@@ -159,8 +160,8 @@ function ciniki_sapos_transactionList(&$ciniki) {
         //
         // Add to SQL string
         //
-        $strsql .= "AND t.transaction_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
-        $strsql .= "AND t.transaction_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
+        $strsql .= "AND transactions.transaction_date >= '" . $start_date->format('Y-m-d H:i:s') . "' ";
+        $strsql .= "AND transactions.transaction_date < '" . $end_date->format('Y-m-d H:i:s') . "' ";
     }
 
     if( isset($args['limit']) && is_numeric($args['limit']) && $args['limit'] > 0 ) {
@@ -169,7 +170,7 @@ function ciniki_sapos_transactionList(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $container = array(
         array('container'=>'transactions', 'fname'=>'id', 'name'=>'transaction',
-            'fields'=>array('id', 'transaction_status', 'status_text', 
+            'fields'=>array('id', 'invoice_id', 'transaction_status', 'status_text', 
                 'transaction_type', 'transaction_type_text', 'transaction_date', 'source', 'source_text',
                 'customer_display_name', 
                 'customer_amount', 'transaction_fees', 'tenant_amount', 'invoice_number', 'invoice_date', 'invoice_status', 'notes'),
