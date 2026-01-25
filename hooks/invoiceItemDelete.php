@@ -102,7 +102,7 @@ function ciniki_sapos_hooks_invoiceItemDelete($ciniki, $tnid, $args) {
         if( $rc['stat'] == 'ok' ) {
             $fn = $rc['function_call'];
             $rc = $fn($ciniki, $tnid, $item['invoice_id'], $item);
-            if( $rc['stat'] != 'ok' ) {
+            if( $rc['stat'] != 'ok' && $rc['stat'] != 'updated' && $rc['stat'] != 'blocked' ) {
                 return $rc;
             }
         }

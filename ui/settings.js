@@ -2013,7 +2013,7 @@ function ciniki_sapos_settings() {
         //
         this.invoice.sections._invoice_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x01)>0?'yes':'no';
         this.invoice.sections._invoice_email_options.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x01)>0&&(M.userPerms&0x01)==0x01?'yes':'no';
-        this.invoice.sections._cart_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x04)>0?'yes':'no';
+        this.invoice.sections._cart_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x800004)>0?'yes':'no';
         this.invoice.sections._pos_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x10)>0?'yes':'no';
         this.invoice.sections._order_email_msg.active=M.curTenant.modules['ciniki.mail']!=null&&(M.curTenant.modules['ciniki.sapos'].flags&0x20)>0?'yes':'no';
         this.quote.sections._textmsg.active=M.curTenant.modules['ciniki.mail']!=null?'yes':'no';
