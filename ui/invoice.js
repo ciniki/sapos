@@ -1868,7 +1868,7 @@ function ciniki_sapos_invoice() {
         }
         // Must be owner/employee/sysadmin to add/edit customers
         p.rightbuttons = {};
-        if( rsp.invoice.status < 45 || M.curTenant.permissions.owners != null ) {
+        if( rsp.invoice.status < 45 || (M.curTenant.sapos.settings['rules-invoice-paid-change-items'] != null && M.curTenant.sapos.settings['rules-invoice-paid-change-items'] == 'yes') ) {
             p.addButton('edit', 'Edit', 'M.ciniki_sapos_invoice.editInvoice(\'M.ciniki_sapos_invoice.showInvoice();\',M.ciniki_sapos_invoice.invoice.invoice_id);');
         }
 //        if( rsp.invoice.invoice_type == '10' ) {
