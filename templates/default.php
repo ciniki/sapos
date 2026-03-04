@@ -580,7 +580,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             $border = 'TRL';
         }
         // Check if we need a page break
-        if( $pdf->getY() > ($pdf->getPageHeight() - 30 - $height) ) {
+        if( $height < 150 && $pdf->getY() > ($pdf->getPageHeight() - 30 - $height) ) {
             $pdf->AddPage();
             $pdf->SetFillColor(224);
             $pdf->SetFont('', 'B');
@@ -613,11 +613,14 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         if( isset($item['item']['notes']) && $item['item']['notes'] != '' ) {
             $pdf->SetCellPaddings(7, 0, 2, 2);
             $lh = $pdf->getStringHeight($w[0]-5, $item['item']['notes']);
+            if( $lh > 150 ) {
+                $lh += 5;
+            }
             $pdf->MultiCell($w[0], $lh, $item['item']['notes'], 'LRB', 'L', $fill, 
                 0, '', '', true, 0, false, true, 0, 'T', false);
             $pdf->MultiCell($w[1], $lh, '', 'RBL', 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
-            $pdf->MultiCell($w[2], $lh, '', 'RBL', 'R', $fill, 0, '', '', true, 0, false, true, 0, 'T', false);
-            $pdf->Ln(); 
+            $pdf->MultiCell($w[2], $lh, '', 'RBL', 'R', $fill, 1, '', '', true, 0, false, true, 0, 'T', false);
+//            $pdf->Ln(); 
         }
         $pdf->SetCellPaddings(2, 2, 2, 2);
         $fill=!$fill;
