@@ -828,11 +828,21 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     }
 
     //
+    // Check if donation minimum
+    //
+    $donation_minimum = 25;
+    if( isset($sapos_settings['donation-receipt-minimum-amount']) && $sapos_settings['donation-receipt-minimum-amount'] != '' ) {
+        $donation_minimum = preg_replace("/[^0-9\.]/", '', $sapos_settings['donation-receipt-minimum-amount']);
+    }
+
+    //
     // Check if there is a donation message to be displayed
     //
     if( isset($sapos_settings['donation-invoice-message']) 
         && $sapos_settings['donation-invoice-message'] != '' 
         && $sapos_settings['donation-invoice-message'] != 'null' 
+        && $donation_amount > 0 
+        && $donation_amount >= $donation_minimum
         ) {
         $pdf->SetFont('');
         $pdf->MultiCell(180, 5, $sapos_settings['donation-invoice-message'], 0, 'L',0,1,'','',true,0,true);
@@ -841,10 +851,6 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     //
     // Check if there is a donation receipt to attached
     //
-    $donation_minimum = 25;
-    if( isset($sapos_settings['donation-receipt-minimum-amount']) && $sapos_settings['donation-receipt-minimum-amount'] != '' ) {
-        $donation_minimum = preg_replace("/[^0-9\.]/", '', $sapos_settings['donation-receipt-minimum-amount']);
-    }
     if( $donation_amount > 0 && $donation_amount >= $donation_minimum
         && (
             $attach == 'invoice-donationreceipt'
