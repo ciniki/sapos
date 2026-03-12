@@ -271,14 +271,20 @@ function ciniki_sapos_transactionList(&$ciniki) {
         foreach($rsp['transactions'] as $tid => $transaction) {
 //            $transaction = $transaction['invoice'];
             $i = 0;
-            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['transaction_type'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['transaction_type_text'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['source_text'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['transaction_date'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['invoice_number'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['customer_display_name'], false);
-            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['customer_amount'], false);
-            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['transaction_fees'], false);
-            $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['tenant_amount'], false);
+            if( $transaction['transaction_type'] == 60 ) {
+                $sheet->setCellValueByColumnAndRow($i++, $row, '-' . $transaction['customer_amount'], false);
+                $sheet->setCellValueByColumnAndRow($i++, $row, '-' . $transaction['transaction_fees'], false);
+                $sheet->setCellValueByColumnAndRow($i++, $row, '-' . $transaction['tenant_amount'], false);
+            } else {
+                $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['customer_amount'], false);
+                $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['transaction_fees'], false);
+                $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['tenant_amount'], false);
+            }
             if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x080000) ) {
                 $sheet->setCellValueByColumnAndRow($i++, $row, $transaction['status_text'], false);
             }
