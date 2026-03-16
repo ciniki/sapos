@@ -99,7 +99,7 @@ function ciniki_sapos_cartDelete(&$ciniki, $tnid, $invoice_id) {
             }
 
             $rc = ciniki_core_objectDelete($ciniki, $tnid, 'ciniki.sapos.invoice_item', $item['id'], NULL, 0x04);
-            if( $rc['stat'] != 'ok' ) {
+            if( $rc['stat'] != 'ok' && $rc['stat'] != 'noexist' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.sapos');
                 return $rc;
             }
