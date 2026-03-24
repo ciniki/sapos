@@ -102,10 +102,12 @@ function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, &$request) {
             $carts = $rc['rows'];
             ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'cartDelete');
             foreach($carts as $c) {
-                $rc = ciniki_sapos_cartDelete($ciniki, $tnid, $c['id']);
-                if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.319', 'msg'=>'Unable to remove older cart', 'err'=>$rc['err']));
-                }
+                // Multiple carts, need to fix this code as it deletes legitimate carts and needs to merge instead
+                error_log("Multiple Carts in tenant {$tnid} for customer {$request['session']['customer']['id']}");
+//                $rc = ciniki_sapos_cartDelete($ciniki, $tnid, $c['id']);
+//                if( $rc['stat'] != 'ok' ) {
+//                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.319', 'msg'=>'Unable to remove older cart', 'err'=>$rc['err']));
+//                }
             }
         }
         
