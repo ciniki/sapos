@@ -52,7 +52,6 @@ function ciniki_sapos_wng_cartLoad(&$ciniki, $tnid, &$request) {
         }
         $invoice = $rc['invoice'];
 
-
         //
         // Check to make sure the invoice is still in shopping cart status
         //
@@ -63,6 +62,7 @@ function ciniki_sapos_wng_cartLoad(&$ciniki, $tnid, &$request) {
         if( !isset($invoice['items']) ) {
             $invoice['items'] = array();
         }
+
         //
         // Check for edit urls for the items
         //

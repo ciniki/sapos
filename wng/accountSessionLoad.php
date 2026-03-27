@@ -79,6 +79,13 @@ function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, &$request) {
                 return $rc;
             }
         }
+        // Make sure the customer is the owner of the cart
+        elseif( isset($rc['invoice']['customer_id']) 
+            && $rc['invoice']['customer_id'] > 0 
+            && $rc['invoice']['customer_id'] != $request['session']['customer']['id'] 
+            ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.513', 'msg'=>'Internal Error 513, please contact us for help.'));
+        }
 
         //
         // Check for older carts and remove
@@ -90,25 +97,64 @@ function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, &$request) {
             . "AND status = 10 "
             . "AND id <> '" . ciniki_core_dbQuote($ciniki, $cart['id']) . "' " 
             . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "ORDER BY id "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'item');
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.316', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
         }
+        $oldest_cart_id = $cart['id'];
         if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
             //
             // Remove older carts
             //
             $carts = $rc['rows'];
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'cartDelete');
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'cartMerge');
             foreach($carts as $c) {
+                if( $c['id'] < $oldest_cart_id ) {
+                    error_log("Merge carts in tenant {$tnid} for customer {$request['session']['customer']['id']} ({$c['id']} < {$oldest_cart_id}");
+                    $rc = ciniki_sapos_cartMerge($ciniki, $tnid, $c['id'], $oldest_cart_id);    // Merge <<
+                    $oldest_cart_id = $c['id'];
+                } else {
+                    error_log("Merge carts in tenant {$tnid} for customer {$request['session']['customer']['id']} ({$oldest_cart_id} < {$c['id']}");
+                    $rc = ciniki_sapos_cartMerge($ciniki, $tnid, $oldest_cart_id, $c['id']);
+                }
                 // Multiple carts, need to fix this code as it deletes legitimate carts and needs to merge instead
-                error_log("Multiple Carts in tenant {$tnid} for customer {$request['session']['customer']['id']}");
 //                $rc = ciniki_sapos_cartDelete($ciniki, $tnid, $c['id']);
-//                if( $rc['stat'] != 'ok' ) {
-//                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.319', 'msg'=>'Unable to remove older cart', 'err'=>$rc['err']));
-//                }
+                if( $rc['stat'] != 'ok' ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.319', 'msg'=>'Unable to merge older cart', 'err'=>$rc['err']));
+                }
             }
+            //
+            // Update the taxes
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateShippingTaxesTotal');
+            $rc = ciniki_sapos_invoiceUpdateShippingTaxesTotal($ciniki, $tnid, $oldest_cart_id);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+
+            //
+            // Update the invoice status
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceUpdateStatusBalance');
+            $rc = ciniki_sapos_invoiceUpdateStatusBalance($ciniki, $tnid, $oldest_cart_id);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+        }
+        //
+        // Reload the cart if needed
+        //
+        if( $oldest_cart_id != $cart['id'] ) {
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartLoad');
+            $request['session']['cart']['id'] = $oldest_cart_id;
+            $request['session']['cart']['sapos_id'] = $oldest_cart_id;
+            $rc = ciniki_sapos_wng_cartLoad($ciniki, $tnid, $request);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $cart = $rc['invoice'];
         }
         
         return array('stat'=>'ok');
