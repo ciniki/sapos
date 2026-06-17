@@ -275,11 +275,12 @@ function ciniki_sapos_donationList(&$ciniki) {
         $i = 0;
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Invoice #', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Receipt #', false);
+        $sheet->setCellValueByColumnAndRow($i++, 1, 'Receipt Status', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Date', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Customer', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Donation Amount', false);
         $sheet->setCellValueByColumnAndRow($i++, 1, 'Status', false);
-        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:G1')->getFont()->setBold(true);
 
         //
         // Output the invoice list
@@ -290,6 +291,7 @@ function ciniki_sapos_donationList(&$ciniki) {
             $i = 0;
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_number'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['receipt_number'], false);
+            $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['donationreceipt_status_text'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['invoice_date'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['customer_display_name'], false);
             $sheet->setCellValueByColumnAndRow($i++, $row, $invoice['donation_amount'], false);
@@ -298,8 +300,8 @@ function ciniki_sapos_donationList(&$ciniki) {
         }
         if( $row > 2 ) {
             $sheet->setCellValueByColumnAndRow(0, $row, $rsp['totals']['num_invoices'], false);
-            $sheet->setCellValueByColumnAndRow(4, $row, "=SUM(E2:E" . ($row-1) . ")", false);
-            $sheet->getStyle('E2:E' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
+            $sheet->setCellValueByColumnAndRow(4, $row, "=SUM(F2:F" . ($row-1) . ")", false);
+            $sheet->getStyle('F2:F' . $row)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
             $sheet->getStyle('A' . $row)->getFont()->setBold(true);
             $sheet->getStyle('E' . $row)->getFont()->setBold(true);
         }
@@ -309,6 +311,7 @@ function ciniki_sapos_donationList(&$ciniki) {
         $sheet->getColumnDimension('D')->setAutoSize(true);
         $sheet->getColumnDimension('E')->setAutoSize(true);
         $sheet->getColumnDimension('F')->setAutoSize(true);
+        $sheet->getColumnDimension('G')->setAutoSize(true);
 
         //
         // Output the excel
