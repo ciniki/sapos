@@ -1,0 +1,2 @@
+CREATE INDEX category on ciniki_sapos_invoice_items (tnid, category);
+ALTER TABLE ciniki_sapos_invoice_items COMMENT='v1.14';

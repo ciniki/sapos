@@ -152,5 +152,6 @@ create table ciniki_sapos_invoice_items (
     last_updated datetime not null,
     primary key (id),
     index (invoice_id, object, object_id, taxtype_id),
+    index category (tnid, category),
     index sync (uuid, tnid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.13';
+) ENGINE='InnoDB', COMMENT='v1.14';
