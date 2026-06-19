@@ -1,0 +1,2 @@
+CREATE INDEX status ON ciniki_sapos_transactions (tnid, status, transaction_date, invoice_id);
+ALTER TABLE ciniki_sapos_transactions COMMENT='v1.03';

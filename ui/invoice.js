@@ -1425,6 +1425,12 @@ function ciniki_sapos_invoice() {
             this.orderStatuses['42'] = 'e-transfer Required';
             this.paymentStatuses['20'] = 'e-transfer Required';
         }
+        // Add cheque required status
+        if( (M.curTenant.modules['ciniki.sapos'].flags&0x8000) > 0 ) {
+            this.invoiceStatuses['43'] = 'Cheque Required';
+            this.orderStatuses['43'] = 'Cheque Required';
+            this.paymentStatuses['30'] = 'Cheque Required';
+        }
         if( (M.curTenant.modules['ciniki.sapos'].flags&0x40) > 0 ) {
             this.invoiceStatuses['30'] = 'Pending Shipping';
             this.orderStatuses['30'] = 'Pending Shipping';

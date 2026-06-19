@@ -69,7 +69,7 @@ function ciniki_sapos_transactionGet(&$ciniki) {
             'id' => 0,
             'status' => 40,
             'transaction_type' => 20,
-            'sourse' => 0,
+            'source' => 0,
             'transaction_date' => $dt->format($datetime_format),
             'customer_amount' => '',
             'transaction_fees' => '',
@@ -82,6 +82,8 @@ function ciniki_sapos_transactionGet(&$ciniki) {
         //
         if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x40000000) ) {
             $transaction['source'] = 110;
+        } elseif( ciniki_core_checkModuleFlags($ciniki, 'ciniki.sapos', 0x8000) ) {
+            $transaction['source'] = 30;
         }
 
         //
@@ -100,6 +102,9 @@ function ciniki_sapos_transactionGet(&$ciniki) {
             }
             if( isset($rc['invoice']['payment_status']) && $rc['invoice']['payment_status'] == 20 ) {
                 $transaction['source'] = 110;
+            }
+            if( isset($rc['invoice']['payment_status']) && $rc['invoice']['payment_status'] == 30 ) {
+                $transaction['source'] = 105;
             }
         }
          

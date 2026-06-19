@@ -110,8 +110,8 @@ function ciniki_sapos_main() {
                     'visible':function() { return M.modFlagSet('ciniki.sapos', 0x40000000); },
                     'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,20);',
                     },
-                '30':{'label':'Shipping Required', 
-                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x10000000); },
+                '30':{'label':'Cheque Required', 
+                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x8000); },
                     'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,30);',
                     },
                 '40':{'label':'Partial Payment', 'fn':'M.ciniki_sapos_main.menu.invoices(null,null,null,null,40);'},
@@ -496,10 +496,10 @@ function ciniki_sapos_main() {
             'payment_status':this.payment_status, 
             'sort':'invoice_date',
             }; 
-        if( this.payment_status == 30 ) {
-            args['payment_status'] = 50;
-            args['shipping_status'] = 10;
-        }
+//        if( this.payment_status == 30 ) {
+//            args['payment_status'] = 50;
+//            args['shipping_status'] = 10;
+//        }
         if( this.invoice_type == 10 ) {
             args['types'] = '10,30';
         } else {

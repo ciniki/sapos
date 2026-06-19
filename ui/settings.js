@@ -255,6 +255,11 @@ function ciniki_sapos_settings() {
             'fields':{
                 'invoice-etransfer-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
+        '_cheque_msg':{'label':'Cheque Invoice Message', 
+            'active':function() { return M.modFlagSet('ciniki.sapos', 0x8000); },
+            'fields':{
+                'invoice-cheque-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+            }},
         '_invoice_email_options':{'label':'Invoice Email Options', 'fields':{
             'invoice-email-all-addresses':{'label':'Multiple emails per customer', 'type':'toggle', 'default':'no', 'toggles':{'no':'Send to one', 'yes':'Send to all'}},
             }},
@@ -264,8 +269,15 @@ function ciniki_sapos_settings() {
         '_cart_email_msg':{'label':'Default Shopping Cart Email Message', 'fields':{
             'cart-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
-        '_cart_etransfer_submitted':{'label':'e-transfer Submitted Email Message', 'fields':{
-            'cart-etransfer-submitted-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+        '_cart_etransfer_submitted':{'label':'e-transfer Submitted Email Message', 
+            'active':function() { return M.modFlagSet('ciniki.sapos', 0x40000000); },
+            'fields':{
+                'cart-etransfer-submitted-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+            }},
+        '_cart_cheque_submitted':{'label':'Cheque Submitted Email Message', 
+            'active':function() { return M.modFlagSet('ciniki.sapos', 0x8000); },
+            'fields':{
+                'cart-cheque-submitted-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
         '_pos_email_msg':{'label':'Default POS Receipt Email Message', 'fields':{
             'pos-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},

@@ -209,7 +209,9 @@ function ciniki_sapos_invoiceList(&$ciniki) {
     if( isset($args['payment_status']) && $args['payment_status'] == 10 ) {
         // Include e-transfer payments
         $strsql .= "AND (ciniki_sapos_invoices.payment_status = '10' "
-            . "OR ciniki_sapos_invoices.payment_status = '20') ";
+            . "OR ciniki_sapos_invoices.payment_status = '20' "
+            . "OR ciniki_sapos_invoices.payment_status = '30' "
+            . ") ";
     }
     elseif( isset($args['payment_status']) && $args['payment_status'] > 0 ) {
         $strsql .= "AND ciniki_sapos_invoices.payment_status = '" . ciniki_core_dbQuote($ciniki, $args['payment_status']) . "' ";
