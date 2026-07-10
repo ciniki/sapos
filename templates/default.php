@@ -51,6 +51,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
         public $header_height = 0;      // The height of the image and address
         public $tenant_details = array();
         public $sapos_settings = array();
+        public $font = 'times';
 
         public function Header() {
             //
@@ -104,14 +105,14 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
                 }
                 $this->Ln(8);
                 if( $this->header_name != '' ) {
-                    $this->SetFont('times', 'B', 20);
+                    $this->SetFont($this->font, 'B', 20);
                     if( $img_width > 0 ) {
                         $this->Cell($img_width, 10, '', 0);
                     }
                     $this->Cell(180-$img_width, 10, $this->header_name, 0, false, $align, 0, '', 0, false, 'M', 'M');
                     $this->Ln(5);
                 }
-                $this->SetFont('times', '', 10);
+                $this->SetFont($this->font, '', 10);
                 if( count($this->header_addr) > 0 ) {
                     $address_lines = count($this->header_addr);
                     if( $img_width > 0 ) {
@@ -149,7 +150,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
                 } elseif( $this->header_name != '' && count($this->header_addr) == 0 ) {
                     $this->Ln(25);
                 }
-                $this->SetFont('times', '', 10);
+                $this->SetFont($this->font, '', 10);
                 $num_elements = count($this->header_details);
                 if( $num_elements == 3 ) {
                     $w = array(60,60,60);
@@ -190,7 +191,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
             // Position at 15 mm from bottom
             $this->SetY(-15);
             // Set font
-            $this->SetFont('helvetica', 'I', 8);
+            $this->SetFont($this->font, 'I', 8);
             if( isset($this->sapos_settings['invoice-footer-message']) 
                 && $this->sapos_settings['invoice-footer-message'] != '' ) {
                 $this->Cell(90, 10, $this->sapos_settings['invoice-footer-message'],
@@ -209,6 +210,10 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
     // Start a new document
     //
     $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+
+    if( isset($sapos_settings['invoice-font']) && $sapos_settings['invoice-font'] != '' ) {
+        $pdf->font = $sapos_settings['invoice-font'];
+    }
 
     //
     // Figure out the header tenant name and address information
@@ -353,7 +358,7 @@ function ciniki_sapos_templates_default(&$ciniki, $tnid, $invoice_id, $tenant_de
 
 
     // set font
-    $pdf->SetFont('times', 'BI', 10);
+    $pdf->SetFont($pdf->font, 'BI', 10);
     $pdf->SetCellPadding(2);
 
     $pdf->SetFillColor(255);

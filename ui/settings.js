@@ -208,6 +208,10 @@ function ciniki_sapos_settings() {
         '_tallies':{'label':'Other Options', 'fields':{
             'invoice-tallies-payment-type':{'label':'Include Payment Type', 'type':'toggle', 'default':'no', 'toggles':this.yesNoOptions},
             'invoice-costing':{'label':'Costing Scratchpad', 'type':'toggle', 'default':'no', 'toggles':this.yesNoOptions},
+            'invoice-font':{'label':'Font', 'type':'toggle', 'default':'times', 'toggles':{
+                'times':'Times',
+                'arialunicodems':'Multi Language Arial',
+                }},
             }},
         '_footer_msg':{'label':'Footer Message', 'fields':{
             'invoice-footer-message':{'label':'', 'hidelabel':'yes', 'type':'text'},

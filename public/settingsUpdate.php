@@ -74,6 +74,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'paypal-ec-clientid',
         'paypal-ec-password',
         'paypal-ec-signature',
+        'invoice-font',
         'invoice-header-image',
         'invoice-header-contact-position',
         'invoice-header-tenant-name',
