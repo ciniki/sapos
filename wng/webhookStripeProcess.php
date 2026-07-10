@@ -24,6 +24,7 @@ function ciniki_sapos_wng_webhookStripeProcess(&$ciniki, $tnid, &$request) {
         && isset($request['site']['settings']['stripe-sk']) && $request['site']['settings']['stripe-sk'] != '' 
         && isset($request['site']['settings']['stripe-version']) && $request['site']['settings']['stripe-version'] == 'elements' 
         && isset($request['site']['settings']['stripe-whsec']) && $request['site']['settings']['stripe-whsec'] != '' 
+        && isset($_SERVER['HTTP_STRIPE_SIGNATURE'])
         ) {
         
         require_once($ciniki['config']['ciniki.core']['lib_dir'] . '/stripev14/init.php');
