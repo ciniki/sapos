@@ -11,6 +11,7 @@ function ciniki_sapos_wng_apiInvoiceStripeIntentCancel(&$ciniki, $tnid, &$reques
     if( isset($request['site']['settings']['stripe-pk']) && $request['site']['settings']['stripe-pk'] != '' 
         && isset($request['site']['settings']['stripe-sk']) && $request['site']['settings']['stripe-sk'] != '' 
         && isset($request['site']['settings']['stripe-version']) && $request['site']['settings']['stripe-version'] == 'elements' 
+        && isset($request['args']['intent_id'])
         ) {
 
         //
