@@ -25,6 +25,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'), 
         'payment_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Payment Status'), 
         'stats'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Stats'), 
+        'layout'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Layout'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -102,6 +103,7 @@ function ciniki_sapos_donationCategories(&$ciniki) {
         . "ciniki_sapos_invoices.payment_status, "
         . "ciniki_sapos_invoices.payment_status AS payment_status_text, "
         . "ciniki_sapos_invoices.po_number, "
+        . "ciniki_sapos_invoices.customer_id, "
         . "ciniki_customers.type AS customer_type, "
         . "ciniki_customers.display_name AS customer_display_name, "
         . "(SELECT GROUP_CONCAT(email) AS emails "
@@ -180,7 +182,9 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
         array('container'=>'invoices', 'fname'=>'id', 
-            'fields'=>array('id', 'invoice_number', 'receipt_number', 'invoice_date', 'payment_status', 'payment_status_text', 'customer_type', 'customer_display_name', 'emails', 'total_amount'),
+            'fields'=>array('id', 'invoice_number', 'receipt_number', 'invoice_date', 'payment_status', 'payment_status_text', 
+                'customer_id', 'customer_type', 'customer_display_name', 'emails', 'total_amount',
+                ),
             'utctotz'=>array('invoice_date'=>array('timezone'=>$intl_timezone, 'format'=>$date_format)),
             'maps'=>array('payment_status_text'=>$maps['invoice']['payment_status']),
             ),
@@ -194,7 +198,11 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     } else {
         $rsp['invoices'] = $rc['invoices'];
     }
+    $customer_ids = [];
     foreach($rsp['invoices'] as $iid => $invoice) {
+        if( $invoice['customer_id'] > 0 && !in_array($invoice['customer_id'], $customer_ids) ) {
+            $customer_ids[] = $invoice['customer_id'];
+        }
         $rsp['invoices'][$iid]['categories'] = array();
         $invoice['total_amount'] = 0;
         if( isset($invoice['cats']) ) {
@@ -223,7 +231,59 @@ function ciniki_sapos_donationCategories(&$ciniki) {
     //
     // Check if output should be excel
     //
-    if( isset($args['output']) && $args['output'] == 'excel' ) {
+    if( isset($args['output']) && $args['output'] == 'excel' && isset($args['layout']) && $args['layout'] == 'contacts' ) {
+        $customers = [];
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'customers', 'hooks', 'customerDetails2');
+        foreach($customer_ids as $cid) {
+            $rc = ciniki_customers_hooks_customerDetails2($ciniki, $args['tnid'], [
+                'customer_id' => $cid, 
+                'phones'=>'yes', 
+                'emails'=>'yes',
+                ]);
+            if( isset($rc['customer']) ) {
+                $cust = $rc['customer'];
+                $cust['label'] = 'Donor';
+                $cust['object_id'] = 'ciniki.customers.customer.' . $cid;
+                $cust['email'] = '';
+                $cust['phone_cell'] = '';
+                if( isset($cust['emails'][0]['address']) ) {
+                    $cust['email'] = $cust['emails'][0]['address'];
+                }
+                if( isset($cust['phones']) ) {
+                    foreach($cust['phones'] as $phone) {
+                        if( preg_match("/cell/i", $phone['phone_label']) ) {
+                            $cust['phone_cell'] = $phone['phone_number'];
+                        }
+                    }
+                }
+                $customers[] = $cust;
+            }
+        }
+
+        $sheets = [
+            'donors' => [
+                'label' => 'Donors',
+                'headers' => 'no',
+                'columns' => [
+                    ['label' => 'Label', 'field' => 'label'],
+                    ['label' => 'ID', 'field' => 'object_id'],
+                    ['label' => 'Email', 'field' => 'email'],
+                    ['label' => 'First', 'field' => 'first'],
+                    ['label' => 'Last', 'field' => 'last'],
+                    ['label' => 'Cell', 'field' => 'phone_cell'],
+                    ],
+                'rows' => $customers,
+                ],
+            ];
+
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'excelGenerate');
+        return ciniki_core_excelGenerate($ciniki, $args['tnid'], [
+            'sheets' => $sheets,
+            'download' => 'yes',
+            'filename' => 'Donors.xlsx'
+            ]);
+    }
+    elseif( isset($args['output']) && $args['output'] == 'excel' ) {
         ini_set('memory_limit', '4192M');
         require($ciniki['config']['core']['lib_dir'] . '/PHPExcel/PHPExcel.php');
         $objPHPExcel = new PHPExcel();

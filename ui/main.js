@@ -788,13 +788,17 @@ function ciniki_sapos_main() {
     this.donations.sections = {
         'years':this._years,
         'months':this._months,
-        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':7,
+        'invoices':{'label':'Donations', 'type':'simplegrid', 'num_cols':7,
             'headerValues':['Invoice #', 'Date', 'Rcpt #', 'Status', 'Customer', 'Amount', 'Status'],
             'headerClasses':['', '', '', '', '', 'alignright', 'alignright'],
             'cellClasses':['', '', '', '', '', 'alignright', 'alignright'],
             'sortable':'yes',
             'sortTypes':['number', 'date', 'number', 'text', 'text', 'number', 'text', 'number'],
             'noData':'No donations',
+            'menu':{
+                'excel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_main.donations.downloadExcel("");'},
+                'contacts':{'label':'Download Contacts Excel', 'fn':'M.ciniki_sapos_main.donations.downloadExcel("contacts");'},
+                },
             },
         }
     this.donations.noData = function(s) {
@@ -874,8 +878,8 @@ function ciniki_sapos_main() {
                 p.show(cb);
             });
     }
-    this.donations.downloadExcel = function() {
-        var args = {'tnid':M.curTenantID, 'output':'excel', 'sort':'invoice_date'};
+    this.donations.downloadExcel = function(l) {
+        var args = {'tnid':M.curTenantID, 'output':'excel', 'sort':'invoice_date', 'layout':l};
         if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
         if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
         args.payment_status = 50;
@@ -893,13 +897,17 @@ function ciniki_sapos_main() {
     this.donationcategories.sections = {
         'years':this._years,
         'months':this._months,
-        'invoices':{'label':'', 'type':'simplegrid', 'num_cols':3,
+        'invoices':{'label':'Donations', 'type':'simplegrid', 'num_cols':3,
             'sortable':'yes',
             'headerValues':[],
             'headerClasses':[],
             'cellClasses':[],
             'sortTypes':[],
             'noData':'No Invoices',
+            'menu':{
+                'excel':{'label':'Download Excel', 'fn':'M.ciniki_sapos_main.donationcategories.downloadExcel("");'},
+                'contacts':{'label':'Download Contacts Excel', 'fn':'M.ciniki_sapos_main.donationcategories.downloadExcel("contacts");'},
+                },
             },
         }
     this.donationcategories.noData = function(s) {
@@ -1010,14 +1018,14 @@ function ciniki_sapos_main() {
             p.show(cb);
         });
     }
-    this.donationcategories.downloadExcel = function() {
-        var args = {'tnid':M.curTenantID, 'output':'excel'};
+    this.donationcategories.downloadExcel = function(l) {
+        var args = {'tnid':M.curTenantID, 'output':'excel', 'layout':l};
         if( this.sections.years.selected != null ) { args.year = this.sections.years.selected; }
         if( this.sections.months.selected != null ) { args.month = this.sections.months.selected; }
         args.payment_status = 50;
         M.api.openFile('ciniki.sapos.donationCategories', args);
     }
-    this.donationcategories.addButton('download', 'Excel', 'M.ciniki_sapos_main.donationcategories.downloadExcel();');
+    this.donationcategories.addButton('download', 'Excel', 'M.ciniki_sapos_main.donationcategories.downloadExcel("");');
     this.donationcategories.addClose('Back');
 
     //
