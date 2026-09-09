@@ -25,7 +25,11 @@ function ciniki_sapos_hooks_donationReceiptNumber(&$ciniki, $tnid, $args) {
     if( $rc['stat'] != 'ok' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.452', 'msg'=>'Unable to load donation number', 'err'=>$rc['err']));
     }
-    $receipt_number = isset($rc['item']['detail_value']) ? $rc['item']['detail_value'] : 1;
+    if( isset($rc['item']['detail_value']) && $rc['item']['detail_value'] != '' && is_numeric($rc['item']['detail_value']) ) {
+        $receipt_number = $rc['item']['detail_value'];
+    } else {
+        $receipt_number = 1;
+    }
    
     //
     // Check invoices to see if higher number

@@ -1279,7 +1279,7 @@ function ciniki_sapos_settings() {
                     },
             }},
         '_synopsis':{'label':'Synopsis', 'fields':{
-            'synopsis':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
+            'synopsis':{'label':'', 'hidelabel':'yes', 'type':'htmlarea', 'size':'small'},
             }},
 //        '_description':{'label':'Description', 'fields':{
 //            'description':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
