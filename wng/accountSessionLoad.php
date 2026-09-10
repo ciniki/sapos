@@ -154,7 +154,9 @@ function ciniki_sapos_wng_accountSessionLoad(&$ciniki, $tnid, &$request) {
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
-            $cart = $rc['invoice'];
+            if( isset($rc['invoice']) ) {
+                $cart = $rc['invoice'];
+            }
         }
         
         return array('stat'=>'ok');
