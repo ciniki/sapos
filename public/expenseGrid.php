@@ -53,10 +53,30 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
     $date_format = ciniki_users_dateFormat($ciniki);
 
     //
+    // Load the status maps for the text description of each status
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'maps');
+    $rc = ciniki_sapos_maps($ciniki);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $maps = $rc['maps'];
+
+    //
+    // Load the tenant settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
+    $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $args['tnid'], 'ciniki.sapos', 'settings', 'fiscal');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.420', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+    }
+    $settings = isset($rc['settings']) ? $rc['settings'] : array();
+    
+    //
     // Build the start and end dates to get the categories.  These need to have the time
     // added and are different than the start and end for expenses.
     //
-    if( isset($args['year']) && $args['year'] != '' ) {
+/*    if( isset($args['year']) && $args['year'] != '' ) {
         //
         // Set the start and end date for the tenant timezone, then convert to UTC
         //
@@ -71,6 +91,40 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
             $end_date = clone $start_date;
             // Find the end of the year
             $end_date->add(new DateInterval('P1Y'));
+        }
+        $start_date->setTimezone(new DateTimeZone('UTC'));
+        $end_date->setTimeZone(new DateTimeZone('UTC'));
+    } */
+    if( isset($args['year']) && $args['year'] != '' ) {
+        $tz = new DateTimeZone($intl_timezone);
+        if( isset($settings['fiscal-year-start-month']) && isset($settings['fiscal-year-start-day']) 
+            && $settings['fiscal-year-start-day'] > 0 && $settings['fiscal-year-start-day'] < 32
+            ) {
+            if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
+                if( $args['month'] >= $settings['fiscal-year-start-month'] ) {
+                    $start_date = new DateTime(($args['year']-1) . '-' . $args['month'] . '-' . $settings['fiscal-year-start-day'] . ' 00:00:00', $tz);
+                } else {
+                    $start_date = new DateTime($args['year'] . '-' . $args['month'] . '-' . $settings['fiscal-year-start-day'] . ' 00:00:00', $tz);
+                }
+                $end_date = clone $start_date;
+                $end_date->add(new DateInterval('P1M'));
+            } else {
+                $end_date = new DateTime($args['year'] . '-' . $settings['fiscal-year-start-month'] . '-' . $settings['fiscal-year-start-day'] . ' 00:00:00', $tz);
+                $start_date = clone $end_date;
+                $start_date->sub(new DateInterval('P1Y'));
+            }
+        } else {
+            if( isset($args['month']) && $args['month'] != '' && $args['month'] > 0 ) {
+                $start_date = new DateTime($args['year'] . '-' . $args['month'] . '-01 00.00.00', $tz);
+                $end_date = clone $start_date;
+                // Find the end of the month
+                $end_date->add(new DateInterval('P1M'));
+            } else {
+                $start_date = new DateTime($args['year'] . '-01-01 00.00.00', $tz);
+                $end_date = clone $start_date;
+                // Find the end of the year
+                $end_date->add(new DateInterval('P1Y'));
+            }
         }
         $start_date->setTimezone(new DateTimeZone('UTC'));
         $end_date->setTimeZone(new DateTimeZone('UTC'));
@@ -136,7 +190,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
         $strsql .= "AND expenses.expense_type = 10 ";
     }
     if( isset($args['year']) && $args['year'] != '' ) {
-        //
+/*        //
         // Set the start and end date for the tenant timezone, don't convert to UTC.  These dates are stored
         // without time and are local timezone.
         //
@@ -153,7 +207,7 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
             $end_date->add(new DateInterval('P1Y'));
         }
 //        $start_date->setTimezone(new DateTimeZone('UTC'));
-//        $end_date->setTimeZone(new DateTimeZone('UTC'));
+//        $end_date->setTimeZone(new DateTimeZone('UTC')); */
         //
         // Add to SQL string
         //
@@ -223,8 +277,8 @@ function ciniki_sapos_expenseGrid(&$ciniki) {
 
     if( isset($args['stats']) && $args['stats'] == 'yes' ) {
         $rsp['stats'] = array();
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'invoiceStats');
-        $rc = ciniki_sapos__invoiceStats($ciniki, $args['tnid']);
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'expenseStats');
+        $rc = ciniki_sapos__expenseStats($ciniki, $args['tnid']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
