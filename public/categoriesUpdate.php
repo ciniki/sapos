@@ -20,6 +20,8 @@ function ciniki_sapos_categoriesUpdate($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
+        'description'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Description'), 
+        'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -98,6 +100,33 @@ function ciniki_sapos_categoriesUpdate($ciniki) {
                 2, 'ciniki_sapos_settings', $field, 'detail_value', $ciniki['request']['args'][$field]);
             $ciniki['syncqueue'][] = array('push'=>'ciniki.sapos.setting', 'args'=>array('id'=>$field));
         }
+    }
+
+    //
+    // Check if new description needs to be added
+    //
+    if( isset($args['description']) && $args['description'] != '' 
+        && isset($args['category']) && $args['category'] != '' 
+        ) {
+        //
+        // Check if new value passed
+        //
+        $field = 'invoice-autocat-desc-' . $args['description'];
+        $strsql = "INSERT INTO ciniki_sapos_settings (tnid, detail_key, detail_value, date_added, last_updated) "
+            . "VALUES ('" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "'"
+            . ", '" . ciniki_core_dbQuote($ciniki, $field) . "'"
+            . ", '" . ciniki_core_dbQuote($ciniki, $args['category']) . "'"
+            . ", UTC_TIMESTAMP(), UTC_TIMESTAMP()) "
+            . "ON DUPLICATE KEY UPDATE detail_value = '" . ciniki_core_dbQuote($ciniki, $args['category']) . "' "
+            . ", last_updated = UTC_TIMESTAMP() "
+            . "";
+        $rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.sapos');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.sapos', 'ciniki_sapos_history', $args['tnid'], 
+            2, 'ciniki_sapos_settings', $field, 'detail_value', $args['category']);
+        $ciniki['syncqueue'][] = array('push'=>'ciniki.sapos.setting', 'args'=>array('id'=>$field));
     }
 
     return array('stat'=>'ok');

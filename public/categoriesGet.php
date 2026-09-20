@@ -82,6 +82,16 @@ function ciniki_sapos_categoriesGet($ciniki) {
             );
     }
 
-    return array('stat'=>'ok', 'categories'=>$categories);
+    $descriptions = [];
+    foreach($settings as $key => $value) {
+        if( preg_match("/invoice-autocat-desc-(.*)$/", $key, $m) ) {
+            $descriptions[] = [
+                'description' => $m[1],
+                'category' => $value,
+                ];
+        }
+    }
+
+    return array('stat'=>'ok', 'categories'=>$categories, 'descriptions'=>$descriptions);
 }
 ?>

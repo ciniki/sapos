@@ -162,6 +162,11 @@ function ciniki_sapos_invoiceAdd($ciniki, $tnid, $args) {
             ) {
             $item['category'] = $settings['invoice-autocat-' . $item['object']];
         }
+        if( isset($item['description']) && isset($settings['invoice-autocat-desc-' . $item['description']]) 
+            && (!isset($item['category']) || $item['category'] == '') 
+            ) {
+            $item['category'] = $settings['invoice-autocat-desc-' . $item['description']];
+        }
         if( !isset($item['amount']) ) {
             //
             // Calculate the final amount for each item in the invoice

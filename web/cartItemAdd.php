@@ -228,6 +228,11 @@ function ciniki_sapos_web_cartItemAdd($ciniki, $settings, $tnid, $args) {
             ) {
             $args['category'] = $sapos_settings['invoice-autocat-' . $args['object']];
         }
+        if( isset($args['description']) && isset($sapos_settings['invoice-autocat-desc-' . $args['description']]) 
+            && (!isset($args['category']) || $args['category'] == '') 
+            ) {
+            $args['category'] = $sapos_settings['invoice-autocat-desc-' . $args['description']];
+        }
 
         //
         // Check if the item is a registration which means only a single quantity is allowed.  Multiple quantities

@@ -101,6 +101,11 @@ function ciniki_sapos_posItemAdd(&$ciniki) {
         ) {
         $args['category'] = $settings['invoice-autocat-' . $item['object']];
     }
+    if( isset($item['description']) && isset($settings['invoice-autocat-desc-' . $item['description']]) 
+        && (!isset($item['category']) || $item['category'] == '')
+        ) {
+        $args['category'] = $settings['invoice-autocat-desc-' . $item['description']];
+    }
 
     //
     // Add the item

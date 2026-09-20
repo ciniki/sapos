@@ -1388,21 +1388,34 @@ function ciniki_sapos_settings() {
     //
     this.categories = new M.panel('Auto Category Items', 'ciniki_sapos_settings', 'categories', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.categories');
     this.categories.data = null;
-    this.categories.categories_id = 0;
     this.categories.nplist = [];
     this.categories.sections = {
-        'categories':{'label':'', 'fields':{
+        'categories':{'label':'Items', 'fields':{
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.categories.save();'},
-            'delete':{'label':'Delete', 
-                'visible':function() {return M.ciniki_sapos_settings.categories.categories_id > 0 ? 'yes' : 'no'; },
-                'fn':'M.ciniki_sapos_settings.categories.remove();'},
+            }},
+        'descriptions':{'label':'Descriptions', 'type':'simplegrid', 'num_cols':2,
+            'cellClasses':['label', ''],
+            'noData':'No description auto categories setup',
+            },
+        'add':{'label':'Add Description', 'fields':{
+            'description':{'label':'Description', 'type':'text'},
+            'category':{'label':'Category', 'type':'text'},
+            }},
+        '_buttons2':{'label':'', 'buttons':{
+            'save':{'label':'Add Description', 'fn':'M.ciniki_sapos_settings.categories.save("M.ciniki_sapos_settings.categories.open()");'},
             }},
         }
     this.categories.fieldValue = function(s, i, d) { return this.data[i]; }
     this.categories.fieldHistoryArgs = function(s, i) {
         return {'method':'ciniki.sapos.categoriesHistory', 'args':{'tnid':M.curTenantID, 'field':i}};
+    }
+    this.categories.cellValue = function(s, i, j, d) {
+        switch(j) {
+            case 0: return d.description;
+            case 1: return d.category;
+        }
     }
     this.categories.open = function(cb, pid, list) {
         if( pid != null ) { this.categories_id = pid; }
@@ -1414,6 +1427,7 @@ function ciniki_sapos_settings() {
             }
             var p = M.ciniki_sapos_settings.categories;
             p.data = {};
+            p.data.descriptions = rsp.descriptions;
             p.sections.categories.fields = {};
             for(var i in rsp.categories) {
                 p.sections.categories.fields[rsp.categories[i].field] = {'label':rsp.categories[i].label, 'type':'text'};
