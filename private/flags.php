@@ -15,7 +15,7 @@ function ciniki_sapos_flags($ciniki, $modules) {
         // 0x01
         array('flag'=>array('bit'=>'1', 'name'=>'Invoices')),
         array('flag'=>array('bit'=>'2', 'name'=>'Expenses')),
-        array('flag'=>array('bit'=>'3', 'name'=>'Quick Invoices')),
+//        array('flag'=>array('bit'=>'3', 'name'=>'')), // Quick Invoices - Deprecated
         array('flag'=>array('bit'=>'4', 'name'=>'Shopping Cart')),
         // 0x10
         array('flag'=>array('bit'=>'5', 'name'=>'POS')),

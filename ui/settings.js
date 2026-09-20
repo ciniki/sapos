@@ -23,7 +23,7 @@ function ciniki_sapos_settings() {
             'visible':function() { return M.modFlagAny('ciniki.sapos', 0x35); },
             'list':{
                 'invoice':{'label':'Invoices', 'fn':'M.ciniki_sapos_settings.invoice.open(\'M.ciniki_sapos_settings.menu.open();\');'},
-                'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.qi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
+//                'qi':{'label':'Quick Invoices', 'visible':'no', 'fn':'M.ciniki_sapos_settings.qi.open(\'M.ciniki_sapos_settings.menu.open();\');'},
                 'rules':{'label':'Rules', 'visible':'no', 'fn':'M.ciniki_sapos_settings.showRules(\'M.ciniki_sapos_settings.menu.open();\',\'invoice\');'},
                 'reports':{'label':'Reports', 
                     'visible':function() {return ((M.userPerms&0x01)>0?'yes':'no');},
