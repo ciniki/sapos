@@ -991,7 +991,7 @@ function ciniki_sapos_invoice() {
     //
     this.email = new M.panel('Email Invoice',
         'ciniki_sapos_invoice', 'email',
-        'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.email');
+        'mc', 'large', 'sectioned', 'ciniki.sapos.invoice.email');
     this.email.invoice_id = 0;
     this.email.template_id = 0;
     this.email.data = {};
@@ -1084,11 +1084,11 @@ function ciniki_sapos_invoice() {
         }
         if( invoice.email_templates != null ) {
             this.sections.email_templates.visible = 'yes';
-            this.size = 'medium narrowaside';
+            this.size = 'large mediumaside';
             this.data.email_templates = invoice.email_templates;
         } else {
             this.sections.email_templates.visible = 'no';
-            this.size = 'medium';
+            this.size = 'large';
         }
         this.refresh();
         this.show(cb);
