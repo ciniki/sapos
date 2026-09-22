@@ -43,6 +43,7 @@ function ciniki_sapos_emailTemplateList($ciniki) {
         . "ciniki_sapos_email_templates.subject "
         . "FROM ciniki_sapos_email_templates "
         . "WHERE ciniki_sapos_email_templates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "ORDER BY name "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
