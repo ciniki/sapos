@@ -527,106 +527,6 @@ function ciniki_sapos_invoice() {
         this.invoice.addClose('Back');
         this.invoice.addLeftButton('prev', 'Prev');
 
-        //
-        // The edit invoice panel
-        //
-        this.email = new M.panel('Email Invoice',
-            'ciniki_sapos_invoice', 'email',
-            'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.email');
-        this.email.invoice_id = 0;
-        this.email.data = {};
-        this.email.sections = {
-            '_subject':{'label':'', 'fields':{
-                'subject':{'label':'Subject', 'type':'text', 'history':'no'},
-                }},
-            '_textmsg':{'label':'Message', 'fields':{
-                'textmsg':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large', 'history':'no'},
-                }},
-            '_attach':{'label':'', 'fields':{
-                'attach':{'label':'Attach', 'type':'toggle', 'default':'invoice-donationreceipt', 'toggles':[]},
-                }},
-            '_buttons':{'label':'', 'buttons':{
-                'send':{'label':'Send', 'fn':'M.ciniki_sapos_invoice.email.send();'},
-                }},
-        };
-        this.email.fieldValue = function(s, i, d) {
-            return this.data[i];
-        };
-        this.email.open = function(cb, invoice) {
-            this.invoice_id = invoice.id;
-            this.data.subject = 'Invoice #' + invoice.invoice_number;
-            if( M.curTenant.sapos.settings['invoice-email-message'] != null ) {
-                this.data.textmsg = M.curTenant.sapos.settings['invoice-email-message'];
-            } else {
-                this.data.textmsg = 'Please find your invoice attached.';
-            }
-            if( invoice.invoice_type == 20 ) {
-                this.data.subject = 'Shopping Cart #' + invoice.invoice_number;
-                if( M.curTenant.sapos.settings['cart-email-message'] != null ) {
-                    this.data.textmsg = M.curTenant.sapos.settings['cart-email-message'];
-                } 
-            } else if( invoice.invoice_type == 30 ) {
-                this.data.subject = 'Receipt #' + invoice.invoice_number;
-                if( M.curTenant.sapos.settings['pos-email-message'] != null ) {
-                    this.data.textmsg = M.curTenant.sapos.settings['pos-email-message'];
-                } 
-            } else if( invoice.invoice_type == 40 ) {
-                this.data.subject = 'Order #' + invoice.invoice_number;
-                if( M.curTenant.sapos.settings['order-email-message'] != null ) {
-                    this.data.textmsg = M.curTenant.sapos.settings['order-email-message'];
-                } 
-            } else if( invoice.invoice_type == 90 ) {
-                this.data.subject = 'Quote #' + invoice.invoice_number;
-                if( M.curTenant.sapos.settings['quote-email-message'] != null ) {
-                    this.data.textmsg = M.curTenant.sapos.settings['quote-email-message'];
-                } 
-            }
-            this.sections._attach.fields.attach.toggles = {'invoice':'Invoice'};
-            this.sections._attach.fields.attach['default'] = 'invoice';
-            if( M.ciniki_sapos_invoice.invoice.data.donationreceipt_status >= 20 ) {
-                if( M.modSettingSet('ciniki.sapos','donation-receipt-invoice-include') == 'yes' ) {
-                    this.sections._attach.fields.attach.toggles = {
-                        'invoice-donationreceipt':'Invoice & Donation Receipt',
-                        'invoice':'Invoice',
-                        'donationreceipt':'Donation Receipt',
-                        };
-                    this.sections._attach.fields.attach['default'] = 'invoice-donationreceipt';
-                } else {
-                    this.sections._attach.fields.attach.toggles = {
-                        'invoice':'Invoice',
-                        'donationreceipt':'Donation Receipt',
-                        };
-                }
-            }
-            this.refresh();
-            this.show(cb);
-        };
-        this.email.send = function() {
-            var subject = this.formFieldValue(this.sections._subject.fields.subject, 'subject');
-            var textmsg = this.formFieldValue(this.sections._textmsg.fields.textmsg, 'textmsg');
-            var attach = this.formFieldValue(this.sections._attach.fields.attach, 'attach');
-            if( attach == 'donationreceipt' ) {
-                M.api.getJSONCb('ciniki.sapos.donationPDF', {'tnid':M.curTenantID, 
-                    'invoice_id':this.invoice_id, 'subject':subject, 'textmsg':textmsg, 'output':'pdf', 'email':'yes'}, function(rsp) {
-                        if( rsp.stat != 'ok' ) {
-                            M.api.err(rsp);
-                            return false;
-                        }
-                        M.ciniki_sapos_invoice.email.close();
-                    });
-            } else {
-                M.api.getJSONCb('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 
-                    'invoice_id':this.invoice_id, 'subject':subject, 'textmsg':textmsg, 'output':'pdf', 'email':'yes', 'email_attach':attach}, function(rsp) {
-                        if( rsp.stat != 'ok' ) {
-                            M.api.err(rsp);
-                            return false;
-                        }
-                        M.ciniki_sapos_invoice.email.close();
-                    });
-            }
-        };
-        this.email.addClose('Cancel');
-
 
         //
         // The edit invoice panel
@@ -1084,81 +984,214 @@ function ciniki_sapos_invoice() {
         }
         this.item.addButton('save', 'Save', 'M.ciniki_sapos_invoice.saveItem();');
         this.item.addClose('Cancel');
+    }
 
-        //
-        // The transaction panel
-        //
-        this.transaction = new M.panel('Transaction',
-            'ciniki_sapos_invoice', 'transaction',
-            'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.transaction');
-        this.transaction.transaction_id = 0;
-        this.transaction.data = {};
-        this.transaction.sections = {
-            'details':{'label':'', 'fields':{
-                'transaction_type':{'label':'Type', 'type':'toggle', 'default':'20', 
-                    'toggles':M.ciniki_sapos_invoice.transactionTypes,
-                    },
-                'status':{'label':'Status', 'type':'toggle', 'toggles':{'40':'Completed', '60':'Deposited'},
-                    'visible':function() { return M.modFlagSet('ciniki.sapos', 0x080000); },
-                    },
-                'transaction_date':{'label':'Date', 'type':'text', 'size':'medium'},
-                'source':{'label':'Source', 'type':'select', 'options':M.ciniki_sapos_invoice.transactionSources},
-                'customer_amount':{'label':'Customer Amount', 'type':'text', 'size':'small'},
-                'transaction_fees':{'label':'Stripe Fees', 'type':'text', 'size':'small'},
-                'tenant_amount':{'label':'Business Amount', 'type':'text', 'size':'small'},
-                }},
-            '_notes':{'label':'Notes', 'fields':{
-                'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
-                }},
-            '_buttons':{'label':'', 'buttons':{
-                'save':{'label':'Save', 'fn':'M.ciniki_sapos_invoice.saveTransaction();'},
-                'delete':{'label':'Delete', 
-                    'visible':function() { return M.ciniki_sapos_invoice.transaction.transaction_id > 0 ? 'yes' : 'no';},
-                    'fn':'M.ciniki_sapos_invoice.deleteTransaction(M.ciniki_sapos_invoice.transaction.transaction_id);',
-                    },
-                }},
-        };
-        this.transaction.fieldValue = function(s, i, d) {
-            if( this.data != null && this.data[i] != null ) { return this.data[i]; }
-            return '';
-        };
-        this.transaction.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
-                'object':'ciniki.sapos.transaction', 'object_id':this.transaction_id, 'field':i}};
-        };
-        this.transaction.open = function(cb, tid, inid, date, amount) {
-            if( tid != null ) { this.transaction_id = tid; }
-            if( inid != null ) { this.invoice_id = inid; }
-            M.api.getJSONCb('ciniki.sapos.transactionGet', {'tnid':M.curTenantID,
-                'invoice_id':this.invoice_id,
-                'transaction_id':this.transaction_id}, function(rsp) {
+    //
+    // The edit invoice panel
+    //
+    this.email = new M.panel('Email Invoice',
+        'ciniki_sapos_invoice', 'email',
+        'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.email');
+    this.email.invoice_id = 0;
+    this.email.template_id = 0;
+    this.email.data = {};
+    this.email.sections = {
+        'email_templates':{'label':'Templates', 'type':'simplegrid', 'num_cols':1, 'aside':'yes', 
+            'visible':'no',
+            'noData':'No Templates',
+            },
+        '_subject':{'label':'', 'fields':{
+            'subject':{'label':'Subject', 'type':'text', 'history':'no'},
+            }},
+        '_htmlmsg':{'label':'Message', 'fields':{
+            'htmlmsg':{'label':'', 'hidelabel':'yes', 'type':'htmlarea', 'size':'large', 'history':'no'},
+            }},
+        '_attach':{'label':'', 'fields':{
+            'attach':{'label':'Attach', 'type':'toggle', 'default':'invoice-donationreceipt', 'toggles':[]},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'send':{'label':'Send', 'fn':'M.ciniki_sapos_invoice.email.send();'},
+            }},
+    };
+    this.email.fieldValue = function(s, i, d) {
+        return this.data[i];
+    };
+    this.email.cellValue = function(s, i, j, d) {
+        return d.name;
+    }
+    this.email.rowFn = function(s, i, d) {
+        return 'M.ciniki_sapos_invoice.email.chooseTemplate(\'' + d.id + '\');';
+    }
+    this.email.chooseTemplate = function(t) {
+        this.template_id = t;
+        M.api.getJSONCb('ciniki.sapos.emailTemplateGenerate', {'tnid':M.curTenantID,
+            'invoice_id':this.invoice_id,
+            'template_id':this.template_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.ciniki_sapos_invoice.email;
+                p.setFieldValue('subject', rsp.subject);
+                p.setFieldValue('htmlmsg', rsp.message);
+            });
+    }
+    this.email.open = function(cb, invoice) {
+        this.invoice_id = invoice.id;
+        this.data.subject = 'Invoice #' + invoice.invoice_number;
+        if( M.curTenant.sapos.settings['invoice-email-message'] != null ) {
+            this.data.htmlmsg = M.curTenant.sapos.settings['invoice-email-message'];
+        } else {
+            this.data.htmlmsg = 'Please find your invoice attached.';
+        }
+        if( invoice.invoice_type == 20 ) {
+            this.data.subject = 'Shopping Cart #' + invoice.invoice_number;
+            if( M.curTenant.sapos.settings['cart-email-message'] != null ) {
+                this.data.htmlmsg = M.curTenant.sapos.settings['cart-email-message'];
+            } 
+        } else if( invoice.invoice_type == 30 ) {
+            this.data.subject = 'Receipt #' + invoice.invoice_number;
+            if( M.curTenant.sapos.settings['pos-email-message'] != null ) {
+                this.data.htmlmsg = M.curTenant.sapos.settings['pos-email-message'];
+            } 
+        } else if( invoice.invoice_type == 40 ) {
+            this.data.subject = 'Order #' + invoice.invoice_number;
+            if( M.curTenant.sapos.settings['order-email-message'] != null ) {
+                this.data.htmlmsg = M.curTenant.sapos.settings['order-email-message'];
+            } 
+        } else if( invoice.invoice_type == 90 ) {
+            this.data.subject = 'Quote #' + invoice.invoice_number;
+            if( M.curTenant.sapos.settings['quote-email-message'] != null ) {
+                this.data.htmlmsg = M.curTenant.sapos.settings['quote-email-message'];
+            } 
+        }
+        this.sections._attach.fields.attach.toggles = {'invoice':'Invoice'};
+        this.sections._attach.fields.attach['default'] = 'invoice';
+        if( M.ciniki_sapos_invoice.invoice.data.donationreceipt_status >= 20 ) {
+            if( M.modSettingSet('ciniki.sapos','donation-receipt-invoice-include') == 'yes' ) {
+                this.sections._attach.fields.attach.toggles = {
+                    'invoice-donationreceipt':'Invoice & Donation Receipt',
+                    'invoice':'Invoice',
+                    'donationreceipt':'Donation Receipt',
+                    };
+                this.sections._attach.fields.attach['default'] = 'invoice-donationreceipt';
+            } else {
+                this.sections._attach.fields.attach.toggles = {
+                    'invoice':'Invoice',
+                    'donationreceipt':'Donation Receipt',
+                    };
+            }
+        }
+        if( invoice.email_templates != null ) {
+            this.sections.email_templates.visible = 'yes';
+            this.size = 'medium narrowaside';
+            this.data.email_templates = invoice.email_templates;
+        } else {
+            this.sections.email_templates.visible = 'no';
+            this.size = 'medium';
+        }
+        this.refresh();
+        this.show(cb);
+    };
+    this.email.send = function() {
+        var subject = this.formFieldValue(this.sections._subject.fields.subject, 'subject');
+        var htmlmsg = this.formFieldValue(this.sections._htmlmsg.fields.htmlmsg, 'htmlmsg');
+        var attach = this.formFieldValue(this.sections._attach.fields.attach, 'attach');
+        if( attach == 'donationreceipt' ) {
+            M.api.getJSONCb('ciniki.sapos.donationPDF', {'tnid':M.curTenantID, 
+                'invoice_id':this.invoice_id, 'subject':subject, 'htmlmsg':htmlmsg, 'output':'pdf', 'email':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
                     }
-                    var p = M.ciniki_sapos_invoice.transaction;
-                    p.data = rsp.transaction;
-                    if( M.modFlagOn('ciniki.sapos', 0x800000) 
-                        || rsp.transaction.transaction_fees > 0
-                        ) {
-                        p.sections.details.fields.customer_amount.label = 'Customer Amount';
-                        p.sections.details.fields.transaction_fees.visible = 'yes';
-                        p.sections.details.fields.tenant_amount.visible = 'yes';
-                    } else {
-                        p.sections.details.fields.customer_amount.label = 'Amount';
-                        p.sections.details.fields.transaction_fees.visible = 'no';
-                        p.sections.details.fields.tenant_amount.visible = 'no';
+                    M.ciniki_sapos_invoice.email.close();
+                });
+        } else {
+            M.api.getJSONCb('ciniki.sapos.invoicePDF', {'tnid':M.curTenantID, 
+                'invoice_id':this.invoice_id, 'subject':subject, 'htmlmsg':htmlmsg, 'output':'pdf', 'email':'yes', 'email_attach':attach}, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
                     }
-                    if( amount != null && amount != '' ) { 
-                        p.data.customer_amount = amount;
-                    }
-                    p.refresh();
-                    p.show(cb);
+                    M.ciniki_sapos_invoice.email.close();
                 });
         }
-        this.transaction.addButton('save', 'Save', 'M.ciniki_sapos_invoice.saveTransaction();');
-        this.transaction.addClose('Cancel');
+    };
+    this.email.addClose('Cancel');
+
+    //
+    // The transaction panel
+    //
+    this.transaction = new M.panel('Transaction',
+        'ciniki_sapos_invoice', 'transaction',
+        'mc', 'medium', 'sectioned', 'ciniki.sapos.invoice.transaction');
+    this.transaction.transaction_id = 0;
+    this.transaction.data = {};
+    this.transaction.sections = {
+        'details':{'label':'', 'fields':{
+            'transaction_type':{'label':'Type', 'type':'toggle', 'default':'20', 
+                'toggles':this.transactionTypes,
+                },
+            'status':{'label':'Status', 'type':'toggle', 'toggles':{'40':'Completed', '60':'Deposited'},
+                'visible':function() { return M.modFlagSet('ciniki.sapos', 0x080000); },
+                },
+            'transaction_date':{'label':'Date', 'type':'text', 'size':'medium'},
+            'source':{'label':'Source', 'type':'select', 'options':this.transactionSources},
+            'customer_amount':{'label':'Customer Amount', 'type':'text', 'size':'small'},
+            'transaction_fees':{'label':'Stripe Fees', 'type':'text', 'size':'small'},
+            'tenant_amount':{'label':'Business Amount', 'type':'text', 'size':'small'},
+            }},
+        '_notes':{'label':'Notes', 'fields':{
+            'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_invoice.saveTransaction();'},
+            'delete':{'label':'Delete', 
+                'visible':function() { return M.ciniki_sapos_invoice.transaction.transaction_id > 0 ? 'yes' : 'no';},
+                'fn':'M.ciniki_sapos_invoice.deleteTransaction(M.ciniki_sapos_invoice.transaction.transaction_id);',
+                },
+            }},
+    };
+    this.transaction.fieldValue = function(s, i, d) {
+        if( this.data != null && this.data[i] != null ) { return this.data[i]; }
+        return '';
+    };
+    this.transaction.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.history', 'args':{'tnid':M.curTenantID,
+            'object':'ciniki.sapos.transaction', 'object_id':this.transaction_id, 'field':i}};
+    };
+    this.transaction.open = function(cb, tid, inid, date, amount) {
+        if( tid != null ) { this.transaction_id = tid; }
+        if( inid != null ) { this.invoice_id = inid; }
+        M.api.getJSONCb('ciniki.sapos.transactionGet', {'tnid':M.curTenantID,
+            'invoice_id':this.invoice_id,
+            'transaction_id':this.transaction_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                var p = M.ciniki_sapos_invoice.transaction;
+                p.data = rsp.transaction;
+                if( M.modFlagOn('ciniki.sapos', 0x800000) 
+                    || rsp.transaction.transaction_fees > 0
+                    ) {
+                    p.sections.details.fields.customer_amount.label = 'Customer Amount';
+                    p.sections.details.fields.transaction_fees.visible = 'yes';
+                    p.sections.details.fields.tenant_amount.visible = 'yes';
+                } else {
+                    p.sections.details.fields.customer_amount.label = 'Amount';
+                    p.sections.details.fields.transaction_fees.visible = 'no';
+                    p.sections.details.fields.tenant_amount.visible = 'no';
+                }
+                if( amount != null && amount != '' ) { 
+                    p.data.customer_amount = amount;
+                }
+                p.refresh();
+                p.show(cb);
+            });
     }
+    this.transaction.addButton('save', 'Save', 'M.ciniki_sapos_invoice.saveTransaction();');
+    this.transaction.addClose('Cancel');
 
     //
     // The search for saving seats

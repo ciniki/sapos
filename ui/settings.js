@@ -39,6 +39,9 @@ function ciniki_sapos_settings() {
                 'fiscalyear':{'label':'Fiscal Year',
                     'fn':'M.ciniki_sapos_settings.fiscalyear.open(\'M.ciniki_sapos_settings.menu.open();\');',
                     },
+                'emailtemplates':{'label':'Email Templates',
+                    'fn':'M.ciniki_sapos_settings.emailtemplates.open(\'M.ciniki_sapos_settings.menu.open();\');',
+                    },
             }},
         'shipments':{'label':'Shipments',
             'visible':function() { return M.modFlagAny('ciniki.sapos', 0x10000040); },
@@ -270,6 +273,9 @@ function ciniki_sapos_settings() {
         '_invoice_email_msg':{'label':'Default Invoice Email Message', 'fields':{
             'invoice-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
+//        '_invoice_paid_email_msg':{'label':'Default Invoice Email Paid Message', 'fields':{
+//            'invoice-paid-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+//            }},
         '_cart_email_msg':{'label':'Default Shopping Cart Email Message', 'fields':{
             'cart-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
             }},
@@ -288,7 +294,6 @@ function ciniki_sapos_settings() {
             }},
         '_order_email_msg':{'label':'Default Order Email Message', 'fields':{
             'order-email-message':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
-
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.invoice.save();'},
@@ -2015,6 +2020,143 @@ function ciniki_sapos_settings() {
     this.rate.addClose('Cancel');
     this.rate.addButton('next', 'Next');
     this.rate.addLeftButton('prev', 'Prev');
+
+    //
+    // The panel to list the email templates
+    //
+    this.emailtemplates = new M.panel('Email Templates', 'ciniki_sapos_settings', 'emailtemplates', 'mc', 'medium', 'sectioned', 'ciniki.sapos.main.emailtemplates');
+    this.emailtemplates.data = {};
+    this.emailtemplates.nplist = [];
+    this.emailtemplates.sections = {
+        'templates':{'label':'Shipping Rate', 'type':'simplegrid', 'num_cols':1,
+            'noData':'No templates',
+            'addTxt':'Add Template',
+            'addFn':'M.ciniki_sapos_settings.emailtemplate.open(\'M.ciniki_sapos_settings.emailtemplates.open();\',0,null);'
+            },
+    }
+    this.emailtemplates.cellValue = function(s, i, j, d) {
+        if( s == 'templates' ) {
+            switch(j) {
+                case 0: return d.name;
+            }
+        }
+    }
+    this.emailtemplates.rowFn = function(s, i, d) {
+        if( d == null ) {
+            return '';
+        }
+        if( s == 'templates' ) {
+            return 'M.ciniki_sapos_settings.emailtemplate.open(\'M.ciniki_sapos_settings.emailtemplates.open();\',\'' + d.id + '\',M.ciniki_sapos_settings.emailtemplates.nplist);';
+        }
+    }
+    this.emailtemplates.open = function(cb) {
+        M.api.getJSONCb('ciniki.sapos.emailTemplateList', {'tnid':M.curTenantID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.emailtemplates;
+            p.data = rsp;
+            p.nplist = (rsp.nplist != null ? rsp.nplist : null);
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.emailtemplates.addClose('Back');
+
+    //
+    // The panel to edit Shipping Rate
+    //
+    this.emailtemplate = new M.panel('Email Template', 'ciniki_sapos_settings', 'emailtemplate', 'mc', 'large', 'sectioned', 'ciniki.sapos.main.emailtemplate');
+    this.emailtemplate.data = null;
+    this.emailtemplate.template_id = 0;
+    this.emailtemplate.nplist = [];
+    this.emailtemplate.sections = {
+        'general':{'label':'', 'fields':{
+            'name':{'label':'Name', 'type':'text'},
+            'subject':{'label':'Subject', 'type':'text'},
+            'message':{'label':'Message', 'type':'htmlarea', 'size':'large'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.emailtemplate.save();'},
+            'delete':{'label':'Delete', 
+                'visible':function() {return M.ciniki_sapos_settings.emailtemplate.template_id > 0 ? 'yes' : 'no'; },
+                'fn':'M.ciniki_sapos_settings.emailtemplate.remove();'},
+            }},
+        };
+    this.emailtemplate.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.emailtemplate.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.sapos.emailTemplateHistory', 'args':{'tnid':M.curTenantID, 'template_id':this.template_id, 'field':i}};
+    }
+    this.emailtemplate.open = function(cb, tid, list) {
+        if( tid != null ) { this.template_id = tid; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('ciniki.sapos.emailTemplateGet', {'tnid':M.curTenantID, 'template_id':this.template_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_sapos_settings.emailtemplate;
+            p.data = rsp.template;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.emailtemplate.save = function(cb) {
+        if( cb == null ) { cb = 'M.ciniki_sapos_settings.emailtemplate.close();'; }
+        if( !this.checkForm() ) { return false; }
+        if( this.template_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('ciniki.sapos.emailTemplateUpdate', {'tnid':M.curTenantID, 'template_id':this.template_id}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    eval(cb);
+                });
+            } else {
+                eval(cb);
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('ciniki.sapos.emailTemplateAdd', {'tnid':M.curTenantID}, c, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.emailtemplate.template_id = rsp.id;
+                eval(cb);
+            });
+        }
+    }
+    this.emailtemplate.remove = function() {
+        M.confirm('Are you sure you want to remove this template?',null,function() {
+            M.api.getJSONCb('ciniki.sapos.emailTemplateDelete', {'tnid':M.curTenantID, 'template_id':M.ciniki_sapos_settings.emailtemplate.template_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_sapos_settings.emailtemplate.close();
+            });
+        });
+    }
+    this.emailtemplate.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.template_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_sapos_settings.emailtemplate.save(\'M.ciniki_sapos_settings.emailtemplate.open(null,' + this.nplist[this.nplist.indexOf('' + this.template_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.emailtemplate.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.template_id) > 0 ) {
+            return 'M.ciniki_sapos_settings.emailtemplate.save(\'M.ciniki_sapos_settings.emailtemplate.open(null,' + this.nplist[this.nplist.indexOf('' + this.template_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.emailtemplate.addButton('save', 'Save', 'M.ciniki_sapos_settings.emailtemplate.save();');
+    this.emailtemplate.addClose('Cancel');
+    this.emailtemplate.addButton('next', 'Next');
+    this.emailtemplate.addLeftButton('prev', 'Prev');
 
 
 

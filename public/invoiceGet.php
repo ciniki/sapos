@@ -50,6 +50,26 @@ function ciniki_sapos_invoiceGet(&$ciniki) {
     $invoice = $rc['invoice'];
 
     //
+    // Load email templates available
+    //
+    $strsql = "SELECT templates.id, "
+        . "templates.name "
+        . "FROM ciniki_sapos_email_templates AS templates "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "ORDER BY templates.name "
+        . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.sapos', array(
+        array('container'=>'templates', 'fname'=>'id', 'fields'=>array('id', 'name')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.518', 'msg'=>'Unable to load templates', 'err'=>$rc['err']));
+    }
+    if( isset($rc['templates']) && count($rc['templates']) > 0 ) {
+        $invoice['email_templates'] = $rc['templates'];
+    }
+
+    //
     // Check if there are any messages for this invoice
     //
     if( isset($ciniki['tenant']['modules']['ciniki.mail']) ) {

@@ -1414,6 +1414,12 @@ function ciniki_sapos_main() {
             return d.total_amount_display;
         }
     }
+    this.categories.cellFn = function(s, i, j, d) {
+        if( j == 0 ) {
+            return 'event.stopPropagation();M.startApp(\'ciniki.sapos.invoice\',null,\'M.ciniki_sapos_main.categories.open();\',\'mc\',{\'invoice_id\':' + d.id + '});'
+        }
+        return '';
+    }
     this.categories.rowFn = function(s, i, d) {
         if( d == null ) {
             return '';

@@ -374,6 +374,19 @@ function ciniki_sapos_objects($ciniki) {
             ),
         'history_table' => 'ciniki_sapos_history',
         );
+    $objects['emailtemplate'] = array(
+        'name' => 'Template',
+        'sync' => 'yes',
+        'o_name' => 'template',
+        'o_container' => 'templates',
+        'table' => 'ciniki_sapos_email_templates',
+        'fields' => array(
+            'name' => array('name'=>'Name'),
+            'subject' => array('name'=>'Subject'),
+            'message' => array('name'=>'Message'),
+            ),
+        'history_table' => 'ciniki_sapos_history',
+        );
     $objects['setting'] = array(
         'type'=>'settings',
         'name'=>'SAPOS Settings',

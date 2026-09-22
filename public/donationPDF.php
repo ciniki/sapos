@@ -20,7 +20,7 @@ function ciniki_sapos_donationPDF(&$ciniki) {
         'invoice_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Invoice'), 
         'type'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'invoice', 'name'=>'Output Type'),
         'subject'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Subject'),
-        'textmsg'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Text Message'),
+        'htmlmsg'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Text Message'),
         'email'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Email PDF'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -118,39 +118,39 @@ function ciniki_sapos_donationPDF(&$ciniki) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.263', 'msg'=>"The customer doesn't have an email address, we are unable to send the email."));
         }
 
-        if( isset($args['subject']) && isset($args['textmsg']) ) {
+        if( isset($args['subject']) && isset($args['htmlmsg']) ) {
             $subject = $args['subject'];
-            $textmsg = $args['textmsg'];
+            $htmlmsg = $args['htmlmsg'];
         } else {
             $subject = 'Invoice #' . $invoice['invoice_number'];
             if( isset($sapos_settings['invoice-email-message']) && $sapos_settings['invoice-email-message'] != '' ) {
-                $textmsg = $sapos_settings['invoice-email-message'];
+                $htmlmsg = $sapos_settings['invoice-email-message'];
             } else {
-                $textmsg = 'Please find your invoice attached.';
+                $htmlmsg = 'Please find your invoice attached.';
             }
             if( $invoice['invoice_type'] == '20' ) {
                 $subject = 'Order #' . $invoice['invoice_number'];
-                $textmsg = 'Your order receipt is attached.';
+                $htmlmsg = 'Your order receipt is attached.';
                 if( isset($sapos_settings['cart-email-message']) && $sapos_settings['cart-email-message'] != '' ) {
-                    $textmsg = $sapos_settings['cart-email-message'];
+                    $htmlmsg = $sapos_settings['cart-email-message'];
                 }
             } elseif( $invoice['invoice_type'] == '30' ) {
                 $subject = 'Receipt #' . $invoice['invoice_number'];
-                $textmsg = 'Your receipt is attached.';
+                $htmlmsg = 'Your receipt is attached.';
                 if( isset($sapos_settings['pos-email-message']) && $sapos_settings['pos-email-message'] != '' ) {
-                    $textmsg = $sapos_settings['pos-email-message'];
+                    $htmlmsg = $sapos_settings['pos-email-message'];
                 }
             } elseif( $invoice['invoice_type'] == '40' ) {
                 $subject = 'Order #' . $invoice['invoice_number'];
-                $textmsg = 'Thank you for your order. Your order details are attached.';
+                $htmlmsg = 'Thank you for your order. Your order details are attached.';
                 if( isset($sapos_settings['order-email-message']) && $sapos_settings['order-email-message'] != '' ) {
-                    $textmsg = $sapos_settings['order-email-message'];
+                    $htmlmsg = $sapos_settings['order-email-message'];
                 }
             } elseif( $invoice['invoice_type'] == '90' ) {
                 $subject = 'Quote #' . $invoice['invoice_number'];
-                $textmsg = 'Here is the quote you requested.';
+                $htmlmsg = 'Here is the quote you requested.';
                 if( isset($sapos_settings['quote-email-message']) && $sapos_settings['quote-email-message'] != '' ) {
-                    $textmsg = $sapos_settings['quote-email-message'];
+                    $htmlmsg = $sapos_settings['quote-email-message'];
                 }
             }
         }
@@ -179,8 +179,9 @@ function ciniki_sapos_donationPDF(&$ciniki) {
                     'customer_email'=>$e['email']['address'],
                     'customer_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
                     'subject'=>$subject,
-                    'html_content'=>$textmsg,
-                    'text_content'=>$textmsg,
+                    'tinymce'=>'yes',
+                    'html_content'=>$htmlmsg,
+//                    'text_content'=>$htmlmsg,
                     'attachments'=>array(array('content'=>$pdf->Output('receipt', 'S'), 'filename'=>$filename)),
                     ));
                 if( $rc['stat'] != 'ok' ) {
@@ -198,8 +199,9 @@ function ciniki_sapos_donationPDF(&$ciniki) {
                 'customer_email'=>$invoice['customer']['emails'][0]['email']['address'],
                 'customer_name'=>(isset($invoice['customer']['display_name'])?$invoice['customer']['display_name']:''),
                 'subject'=>$subject,
-                'html_content'=>$textmsg,
-                'text_content'=>$textmsg,
+                'tinymce'=>'yes',
+                'html_content'=>$htmlmsg,
+//                'text_content'=>$htmlmsg,
                 'attachments'=>array(array('content'=>$pdf->Output('receipt', 'S'), 'filename'=>$filename)),
                 ));
             if( $rc['stat'] != 'ok' ) {
