@@ -1466,6 +1466,7 @@ function ciniki_sapos_settings() {
     this.transactions.sections = {
         '_options':{'label':'Transaction Options', 'fields':{
             'transaction-gateway-delete':{'label':'Delete transactions processed via gateway', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
+            'transaction-etransfer-email':{'label':'Email after recording e-transfer', 'default':'no', 'type':'toggle', 'toggles':this.yesNoOptions},
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.transactions.save();'},

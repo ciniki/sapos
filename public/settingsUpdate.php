@@ -155,6 +155,7 @@ function ciniki_sapos_settingsUpdate(&$ciniki) {
         'donation-receipt-thankyou-message',
         'donation-receipt-signature-image',
         'transaction-gateway-delete',
+        'transaction-etransfer-email',
         'fiscal-year-start-month',
         'fiscal-year-start-day',
         );
