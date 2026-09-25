@@ -36,10 +36,10 @@ function ciniki_sapos_wng_etransferCheckout(&$ciniki, $tnid, &$request, $cart) {
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.sapos', 'invoice');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.411', 'msg'=>"I'm sorry, but we seem to have a problem.", 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.531', 'msg'=>"I'm sorry, but we seem to have a problem.", 'err'=>$rc['err']));
     }
     if( !isset($rc['invoice']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.412', 'msg'=>"I'm sorry, but we seem to have a problem.", 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.532', 'msg'=>"I'm sorry, but we seem to have a problem.", 'err'=>$rc['err']));
     }
     $invoice = $rc['invoice'];
 
@@ -53,7 +53,7 @@ function ciniki_sapos_wng_etransferCheckout(&$ciniki, $tnid, &$request, $cart) {
             return $rc;
         }
         if( !isset($rc['customer']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.413', 'msg'=>'Customer does not exist for this invoice'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.533', 'msg'=>'Customer does not exist for this invoice'));
         }
         $customer = $rc['customer'];
     }

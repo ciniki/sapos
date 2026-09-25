@@ -35,7 +35,7 @@ function ciniki_sapos__expenseStats($ciniki, $tnid) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDetailsQueryDash');
     $rc = ciniki_core_dbDetailsQueryDash($ciniki, 'ciniki_sapos_settings', 'tnid', $tnid, 'ciniki.sapos', 'settings', 'fiscal');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.421', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.534', 'msg'=>'Unable to load settings', 'err'=>$rc['err']));
     }
     $settings = isset($rc['settings']) ? $rc['settings'] : array();
     
