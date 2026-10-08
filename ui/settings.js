@@ -2029,7 +2029,7 @@ function ciniki_sapos_settings() {
     this.emailtemplates.data = {};
     this.emailtemplates.nplist = [];
     this.emailtemplates.sections = {
-        'templates':{'label':'Shipping Rate', 'type':'simplegrid', 'num_cols':1,
+        'templates':{'label':'Email Template', 'type':'simplegrid', 'num_cols':1,
             'noData':'No templates',
             'addTxt':'Add Template',
             'addFn':'M.ciniki_sapos_settings.emailtemplate.open(\'M.ciniki_sapos_settings.emailtemplates.open();\',0,null);'
