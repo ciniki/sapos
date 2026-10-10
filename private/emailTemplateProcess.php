@@ -68,6 +68,8 @@ function ciniki_sapos_emailTemplateProcess(&$ciniki, $tnid, $args) {
     $message = str_replace("{_invoicetotal_}", '$' . number_format($invoice['total_amount'], 2), $message);
     $subject = str_replace("{_invoicebalance_}", '$' . number_format($invoice['balance_amount'], 2), $subject);
     $message = str_replace("{_invoicebalance_}", '$' . number_format($invoice['balance_amount'], 2), $message);
+    $subject = str_replace("{_firstname_}", $invoice['customer']['first'], $subject);
+    $message = str_replace("{_firstname_}", $invoice['customer']['first'], $message);
 
     //
     // Get the list of objects from
