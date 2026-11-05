@@ -1028,9 +1028,12 @@ function ciniki_sapos_settings() {
     this.stripe = new M.panel('Stripe', 'ciniki_sapos_settings', 'stripe', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.stripe');
     this.stripe.sections = {
         'stripe':{'label':'Stripe Settings', 'fields':{
-            'stripe-pk':{'label':'Publishable key', 'type':'text'},
-            'stripe-sk':{'label':'Secret key', 'type':'text'},
-            'stripe-terminal':{'label':'Stripe Terminal', 'type':'toggle', 'default':'none', 'toggles':{'none':'None', 'wisepose':'WisePOS E'}},
+            'stripe-terminal':{'label':'Stripe Terminal', 'type':'toggle', 'default':'none', 'toggles':{'none':'None', 'wisepose':'WisePOS E'},
+                'onchange':'M.ciniki_sapos_settings.stripe.updateForm();',
+                },
+            // FiXME: Make visible only when stripe terminal enabled
+            'stripe-pk':{'label':'Publishable key', 'type':'text', 'visible':'no'},
+            'stripe-sk':{'label':'Secret key', 'type':'text', 'visible':'no'},
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.stripe.save();'},
@@ -1042,6 +1045,18 @@ function ciniki_sapos_settings() {
     this.stripe.fieldValue = function(s, i, d) {
         return this.data[i];
     }
+    this.stripe.updateForm = function() {
+        let v = this.formValue('stripe-terminal');
+        if( v != 'none' ) {
+            this.sections.stripe.fields['stripe-pk'].visible = 'yes';
+            this.sections.stripe.fields['stripe-sk'].visible = 'yes';
+        } else {
+            this.sections.stripe.fields['stripe-pk'].visible = 'no';
+            this.sections.stripe.fields['stripe-sk'].visible = 'no';
+        }
+        this.showHideFormField('stripe', 'stripe-pk');
+        this.showHideFormField('stripe', 'stripe-sk');
+    }
     this.stripe.open = function(cb) {
         M.api.getJSONCb('ciniki.sapos.settingsGet', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
@@ -1052,6 +1067,7 @@ function ciniki_sapos_settings() {
             p.data = rsp.settings;
             p.refresh();
             p.show(cb);
+            p.updateForm();
         });
     }
     this.stripe.save = function() {
