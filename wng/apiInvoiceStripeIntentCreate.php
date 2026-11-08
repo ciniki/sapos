@@ -12,7 +12,7 @@ function ciniki_sapos_wng_apiInvoiceStripeIntentCreate(&$ciniki, $tnid, &$reques
 
     if( isset($request['site']['settings']['stripe-pk']) && $request['site']['settings']['stripe-pk'] != '' 
         && isset($request['site']['settings']['stripe-sk']) && $request['site']['settings']['stripe-sk'] != '' 
-        && isset($request['site']['settings']['stripe-version']) && $request['site']['settings']['stripe-version'] == 'elements' 
+//        && isset($request['site']['settings']['stripe-version']) && $request['site']['settings']['stripe-version'] == 'elements' 
         ) {
 
         //
@@ -31,6 +31,14 @@ function ciniki_sapos_wng_apiInvoiceStripeIntentCreate(&$ciniki, $tnid, &$reques
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.sapos.438', 'msg'=>'Unable to load invoice', 'err'=>$rc['err']));
         }
         $invoice = $rc['invoice'];
+
+        //
+        // Check if surcharge
+        //
+        if( isset($invoice['stripe_surcharge']) && $invoice['stripe_surcharge'] == 'yes' 
+            && isset($invoice['stripe_surcharge_applied']) && $invoice['stripe_surcharge_applied'] != 'yes' ) {
+            $invoice['balance_amount'] = $invoice['stripe_surcharge_balance_amount'];
+        }
 
         $billing_name = isset($invoice['billing_name']) ? $invoice['billing_name'] : '';
         $receipt_email = '';

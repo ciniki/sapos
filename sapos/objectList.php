@@ -23,6 +23,9 @@ function ciniki_sapos_sapos_objectList($ciniki, $tnid) {
         'ciniki.sapos.cartdonation' => array(
             'name' => 'Cart Donation',
             ),
+        'ciniki.sapos.stripesurcharge' => array(
+            'name' => 'Stripe Surcharge',
+            ),
         );
 
     return array('stat'=>'ok', 'objects'=>$objects);

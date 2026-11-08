@@ -342,7 +342,7 @@ function ciniki_sapos_wng_accountInvoiceProcess(&$ciniki, $tnid, &$request, $arg
     if( $invoice['status'] == 40 
         && isset($request['site']['settings']['stripe-pk']) && $request['site']['settings']['stripe-pk'] != '' 
         && isset($request['site']['settings']['stripe-sk']) && $request['site']['settings']['stripe-sk'] != '' 
-        && isset($request['site']['settings']['stripe-version']) && $request['site']['settings']['stripe-version'] == 'elements' 
+//        && isset($request['site']['settings']['stripe-version']) && $request['site']['settings']['stripe-version'] == 'elements' 
         ) {
         //
         // Setup stripe payment and display stripe payment button
@@ -360,7 +360,7 @@ function ciniki_sapos_wng_accountInvoiceProcess(&$ciniki, $tnid, &$request, $arg
                 );
         } else {
             $buttons[] = array(
-                'text' => 'Pay Now',
+                'text' => isset($settings['paynow-button-text']) && $settings['paynow-button-text'] != '' ? $settings['paynow-button-text'] : 'Pay Now',
                 'js' => $rc['js'],
                 );
         }

@@ -315,6 +315,19 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
     $invoice['total_nopromo_quantity'] = 0;
     $invoice['total_required_quantity'] = 0;
     $invoice['total_shipped_quantity'] = 0;
+    $invoice['stripe_surcharge'] = 'no';
+    $invoice['stripe_surcharge_percent'] = 0;
+    $invoice['stripe_surcharge_applied'] = 'no';
+    $invoice['stripe_surcharge_amount'] = 0;
+    $invoice['stripe_surcharge_invoice_total'] = 0; // Invoice total including surcharge, is different from invoice total if surcharge not yet applied
+    $invoice['stripe_surcharge_balance_amount'] = 0; // Invoice total including surcharge, is different from invoice total if surcharge not yet applied
+    if( isset($settings['stripe-surcharge-percent']) && $settings['stripe-surcharge-percent'] != '' && is_numeric($settings['stripe-surcharge-percent']) ) {
+        $invoice['stripe_surcharge_percent'] = floatval($settings['stripe-surcharge-percent']);
+        $invoice['stripe_surcharge_percentage'] = floatval($settings['stripe-surcharge-percent'])/100;
+        if( $invoice['stripe_surcharge_percent'] > 0 ) {
+            $invoice['stripe_surcharge'] = 'yes';
+        }
+    }
     if( !isset($rc['items']) ) {
         $invoice['items'] = array();
     } else {
@@ -345,6 +358,11 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                     }
                     $objects[$item['item']['object']][] = $item['item']['object_id'];
                 }
+            }
+
+            if( $item['item']['object'] == 'ciniki.sapos.stripesurcharge' ) {
+                $invoice['stripe_surcharge_applied'] = 'yes';
+                $invoice['stripe_surcharge_amount'] = $item['item']['total_amount'];
             }
 
             //
@@ -435,6 +453,26 @@ function ciniki_sapos_invoiceLoad($ciniki, $tnid, $invoice_id) {
                 }
             }
         }
+    }
+
+    //
+    // Deal with stripe surcharges
+    //
+    if( $invoice['stripe_surcharge'] == 'yes' ) {
+        if( $invoice['stripe_surcharge_applied'] == 'yes' ) {
+            $new_surcharge_amount = number_format(($invoice['subtotal_amount']-$invoice['stripe_surcharge_amount']) * $invoice['stripe_surcharge_percentage'], 2) - $invoice['stripe_surcharge_amount'];
+            if( $new_surcharge_amount != $invoice['stripe_surcharge_amount'] ) {
+                $invoice['stripe_surcharge_amount'] = $new_surcharge_amount;
+                $invoice['stripe_surcharge_applied'] = 'partial';
+                $invoice['stripe_surcharge_invoice_total'] = $invoice['total_amount'] + $invoice['stripe_surcharge_amount'];
+            } else {
+                $invoice['stripe_surcharge_invoice_total'] = $invoice['total_amount'];
+            }
+        } else {
+            $invoice['stripe_surcharge_amount'] = number_format($invoice['subtotal_amount'] * $invoice['stripe_surcharge_percentage'], 2);
+            $invoice['stripe_surcharge_invoice_total'] = $invoice['total_amount'] + $invoice['stripe_surcharge_amount'];
+        }
+        $invoice['stripe_surcharge_balance_amount'] = $invoice['stripe_surcharge_invoice_total'] - $invoice['paid_amount'];
     }
 
     // 

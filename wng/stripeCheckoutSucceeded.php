@@ -60,6 +60,19 @@ function ciniki_sapos_wng_stripeCheckoutSucceeded(&$ciniki, $tnid, &$request, $a
                 }
                 $invoice = $rc['invoice'];
 
+                //
+                // Check if stripe surcharge needs to be applied
+                //
+                if( isset($invoice['stripe_surcharge']) && $invoice['stripe_surcharge'] == 'yes' 
+                    && isset($invoice['stripe_surcharge_applied']) && $invoice['stripe_surcharge_applied'] != 'yes'
+                    ) {
+                    ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'stripeInvoiceSurchargeApply');
+                    $rc = ciniki_sapos_stripeInvoiceSurchargeApply($ciniki, $tnid, $invoice);
+                    if( $rc['stat'] != 'ok' ) {
+                        return $rc;
+                    }
+                }
+
                 if( $invoice['invoice_type'] == 20 ) {
                     ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'wng', 'cartPaymentReceived');
                     $rc = ciniki_sapos_wng_cartPaymentReceived($ciniki, $tnid, $request, $invoice);

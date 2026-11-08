@@ -1025,7 +1025,7 @@ function ciniki_sapos_settings() {
     //
     // The Stripe settings panel
     //
-    this.stripe = new M.panel('Stripe', 'ciniki_sapos_settings', 'stripe', 'mc', 'medium', 'sectioned', 'ciniki.sapos.settings.stripe');
+    this.stripe = new M.panel('Stripe', 'ciniki_sapos_settings', 'stripe', 'mc', 'large', 'sectioned', 'ciniki.sapos.settings.stripe');
     this.stripe.sections = {
         'stripe':{'label':'Stripe Settings', 'fields':{
             'stripe-terminal':{'label':'Stripe Terminal', 'type':'toggle', 'default':'none', 'toggles':{'none':'None', 'wisepose':'WisePOS E'},
@@ -1034,6 +1034,9 @@ function ciniki_sapos_settings() {
             // FiXME: Make visible only when stripe terminal enabled
             'stripe-pk':{'label':'Publishable key', 'type':'text', 'visible':'no'},
             'stripe-sk':{'label':'Secret key', 'type':'text', 'visible':'no'},
+            'stripe-surcharge-percent':{'label':'Surcharge %', 'type':'text', 'type':'number', 'size':'small'},
+//            'stripe-surcharge-button-label':{'label':'Surcharge Button Label', 'type':'text'},
+            'stripe-surcharge-invoice-description':{'label':'Surcharge Invoice Item', 'type':'text'},
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_sapos_settings.stripe.save();'},

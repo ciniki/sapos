@@ -54,7 +54,7 @@ function ciniki_sapos_invoiceUpdateItem(&$ciniki, $tnid, $invoice_id, $item) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'sapos', 'private', 'itemCalcAmount');
         $rc = ciniki_sapos_itemCalcAmount($ciniki, array(
             'quantity'=>(isset($item['quantity'])?$item['quantity']:$existing_item['quantity']),
-            'unit_amount'=>(isset($item['unit_amount'])?$existing_item['unit_amount']:$existing_item['unit_amount']),
+            'unit_amount'=>(isset($item['unit_amount'])?$item['unit_amount']:$existing_item['unit_amount']),
             'unit_discount_amount'=>(isset($item['unit_discount_amount'])?$item['unit_discount_amount']:$existing_item['unit_discount_amount']),
             'unit_discount_percentage'=>(isset($item['unit_discount_percentage'])?$item['unit_discount_percentage']:$existing_item['unit_discount_percentage']),
             'unit_preorder_amount'=>(isset($item['unit_preorder_amount'])?$item['unit_preorder_amount']:$existing_item['unit_preorder_amount']),
